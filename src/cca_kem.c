@@ -82,7 +82,7 @@ int cca_kem_decap(unsigned char *k, const unsigned char *c, const unsigned char 
 	fail = (-fail) >> 31;
 	for(i = 0; i < SHAREDKEYBYTES; ++i)
 	{
-		k[i] = buf[i] & ~(-fail);
+		k[i] = buf[i] & ~(fail);
 	}
 
 	return fail;
