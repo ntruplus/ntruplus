@@ -1,5 +1,9 @@
 #include "indcpa.h"
 #include "poly.h"
+#include "rng.h"
+#include "crypto_stream.h"
+
+static const unsigned char n[16] = {0};
 
 /*************************************************
 * Name:        indcpa_keypair
@@ -26,23 +30,21 @@ void indcpa_keypair(uint8_t pk[NTRUPLUS_INDCPA_PUBLICKEYBYTES],
         poly_cbd1(&t1, buf);
         poly_triple(&t1, &t1);
         t1.coeffs[0] += 1;
-        poly_ntt(&t1, &t1);
+        poly_ntt(&t1);
 
         //g
         poly_cbd1(&t2, buf + NTRUPLUS_N/4);
         poly_triple(&t2, &t2);
-        poly_ntt(&t2, &t2);
-    } while(poly_baseinv(&t3, t1));
+        poly_ntt(&t2);
+    } while(poly_baseinv(&t3, &t1));
 
     poly_freeze(&t1);
-    poly_tobytes(sk, &t1);
+    poly_pack_uniform(sk, &t1);
 
     //h
     poly_basemul(&t3, &t3, &t2);
     poly_freeze(&t3);
-    poly_tobytes(pk, &t3);
-
-    return 0;
+    poly_pack_uniform(pk, &t3);
 }
 
 
@@ -66,26 +68,26 @@ void indcpa_keypair(uint8_t pk[NTRUPLUS_INDCPA_PUBLICKEYBYTES],
 void indcpa_enc(uint8_t c[NTRUPLUS_INDCPA_BYTES],
                 const uint8_t m[NTRUPLUS_INDCPA_MSGBYTES],
                 const uint8_t pk[NTRUPLUS_INDCPA_PUBLICKEYBYTES],
-                const uint8_t coins[NTRUPLUS_SYMBYTES]);
+                const uint8_t coins[NTRUPLUS_SYMBYTES])
 {
     poly t1, t2;
 
-    poly_frombytes(&t1, pk);
+    poly_unpack_uniform(&t1, pk);
 
     poly_cbd1(&t2, coins);
-    poly_ntt(&t2, &t2);
+    poly_ntt(&t2);
 
     poly_basemul(&t1, &t1, &t2);
     poly_reduce(&t1);
     
-    poly_cbd1_m1(&t2, coins + N/4);
+    poly_cbd1_m1(&t2, coins + NTRUPLUS_N/4);
     poly_sotp(&t2, m);
-    poly_ntt(&t2, &t2);
+    poly_ntt(&t2);
     
     poly_add(&t1, &t1, &t2);
 
     poly_freeze(&t1);
-    poly_tobytes(c, &t1);
+    poly_pack_uniform(c, &t1);
 }
 
 /*************************************************
@@ -107,12 +109,12 @@ void indcpa_dec(uint8_t m[NTRUPLUS_INDCPA_MSGBYTES],
 {
     poly t1, t2;
 
-    poly_frombytes(&t1, c);
-    poly_frombytes(&t2, sk);
+    poly_unpack_uniform(&t1, c);
+    poly_unpack_uniform(&t2, sk);
 
     poly_basemul(&t1, &t1, &t2);
     poly_reduce(&t1);
-    poly_invntt(&t1, &t1);
+    poly_invntt(&t1);
     poly_crepmod3(&t1, &t1);
 
     poly_sotp_inv(m, &t1);

@@ -23,29 +23,6 @@ static uint32_t load32_littleendian(const uint8_t x[4])
 }
 
 /*************************************************
-* Name:        load24_littleendian
-*
-* Description: load 3 bytes into a 32-bit integer
-*              in little-endian order
-*              This function is only needed for Kyber-512
-*
-* Arguments:   - const uint8_t *x: pointer to input byte array
-*
-* Returns 32-bit unsigned integer loaded from x (most significant byte is zero)
-**************************************************/
-#if KYBER_ETA1 == 3
-static uint32_t load24_littleendian(const uint8_t x[3])
-{
-  uint32_t r;
-  r  = (uint32_t)x[0];
-  r |= (uint32_t)x[1] << 8;
-  r |= (uint32_t)x[2] << 16;
-  return r;
-}
-#endif
-
-
-/*************************************************
 * Name:        cbd2
 *
 * Description: Given an array of uniformly random bytes, compute
@@ -55,13 +32,13 @@ static uint32_t load24_littleendian(const uint8_t x[3])
 * Arguments:   - poly *r:            pointer to output polynomial
 *              - const uint8_t *buf: pointer to input byte array
 **************************************************/
-static void cbd2(poly *r, const uint8_t buf[2*KYBER_N/4])
+void cbd1(poly *r, const uint8_t buf[NTRUPLUS_N])
 {
   unsigned int i,j;
   uint32_t t,d;
   int16_t a,b;
 
-  for(i=0;i<KYBER_N/8;i++) {
+  for(i=0;i<NTRUPLUS_N/8;i++) {
     t  = load32_littleendian(buf+4*i);
     d  = t & 0x55555555;
     d += (t>>1) & 0x55555555;

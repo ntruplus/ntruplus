@@ -1,9 +1,11 @@
-//
-//  PQCgenKAT_kem.c
-//
-//  Created by Bassham, Lawrence E (Fed) on 8/29/17.
-//  Copyright © 2017 Bassham, Lawrence E (Fed). All rights reserved.
-//
+/*
+NIST-developed software is provided by NIST as a public service. You may use, copy, and distribute copies of the software in any medium, provided that you keep intact this entire notice. You may improve, modify, and create derivative works of the software or any portion of the software, and you may copy and distribute such modifications or works. Modified works should carry a notice stating that you changed the software and should note the date and nature of any such change. Please explicitly acknowledge the National Institute of Standards and Technology as the source of the software.
+ 
+NIST-developed software is expressly provided "AS IS." NIST MAKES NO WARRANTY OF ANY KIND, EXPRESS, IMPLIED, IN FACT, OR ARISING BY OPERATION OF LAW, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTY OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND DATA ACCURACY. NIST NEITHER REPRESENTS NOR WARRANTS THAT THE OPERATION OF THE SOFTWARE WILL BE UNINTERRUPTED OR ERROR-FREE, OR THAT ANY DEFECTS WILL BE CORRECTED. NIST DOES NOT WARRANT OR MAKE ANY REPRESENTATIONS REGARDING THE USE OF THE SOFTWARE OR THE RESULTS THEREOF, INCLUDING BUT NOT LIMITED TO THE CORRECTNESS, ACCURACY, RELIABILITY, OR USEFULNESS OF THE SOFTWARE.
+ 
+You are solely responsible for determining the appropriateness of using and distributing the software and you assume all risks associated with its use, including but not limited to the risks and costs of program errors, compliance with applicable laws, damage to or loss of data, programs or equipment, and the unavailability or interruption of operation. This software is not intended to be used in any situation where a failure could cause risk of injury or damage to property. The software developed by NIST employees is not subject to copyright protection within the United States.
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -33,7 +35,7 @@ main()
     int                 done;
     unsigned char       pk[CRYPTO_PUBLICKEYBYTES], sk[CRYPTO_SECRETKEYBYTES];
     int                 ret_val;
-
+    
     // Create the REQUEST file
     sprintf(fn_req, "PQCkemKAT_%d.req", CRYPTO_SECRETKEYBYTES);
     if ( (fp_req = fopen(fn_req, "w")) == NULL ) {
@@ -45,7 +47,7 @@ main()
         printf("Couldn't open <%s> for write\n", fn_rsp);
         return KAT_FILE_OPEN_ERROR;
     }
-
+    
     for (int i=0; i<48; i++)
         entropy_input[i] = i;
 
@@ -60,13 +62,13 @@ main()
         fprintf(fp_req, "ss =\n\n");
     }
     fclose(fp_req);
-
+    
     //Create the RESPONSE file based on what's in the REQUEST file
     if ( (fp_req = fopen(fn_req, "r")) == NULL ) {
         printf("Couldn't open <%s> for read\n", fn_req);
         return KAT_FILE_OPEN_ERROR;
     }
-
+    
     fprintf(fp_rsp, "# %s\n\n", CRYPTO_ALGNAME);
     done = 0;
     do {
@@ -77,15 +79,15 @@ main()
             break;
         }
         fprintf(fp_rsp, "count = %d\n", count);
-
+        
         if ( !ReadHex(fp_req, seed, 48, "seed = ") ) {
             printf("ERROR: unable to read 'seed' from <%s>\n", fn_req);
             return KAT_DATA_ERROR;
         }
         fprintBstr(fp_rsp, "seed = ", seed, 48);
-
+        
         randombytes_init(seed, NULL, 256);
-
+        
         // Generate the public/private keypair
         if ( (ret_val = crypto_kem_keypair(pk, sk)) != 0) {
             printf("crypto_kem_keypair returned <%d>\n", ret_val);
@@ -93,28 +95,28 @@ main()
         }
         fprintBstr(fp_rsp, "pk = ", pk, CRYPTO_PUBLICKEYBYTES);
         fprintBstr(fp_rsp, "sk = ", sk, CRYPTO_SECRETKEYBYTES);
-
+        
         if ( (ret_val = crypto_kem_enc(ct, ss, pk)) != 0) {
             printf("crypto_kem_enc returned <%d>\n", ret_val);
             return KAT_CRYPTO_FAILURE;
         }
         fprintBstr(fp_rsp, "ct = ", ct, CRYPTO_CIPHERTEXTBYTES);
         fprintBstr(fp_rsp, "ss = ", ss, CRYPTO_BYTES);
-
+        
         fprintf(fp_rsp, "\n");
-
+        
         if ( (ret_val = crypto_kem_dec(ss1, ct, sk)) != 0) {
             printf("crypto_kem_dec returned <%d>\n", ret_val);
             return KAT_CRYPTO_FAILURE;
         }
-
+        
         if ( memcmp(ss, ss1, CRYPTO_BYTES) ) {
             printf("crypto_kem_dec returned bad 'ss' value\n");
             return KAT_CRYPTO_FAILURE;
         }
 
     } while ( !done );
-
+    
     fclose(fp_req);
     fclose(fp_rsp);
 
@@ -202,7 +204,7 @@ ReadHex(FILE *infile, unsigned char *A, int Length, char *str)
 				ich = ch - 'a' + 10;
             else // shouldn't ever get here
                 ich = 0;
-
+			
 			for ( i=0; i<Length-1; i++ )
 				A[i] = (A[i] << 4) | (A[i+1] >> 4);
 			A[Length-1] = (A[Length-1] << 4) | ich;
@@ -228,3 +230,4 @@ fprintBstr(FILE *fp, char *S, unsigned char *A, unsigned long long L)
 
 	fprintf(fp, "\n");
 }
+

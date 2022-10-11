@@ -25,8 +25,8 @@ int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
   size_t i;
 
   indcpa_keypair(pk,sk);
-  for(i = 0; i < PUBLICKEYBYTES; i++)
-    sk[i+NTRUPLUS_INDCPA_SECRETKEYBTES] = pk[i];  
+  for(i = 0; i < NTRUPLUS_INDCPA_PUBLICKEYBYTES; i++)
+    sk[i+NTRUPLUS_INDCPA_SECRETKEYBYTES] = pk[i];  
   return 0;
 }
 
@@ -51,12 +51,12 @@ int crypto_kem_enc(unsigned char *ct,
 {
   size_t i;
   uint8_t buf[352] ={0}; //key || coin
-  uint8_t msg[CRYPTO_BYTES] = {0};
+  uint8_t msg[NTRUPLUS_SYMBYTES] = {0};
 
   randombytes(msg, 32);
   hash_h(buf, msg);
   indcpa_enc(ct, msg, pk, buf+32);
-  for (i = 0; i < CRYPTO_BYTES; i++)
+  for (i = 0; i < NTRUPLUS_SSBYTES; i++)
     ss[i] = buf[i];
   return 0;
 }
@@ -83,7 +83,7 @@ int crypto_kem_dec(unsigned char *ss,
                    const unsigned char *sk)
 {
   size_t i;
-  uint8_t msg[CRYPTO_BYTES] = {0};
+  uint8_t msg[NTRUPLUS_SYMBYTES] = {0};
   uint8_t buf[352] ={0}; //key || coin
   uint8_t cmp[NTRUPLUS_CIPHERTEXTBYTES];
   int8_t fail;
@@ -92,11 +92,11 @@ int crypto_kem_dec(unsigned char *ss,
 
   hash_h(buf, msg);
 
-  indcpa_enc(cmp, msg, pk, buf+CRYPTO_BYTES);
+  indcpa_enc(cmp, msg, sk+NTRUPLUS_INDCPA_SECRETKEYBYTES, buf+NTRUPLUS_SSBYTES);
 
   fail = verify(ct, cmp, NTRUPLUS_CIPHERTEXTBYTES);
 
-  for(i = 0; i < CRYPTO_BYTES; i++)
+  for(i = 0; i < NTRUPLUS_SSBYTES; i++)
     ss[i] = buf[i] & ~fail;
   return fail;
 }

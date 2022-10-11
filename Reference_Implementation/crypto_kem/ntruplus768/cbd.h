@@ -5,6 +5,6 @@
 #include "params.h"
 #include "poly.h"
 
-void cbd1(poly *r, const uint8_t buf[KYBER_ETA1*KYBER_N/4]);
+void cbd1(poly *r, const uint8_t buf[NTRUPLUS_N]);
 
 #endif
