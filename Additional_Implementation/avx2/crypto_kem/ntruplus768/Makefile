@@ -7,10 +7,10 @@ LDFLAGS=-lcrypto
 #
 SOURCES= kem.c rng.c indcpa.c  symmetric.c aes256ctr.c verify.c asm/*.s consts.c poly.c
 HEADERS= api.h indcpa.h params.h poly.h reduce.h rng.h verify.h symmetric.h sotp.h crypto_stream.h
-PQCgenKAT_kem: $(HEADERS) $(SOURCES)
+PQCgenKAT_kem: $(HEADERS) $(SOURCES) PQCgenKAT_kem.c
 	$(CC) $(CFLAGS) -o $@ PQCgenKAT_kem.c $(SOURCES) $(LDFLAGS)
 
-main: $(HEADERS) $(SOURCES)
+main: $(HEADERS) $(SOURCES) main.c
 	$(CC) $(CFLAGS) -o $@ main.c $(SOURCES) $(LDFLAGS)
 #fastrandombytes.c kernelrandombytes.c 
 .PHONY: clean

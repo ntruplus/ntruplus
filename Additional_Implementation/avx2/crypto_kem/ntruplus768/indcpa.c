@@ -28,7 +28,6 @@ void indcpa_keypair(uint8_t pk[NTRUPLUS_INDCPA_PUBLICKEYBYTES],
 
         //f
         poly_cbd1(&t1, buf);
-        //poly_short(&t1, buf);
         poly_triple(&t1, &t1);
         t1.coeffs[0] += 1;
         poly_ntt(&t1);

@@ -104,14 +104,15 @@ void TEST_CCA_KEM_CLOCK()
 
 void test_poly_short()
 {
-	uint8_t buf[192];
+	uint8_t buf[192] = {0};
 
-	poly a;
+	poly a,b;
 
 	for (int i = 0; i < 192; i++)
 	{
 		buf[i] = i+1;
 	}
+
 
 	//randombytes(buf,192);
 
@@ -120,21 +121,29 @@ void test_poly_short()
 		printf("%d ", buf[i]);
 	}
 
-	printf("\n");
+	printf("\n\n");
 
-	poly_short(&a, buf);
+	poly_cbd1(&a, buf);
+	//poly_short(&a, buf);
 
 	for (int i = 0; i < NTRUPLUS_N; i++)
 	{
+		//if(i%16 == 0) printf("\n");		
 		printf("%d ", a.coeffs[i]);
 	}
-	printf("\n");
+	printf("\n\n");
 
-	poly_short2(&a, buf);
+	for(int i=0;i<768;i++)
+	{
+		b.coeffs[i] = 0;
+	}
+
+	poly_short3(&b, buf);
 
 	for (int i = 0; i < NTRUPLUS_N; i++)
 	{
-		printf("%d ", a.coeffs[i]);
+		//if(i%16 == 0) printf("\n");
+		printf("%d ", a.coeffs[i] - b.coeffs[i]);
 	}
 	printf("\n");
 }
@@ -145,10 +154,10 @@ int main(void)
 	printf("SECRETKEYBYTES : %d\n", CRYPTO_SECRETKEYBYTES);
 	printf("CIPHERTEXTBYTES : %d\n", CRYPTO_CIPHERTEXTBYTES);
 
-	//TEST_CCA_KEM();
-	//TEST_CCA_KEM_CLOCK();
+	TEST_CCA_KEM();
+	TEST_CCA_KEM_CLOCK();
 
-	test_poly_short();
+	//test_poly_short();
 
 	return 0;	
 }
