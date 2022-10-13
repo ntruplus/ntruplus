@@ -175,7 +175,7 @@ void test_poly_pack()
 		a.coeffs[i] = i;
 	}
 	
-	poly_pack_uniform(buf, &a);
+	poly_tobytes(buf, &a);
 
 	for (int i = 0; i < 1152; i++)
 	{
@@ -183,13 +183,87 @@ void test_poly_pack()
 	}
 	printf("\n\n");
 
-	poly_unpack_uniform(&b, buf);
+	poly_frombytes(&b, buf);
 
 	for (int i = 0; i < 768; i++)
 	{
 		printf("%d ", b.coeffs[i]);
 	}
 	printf("\n");
+}
+
+void ntt_pack(int16_t b[768], const int16_t a[768])
+{
+	int16_t buf[12];
+
+	for(int i = 0; i < 4; ++i)
+	{
+		for(int j = 0; j < 16; ++j) 
+		{
+			for(int k = 0; k < 12; k++)
+			{
+				buf[k] = a[192*i + 12*j + k];
+			}
+
+			for(int k = 0; k < 6; k++)
+			{
+				for(int l = 0; l < 2; l++)
+				{
+					b[192*i + 12*k + l] = buf[2*k];
+					b[192*i + 12*k + 2*j+1] = buf[2*k + 1];
+				}
+			}
+		}	
+	}
+}
+
+void ntt_unpack(int16_t b[768], const int16_t a[768])
+{
+	unsigned j, k, l;
+	int16_t buf[96];
+
+	for(j = 0; j < 768/96; ++j)
+	{
+		for(k = 0; k < 6; ++k)
+		{
+			for(l = 0; l < 16; ++l)
+			{
+				buf[6*l + k] = a[96*j + 16*k + l];
+			} 
+		}
+			
+		for(k = 0; k < 96; ++k)
+		{
+			b[96*j + k] = buf[k];
+		}
+	}
+}
+
+
+void test_nttpack()
+{
+	poly a,b;
+
+	for(int i=0; i<768;i++)
+	{
+		a.coeffs[i] = i+1;
+	}
+
+	for(int i = 0; i < 768; i++)
+	{
+		printf("%d ", a.coeffs[i]);
+	}
+	printf("\n");
+
+	ntt_pack(b.coeffs,a.coeffs);
+
+	for(int i = 0; i < 768; i++)
+	{
+		printf("%d ", b.coeffs[i]);
+	}
+	printf("\n");
+
+
 
 }
 int main(void)
@@ -203,7 +277,7 @@ int main(void)
 	//TEST_CCA_KEM_CLOCK();
 
 	//test_poly_short();
-	test_poly_pack();
-
+	//test_poly_pack();
+	test_nttpack();
 	return 0;	
 }

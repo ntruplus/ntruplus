@@ -116,3 +116,26 @@ void poly_short3(poly *a, const unsigned char buf[NTRUPLUS_N/2]) {
 }
 
 */
+
+//void poly_tobytes(uint8_t r[NTRUPLUS_POLYBYTES], poly *a)
+//{
+//  ntttobytes_avx(r, a->coeffs, qdata);
+//  ntttobytes_avx(r+576, a->coeffs + 384, qdata);
+//}
+
+
+/*************************************************
+* Name:        poly_frombytes
+*
+* Description: De-serialization of a polynomial;
+*              inverse of poly_tobytes
+*
+* Arguments:   - poly *r:          pointer to output polynomial
+*              - const uint8_t *a: pointer to input byte array
+*                                  (of KYBER_POLYBYTES bytes)
+**************************************************/
+//void poly_frombytes(poly *r, const uint8_t a[NTRUPLUS_POLYBYTES])
+//{
+//  nttfrombytes_avx(r->coeffs, a, qdata);
+//  nttfrombytes_avx(r->coeffs+384, a+576, qdata);
+//}

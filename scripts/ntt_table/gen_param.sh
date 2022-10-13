@@ -1,1 +1,1 @@
-gcc gen_param.c -o gen_param
+gcc gen_table_ref.c -o gen_param
