@@ -5,6 +5,7 @@
 
 #include "rng.h"
 #include "poly.h"
+#include "sotp.h"
 
 #define TEST_LOOP 1000000
 int64_t cpucycles(void)
@@ -104,48 +105,92 @@ void TEST_CCA_KEM_CLOCK()
 
 void test_poly_short()
 {
-	uint8_t buf[192] = {0};
+	uint8_t msg[32] = {0};
+	uint8_t buf[64] = {0};
 
 	poly a,b;
 
-	for (int i = 0; i < 192; i++)
+
+	for (int i = 0; i < 32; i++)
 	{
-		buf[i] = i+1;
+		msg[i] = 0x5;
 	}
 
-
-	//randombytes(buf,192);
-
-	for(int i = 0; i < 192; i++)
+	for (int i = 0; i < 64; i++)
 	{
-		printf("%d ", buf[i]);
+		buf[i] = 0xaa;
 	}
 
-	printf("\n\n");
+	sotp_internal(&a, msg, buf);
 
-	poly_cbd1(&a, buf);
-	//poly_short(&a, buf);
-
-	for (int i = 0; i < NTRUPLUS_N; i++)
+	for (int i = 512; i < 768; i++)
 	{
-		//if(i%16 == 0) printf("\n");		
 		printf("%d ", a.coeffs[i]);
 	}
 	printf("\n\n");
 
+
+	sotp_internal2(&b, msg, buf);
+
+	for (int i = 512; i < 768; i++)
+	{
+		printf("%d ", b.coeffs[i]);
+	}
+	printf("\n\n");
+
+
+	sotp_inv_internal2(msg, &a, buf);
+
+	for (int i = 0; i < 32; i++)
+	{
+		printf("%d ", msg[i]);
+	}
+	printf("\n\n");
+
+/*
 	for(int i=0;i<768;i++)
 	{
 		b.coeffs[i] = 0;
 	}
 
-	poly_short3(&b, buf);
+	poly_short5(&b, buf);
 
 	for (int i = 0; i < NTRUPLUS_N; i++)
 	{
 		//if(i%16 == 0) printf("\n");
-		printf("%d ", a.coeffs[i] - b.coeffs[i]);
+		printf("%d ", b.coeffs[i]);
 	}
 	printf("\n");
+*/
+}
+
+void test_poly_pack()
+{
+	poly a,b;
+
+	uint8_t buf[1152] = {0};
+
+	for (int i = 0; i < 768; i++)
+	{
+		a.coeffs[i] = i;
+	}
+	
+	poly_pack_uniform(buf, &a);
+
+	for (int i = 0; i < 1152; i++)
+	{
+		printf("%d ", buf[i]);
+	}
+	printf("\n\n");
+
+	poly_unpack_uniform(&b, buf);
+
+	for (int i = 0; i < 768; i++)
+	{
+		printf("%d ", b.coeffs[i]);
+	}
+	printf("\n");
+
 }
 int main(void)
 {
@@ -154,10 +199,11 @@ int main(void)
 	printf("SECRETKEYBYTES : %d\n", CRYPTO_SECRETKEYBYTES);
 	printf("CIPHERTEXTBYTES : %d\n", CRYPTO_CIPHERTEXTBYTES);
 
-	TEST_CCA_KEM();
-	TEST_CCA_KEM_CLOCK();
+	//TEST_CCA_KEM();
+	//TEST_CCA_KEM_CLOCK();
 
 	//test_poly_short();
+	test_poly_pack();
 
 	return 0;	
 }

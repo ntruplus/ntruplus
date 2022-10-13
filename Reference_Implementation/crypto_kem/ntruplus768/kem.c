@@ -53,9 +53,12 @@ int crypto_kem_enc(unsigned char *ct,
   uint8_t buf[352] ={0}; //key || coin
   uint8_t msg[NTRUPLUS_SYMBYTES] = {0};
 
+
   randombytes(msg, 32);
+
   hash_h(buf, msg);
-  indcpa_enc(ct, msg, pk, buf+32);
+
+  indcpa_enc(ct, msg, pk, buf+NTRUPLUS_SSBYTES);
   for (i = 0; i < NTRUPLUS_SSBYTES; i++)
     ss[i] = buf[i];
   return 0;

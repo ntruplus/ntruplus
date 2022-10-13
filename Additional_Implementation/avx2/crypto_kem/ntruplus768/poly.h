@@ -34,13 +34,19 @@ void poly_crepmod3(poly *b, const poly *a);
 void poly_reduce(poly *a);
 void poly_freeze(poly *a);
 
+/*
 void poly_short(poly *a, const unsigned char *buf);
 void poly_short2(poly *a, const unsigned char *buf);
 void poly_short3(poly *a, const unsigned char *buf);
+void poly_short5(poly *a, const unsigned char *buf);
+void poly_short5_m1(poly *a, const unsigned char *buf);
+*/
 void poly_cbd1(poly *a, const unsigned char *buf);
 void poly_cbd1_m1(poly *a, const unsigned char *buf);
 
 void poly_sotp(poly *e, const unsigned char *msg);
 void poly_sotp_inv(unsigned char *msg, poly *e);
+
+uint32_t load32_littleendian(const uint8_t x[4]);
 
 #endif

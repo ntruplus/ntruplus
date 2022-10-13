@@ -82,7 +82,7 @@ jb		_looptop2
 
 ret
 
-
+/*
 .global poly_short
 poly_short:
 
@@ -133,3 +133,84 @@ cmp		$768,%eax
 jb		_looptop
 
 ret
+
+
+
+.global poly_short5
+poly_short5:
+vmovdqa		_16x1(%rip),%ymm0
+
+xor         %r9,%r9
+
+_loop_poly_short_outer:
+vmovdqu  	(%rsi),%ymm2
+vmovdqu  	96(%rsi),%ymm3
+
+//g1 - g2
+vpand       %ymm0,%ymm2,%ymm4
+vpand       %ymm0,%ymm3,%ymm5
+vpsubw      %ymm5,%ymm4,%ymm6
+vmovdqa     %ymm6,(%rdi)
+
+xor         %r8,%r8
+.p2align 5
+_loop5:
+vpsrld		$1,%ymm2,%ymm2
+vpsrld		$1,%ymm3,%ymm3
+vpand       %ymm0,%ymm2,%ymm4
+vpand       %ymm0,%ymm3,%ymm5
+vpsubw      %ymm5,%ymm4,%ymm6
+vmovdqa     %ymm6,32(%rdi, %r8)
+
+add         $32,%r8
+cmp         $480,%r8
+jb          _loop5
+
+add         $512,%rdi
+add         $32,%rsi
+add         $512,%r9
+cmp         $1536,%r9
+jb          _loop_poly_short_outer
+
+ret
+
+
+
+.global poly_short5_m1
+poly_short5_m1:
+vmovdqa		_16x1(%rip),%ymm0
+
+xor         %r9,%r9
+
+_loop_poly_short_m1_outer:
+vmovdqu  	(%rsi),%ymm2
+vmovdqu  	48(%rsi),%ymm3
+
+//g1 - g2
+vpand       %ymm0,%ymm2,%ymm4
+vpand       %ymm0,%ymm3,%ymm5
+vpsubw      %ymm5,%ymm4,%ymm6
+vmovdqa     %ymm6,(%rdi)
+
+xor         %r8,%r8
+.p2align 5
+_loop_poly_short_m1_inner:
+vpsrld		$1,%ymm2,%ymm2
+vpsrld		$1,%ymm3,%ymm3
+vpand       %ymm0,%ymm2,%ymm4
+vpand       %ymm0,%ymm3,%ymm5
+vpsubw      %ymm5,%ymm4,%ymm6
+vmovdqa     %ymm6,32(%rdi, %r8)
+
+add         $32,%r8
+cmp         $480,%r8
+jb          _loop_poly_short_m1_inner
+
+add         $512,%rdi
+add         $32,%rsi
+add         $512,%r9
+cmp         $1024,%r9
+jb          _loop_poly_short_m1_outer
+
+ret
+*/

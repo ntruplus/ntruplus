@@ -2,8 +2,12 @@
 #include <string.h>
 #include <stdint.h>
 #include "api.h"
+#include "ntt.h"
+#include "poly.h"
+#include "reduce.h"
+#include "sotp.h"
 
-#define TEST_LOOP 1000000
+#define TEST_LOOP 100000
 int64_t cpucycles(void)
 {
 	unsigned int hi, lo;
@@ -28,6 +32,7 @@ void TEST_CCA_KEM()
 	//Generate public and secret key
 	crypto_kem_keypair(pk, sk);
 
+
 	//Encrypt and Decrypt message
 	for(int j = 0; j < TEST_LOOP; j++)
 	{
@@ -49,6 +54,7 @@ void TEST_CCA_KEM()
 	}
 	printf("count: %d\n", cnt);
 	printf("==================================================\n\n");
+
 }
 
 void TEST_CCA_KEM_CLOCK()
@@ -98,6 +104,165 @@ void TEST_CCA_KEM_CLOCK()
 
 	printf("==================================================\n");
 }
+void test_ntt_pack()
+{
+	uint16_t a[768] = {0};
+	uint16_t b[768] = {0};
+	uint16_t c[768] = {0};	
+
+	for (int i = 0; i < 768; i++)
+	{
+		a[i] = i+1;
+	}
+
+	for (int i = 0; i < 768; i++)
+	{
+		if(i%16 == 0) 	printf("\n");
+		printf("%d ", a[i]);
+	}
+	printf("\n");
+
+	ntt_pack(b,a);
+	
+	for (int i = 0; i < 768; i++)
+	{
+		if(i%16 == 0) 	printf("\n");		
+		printf("%d ", b[i]);
+	}
+	printf("\n");
+
+	ntt_unpack(c,b);
+	
+	for (int i = 0; i < 768; i++)
+	{
+		if(i%16 == 0) 	printf("\n");		
+		printf("%d ", c[i]);
+	}
+	printf("\n");
+
+}
+void test_poly_pack()
+{
+	poly a,b;
+
+	uint8_t buf[1152] = {0};
+
+	for (int i = 0; i < 768; i++)
+	{
+		a.coeffs[i] = i;
+	}
+	
+	poly_tobytes(buf, &a);
+
+	for (int i = 0; i < 1152; i++)
+	{
+		printf("%d ", buf[i]);
+	}
+	printf("\n\n");
+
+	poly_frombytes(&b, buf);
+
+	for (int i = 0; i < 768; i++)
+	{
+		printf("%d ", b.coeffs[i]);
+	}
+	printf("\n");
+
+}
+void test_ntt()
+{
+	int16_t a[768];
+	int16_t b[768];
+	int16_t c[768];
+
+
+	for (int i = 0; i < 768; i++)
+	{
+		a[i] = 1;
+	}
+
+	printf("before\n");
+	for (int i = 0; i < 768; i++)
+	{
+		printf("%d ", a[i]);
+	}
+	printf("\n");
+
+
+	ntt(a);	
+	for(int i = 0; i < NTRUPLUS_N; i++) a[i] = fqred16(a[i]);
+	
+	printf("after\n");
+	for (int i = 0; i < 768; i++)
+	{
+		printf("%d ", a[i]);
+	}
+	printf("\n");
+
+
+
+	invntt(a);
+	for(int i = 0; i < NTRUPLUS_N; i++) a[i] = fqred16(a[i]);
+	printf("return\n");
+	for (int i = 0; i < 768; i++)
+	{
+		printf("%d ", a[i]);
+	}
+	printf("\n");
+
+}
+
+void test_poly_short()
+{
+	uint8_t msg[32] = {0};
+	uint8_t buf[64] = {0};
+
+	poly a,b;
+
+
+	for (int i = 0; i < 32; i++)
+	{
+		msg[i] = 0x5;
+	}
+
+	for (int i = 0; i < 64; i++)
+	{
+		buf[i] = 0xaa;
+	}
+
+	sotp_internal(&a, msg, buf);
+
+	for (int i = 512; i < 768; i++)
+	{
+		printf("%d ", a.coeffs[i]);
+	}
+	printf("\n\n");
+
+
+	sotp_inv_internal(msg, &a, buf);
+
+	for (int i = 0; i < 32; i++)
+	{
+		printf("%d ", msg[i]);
+	}
+	printf("\n\n");
+
+/*
+	for(int i=0;i<768;i++)
+	{
+		b.coeffs[i] = 0;
+	}
+
+	poly_short5(&b, buf);
+
+	for (int i = 0; i < NTRUPLUS_N; i++)
+	{
+		//if(i%16 == 0) printf("\n");
+		printf("%d ", b.coeffs[i]);
+	}
+	printf("\n");
+*/
+}
 
 int main(void)
 {
@@ -109,5 +274,11 @@ int main(void)
 	TEST_CCA_KEM();
 	TEST_CCA_KEM_CLOCK();
 
+
+//	test_ntt_pack();
+	//test_poly_pack();
+	//test_ntt();
+	//test_poly_short();
+	
 	return 0;	
 }

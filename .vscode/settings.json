@@ -1,6 +1,11 @@
 {
     "files.associations": {
         "indcpa.h": "c",
-        "stdint.h": "c"
-    }
+        "stdint.h": "c",
+        "poly.h": "c",
+        "chrono": "c",
+        "algorithm": "c",
+        "random": "c"
+    },
+    "C_Cpp.errorSquiggles": "disabled"
 }

@@ -59,7 +59,7 @@ void poly_crepmod3(poly *b, const poly *a)
 *
 * Returns 32-bit unsigned integer loaded from x
 **************************************************/
-static uint32_t load32_littleendian(const uint8_t x[4])
+uint32_t load32_littleendian(const uint8_t x[4])
 {
   uint32_t r;
   r  = (uint32_t)x[0];
@@ -68,8 +68,7 @@ static uint32_t load32_littleendian(const uint8_t x[4])
   r |= (uint32_t)x[3] << 24;
   return r;
 }
-
-void poly_short2(poly *a, const unsigned char buf[NTRUPLUS_N/2]) {
+/*void poly_short2(poly *a, const unsigned char buf[NTRUPLUS_N/2]) {
   unsigned int i;
   unsigned char t;
   const uint16_t L = 0x9;
@@ -93,7 +92,6 @@ void poly_short2(poly *a, const unsigned char buf[NTRUPLUS_N/2]) {
 void poly_short3(poly *a, const unsigned char buf[NTRUPLUS_N/2]) {
   unsigned int i,j,k;
   uint32_t t;
-  const uint16_t L = 0x9;
 
   for(i = 0; i < NTRUPLUS_N/128; i++)
   {
@@ -116,3 +114,5 @@ void poly_short3(poly *a, const unsigned char buf[NTRUPLUS_N/2]) {
     }
   }
 }
+
+*/
