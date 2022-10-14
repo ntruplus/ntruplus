@@ -164,105 +164,73 @@ void test_poly_short()
 */
 }
 
-void test_poly_pack()
+void poly_cbd2(poly *a, const unsigned char buf[NTRUPLUS_N/4])
 {
-	poly a,b;
+	uint32_t t1;
+	uint32_t t2;
 
-	uint8_t buf[1152] = {0};
-
-	for (int i = 0; i < 768; i++)
+	for(int i = 0; i < 24; i++)
 	{
-		a.coeffs[i] = i;
+		t1 = load32_littleendian(buf + 4*i);
+		t2 = load32_littleendian(buf + 4*i + 96);
+
+		for(int k = 0; k < 16; k++)
+		{
+			a->coeffs[32*i + k] = (t1 & 0x1) - (t2 & 0x1);
+			
+			t1 = t1 >> 1;
+			t2 = t2 >> 1;
+		}
+
+		for(int k = 0; k < 16; k++)
+		{
+			a->coeffs[32*i + k + 16] = (t1 & 0x1) - (t2 & 0x1);
+			
+			t1 = t1 >> 1;
+			t2 = t2 >> 1;
+		}
+	}
+}
+
+void test_cbd()
+{
+	poly a,b,c,d;
+
+	uint8_t buf[192] = {0};
+
+	for (int i = 0; i < 192; i++)
+	{
+		buf[i] = 0;
 	}
 	
-	poly_tobytes(buf, &a);
+	buf[0] = 0xb0;
 
-	for (int i = 0; i < 1152; i++)
+	for (int i = 16; i < 32; i++)
 	{
-		printf("%d ", buf[i]);
-	}
-	printf("\n\n");
+		buf[i] = 0x0;
+	}	
 
-	poly_frombytes(&b, buf);
-
-	for (int i = 0; i < 768; i++)
+	for (int i = 96; i < 128; i++)
 	{
-		printf("%d ", b.coeffs[i]);
-	}
-	printf("\n");
-}
-
-void ntt_pack(int16_t b[768], const int16_t a[768])
-{
-	int16_t buf[12];
-
-	for(int i = 0; i < 4; ++i)
-	{
-		for(int j = 0; j < 16; ++j) 
-		{
-			for(int k = 0; k < 12; k++)
-			{
-				buf[k] = a[192*i + 12*j + k];
-			}
-
-			for(int k = 0; k < 6; k++)
-			{
-				for(int l = 0; l < 2; l++)
-				{
-					b[192*i + 12*k + l] = buf[2*k];
-					b[192*i + 12*k + 2*j+1] = buf[2*k + 1];
-				}
-			}
-		}	
-	}
-}
-
-void ntt_unpack(int16_t b[768], const int16_t a[768])
-{
-	unsigned j, k, l;
-	int16_t buf[96];
-
-	for(j = 0; j < 768/96; ++j)
-	{
-		for(k = 0; k < 6; ++k)
-		{
-			for(l = 0; l < 16; ++l)
-			{
-				buf[6*l + k] = a[96*j + 16*k + l];
-			} 
-		}
-			
-		for(k = 0; k < 96; ++k)
-		{
-			b[96*j + k] = buf[k];
-		}
-	}
-}
-
-
-void test_nttpack()
-{
-	poly a,b;
-
-	for(int i=0; i<768;i++)
-	{
-		a.coeffs[i] = i+1;
+		buf[i] = 0x0;
 	}
 
-	for(int i = 0; i < 768; i++)
+	poly_cbd1(&a,buf);
+	poly_cbd2(&b,buf);
+
+	for (int i = 0; i < NTRUPLUS_N; i++)
 	{
+		if(i%16 == 0) printf("\n");
 		printf("%d ", a.coeffs[i]);
 	}
 	printf("\n");
 
-	ntt_pack(b.coeffs,a.coeffs);
-
-	for(int i = 0; i < 768; i++)
+	for (int i = 0; i < NTRUPLUS_N; i++)
 	{
+		if(i%16 == 0) printf("\n");
 		printf("%d ", b.coeffs[i]);
 	}
 	printf("\n");
-
 
 
 }
@@ -278,6 +246,8 @@ int main(void)
 
 	//test_poly_short();
 	//test_poly_pack();
-	test_nttpack();
+	//test_nttpack();
+	test_cbd();
+	
 	return 0;	
 }

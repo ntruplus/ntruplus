@@ -39,11 +39,13 @@ void indcpa_keypair(uint8_t pk[NTRUPLUS_INDCPA_PUBLICKEYBYTES],
     } while(poly_baseinv(&t3, &t1));
 
     poly_freeze(&t1);
+    poly_ntt_pack(&t1, &t1);
     poly_tobytes(sk, &t1);
 
     //h
     poly_basemul(&t3, &t3, &t2);
     poly_freeze(&t3);
+    poly_ntt_pack(&t3, &t3);
     poly_tobytes(pk, &t3);
 }
 
@@ -73,7 +75,7 @@ void indcpa_enc(uint8_t c[NTRUPLUS_INDCPA_BYTES],
     poly t1, t2;
 
     poly_frombytes(&t1, pk);
-
+    poly_ntt_unpack(&t1, &t1);
     poly_cbd1(&t2, coins);
     poly_ntt(&t2);
 
@@ -87,6 +89,7 @@ void indcpa_enc(uint8_t c[NTRUPLUS_INDCPA_BYTES],
     poly_add(&t1, &t1, &t2);
 
     poly_freeze(&t1);
+    poly_ntt_pack(&t1, &t1);
     poly_tobytes(c, &t1);
 }
 
@@ -110,7 +113,9 @@ void indcpa_dec(uint8_t m[NTRUPLUS_INDCPA_MSGBYTES],
     poly t1, t2;
 
     poly_frombytes(&t1, c);
+    poly_ntt_unpack(&t1, &t1);
     poly_frombytes(&t2, sk);
+    poly_ntt_unpack(&t2, &t2);
 
     poly_basemul(&t1, &t1, &t2);
     poly_reduce(&t1);

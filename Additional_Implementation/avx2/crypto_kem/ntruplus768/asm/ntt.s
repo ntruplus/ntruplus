@@ -815,7 +815,6 @@ vpsubw		%ymm10,%ymm3,%ymm6   #A+Bc+Cc^2
 vpaddw		%ymm13,%ymm3,%ymm5   #A+Bb+Cb^2
 vpaddw		%ymm12,%ymm3,%ymm4   #A+Ba+Ca^2
 
-
 #store
 vmovdqa		%ymm4,96(%rdi)
 vmovdqa		%ymm5,128(%rdi)

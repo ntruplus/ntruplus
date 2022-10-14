@@ -274,37 +274,91 @@ void poly_cbd1(poly *a, const unsigned char *buf)
 }
 */
 
-//192 192
+
+/*************************************************
+* Name:        load32_littleendian
+*
+* Description: load 4 bytes into a 32-bit integer
+*              in little-endian order
+*
+* Arguments:   - const uint8_t *x: pointer to input byte array
+*
+* Returns 32-bit unsigned integer loaded from x
+**************************************************/
+/*
+uint32_t load32_littleendian(const uint8_t x[4])
+{
+  uint32_t r;
+  r  = (uint32_t)x[0];
+  r |= (uint32_t)x[1] << 8;
+  r |= (uint32_t)x[2] << 16;
+  r |= (uint32_t)x[3] << 24;
+  return r;
+}
+*/
+
+void poly_cbd1_m1(poly *a, const unsigned char *buf)
+{
+  unsigned int i,j,k;
+  uint32_t t;
+
+  for(i = 0; i < 4; i++)
+  {
+    for(j = 0; j < 8; j++)
+    {
+      t = load32_littleendian(buf + 32*i + 4*j);
+
+      for(k = 0; k < 8; k++)
+      {
+        a->coeffs[128*i + 16*k + 2*j] = ((t >> (2*k)) & 0x1) - ((t >> (2*k+1)) & 0x1);
+      }
+
+      t = t >> 16;
+ 
+      for(k = 0; k < 8; k++)
+      {
+        a->coeffs[128*i + 16*k + 2*j + 1] = ((t >> (2*k)) & 0x1) - ((t >> (2*k+1)) & 0x1);
+      }
+    }
+  }
+}
+
+
 void poly_cbd1(poly *a, const unsigned char *buf)
 {
-	uint8_t t1;
-	uint8_t t2;
+	uint32_t t1;
+	uint32_t t2;
 
-	for (int i = 0; i < 96; i++)
+	for (int i = 0; i < 24; i++)
 	{
-		t1 = buf[i];
-		t2 = buf[i + 96];
+		t1 = load32_littleendian(buf + 4*i);
+		t2 = load32_littleendian(buf + 4*i + 96);
 
-		for (int j = 0; j < 8; j++)
+		for (int j = 0; j < 32; j++)
 		{
-			a->coeffs[8*i+j] = ((t1 >> j) & 0x1) - ((t2 >> j) & 0x1);
+			a->coeffs[32*i+j] = ((t1 >> j) & 0x1) - ((t2 >> j) & 0x1);
+		}
+
+		for (int j = 0; j < 32; j++)
+		{
+			a->coeffs[32*i+j] = ((t1 >> j) & 0x1) - ((t2 >> j) & 0x1);
 		}
 	}
 }
 
 void poly_cbd1_m1(poly *a, const unsigned char *buf)
 {
-	uint8_t t1;
-	uint8_t t2;
+	uint32_t t1;
+	uint32_t t2;
 
-	for (int i = 0; i < 64; i++)
+	for (int i = 0; i < 16; i++)
 	{
-		t1 = buf[i];
-		t2 = buf[i + 64];
+		t1 = load32_littleendian(buf + 4*i);
+		t2 = load32_littleendian(buf + 4*i + 64);
 
-		for (int j = 0; j < 8; j++)
+		for (int j = 0; j < 32; j++)
 		{
-			a->coeffs[8*i+j] = ((t1 >> j) & 0x1) - ((t2 >> j) & 0x1);
+			a->coeffs[32*i+j] = ((t1 >> j) & 0x1) - ((t2 >> j) & 0x1);
 		}
 	}
 }
