@@ -174,17 +174,9 @@ void poly_cbd2(poly *a, const unsigned char buf[NTRUPLUS_N/4])
 		t1 = load32_littleendian(buf + 4*i);
 		t2 = load32_littleendian(buf + 4*i + 96);
 
-		for(int k = 0; k < 16; k++)
+		for(int k = 0; k < 32; k++)
 		{
 			a->coeffs[32*i + k] = (t1 & 0x1) - (t2 & 0x1);
-			
-			t1 = t1 >> 1;
-			t2 = t2 >> 1;
-		}
-
-		for(int k = 0; k < 16; k++)
-		{
-			a->coeffs[32*i + k + 16] = (t1 & 0x1) - (t2 & 0x1);
 			
 			t1 = t1 >> 1;
 			t2 = t2 >> 1;
@@ -202,7 +194,19 @@ void test_cbd()
 	{
 		buf[i] = 0;
 	}
-	
+
+	buf[0] = 0x31;
+
+//	buf[1] = 0xff;
+
+//	buf[2] = 0xff;
+/*
+	for (int i = 0; i < 16; i++)
+	{
+		buf[i] = 0xff;
+	}
+	*/
+	/*
 	buf[0] = 0xb0;
 
 	for (int i = 16; i < 32; i++)
@@ -214,6 +218,14 @@ void test_cbd()
 	{
 		buf[i] = 0x0;
 	}
+*/
+
+	for (int i = 0; i < 192; i++)
+	{
+		if(i%16 == 0) printf("\n");
+		printf("%d ", buf[i]);
+	}
+	printf("\n");
 
 	poly_cbd1(&a,buf);
 	poly_cbd2(&b,buf);

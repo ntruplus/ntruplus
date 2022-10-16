@@ -2,6 +2,77 @@
 poly_cbd1:
 
 vmovdqa		_16x1(%rip),%ymm0
+xor		%rax,%rax
+.p2align 5
+_looptop1:
+vmovdqu  	(%rsi),%ymm1
+vmovdqu  	96(%rsi),%ymm2
+
+vpand       %ymm0,%ymm1,%ymm3
+vpand       %ymm0,%ymm2,%ymm4
+vpsubw      %ymm4,%ymm3,%ymm5
+
+vmovdqa     %ymm5,(%rdi)
+
+xor         %r8,%r8
+
+_loop1:
+vpsrld		$1,%ymm1,%ymm1
+vpsrld		$1,%ymm2,%ymm2
+
+vpand       %ymm0,%ymm1,%ymm3
+vpand       %ymm0,%ymm2,%ymm4
+vpsubw      %ymm4,%ymm3,%ymm5
+
+vmovdqa     %ymm5,32(%rdi, %r8)
+
+add         $32,%r8
+cmp         $480,%r8
+jb          _loop1
+
+add		$32,%rsi
+add		$512,%rdi
+add		$512,%rax
+cmp		$1536,%rax
+jb		_looptop1
+
+ret
+
+
+/*
+vpsllq      $32,%ymm2,%ymm7
+vpsllq      $32,%ymm4,%ymm8
+vpsllq      $32,%ymm6,%ymm9
+vpsrlq      $32,%ymm1,%ymm10
+vpsrlq      $32,%ymm3,%ymm11
+vpsrlq      $32,%ymm5,%ymm12
+
+vpblendd	$0xAA,%ymm7,%ymm1,%ymm7
+vpblendd	$0xAA,%ymm8,%ymm3,%ymm8
+vpblendd	$0xAA,%ymm9,%ymm5,%ymm9
+vpblendd	$0xAA,%ymm2,%ymm10,%ymm10
+vpblendd	$0xAA,%ymm4,%ymm11,%ymm11
+vpblendd	$0xAA,%ymm6,%ymm12,%ymm12
+
+vpunpcklqdq	%ymm8,%ymm7,%ymm1
+vpunpcklqdq	%ymm10,%ymm9,%ymm2
+vpunpcklqdq	%ymm12,%ymm11,%ymm3
+vpunpckhqdq	%ymm8,%ymm7,%ymm4
+vpunpckhqdq	%ymm10,%ymm9,%ymm5
+vpunpckhqdq	%ymm12,%ymm11,%ymm6
+
+vperm2i128	$0x20,%ymm2,%ymm1,%ymm7
+vperm2i128	$0x20,%ymm4,%ymm3,%ymm8
+vperm2i128	$0x20,%ymm6,%ymm5,%ymm9
+vperm2i128	$0x31,%ymm2,%ymm1,%ymm10
+vperm2i128	$0x31,%ymm4,%ymm3,%ymm11
+vperm2i128	$0x31,%ymm6,%ymm5,%ymm12
+*/
+/*
+.global poly_cbd1
+poly_cbd1:
+
+vmovdqa		_16x1(%rip),%ymm0
 xor		%eax,%eax
 .p2align 5
 _looptop1:
@@ -39,7 +110,7 @@ cmp		$1536,%eax
 jb		_looptop1
 
 ret
-
+*/
 .global poly_cbd1_m1
 poly_cbd1_m1:
 vmovdqa		_16x1(%rip),%ymm0
