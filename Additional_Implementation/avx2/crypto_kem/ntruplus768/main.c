@@ -164,22 +164,52 @@ void test_poly_short()
 */
 }
 
-void poly_cbd2(poly *a, const unsigned char buf[NTRUPLUS_N/4])
+void poly_cbd2(poly *a, const unsigned char buf[192])
 {
-	uint32_t t1;
-	uint32_t t2;
+	uint32_t t1, t2;
 
-	for(int i = 0; i < 24; i++)
+	for(int i = 0; i < 3; i++)
 	{
-		t1 = load32_littleendian(buf + 4*i);
-		t2 = load32_littleendian(buf + 4*i + 96);
-
-		for(int k = 0; k < 32; k++)
+		for(int j = 0; j < 8; j++)
 		{
-			a->coeffs[32*i + k] = (t1 & 0x1) - (t2 & 0x1);
-			
-			t1 = t1 >> 1;
-			t2 = t2 >> 1;
+			t1 = load32_littleendian(buf + 32*i + 4*j);
+			t2 = load32_littleendian(buf + 32*i + 4*j + 96);
+
+			for (int k = 0; k < 2; k++)
+			{
+				for(int l = 0; l < 16; l++)
+				{
+					a->coeffs[256*i + 16*l + 2*j + k] = (t1 & 0x1) - (t2 & 0x1);
+
+					t1 = t1 >> 1;
+					t2 = t2 >> 1;
+				}
+			}
+		}
+	}
+}
+
+void poly_cbd1_m12(poly *a, const unsigned char buf[192])
+{
+	uint32_t t1, t2;
+
+	for(int i = 0; i < 3; i++)
+	{
+		for(int j = 0; j < 8; j++)
+		{
+			t1 = load32_littleendian(buf + 32*i + 4*j);
+			t2 = load32_littleendian(buf + 32*i + 4*j + 96);
+
+			for (int k = 0; k < 2; k++)
+			{
+				for(int l = 0; l < 16; l++)
+				{
+					a->coeffs[256*i + 16*l + 2*j + k] = (t1 & 0x1) - (t2 & 0x1);
+
+					t1 = t1 >> 1;
+					t2 = t2 >> 1;
+				}
+			}
 		}
 	}
 }
@@ -190,35 +220,22 @@ void test_cbd()
 
 	uint8_t buf[192] = {0};
 
+
+	for (int i = 0; i < NTRUPLUS_N; i++)
+	{
+		a.coeffs[i] = 0;
+		b.coeffs[i] = 0;
+	}
+	
 	for (int i = 0; i < 192; i++)
 	{
-		buf[i] = 0;
+		buf[i] = rand()%256;
 	}
 
-	buf[0] = 0x31;
-
-//	buf[1] = 0xff;
-
-//	buf[2] = 0xff;
-/*
-	for (int i = 0; i < 16; i++)
+	for (int i = 0; i < 1; i++)
 	{
 		buf[i] = 0xff;
 	}
-	*/
-	/*
-	buf[0] = 0xb0;
-
-	for (int i = 16; i < 32; i++)
-	{
-		buf[i] = 0x0;
-	}	
-
-	for (int i = 96; i < 128; i++)
-	{
-		buf[i] = 0x0;
-	}
-*/
 
 	for (int i = 0; i < 192; i++)
 	{
@@ -228,7 +245,6 @@ void test_cbd()
 	printf("\n");
 
 	poly_cbd1(&a,buf);
-	poly_cbd2(&b,buf);
 
 	for (int i = 0; i < NTRUPLUS_N; i++)
 	{
@@ -237,15 +253,19 @@ void test_cbd()
 	}
 	printf("\n");
 
+	poly_cbd2(&b,buf);
+
 	for (int i = 0; i < NTRUPLUS_N; i++)
 	{
 		if(i%16 == 0) printf("\n");
-		printf("%d ", b.coeffs[i]);
+		printf("%d ", a.coeffs[i] - b.coeffs[i]);
 	}
 	printf("\n");
 
 
 }
+
+
 int main(void)
 {
 	
@@ -260,6 +280,6 @@ int main(void)
 	//test_poly_pack();
 	//test_nttpack();
 	test_cbd();
-	
+	//test();
 	return 0;	
 }

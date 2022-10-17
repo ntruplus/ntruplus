@@ -28,7 +28,9 @@ const uint32_t _8x1[8] __attribute__((aligned(32))) = {1, 1, 1, 1, 1, 1, 1, 1};
 const uint16_t _16xv[16] __attribute__((aligned(32))) = {V, V, V, V, V, V, V, V, V, V, V, V, V, V, V, V};
 const uint16_t _16x1[16] __attribute__((aligned(32))) = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
 const uint16_t _16x3[16] __attribute__((aligned(32))) = {3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3};
-
+const uint16_t _16x33[16] __attribute__((aligned(32))) = {0x3333, 0x3333, 0x3333, 0x3333, 0x3333, 0x3333, 0x3333, 0x3333, 0x3333, 0x3333, 0x3333, 0x3333, 0x3333, 0x3333, 0x3333, 0x3333};
+const uint16_t _16x5[16] __attribute__((aligned(32))) = {5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5};
+const uint16_t _16x55[16] __attribute__((aligned(32))) = {0x5555, 0x5555, 0x5555, 0x5555, 0x5555, 0x5555, 0x5555, 0x5555, 0x5555, 0x5555, 0x5555, 0x5555, 0x5555, 0x5555, 0x5555, 0x5555};
 const uint16_t _16xq[16]  __attribute__((aligned(32))) = {NTRUPLUS_Q, NTRUPLUS_Q, NTRUPLUS_Q, NTRUPLUS_Q, NTRUPLUS_Q, NTRUPLUS_Q, NTRUPLUS_Q, NTRUPLUS_Q, NTRUPLUS_Q, NTRUPLUS_Q, NTRUPLUS_Q, NTRUPLUS_Q, NTRUPLUS_Q, NTRUPLUS_Q, NTRUPLUS_Q, NTRUPLUS_Q};
 const uint16_t _16xqinv[16] __attribute__((aligned(32))) = {QINV, QINV, QINV, QINV, QINV, QINV, QINV, QINV, QINV, QINV, QINV, QINV, QINV, QINV, QINV, QINV};
 
