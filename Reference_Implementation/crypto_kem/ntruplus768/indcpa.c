@@ -32,14 +32,15 @@ void indcpa_keypair(uint8_t pk[NTRUPLUS_INDCPA_PUBLICKEYBYTES],
         t1.coeffs[0] += 1;
         poly_ntt(&t1);
 
-        //g
-        poly_cbd1(&t2, buf + NTRUPLUS_N/4);
-        poly_triple(&t2, &t2);
-        poly_ntt(&t2);
     } while(poly_baseinv(&t3, &t1));
 
     poly_freeze(&t1);
     poly_tobytes(sk, &t1);
+
+    //g
+    poly_cbd1(&t2, buf + NTRUPLUS_N/4);
+    poly_triple(&t2, &t2);
+    poly_ntt(&t2);
 
     //h
     poly_basemul(&t3, &t3, &t2);
@@ -81,7 +82,16 @@ void indcpa_enc(uint8_t c[NTRUPLUS_INDCPA_BYTES],
     poly_reduce(&t1);
     
     poly_cbd1_m1(&t2, coins + NTRUPLUS_N/4);
+
+    for (int i = 0; i < 512; i++)
+    {
+        if(i%16 == 0) printf("\n");
+        printf("%4d ", t2.coeffs[i]);
+    }
+
+
     poly_sotp(&t2, m);
+
     poly_ntt(&t2);
     
     poly_add(&t1, &t1, &t2);

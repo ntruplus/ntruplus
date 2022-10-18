@@ -54,7 +54,7 @@ int crypto_kem_enc(unsigned char *ct,
 
   randombytes(msg, 32);
   hash_h(buf, msg);
-  indcpa_enc(ct, msg, pk, buf+32);
+  indcpa_enc(ct, msg, pk, buf+NTRUPLUS_SSBYTES);
   for (i = 0; i < NTRUPLUS_SSBYTES; i++)
     ss[i] = buf[i];
   return 0;

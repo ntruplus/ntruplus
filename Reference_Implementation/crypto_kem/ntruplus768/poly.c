@@ -56,6 +56,7 @@ ret
 *                            (needs space for NTRUPLUS_POLYBYTES bytes)
 *              - poly *a:    pointer to input polynomial
 **************************************************/
+/*
 void poly_tobytes(uint8_t r[NTRUPLUS_POLYBYTES], const poly *a)
 {
 	unsigned int i;
@@ -70,6 +71,48 @@ void poly_tobytes(uint8_t r[NTRUPLUS_POLYBYTES], const poly *a)
 		r[3*i+2] = (t1 >> 4);
 	}
 }
+*/
+void poly_tobytes(uint8_t r[NTRUPLUS_POLYBYTES], const poly *a)
+{
+	int16_t t[16];
+
+	for (int i = 0; i < 3; i++)
+	{
+		for (int j = 0; j < 16; j++)
+		{
+			for (int k = 0; k < 16; k++)
+			{
+				t[k] = a->coeffs[256*i + 16*k + j];
+			}
+
+			r[384*i + 2*j + 0] = (t[0] >> 0);
+			r[384*i + 2*j + 1] = (t[0] >> 8) + (t[1] << 4);			
+			r[384*i + 2*j + 32] = (t[1] >> 4);
+			r[384*i + 2*j + 33] = (t[2] >> 0);
+			r[384*i + 2*j + 64] = (t[2] >> 8) + (t[3] << 4); 
+			r[384*i + 2*j + 65] = (t[3] >> 4); 	
+			r[384*i + 2*j + 96] = (t[4] >> 0);
+			r[384*i + 2*j + 97] = (t[4] >> 8) + (t[5] << 4); 
+			r[384*i + 2*j + 128] = (t[5] >> 4); 
+			r[384*i + 2*j + 129] = (t[6] >> 0);
+			r[384*i + 2*j + 160] = (t[6] >> 8) + (t[7] << 4); 
+			r[384*i + 2*j + 161] = (t[7] >> 4); 
+			r[384*i + 2*j + 192] = (t[8] >> 0);
+			r[384*i + 2*j + 193] = (t[8] >> 8) + (t[9] << 4); 
+			r[384*i + 2*j + 224] = (t[9] >> 4); 
+			r[384*i + 2*j + 225] = (t[10] >> 0);
+			r[384*i + 2*j + 256] = (t[10] >> 8) + (t[11] << 4); 
+			r[384*i + 2*j + 257] = (t[11] >> 4); 
+			r[384*i + 2*j + 288] = (t[12] >> 0);
+			r[384*i + 2*j + 289] = (t[12] >> 8) + (t[13] << 4); 
+			r[384*i + 2*j + 320] = (t[13] >> 4); 
+			r[384*i + 2*j + 321] = (t[14] >> 0);
+			r[384*i + 2*j + 352] = (t[14] >> 8) + (t[15] << 4); 
+			r[384*i + 2*j + 353] = (t[15] >> 4); 
+		}	
+	}
+}
+
 
 /*************************************************
 * Name:        poly_frombytes
@@ -81,6 +124,74 @@ void poly_tobytes(uint8_t r[NTRUPLUS_POLYBYTES], const poly *a)
 *              - const uint8_t *a: pointer to input byte array
 *                                  (of NTRUPLUS_POLYBYTES bytes)
 **************************************************/
+
+void poly_frombytes(poly *r, const uint8_t a[NTRUPLUS_POLYBYTES])
+{
+	unsigned char t[24];
+
+	for(int i = 0; i < 3; ++i)
+	{
+		for(int j = 0; j < 16; ++j)
+		{
+			for(int k = 0; k < 12; ++k)
+			{
+				t[2*k] = a[384*i + 2*j + 32*k];
+				t[2*k+1] = a[384*i + 2*j + 32*k + 1];
+			}
+
+			r->coeffs[256*i + j +   0]  = t[0];
+			r->coeffs[256*i + j +   0] += ((int16_t)t[1] & 0xf) << 8;
+
+			r->coeffs[256*i + j +  16]  = t[1] >> 4;
+			r->coeffs[256*i + j +  16] += (int16_t)t[2] << 4;
+
+			r->coeffs[256*i + j +  32]  = t[3];
+			r->coeffs[256*i + j +  32] += ((int16_t)t[4] & 0xf) << 8;
+
+			r->coeffs[256*i + j +  48]  = t[4] >> 4;
+			r->coeffs[256*i + j +  48] += (int16_t)t[5] << 4;
+
+			r->coeffs[256*i + j +  64]  = t[6];
+			r->coeffs[256*i + j +  64] += ((int16_t)t[7] & 0xf) << 8;
+
+			r->coeffs[256*i + j +  80]  = t[7] >> 4;
+			r->coeffs[256*i + j +  80] += (int16_t)t[8] << 4;
+
+			r->coeffs[256*i + j +  96]  = t[9];
+			r->coeffs[256*i + j +  96] += ((int16_t)t[10] & 0xf) << 8;
+
+			r->coeffs[256*i + j +  112]  = t[10] >> 4;
+			r->coeffs[256*i + j +  112] += (int16_t)t[11] << 4;
+
+			r->coeffs[256*i + j + 128]  = t[12];
+			r->coeffs[256*i + j + 128] += ((int16_t)t[13] & 0xf) << 8;
+
+			r->coeffs[256*i + j +  144]  = t[13] >> 4;
+			r->coeffs[256*i + j +  144] += (int16_t)t[14] << 4;
+
+			r->coeffs[256*i + j + 160]  = t[15];
+			r->coeffs[256*i + j + 160] += ((int16_t)t[16] & 0xf) << 8;
+
+			r->coeffs[256*i + j + 176]  = t[16] >> 4;
+			r->coeffs[256*i + j + 176] += (int16_t)t[17] << 4;
+
+			r->coeffs[256*i + j + 192]  = t[18];
+			r->coeffs[256*i + j + 192] += ((int16_t)t[19] & 0xf) << 8;
+
+			r->coeffs[256*i + j + 208]  = t[19] >> 4;
+			r->coeffs[256*i + j + 208] += (int16_t)t[20] << 4;
+
+			r->coeffs[256*i + j + 224]  = t[21];
+			r->coeffs[256*i + j + 224] += ((int16_t)t[22] & 0xf) << 8;
+
+			r->coeffs[256*i + j + 240]  = t[22] >> 4;
+			r->coeffs[256*i + j + 240] += (int16_t)t[23] << 4;
+		}
+	}
+}
+
+
+/*
 void poly_frombytes(poly *r, const uint8_t a[NTRUPLUS_POLYBYTES])
 {
 	unsigned int i;
@@ -90,6 +201,7 @@ void poly_frombytes(poly *r, const uint8_t a[NTRUPLUS_POLYBYTES])
 		r->coeffs[2*i+1] = ((a[3*i+1] >> 4) | ((uint16_t)a[3*i+2] << 4)) & 0xFFF;
 	}
 }
+*/
 /*
 void poly_pack_uniform(unsigned char *buf, const poly *a)
 {
@@ -116,12 +228,37 @@ void poly_unpack_uniform(poly *a, const unsigned char *buf)
 */
 void poly_pack_short_partial(unsigned char *buf, const poly *a)
 {
-	for (int i = 0; i < 128; i++)
+	int16_t t[16];
+
+	for(int i = 0; i < 2; i++)
 	{
-		buf[i]  = (a->coeffs[4*i    ] + 1) << 6;
-		buf[i] |= (a->coeffs[4*i + 1] + 1) << 4;
-		buf[i] |= (a->coeffs[4*i + 2] + 1) << 2;
-		buf[i] |= (a->coeffs[4*i + 3] + 1);
+		for (int j = 0; j < 2; j++)
+		{
+			for (int k = 0; k < 16; k++)
+			{
+				t[k] = a->coeffs[256*i + 16*k + j] + 1;
+			}
+
+			buf[64*i + 2*j + 0] =  t[3] << 6;
+			buf[64*i + 2*j + 0] |= t[2] << 4;
+			buf[64*i + 2*j + 0] |= t[1] << 2;
+			buf[64*i + 2*j + 0] |= t[0] << 0;
+
+			buf[64*i + 2*j + 1] =  t[7] << 6;
+			buf[64*i + 2*j + 1] |= t[6] << 4;
+			buf[64*i + 2*j + 1] |= t[5]  << 2;
+			buf[64*i + 2*j + 1] |= t[4]  << 0;
+
+			buf[64*i + 2*j + 16] =  t[11] << 6;
+			buf[64*i + 2*j + 16] |= t[10] << 4;
+			buf[64*i + 2*j + 16] |= t[9] << 2;
+			buf[64*i + 2*j + 16] |= t[8] << 0;
+
+			buf[64*i + 2*j + 17] =  t[15] << 6;
+			buf[64*i + 2*j + 17] |= t[14] << 4;
+			buf[64*i + 2*j + 17] |= t[13] << 2;
+			buf[64*i + 2*j + 17] |= t[12] << 0;
+		}
 	}
 }
 
@@ -298,12 +435,12 @@ void poly_cbd1_m1(poly *a, const unsigned char buf[192])
 {
 	uint32_t t1, t2;
 
-	for(int i = 0; i < 3; i++)
+	for(int i = 0; i < 2; i++)
 	{
 		for(int j = 0; j < 8; j++)
 		{
 			t1 = load32_littleendian(buf + 32*i + 4*j);
-			t2 = load32_littleendian(buf + 32*i + 4*j + 96);
+			t2 = load32_littleendian(buf + 32*i + 4*j + 64);
 
 			for (int k = 0; k < 2; k++)
 			{
@@ -325,6 +462,16 @@ void poly_sotp(poly *e, const unsigned char *msg)
   unsigned char buf[128] = {0};
 
   poly_pack_short_partial(buf, e);
+
+  printf("poly_pack_short_partial\n");
+
+	for (int i = 0; i < 128; i++)
+	{
+		if(i%16==0)printf("\n");
+		printf("%02X", buf[i]);
+	}
+	printf("\n");
+
   sha512(buf, buf, 128);
   sotp_internal(e, msg, buf);
 }

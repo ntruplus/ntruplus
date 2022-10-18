@@ -10,6 +10,16 @@ void poly_sotp(poly *e, const unsigned char *msg)
   unsigned char buf[128] = {0};
 
   poly_pack_short_partial(buf, e);
+
+  printf("poly_pack_short_partial\n");
+	for (int i = 0; i < 128; i++)
+	{
+		if(i%16==0)printf("\n");
+		printf("%02X", buf[i]);
+	}
+	printf("\n");
+
+
   SHA512(buf, 128, buf);
   sotp_internal(e, msg, buf);
 }

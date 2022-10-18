@@ -6,8 +6,9 @@
 #include "poly.h"
 #include "reduce.h"
 #include "sotp.h"
+#include "rng.h"
 
-#define TEST_LOOP 100000
+#define TEST_LOOP 1
 int64_t cpucycles(void)
 {
 	unsigned int hi, lo;
@@ -31,7 +32,6 @@ void TEST_CCA_KEM()
 
 	//Generate public and secret key
 	crypto_kem_keypair(pk, sk);
-
 
 	//Encrypt and Decrypt message
 	for(int j = 0; j < TEST_LOOP; j++)
@@ -171,47 +171,46 @@ void test_poly_pack()
 }
 void test_ntt()
 {
-	int16_t a[768];
-	int16_t b[768];
-	int16_t c[768];
+	poly a,b,c;
 
 
 	for (int i = 0; i < 768; i++)
 	{
-		a[i] = 1;
+		a.coeffs[i] = i;
 	}
 
 	printf("before\n");
 	for (int i = 0; i < 768; i++)
 	{
-		printf("%d ", a[i]);
+		printf("%d ", a.coeffs[i]);
 	}
 	printf("\n");
 
 
-	ntt(a);	
-	for(int i = 0; i < NTRUPLUS_N; i++) a[i] = fqred16(a[i]);
+	poly_ntt(&a);
+	poly_freeze(&a);	
+
 	
 	printf("after\n");
 	for (int i = 0; i < 768; i++)
 	{
-		printf("%d ", a[i]);
+		
+		if(i%16==0) printf("\n");
+		printf("%4d ", a.coeffs[i]);
 	}
 	printf("\n");
 
-
-
-	invntt(a);
-	for(int i = 0; i < NTRUPLUS_N; i++) a[i] = fqred16(a[i]);
-	printf("return\n");
+	poly_invntt(&a);
+	poly_freeze(&a);
+	printf("return\n");	
 	for (int i = 0; i < 768; i++)
 	{
-		printf("%d ", a[i]);
+		if(i%16==0) printf("\n");
+		printf("%4d ", a.coeffs[i]);
 	}
 	printf("\n");
 
 }
-
 void test_poly_short()
 {
 	uint8_t msg[32] = {0};
@@ -264,21 +263,66 @@ void test_poly_short()
 */
 }
 
+
+void test_poly_tobytes()
+{
+	uint8_t buf[NTRUPLUS_POLYBYTES] = {0};
+	poly a,b;
+
+	for (int i = 0; i < 768; i++)
+	{
+		a.coeffs[i] = i;
+		b.coeffs[i] = 0;
+	}
+
+	for (int i = 0; i < 768; i++)
+	{
+		if(i%16==0) printf("\n");
+		printf("%4d ", a.coeffs[i]);
+	}
+	printf("\n");
+
+	poly_tobytes(buf, &a);
+	poly_frombytes(&b, buf);
+
+	for (int i = 0; i < NTRUPLUS_POLYBYTES; i++)
+	{
+		if(i%32 == 0) printf("\n");
+		printf("%02X", buf[i]);
+	}
+	printf("\n");
+	for (int i = 0; i < 768; i++)
+	{
+		if(i%16==0) printf("\n");
+		printf("%4d ", b.coeffs[i]);
+	}
+	printf("\n");
+
+}
+
 int main(void)
 {
-	
+
+	unsigned char entropy_input[48] = {0};
+	unsigned char personalization_string[48] = {0};
+
 	printf("PUBLICKEYBYTES : %d\n", CRYPTO_PUBLICKEYBYTES);
 	printf("SECRETKEYBYTES : %d\n", CRYPTO_SECRETKEYBYTES);
 	printf("CIPHERTEXTBYTES : %d\n", CRYPTO_CIPHERTEXTBYTES);
 
+	randombytes_init(entropy_input, personalization_string, 128);
+
 	TEST_CCA_KEM();
-	TEST_CCA_KEM_CLOCK();
+	//TEST_CCA_KEM_CLOCK();
+
+
 
 
 //	test_ntt_pack();
 	//test_poly_pack();
 	//test_ntt();
 	//test_poly_short();
+	//test_poly_tobytes();
 	
 	return 0;	
 }
