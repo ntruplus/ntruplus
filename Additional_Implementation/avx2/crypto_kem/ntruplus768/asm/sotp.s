@@ -1,23 +1,21 @@
 .global sotp_internal
 sotp_internal:
 vmovdqa		_16x1(%rip),%ymm0
-
 vmovdqu     (%rsi),%ymm1
 vmovdqu     (%rdx),%ymm2
 vmovdqu     32(%rdx),%ymm3
 
-//msg xor g1
+#msg xor g1
 vpxor       %ymm2,%ymm1,%ymm2
 
-//(msg xor g1) - g2
+#(msg xor g1) - g2
 vpand       %ymm0,%ymm2,%ymm4
 vpand       %ymm0,%ymm3,%ymm5
 vpsubw      %ymm5,%ymm4,%ymm6
 vmovdqa     %ymm6,1024(%rdi)
 
 xor         %r8,%r8
-.p2align 5
-_loop3:
+_loop_sotp_internal:
 vpsrld		$1,%ymm2,%ymm2
 vpsrld		$1,%ymm3,%ymm3
 vpand       %ymm0,%ymm2,%ymm4
@@ -27,9 +25,10 @@ vmovdqa     %ymm6,1056(%rdi, %r8)
 
 add         $32,%r8
 cmp         $480,%r8
-jb          _loop3
+jb          _loop_sotp_internal
 
 ret
+
 
 .global sotp_inv_internal
 sotp_inv_internal:

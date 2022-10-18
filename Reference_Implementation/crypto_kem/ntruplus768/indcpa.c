@@ -83,13 +83,6 @@ void indcpa_enc(uint8_t c[NTRUPLUS_INDCPA_BYTES],
     
     poly_cbd1_m1(&t2, coins + NTRUPLUS_N/4);
 
-    for (int i = 0; i < 512; i++)
-    {
-        if(i%16 == 0) printf("\n");
-        printf("%4d ", t2.coeffs[i]);
-    }
-
-
     poly_sotp(&t2, m);
 
     poly_ntt(&t2);

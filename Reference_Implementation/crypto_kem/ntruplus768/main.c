@@ -2,10 +2,6 @@
 #include <string.h>
 #include <stdint.h>
 #include "api.h"
-#include "ntt.h"
-#include "poly.h"
-#include "reduce.h"
-#include "sotp.h"
 #include "rng.h"
 
 #define TEST_LOOP 1
@@ -38,6 +34,12 @@ void TEST_CCA_KEM()
 	{
 		crypto_kem_enc(ct, ss, pk);
 		crypto_kem_dec(dss, ct, sk);
+
+		for(int i=0; i < CRYPTO_CIPHERTEXTBYTES; i++)
+		{
+			printf("%02X", ct[i]);
+		}
+		printf("\n");
 
 		if(memcmp(ss, dss, 32) != 0)
 		{
@@ -104,201 +106,6 @@ void TEST_CCA_KEM_CLOCK()
 
 	printf("==================================================\n");
 }
-void test_ntt_pack()
-{
-	uint16_t a[768] = {0};
-	uint16_t b[768] = {0};
-	uint16_t c[768] = {0};	
-
-	for (int i = 0; i < 768; i++)
-	{
-		a[i] = i+1;
-	}
-
-	for (int i = 0; i < 768; i++)
-	{
-		if(i%16 == 0) 	printf("\n");
-		printf("%d ", a[i]);
-	}
-	printf("\n");
-
-	ntt_pack(b,a);
-	
-	for (int i = 0; i < 768; i++)
-	{
-		if(i%16 == 0) 	printf("\n");		
-		printf("%d ", b[i]);
-	}
-	printf("\n");
-
-	ntt_unpack(c,b);
-	
-	for (int i = 0; i < 768; i++)
-	{
-		if(i%16 == 0) 	printf("\n");		
-		printf("%d ", c[i]);
-	}
-	printf("\n");
-
-}
-void test_poly_pack()
-{
-	poly a,b;
-
-	uint8_t buf[1152] = {0};
-
-	for (int i = 0; i < 768; i++)
-	{
-		a.coeffs[i] = i;
-	}
-	
-	poly_tobytes(buf, &a);
-
-	for (int i = 0; i < 1152; i++)
-	{
-		printf("%d ", buf[i]);
-	}
-	printf("\n\n");
-
-	poly_frombytes(&b, buf);
-
-	for (int i = 0; i < 768; i++)
-	{
-		printf("%d ", b.coeffs[i]);
-	}
-	printf("\n");
-
-}
-void test_ntt()
-{
-	poly a,b,c;
-
-
-	for (int i = 0; i < 768; i++)
-	{
-		a.coeffs[i] = i;
-	}
-
-	printf("before\n");
-	for (int i = 0; i < 768; i++)
-	{
-		printf("%d ", a.coeffs[i]);
-	}
-	printf("\n");
-
-
-	poly_ntt(&a);
-	poly_freeze(&a);	
-
-	
-	printf("after\n");
-	for (int i = 0; i < 768; i++)
-	{
-		
-		if(i%16==0) printf("\n");
-		printf("%4d ", a.coeffs[i]);
-	}
-	printf("\n");
-
-	poly_invntt(&a);
-	poly_freeze(&a);
-	printf("return\n");	
-	for (int i = 0; i < 768; i++)
-	{
-		if(i%16==0) printf("\n");
-		printf("%4d ", a.coeffs[i]);
-	}
-	printf("\n");
-
-}
-void test_poly_short()
-{
-	uint8_t msg[32] = {0};
-	uint8_t buf[64] = {0};
-
-	poly a,b;
-
-
-	for (int i = 0; i < 32; i++)
-	{
-		msg[i] = 0x5;
-	}
-
-	for (int i = 0; i < 64; i++)
-	{
-		buf[i] = 0xaa;
-	}
-
-	sotp_internal(&a, msg, buf);
-
-	for (int i = 512; i < 768; i++)
-	{
-		printf("%d ", a.coeffs[i]);
-	}
-	printf("\n\n");
-
-
-	sotp_inv_internal(msg, &a, buf);
-
-	for (int i = 0; i < 32; i++)
-	{
-		printf("%d ", msg[i]);
-	}
-	printf("\n\n");
-
-/*
-	for(int i=0;i<768;i++)
-	{
-		b.coeffs[i] = 0;
-	}
-
-	poly_short5(&b, buf);
-
-	for (int i = 0; i < NTRUPLUS_N; i++)
-	{
-		//if(i%16 == 0) printf("\n");
-		printf("%d ", b.coeffs[i]);
-	}
-	printf("\n");
-*/
-}
-
-
-void test_poly_tobytes()
-{
-	uint8_t buf[NTRUPLUS_POLYBYTES] = {0};
-	poly a,b;
-
-	for (int i = 0; i < 768; i++)
-	{
-		a.coeffs[i] = i;
-		b.coeffs[i] = 0;
-	}
-
-	for (int i = 0; i < 768; i++)
-	{
-		if(i%16==0) printf("\n");
-		printf("%4d ", a.coeffs[i]);
-	}
-	printf("\n");
-
-	poly_tobytes(buf, &a);
-	poly_frombytes(&b, buf);
-
-	for (int i = 0; i < NTRUPLUS_POLYBYTES; i++)
-	{
-		if(i%32 == 0) printf("\n");
-		printf("%02X", buf[i]);
-	}
-	printf("\n");
-	for (int i = 0; i < 768; i++)
-	{
-		if(i%16==0) printf("\n");
-		printf("%4d ", b.coeffs[i]);
-	}
-	printf("\n");
-
-}
 
 int main(void)
 {
@@ -313,16 +120,7 @@ int main(void)
 	randombytes_init(entropy_input, personalization_string, 128);
 
 	TEST_CCA_KEM();
-	//TEST_CCA_KEM_CLOCK();
-
-
-
-
-//	test_ntt_pack();
-	//test_poly_pack();
-	//test_ntt();
-	//test_poly_short();
-	//test_poly_tobytes();
+	TEST_CCA_KEM_CLOCK();
 	
 	return 0;	
 }
