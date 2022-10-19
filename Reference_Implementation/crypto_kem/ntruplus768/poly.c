@@ -22,26 +22,23 @@ void poly_tobytes(uint8_t r[NTRUPLUS_POLYBYTES], const poly *a)
 {
 	int16_t t[4];
 
-	for (int i = 0; i < 3; i++)
+	for (int i = 0; i < 16; i++)
 	{
-		for (int j = 0; j < 16; j++)
+		for (int j = 0; j < 12; j++)
 		{
-			for (int k = 0; k < 4; k++)
-			{
-				t[0] = a->coeffs[256*i + 64*k + j];
-				t[1] = a->coeffs[256*i + 64*k + j + 16];
-				t[2] = a->coeffs[256*i + 64*k + j + 32];
-				t[3] = a->coeffs[256*i + 64*k + j + 48];
+			t[0] = a->coeffs[64*j + i];
+			t[1] = a->coeffs[64*j + i + 16];
+			t[2] = a->coeffs[64*j + i + 32];
+			t[3] = a->coeffs[64*j + i + 48];
 
-				r[384*i + 2*j + 96*k + 0] = (t[0] >> 0);
-				r[384*i + 2*j + 96*k + 1] = (t[0] >> 8) + (t[1] << 4);			
-				r[384*i + 2*j + 96*k + 32] = (t[1] >> 4);
-				r[384*i + 2*j + 96*k + 33] = (t[2] >> 0);
-				r[384*i + 2*j + 96*k + 64] = (t[2] >> 8) + (t[3] << 4); 
-				r[384*i + 2*j + 96*k + 65] = (t[3] >> 4); 
-			}
-		}	
-	}
+			r[96*j + 2*i + 0] = (t[0] >> 0);
+			r[96*j + 2*i + 1] = (t[0] >> 8) + (t[1] << 4);			
+			r[96*j + 2*i + 32] = (t[1] >> 4);
+			r[96*j + 2*i + 33] = (t[2] >> 0);
+			r[96*j + 2*i + 64] = (t[2] >> 8) + (t[3] << 4); 
+			r[96*j + 2*i + 65] = (t[3] >> 4); 
+		}
+	}	
 }
 
 
@@ -60,32 +57,29 @@ void poly_frombytes(poly *r, const uint8_t a[NTRUPLUS_POLYBYTES])
 {
 	unsigned char t[6];
 
-	for(int i = 0; i < 3; ++i)
+	for(int i = 0; i < 16; i++)
 	{
-		for(int j = 0; j < 16; ++j)
+		for(int j = 0; j < 12; j++)
 		{
-			for(int k = 0; k < 4; ++k)
-			{
-				t[0] = a[384*i + 2*j + 96*k];
-				t[1] = a[384*i + 2*j + 96*k + 1];
-				t[2] = a[384*i + 2*j + 96*k + 32];
-				t[3] = a[384*i + 2*j + 96*k + 33];
-				t[4] = a[384*i + 2*j + 96*k + 64];
-				t[5] = a[384*i + 2*j + 96*k + 65];								
+			t[0] = a[96*j + 2*i];
+			t[1] = a[96*j + 2*i + 1];
+			t[2] = a[96*j + 2*i + 32];
+			t[3] = a[96*j + 2*i + 33];
+			t[4] = a[96*j + 2*i + 64];
+			t[5] = a[96*j + 2*i + 65];								
 
-				r->coeffs[256*i + j + 64*k +  0]   = t[0];
-				r->coeffs[256*i + j + 64*k +   0] += ((int16_t)t[1] & 0xf) << 8;
-				r->coeffs[256*i + j + 64*k +  16]  = t[1] >> 4;
-				r->coeffs[256*i + j + 64*k +  16] += (int16_t)t[2] << 4;
-				r->coeffs[256*i + j + 64*k +  32]  = t[3];
-				r->coeffs[256*i + j + 64*k +  32] += ((int16_t)t[4] & 0xf) << 8;
-				r->coeffs[256*i + j + 64*k +  48]  = t[4] >> 4;
-				r->coeffs[256*i + j + 64*k +  48] += (int16_t)t[5] << 4;
-			}
+			r->coeffs[64*j + i + 0]   = t[0];
+			r->coeffs[64*j + i + 0] += ((int16_t)t[1] & 0xf) << 8;
+			r->coeffs[64*j + i + 16]  = t[1] >> 4;
+			r->coeffs[64*j + i + 16] += (int16_t)t[2] << 4;
+			r->coeffs[64*j + i + 32]  = t[3];
+			r->coeffs[64*j + i + 32] += ((int16_t)t[4] & 0xf) << 8;
+			r->coeffs[64*j + i + 48]  = t[4] >> 4;
+			r->coeffs[64*j + i + 48] += (int16_t)t[5] << 4;
 		}
 	}
 }
-
+/*
 void poly_pack_short_partial(unsigned char *buf, const poly *a)
 {
 	int16_t t[16];
@@ -111,7 +105,7 @@ void poly_pack_short_partial(unsigned char *buf, const poly *a)
 		}
 	}
 }
-/*
+*/
 void poly_pack_short_partial(unsigned char *buf, const poly *a)
 {
 	int16_t t[16];
@@ -147,8 +141,42 @@ void poly_pack_short_partial(unsigned char *buf, const poly *a)
 		}
 	}
 }
-*/
 
+void poly_pack_short_partial(unsigned char *buf, const poly *a)
+{
+	int16_t t[16];
+
+	for(int i = 0; i < 2; i++)
+	{
+		for (int j = 0; j < 16; j++)
+		{
+			for (int k = 0; k < 16; k++)
+			{
+				t[k] = a->coeffs[256*i + 16*k + j] + 1;
+			}
+
+			buf[64*i + 2*j + 0] =  t[3] << 6;
+			buf[64*i + 2*j + 0] |= t[2] << 4;
+			buf[64*i + 2*j + 0] |= t[1] << 2;
+			buf[64*i + 2*j + 0] |= t[0] << 0;
+
+			buf[64*i + 2*j + 1] =  t[7] << 6;
+			buf[64*i + 2*j + 1] |= t[6] << 4;
+			buf[64*i + 2*j + 1] |= t[5]  << 2;
+			buf[64*i + 2*j + 1] |= t[4]  << 0;
+
+			buf[64*i + 2*j + 32] =  t[11] << 6;
+			buf[64*i + 2*j + 32] |= t[10] << 4;
+			buf[64*i + 2*j + 32] |= t[9] << 2;
+			buf[64*i + 2*j + 32] |= t[8] << 0;
+
+			buf[64*i + 2*j + 33] =  t[15] << 6;
+			buf[64*i + 2*j + 33] |= t[14] << 4;
+			buf[64*i + 2*j + 33] |= t[13] << 2;
+			buf[64*i + 2*j + 33] |= t[12] << 0;
+		}
+	}
+}
 
 /*************************************************
 * Name:        poly_ntt

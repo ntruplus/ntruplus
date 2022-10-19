@@ -7,7 +7,7 @@
 #define NTRUPLUS_SYMBYTES 32   /* size in bytes of hashes, and seeds */
 #define NTRUPLUS_SSBYTES  32   /* size in bytes of shared key */
 
-#define NTRUPLUS_POLYBYTES		1536
+#define NTRUPLUS_POLYBYTES		1728
 
 #define NTRUPLUS_INDCPA_MSGBYTES       NTRUPLUS_SYMBYTES
 #define NTRUPLUS_INDCPA_PUBLICKEYBYTES NTRUPLUS_POLYBYTES
