@@ -20,7 +20,7 @@ void sotp_internal(poly *a, const unsigned char *msg, const unsigned char *buf)
         {
             for(int k = 0; k < 16; k++)
             {
-                a->coeffs[608 + 16*k + 2*i + j] = (t1 & 0x1) - (t2 & 0x1);
+                a->coeffs[512 + 16*k + 2*i + j] = (t1 & 0x1) - (t2 & 0x1);
 
                 t1 = t1 >> 1;
                 t2 = t2 >> 1;
@@ -43,7 +43,7 @@ void sotp_inv_internal(unsigned char *msg, const poly *a, const unsigned char *b
         {
             for(int k = 0; k < 16; k++)
             {
-                t3 ^= (((a->coeffs[608 + 16*k + 2*i + j] + (t2 & 0x1)) & 0x1)^(t1 & 0x1)) << (k+16*j);
+                t3 ^= (((a->coeffs[512 + 16*k + 2*i + j] + (t2 & 0x1)) & 0x1)^(t1 & 0x1)) << (k+16*j);
 
                 t1 = t1 >> 1;
                 t2 = t2 >> 1;

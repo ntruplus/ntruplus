@@ -4,7 +4,7 @@
 #include "api.h"
 #include "rng.h"
 
-#define TEST_LOOP 1
+#define TEST_LOOP 10000
 int64_t cpucycles(void)
 {
 	unsigned int hi, lo;
@@ -34,12 +34,6 @@ void TEST_CCA_KEM()
 	{
 		crypto_kem_enc(ct, ss, pk);
 		crypto_kem_dec(dss, ct, sk);
-
-		for(int i=0; i < CRYPTO_CIPHERTEXTBYTES; i++)
-		{
-			printf("%02X", ct[i]);
-		}
-		printf("\n");
 
 		if(memcmp(ss, dss, 32) != 0)
 		{

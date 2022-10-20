@@ -3,10 +3,7 @@
 #include <stdint.h>
 #include "api.h"
 #include "rng.h"
-
 #include "poly.h"
-#include "ntt.h"
-
 #define TEST_LOOP 10000
 int64_t cpucycles(void)
 {
@@ -104,31 +101,6 @@ void TEST_CCA_KEM_CLOCK()
 	printf("==================================================\n");
 }
 
-void test_ntt_clock()
-{
-    int16_t a[1152] = {0};
-    int16_t b[1152] = {0};
-    int16_t c[1152] = {0};
-
-    unsigned long long kcycles, ecycles, dcycles;
-    unsigned long long cycles1, cycles2;
-
-	printf("========= CCA KEM ENCAP DECAP SPEED TEST =========\n");
-
-	kcycles=0;
-	for (int i = 0; i < TEST_LOOP; i++)
-	{
-		cycles1 = cpucycles();
-   		ntt(a);
-        cycles2 = cpucycles();
-        kcycles += cycles2-cycles1;
-	}
-    printf("  KEYGEN runs in ................. %8lld cycles", kcycles/TEST_LOOP);
-    printf("\n"); 
-
-	printf("==================================================\n");
-}
-
 
 int test_ntt()
 {
@@ -204,10 +176,10 @@ int main(void)
 	randombytes_init(entropy_input, personalization_string, 128);
 
 	//test_tofrom();
-	//test_ntt();
+	test_ntt();
 	///test_ntt_clock();
-	TEST_CCA_KEM();
-	TEST_CCA_KEM_CLOCK();
+	//TEST_CCA_KEM();
+	//TEST_CCA_KEM_CLOCK();
 	
 	return 0;	
 }

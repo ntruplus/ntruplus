@@ -63,7 +63,7 @@ void ntt(int16_t a[1152])
 	}
 }
 
-void invntt(int16_t a[1024])
+void invntt(int16_t a[1152])
 {
 	int16_t t1,t2,t3,t4,t;
 	int16_t zeta, zeta1,zeta2;

@@ -24,11 +24,11 @@ int zetas_inv_exp[1152] = {0};
 
 void gen_exp()
 {
-    int a = 9;
+    int a = 5;
 
     exp_table[0] = (1 << 16) % Q;
     //exp_table[0] = 1;
-    for (int i = 1; i < 864; i++)
+    for (int i = 1; i < 1152; i++)
     {
         exp_table[i] = (exp_table[i-1] * a) % Q;
     }
@@ -37,27 +37,27 @@ void gen_tree()
 {
     int t = 2;
 
-    tree[0][0] = 144;
-    tree[0][1] = 720;
+    tree[0][0] = 192;
+    tree[0][1] = 960;
 
-    for (int j = 0; j < 2; j++)
+    for (int j = 0; j < 1; j++)
     {
         for (int i = 0; i < t; i++)
         {
             tree[j+1][3*i+0] = tree[j][i]/3;
-            tree[j+1][3*i+1] = tree[j+1][3*i+0] + 288;
-            tree[j+1][3*i+2] = tree[j+1][3*i+1] + 288;
+            tree[j+1][3*i+1] = tree[j+1][3*i+0] + 384;
+            tree[j+1][3*i+2] = tree[j+1][3*i+1] + 384;
         }
 
         t = t*3;
     }
 
-    for (int j = 2; j < 6; j++)
+    for (int j = 1; j < 7; j++)
     {
         for (int i = 0; i < t; i++)
         {
             tree[j+1][2*i+0] = tree[j][i]/2;
-            tree[j+1][2*i+1] = tree[j+1][2*i+0] + 432;
+            tree[j+1][2*i+1] = tree[j+1][2*i+0] + 576;
         }
 
         t = t*2;
@@ -72,18 +72,18 @@ void trans_tree()
 
     t = 6;
 
-    for (int j = 1; j < 3; j++)
+    for (int j = 1; j < 2; j++)
     {
         for (int i = 0; i < t; i++)
         {
             ntt_tree[j][2*i] = exp_table[tree[j][i]];
-            ntt_tree[j][2*i+1] = exp_table[(tree[j][i] << 1) % 864];
+            ntt_tree[j][2*i+1] = exp_table[(tree[j][i] << 1) % 1152];
         }
 
         t = t*3;
     }
 
-    for (int j = 3; j < 7; j++)
+    for (int j = 2; j < 8; j++)
     {
         for (int i = 0; i < t; i++)
         {
@@ -98,27 +98,27 @@ void trans_tree_inv()
 {
     int t;
 
-    invntt_tree[0][0] = exp_table[864 - tree[0][0]];
-    invntt_tree[0][1] = exp_table[864 - tree[0][1]];
+    invntt_tree[0][0] = exp_table[1152 - tree[0][0]];
+    invntt_tree[0][1] = exp_table[1152 - tree[0][1]];
 
     t = 6;
 
-    for (int j = 1; j < 3; j++)
+    for (int j = 1; j < 2; j++)
     {
         for (int i = 0; i < t; i++)
         {
-            invntt_tree[j][2*i] = exp_table[864 - tree[j][i]];
-            invntt_tree[j][2*i+1] = exp_table[((864 - tree[j][i])*2) % 864];
+            invntt_tree[j][2*i] = exp_table[1152 - tree[j][i]];
+            invntt_tree[j][2*i+1] = exp_table[((1152 - tree[j][i])*2) % 1152];
         }
 
         t = t*3;
     }
 
-    for (int j = 3; j < 7; j++)
+    for (int j = 2; j < 8; j++)
     {
         for (int i = 0; i < t; i++)
         {
-            invntt_tree[j][i] = exp_table[864 - tree[j][i]];
+            invntt_tree[j][i] = exp_table[1152 - tree[j][i]];
         }
 
         t = t*2;
@@ -135,7 +135,7 @@ void ntt_encode()
     printf("level 0 - k : %d\n", k);
     
 //level 1 ~ 2
-    for(int j = 1; j < 3; j++)
+    for(int j = 1; j < 2; j++)
     {
         for (int i = 0; i < t; i++)
         {                
@@ -147,7 +147,7 @@ void ntt_encode()
         printf("level %d - k : %d\n", j, k);
     }
 //level 3 ~ 6
-    for(int j = 3; j < 7; j++)
+    for(int j = 2; j < 8; j++)
     {
         for (int i = 0; i < t; i++)
         {                
@@ -159,15 +159,6 @@ void ntt_encode()
     }
 }
 
-void mul_encode()
-{
-    int k = 0;
-
-    for (int i = 0; i < 144; i++)
-    {
-        zetas_mul_exp[k++] = ntt_tree[6][2*i];
-    }  
-}
 
 void invntt_encode()
 {
@@ -175,9 +166,9 @@ void invntt_encode()
     int t;
 
 //level6 ~ 1
-    t = 288;
+    t = 384;
 
-    for(int j = 6; j >= 3; j--)
+    for(int j = 7; j >= 2; j--)
     {
         t = t/2;
 
@@ -189,7 +180,7 @@ void invntt_encode()
         printf("level %d - k : %d\n", j, k);
     }
 
-    for(int j = 2; j >= 1; j--)
+    for(int j = 1; j >= 1; j--)
     {
         t = t/3;
 
@@ -218,7 +209,7 @@ void init()
 
     printf("tree\n");
     t = 2;
-    for (int j = 0; j < 2; j++)
+    for (int j = 0; j < 1; j++)
     {
         printf("level %d\n", j);
         for (int i = 0; i < t; i++)
@@ -230,7 +221,7 @@ void init()
         t = t*3;
     }
 
-    for (int j = 2; j < 7; j++)
+    for (int j = 1; j < 8; j++)
     {
         printf("level %d\n", j);
         for (int i = 0; i < t; i++)
@@ -248,27 +239,15 @@ void ntt()
     trans_tree();
     ntt_encode();
 
-    printf("int16_t zetas[287] = {");
-    for (int i = 0; i < 286; i++)
+    printf("int16_t zetas[383] = {");
+    for (int i = 0; i < 382; i++)
     {
         printf("%d, ", zetas_exp[i]);
     }
-    printf("%d};", zetas_exp[286]);
+    printf("%d};", zetas_exp[382]);
     printf("\n\n");
 }
 
-void mul()
-{
-    mul_encode();
-
-    printf("zetas_mul[144] = {");
-    for (int i = 0; i < 143; i++)
-    {
-        printf("%d, ", zetas_mul_exp[i]);
-    }
-    printf("%d};", zetas_mul_exp[143]);
-    printf("\n\n");    
-}
 
 void invntt()
 {
@@ -276,12 +255,12 @@ void invntt()
  
     invntt_encode();
 
-    printf("int16_t zetas_inv[287] = {");
-    for (int i = 0; i < 286; i++)
+    printf("int16_t zetas_inv[383] = {");
+    for (int i = 0; i < 382; i++)
     {
         printf("%d, ", zetas_inv_exp[i]);
     }
-    printf("%d};", zetas_inv_exp[286]);
+    printf("%d};", zetas_inv_exp[382]);
     printf("\n\n");
 
 }
@@ -292,8 +271,6 @@ int main(void)
 
     ntt();
     
-    mul();
-
     invntt();
 
     return 0;
