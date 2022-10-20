@@ -111,7 +111,10 @@ void invntt(int16_t a[1024])
 		t1 = fqred16(a[i] + a[i + 576]);
 		t2 = fqmul(zeta, a[i] - a[i + 576]);
 
-		a[i      ] = fqred16(fqmul((1 << 9)*3073 % 3457, t1 - t2));
-		a[i + 576] = fqred16(fqmul((1 << 10)*3073 % 3457, t2));	
+//		a[i      ] = fqred16(fqmul((1 << 9)*3073  % 3457, t1 - t2));
+//		a[i + 576] = fqred16(fqmul((1 << 10)*3073 % 3457, t2));
+
+		a[i      ] = fqred16(fqmul(856, t1 - t2));
+		a[i + 576] = fqred16(fqmul(1712, t2));	
 	}
 }

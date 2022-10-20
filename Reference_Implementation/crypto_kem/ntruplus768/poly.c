@@ -106,74 +106,29 @@ void poly_pack_short_partial(unsigned char *buf, const poly *a)
 	}
 }
 */
-void poly_pack_short_partial(unsigned char *buf, const poly *a)
-{
-	int16_t t[16];
-
-	for(int i = 0; i < 2; i++)
-	{
-		for (int j = 0; j < 16; j++)
-		{
-			for (int k = 0; k < 16; k++)
-			{
-				t[k] = a->coeffs[256*i + 16*k + j] + 1;
-			}
-
-			buf[64*i + 2*j + 0] =  t[3] << 6;
-			buf[64*i + 2*j + 0] |= t[2] << 4;
-			buf[64*i + 2*j + 0] |= t[1] << 2;
-			buf[64*i + 2*j + 0] |= t[0] << 0;
-
-			buf[64*i + 2*j + 1] =  t[7] << 6;
-			buf[64*i + 2*j + 1] |= t[6] << 4;
-			buf[64*i + 2*j + 1] |= t[5]  << 2;
-			buf[64*i + 2*j + 1] |= t[4]  << 0;
-
-			buf[64*i + 2*j + 32] =  t[11] << 6;
-			buf[64*i + 2*j + 32] |= t[10] << 4;
-			buf[64*i + 2*j + 32] |= t[9] << 2;
-			buf[64*i + 2*j + 32] |= t[8] << 0;
-
-			buf[64*i + 2*j + 33] =  t[15] << 6;
-			buf[64*i + 2*j + 33] |= t[14] << 4;
-			buf[64*i + 2*j + 33] |= t[13] << 2;
-			buf[64*i + 2*j + 33] |= t[12] << 0;
-		}
-	}
-}
 
 void poly_pack_short_partial(unsigned char *buf, const poly *a)
 {
-	int16_t t[16];
+	int16_t t[8];
 
-	for(int i = 0; i < 2; i++)
+	for(int i = 0; i < 4; i++)
 	{
 		for (int j = 0; j < 16; j++)
 		{
-			for (int k = 0; k < 16; k++)
+			for (int k = 0; k < 8; k++)
 			{
-				t[k] = a->coeffs[256*i + 16*k + j] + 1;
+				t[k] = a->coeffs[128*i + 16*k + j] + 1;
 			}
 
-			buf[64*i + 2*j + 0] =  t[3] << 6;
-			buf[64*i + 2*j + 0] |= t[2] << 4;
-			buf[64*i + 2*j + 0] |= t[1] << 2;
-			buf[64*i + 2*j + 0] |= t[0] << 0;
+			buf[32*i + 2*j + 0] =  t[3] << 6;
+			buf[32*i + 2*j + 0] |= t[2] << 4;
+			buf[32*i + 2*j + 0] |= t[1] << 2;
+			buf[32*i + 2*j + 0] |= t[0] << 0;
 
-			buf[64*i + 2*j + 1] =  t[7] << 6;
-			buf[64*i + 2*j + 1] |= t[6] << 4;
-			buf[64*i + 2*j + 1] |= t[5]  << 2;
-			buf[64*i + 2*j + 1] |= t[4]  << 0;
-
-			buf[64*i + 2*j + 32] =  t[11] << 6;
-			buf[64*i + 2*j + 32] |= t[10] << 4;
-			buf[64*i + 2*j + 32] |= t[9] << 2;
-			buf[64*i + 2*j + 32] |= t[8] << 0;
-
-			buf[64*i + 2*j + 33] =  t[15] << 6;
-			buf[64*i + 2*j + 33] |= t[14] << 4;
-			buf[64*i + 2*j + 33] |= t[13] << 2;
-			buf[64*i + 2*j + 33] |= t[12] << 0;
+			buf[32*i + 2*j + 1] =  t[7] << 6;
+			buf[32*i + 2*j + 1] |= t[6] << 4;
+			buf[32*i + 2*j + 1] |= t[5]  << 2;
+			buf[32*i + 2*j + 1] |= t[4]  << 0;
 		}
 	}
 }
@@ -304,6 +259,57 @@ void poly_cbd1(poly *a, const unsigned char buf[192])
 {
 	uint32_t t1, t2;
 
+	for(int i = 0; i < 6; i++)
+	{
+		for(int j = 0; j < 8; j++)
+		{
+			t1 = load32_littleendian(buf + 32*i + 4*j);
+			t2 = t1 >> 1;
+
+			for (int k = 0; k < 2; k++)
+			{
+				for(int l = 0; l < 8; l++)
+				{
+					a->coeffs[128*i + 16*l + 2*j + k] = (t1 & 0x1) - (t2 & 0x1);
+
+					t1 >>= 2;
+					t2 >>= 2;
+				}
+			}
+		}
+	}
+}
+
+void poly_cbd1_m1(poly *a, const unsigned char buf[128])
+{
+	uint32_t t1, t2;
+
+	for(int i = 0; i < 4; i++)
+	{
+		for(int j = 0; j < 8; j++)
+		{
+			t1 = load32_littleendian(buf + 32*i + 4*j);
+			t2 = t1 >> 1;
+
+			for (int k = 0; k < 2; k++)
+			{
+				for(int l = 0; l < 8; l++)
+				{
+					a->coeffs[128*i + 16*l + 2*j + k] = (t1 & 0x1) - (t2 & 0x1);
+
+					t1 >>= 2;
+					t2 >>= 2;
+				}
+			}
+		}
+	}
+}
+
+/*
+void poly_cbd1(poly *a, const unsigned char buf[192])
+{
+	uint32_t t1, t2;
+
 	for(int i = 0; i < 3; i++)
 	{
 		for(int j = 0; j < 8; j++)
@@ -349,6 +355,7 @@ void poly_cbd1_m1(poly *a, const unsigned char buf[192])
 		}
 	}
 }
+*/
 
 void poly_sotp(poly *e, const unsigned char *msg)
 {

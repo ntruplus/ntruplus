@@ -71,6 +71,29 @@ a^(Q-2) * a = a^(Q-2) = 1 mod Q
 	t = fqmul(t, a); //1101 0111 1111		M^-6909 = M^3
 */
 
+/*
+1	t = fqmul(t, t); //10 				M^-1
+	t = fqmul(t, a); //11 				M^-2
+2	t = fqmul(t, t); //110 				M^-5
+3	t = fqmul(t, t); //1100 			M^-11
+	t = fqmul(t, a); //1101 			M^-12
+4	t = fqmul(t, t); //1101 0			M^-25
+5	t = fqmul(t, t); //1101 00			M^-51
+	t = fqmul(t, a); //1101 01			M^-52
+6	t = fqmul(t, t); //1101 010			M^-105
+	t = fqmul(t, a); //1101 011			M^-106
+7	t = fqmul(t, t); //1101 0110		M^-213
+	t = fqmul(t, a); //1101 0111		M^-214
+8	t = fqmul(t, t); //1101 0111 0		M^-429
+	t = fqmul(t, a); //1101 0111 1		M^-430
+9	t = fqmul(t, t); //1101 0111 10		M^-861
+	t = fqmul(t, a); //1101 0111 11		M^-862
+10	t = fqmul(t, t); //1101 0111 110	M^-1725
+	t = fqmul(t, a); //1101 0111 111	M^-1726
+11	t = fqmul(t, t); //1101 0111 1110	M^-3453
+	t = fqmul(t, a); //1101 0111 1111	M^-3454 => M^2
+*/
+
 //new to check
 int16_t fqinv(int16_t a)
 {
@@ -81,6 +104,6 @@ int16_t fqinv(int16_t a)
 		t = fqmul(t, t);
 		if(i != 2 && i != 4) t = fqmul(t, a);
 	}
-	
+
 	return t;
 }

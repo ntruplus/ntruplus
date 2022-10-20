@@ -18,16 +18,6 @@
 *              - poly *a:    pointer to input polynomial
 **************************************************/
 
-/*************************************************
-* Name:        poly_tobytes
-*
-* Description: Serialization of a polynomial
-*
-* Arguments:   - uint8_t *r: pointer to output byte array
-*                            (needs space for NTRUPLUS_POLYBYTES bytes)
-*              - poly *a:    pointer to input polynomial
-**************************************************/
-
 void poly_tobytes(uint8_t r[NTRUPLUS_POLYBYTES], const poly *a)
 {
 	int16_t t[4];
@@ -89,69 +79,31 @@ void poly_frombytes(poly *r, const uint8_t a[NTRUPLUS_POLYBYTES])
 		}
 	}
 }
-
 void poly_pack_short_partial(unsigned char *buf, const poly *a)
 {
-	int16_t t[16];
+	int16_t t[8];
 
-	for(int i = 0; i < 2; i++)
+	for(int i = 0; i < 7; i++)
 	{
 		for (int j = 0; j < 16; j++)
 		{
-			for(int k = 0; k < 2; k++)
+			for (int k = 0; k < 8; k++)
 			{
-				for (int l = 0; l < 2; l++)
-				{
-					buf[64*i + 2*j + 32*k + l] = 0;
-
-					for (int m = 0; m < 4; m++)
-					{
-						t[m] = a->coeffs[256*i + j + 128*k + 64*l + 16*m] + 1;
-
-						buf[64*i + 2*j + 32*k + l] |=  t[m] << (2*m);
-					}
-				}
+				t[k] = a->coeffs[128*i + 16*k + j] + 1;
 			}
+
+			buf[32*i + 2*j + 0] =  t[3] << 6;
+			buf[32*i + 2*j + 0] |= t[2] << 4;
+			buf[32*i + 2*j + 0] |= t[1] << 2;
+			buf[32*i + 2*j + 0] |= t[0] << 0;
+
+			buf[32*i + 2*j + 1] =  t[7] << 6;
+			buf[32*i + 2*j + 1] |= t[6] << 4;
+			buf[32*i + 2*j + 1] |= t[5] << 2;
+			buf[32*i + 2*j + 1] |= t[4] << 0;
 		}
 	}
 }
-//896
-void poly_pack_short_partial(unsigned char *buf, const poly *a)
-{
-	int16_t t[16];
-
-	for(int i = 0; i < 1; i++)
-	{
-		for (int j = 0; j < 32; j++)
-		{
-			for (int k = 0; k < 16; k++)
-			{
-				t[k] = a->coeffs[256*i + 16*k + j] + 1;
-			}
-
-			buf[64*i + 2*j + 0] =  t[3] << 6;
-			buf[64*i + 2*j + 0] |= t[2] << 4;
-			buf[64*i + 2*j + 0] |= t[1] << 2;
-			buf[64*i + 2*j + 0] |= t[0] << 0;
-
-			buf[64*i + 2*j + 1] =  t[7] << 6;
-			buf[64*i + 2*j + 1] |= t[6] << 4;
-			buf[64*i + 2*j + 1] |= t[5]  << 2;
-			buf[64*i + 2*j + 1] |= t[4]  << 0;
-
-			buf[64*i + 2*j + 32] =  t[11] << 6;
-			buf[64*i + 2*j + 32] |= t[10] << 4;
-			buf[64*i + 2*j + 32] |= t[9] << 2;
-			buf[64*i + 2*j + 32] |= t[8] << 0;
-
-			buf[64*i + 2*j + 33] =  t[15] << 6;
-			buf[64*i + 2*j + 33] |= t[14] << 4;
-			buf[64*i + 2*j + 33] |= t[13] << 2;
-			buf[64*i + 2*j + 33] |= t[12] << 0;
-		}
-	}
-}
-
 
 /*************************************************
 * Name:        poly_ntt
@@ -211,14 +163,14 @@ void poly_basemul(poly *r, const poly *a, const poly *b)
 int poly_baseinv(poly *r, const poly *a)
 {
 	unsigned int i;
-	int r;
+	int t;
 	int result = 0;
 	for(i = 0; i < NTRUPLUS_N; i++)
 	{
 		r->coeffs[i] = fqinv(a->coeffs[i]);
-		r = (uint16_t)r->coeffs[i];
-		r = (uint32_t)(-r) >> 31;
-		result += r - 1;
+		t = (uint16_t)r->coeffs[i];
+		t = (uint32_t)(-t) >> 31;
+		result += t - 1;
 	}
 
 	return result;
@@ -277,21 +229,21 @@ void poly_cbd1(poly *a, const unsigned char buf[192])
 {
 	uint32_t t1, t2;
 
-	for(int i = 0; i < 3; i++)
+	for(int i = 0; i < 9; i++)
 	{
 		for(int j = 0; j < 8; j++)
 		{
 			t1 = load32_littleendian(buf + 32*i + 4*j);
-			t2 = load32_littleendian(buf + 32*i + 4*j + 96);
+			t2 = t1 >> 1;
 
 			for (int k = 0; k < 2; k++)
 			{
-				for(int l = 0; l < 16; l++)
+				for(int l = 0; l < 8; l++)
 				{
-					a->coeffs[256*i + 16*l + 2*j + k] = (t1 & 0x1) - (t2 & 0x1);
+					a->coeffs[128*i + 16*l + 2*j + k] = (t1 & 0x1) - (t2 & 0x1);
 
-					t1 = t1 >> 1;
-					t2 = t2 >> 1;
+					t1 >>= 2;
+					t2 >>= 2;
 				}
 			}
 		}
@@ -302,21 +254,21 @@ void poly_cbd1_m1(poly *a, const unsigned char buf[192])
 {
 	uint32_t t1, t2;
 
-	for(int i = 0; i < 2; i++)
+	for(int i = 0; i < 7; i++)
 	{
 		for(int j = 0; j < 8; j++)
 		{
 			t1 = load32_littleendian(buf + 32*i + 4*j);
-			t2 = load32_littleendian(buf + 32*i + 4*j + 64);
+			t2 = t1 >> 1;
 
 			for (int k = 0; k < 2; k++)
 			{
-				for(int l = 0; l < 16; l++)
+				for(int l = 0; l < 8; l++)
 				{
-					a->coeffs[256*i + 16*l + 2*j + k] = (t1 & 0x1) - (t2 & 0x1);
+					a->coeffs[128*i + 16*l + 2*j + k] = (t1 & 0x1) - (t2 & 0x1);
 
-					t1 = t1 >> 1;
-					t2 = t2 >> 1;
+					t1 >>= 2;
+					t2 >>= 2;
 				}
 			}
 		}
@@ -325,18 +277,18 @@ void poly_cbd1_m1(poly *a, const unsigned char buf[192])
 
 void poly_sotp(poly *e, const unsigned char *msg)
 {
-  unsigned char buf[128] = {0};
+  unsigned char buf[224] = {0};
 
   poly_pack_short_partial(buf, e);
-  sha512(buf, buf, 128);
+  sha512(buf, buf, 224);
   sotp_internal(e, msg, buf);
 }
 
 void poly_sotp_inv(unsigned char *msg, poly *e)
 {
-  unsigned char buf[128] = {0};
+  unsigned char buf[224] = {0};
 
   poly_pack_short_partial(buf, e);
-  sha512(buf, buf, 128);
+  sha512(buf, buf, 224);
   sotp_inv_internal(msg, e, buf);
 }
