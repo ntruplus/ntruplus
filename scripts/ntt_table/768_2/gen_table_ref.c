@@ -60,6 +60,7 @@ void gen_tree()
         t = t*2;
     }
 }
+
 void trans_tree()
 {
     int t;
@@ -131,7 +132,7 @@ void ntt_encode()
     printf("level 0 - k : %d\n", k);
 
     t = 2;
-//level 1 ~ 2
+//level 1
     for(int j = 1; j < 2; j++)
     {
         for (int i = 0; i < t; i++)
@@ -143,7 +144,7 @@ void ntt_encode()
         t = t*3;
         printf("level %d - k : %d\n", j, k);
     }
-//level 3 ~ 6
+//level 2 ~ 6
     for(int j = 2; j < 8; j++)
     {
         for (int i = 0; i < t; i++)
