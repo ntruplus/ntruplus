@@ -8,18 +8,14 @@
 int exp_table[3456] = {0};
 
 //tree
-int tree[10][1152] = {0};
-int table[3900] = {0};
+int tree[8][1152] = {0};
 
 //ntt
-int ntt_tree[9][1152] = {0};
+int ntt_tree[8][1152] = {0};
 int zetas_exp[1152] = {0};
 
-//mul
-int zetas_mul_exp[3900] = {0};
-
 //invntt
-int invntt_tree[9][1152] = {0};
+int invntt_tree[8][1152] = {0};
 int zetas_inv_exp[1152] = {0};
 
 void gen_exp()
@@ -33,6 +29,7 @@ void gen_exp()
         exp_table[i] = (exp_table[i-1] * a) % Q;
     }
 }
+
 void gen_tree()
 {
     int t = 2;
@@ -131,9 +128,9 @@ void ntt_encode()
     int t;
 //level 0
     zetas_exp[k++] = ntt_tree[0][0];
-    t = 2;
     printf("level 0 - k : %d\n", k);
-    
+
+    t = 2;
 //level 1 ~ 2
     for(int j = 1; j < 2; j++)
     {
@@ -195,7 +192,7 @@ void invntt_encode()
     
 //level0
     //(z-z^5)^-1
-    zetas_inv_exp[k++] = 1792;
+    zetas_inv_exp[k++] = 1665;
     
     printf("level %d - k : %d\n", 0, k);
 }

@@ -10,7 +10,8 @@
 
 #define CRYPTO_ALGNAME "NTRUPLUS864"
 
-int crypto_kem_keypair(unsigned char *pk, unsigned char *sk);
+int crypto_kem_keypair(unsigned char *pk,
+                       unsigned char *sk);
 
 int crypto_kem_enc(unsigned char *ct,
                    unsigned char *ss,

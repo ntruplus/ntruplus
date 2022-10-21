@@ -107,39 +107,90 @@ int test_ntt()
 	poly a,b,c,d;
 	uint8_t buf[1000] = {0};
 
-	for (int i = 0; i < NTRUPLUS_N; i++)
-	{
-		//buf[i] = i;
-		a.coeffs[i] = 1;
-	}
-	
-	printf("a\n");
     for (int i = 0; i < NTRUPLUS_N; i++)
     {
-        if(i%16==0) printf("\n");
+		a.coeffs[i] = i;
+    }
+
+	poly_ntt(&a);  
+	poly_invntt(&a);
+	
+    for (int i = 0; i < NTRUPLUS_N; i++)
+    {
+        if(i%32==0) printf("\n");
+        printf("%d " , a.coeffs[i]);
+    }
+    printf("\n");
+}
+
+int test_ntt2()
+{
+	poly a,b,c;
+
+    for (int i = 0; i < NTRUPLUS_N; i++)
+    {
+		a.coeffs[i] = 0;
+		b.coeffs[i] = 0;
+    }
+
+
+    for (int i = 0; i < 383; i++)
+    {
+		a.coeffs[i] = 1;
+		b.coeffs[i] = 1;	
+    }
+
+	poly_ntt(&a);
+	poly_ntt(&b);
+
+	poly_basemul(&c, &a, &b);
+	poly_invntt(&c);
+	poly_freeze(&c);
+
+    for (int i = 0; i < NTRUPLUS_N; i++)
+    {
+        if(i%32==0) printf("\n");
+        printf("%d " , c.coeffs[i]);
+    }
+    printf("\n");
+
+}
+
+int test_ntt3()
+{
+	poly a,b,c,d;
+	uint8_t buf[1000] = {0};
+
+	for (int i = 0; i < 1000; i++)
+	{
+		buf[i] = i;
+	}
+	
+    poly_cbd1(&a, buf); 
+
+    for (int i = 0; i < NTRUPLUS_N; i++)
+    {
+        if(i%32==0) printf("\n");
         printf("%d " , a.coeffs[i]);
     }
     printf("\n");
 
 	poly_ntt(&a);
 
-    for (int i = 0; i < NTRUPLUS_N; i++)
-    {
-        if(i%16==0) printf("\n");
-        printf("%d " , a.coeffs[i]);
-    }
-    printf("\n");
-
-	poly_invntt(&a);
+    poly_baseinv(&c, &a);
+	poly_basemul(&d, &c, &a);
+	poly_freeze(&d);
+	poly_invntt(&d);
 
     for (int i = 0; i < NTRUPLUS_N; i++)
     {
-        if(i%16==0) printf("\n");
-        printf("%d " , a.coeffs[i]);
+        if(i%32==0) printf("\n");
+        printf("%d " , d.coeffs[i]);
     }
     printf("\n");
 
 }
+
 
 void test_tofrom()
 {
@@ -176,10 +227,12 @@ int main(void)
 	randombytes_init(entropy_input, personalization_string, 128);
 
 	//test_tofrom();
-	test_ntt();
+	//test_ntt();
+	//test_ntt2();
+	//test_ntt3();
 	///test_ntt_clock();
-	//TEST_CCA_KEM();
-	//TEST_CCA_KEM_CLOCK();
+	TEST_CCA_KEM();
+	TEST_CCA_KEM_CLOCK();
 	
 	return 0;	
 }

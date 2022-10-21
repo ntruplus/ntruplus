@@ -176,10 +176,10 @@ void poly_basemul(poly *c, const poly *a, const poly *b)
 {
 	unsigned int i;
 
-	for(i = 0; i < NTRUPLUS_N/6; ++i)
+	for(i = 0; i < NTRUPLUS_N/4; ++i)
 	{
-		basemul(c->coeffs + 6*i, a->coeffs + 6*i, b->coeffs + 6*i, zetas[191 + i]);
-		basemul(c->coeffs + 6*i + 3, a->coeffs + 6*i + 3, b->coeffs + 6*i + 3, -zetas[191 + i]);
+		basemul(c->coeffs + 4*i, a->coeffs + 4*i, b->coeffs + 4*i, zetas[191 + i]);
+		basemul(c->coeffs + 4*i + 2, a->coeffs + 4*i + 2, b->coeffs + 4*i + 2, -zetas[191 + i]);
 	}
 }
 
@@ -196,10 +196,10 @@ int poly_baseinv(poly *b, const poly *a)
 	unsigned int i;
 	int r = 0;
 
-	for(i = 0; i < NTRUPLUS_N/6; ++i)
+	for(i = 0; i < NTRUPLUS_N/4; ++i)
 	{
-		r += baseinv(b->coeffs + 6*i, a->coeffs + 6*i, zetas[191 + i]);
-		r += baseinv(b->coeffs + 6*i + 3, a->coeffs + 6*i + 3, -zetas[191 + i]);
+		r += baseinv(b->coeffs + 4*i, a->coeffs + 4*i, zetas[191 + i]);
+		r += baseinv(b->coeffs + 4*i + 2, a->coeffs + 4*i + 2, -zetas[191 + i]);
 	 }
 
 	return r;

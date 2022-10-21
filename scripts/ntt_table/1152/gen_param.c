@@ -4,7 +4,7 @@
 #define QINV 12929
 
 //basic
-int exp_table[3456] = {0};
+int exp_table[384] = {0};
 
 //tree
 int tree[7][1024] = {0};
@@ -23,11 +23,11 @@ int zetas_inv_exp[1856] = {0};
 
 void gen_exp()
 {
-    int a = 5;
+    int a = 10;
 
     exp_table[0] = (1 << 16) % Q;
 
-    for (int i = 1; i < 3456; i++)
+    for (int i = 1; i < 384; i++)
     {
         exp_table[i] = (exp_table[i-1] * a) % Q;
     }
@@ -37,35 +37,14 @@ void gen_tree()
     tree[0][0] = 64;
     tree[0][1] = 320;
 
-    for (int j = 0; j < 5; j++)
+    for (int j = 0; j < 6; j++)
     {
         for (int i = 0; i < (2 << j); i++)
         {
             tree[j+1][2*i+0] = tree[j][i]/2;
             tree[j+1][2*i+1] = tree[j+1][2*i+0] + 192;
         }
-    }
-
-/*
-    for (int j = 0; j < 2; j++)
-    {
-        for (int i = 0; i < j*3; i++)
-        {
-            tree[j+5][3*i+0] = tree[j+4][i]/3;
-            tree[j+5][3*i+1] = tree[j+5][3*i+0] + 384;
-            tree[j+5][3*i+2] = tree[j+5][3*i+1] + 384;
-        }
-    }
-
-    for (int j = 0; j < 5; j++)
-    {
-        for (int i = 0; i < (2 << j); i++)
-        {
-            tree[j+1][2*i+0] = tree[j][i]/2;
-            tree[j+1][2*i+1] = tree[j+1][2*i+0] + 192;
-        }
-    }
-    */    
+    } 
 }
 void trans_tree()
 {

@@ -26,28 +26,26 @@ void indcpa_keypair(uint8_t pk[NTRUPLUS_INDCPA_PUBLICKEYBYTES],
         randombytes(buf, 32);
         crypto_stream(buf, NTRUPLUS_N, n, buf);
 
-        //f
         poly_cbd1(&t1, buf);
-        poly_triple(&t1, &t1);
+        poly_triple(&t1);
         t1.coeffs[0] += 1;
         poly_ntt(&t1);
 
-    } while(poly_baseinv(&t3, &t1));   //M^2
+    } while(poly_baseinv(&t2, &t1));
 
     poly_freeze(&t1);  
     poly_tobytes(sk, &t1);
 
     //g
-    poly_cbd1(&t2, buf + NTRUPLUS_N/4);
-    poly_triple(&t2, &t2);
-    poly_ntt(&t2);
+    poly_cbd1(&t3, buf + NTRUPLUS_N/4); 
+    poly_triple(&t3);
+    poly_ntt(&t3);
 
     //h
-    poly_basemul(&t3, &t3, &t2); //M^1
-    poly_freeze(&t3);
-    poly_tobytes(pk, &t3);
+    poly_basemul(&t1, &t2, &t3);
+    poly_freeze(&t1);
+    poly_tobytes(pk, &t1);
 }
-
 
 /*************************************************
 * Name:        indcpa_enc
@@ -71,22 +69,20 @@ void indcpa_enc(uint8_t c[NTRUPLUS_INDCPA_BYTES],
                 const uint8_t pk[NTRUPLUS_INDCPA_PUBLICKEYBYTES],
                 const uint8_t coins[NTRUPLUS_INDCPA_COIN])
 {
-    poly t1, t2;
+    poly t1, t2, t3;
 
-    poly_frombytes(&t1, pk);  //M^1
+    poly_frombytes(&t1, pk);
 
-    poly_cbd1(&t2, coins);   
+    poly_cbd1(&t2, coins);
     poly_ntt(&t2);
 
-    poly_basemul(&t1, &t1, &t2);  //M^1
-    poly_reduce(&t1);
+    poly_basemul(&t3, &t1, &t2);
 
     poly_cbd1_m1(&t2, coins + NTRUPLUS_N/4);
     poly_sotp(&t2, m);
     poly_ntt(&t2);
-    
-    poly_add(&t1, &t1, &t2);
 
+    poly_add(&t1, &t2, &t3);
     poly_freeze(&t1);
     poly_tobytes(c, &t1); 
 }
@@ -108,14 +104,13 @@ void indcpa_dec(uint8_t m[NTRUPLUS_INDCPA_MSGBYTES],
                 const uint8_t c[NTRUPLUS_INDCPA_BYTES],
                 const uint8_t sk[NTRUPLUS_INDCPA_SECRETKEYBYTES])
 {
-    poly t1, t2;
+    poly t1, t2, t3;
 
     poly_frombytes(&t1, c);
     poly_frombytes(&t2, sk);
 
-    poly_basemul(&t1, &t1, &t2); //M^-1
-    poly_reduce(&t1);
-    poly_invntt(&t1);
-    poly_crepmod3(&t1, &t1);
+    poly_basemul(&t3, &t1, &t2);
+    poly_invntt(&t3);
+    poly_crepmod3(&t1, &t3);
     poly_sotp_inv(m, &t1);
 }

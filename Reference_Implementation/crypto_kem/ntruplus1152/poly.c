@@ -193,11 +193,11 @@ void poly_add(poly *c, const poly *a, const poly *b)
 	for(int i = 0; i < NTRUPLUS_N; ++i) c->coeffs[i] = a->coeffs[i] + b->coeffs[i];
 }
 
-void poly_triple(poly *b, const poly *a) 
+void poly_triple(poly *r) 
 {
 	for(int i = 0; i < NTRUPLUS_N; ++i)
 	{
-		b->coeffs[i] = 3*a->coeffs[i];
+		r->coeffs[i] = 3*r->coeffs[i];
 	}
 }
 

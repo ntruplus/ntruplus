@@ -5,29 +5,25 @@
 
 
 //basic
-int exp_table[3456] = {0};
+int exp_table[864] = {0};
 
 //tree
-int tree[10][1152] = {0};
-int table[3900] = {0};
+int tree[7][288] = {0};
 
 //ntt
-int ntt_tree[9][1152] = {0};
-int zetas_exp[1152] = {0};
-
-//mul
-int zetas_mul_exp[3900] = {0};
+int ntt_tree[7][288] = {0};
+int zetas_exp[288] = {0};
 
 //invntt
-int invntt_tree[9][1152] = {0};
-int zetas_inv_exp[1152] = {0};
+int invntt_tree[7][288] = {0};
+int zetas_inv_exp[288] = {0};
 
 void gen_exp()
 {
-    int a = 9;
+    int a = 24;
 
-    exp_table[0] = (1 << 16) % Q;
-    //exp_table[0] = 1;
+    //exp_table[0] = (1 << 16) % Q;
+    exp_table[0] = 1;
     for (int i = 1; i < 864; i++)
     {
         exp_table[i] = (exp_table[i-1] * a) % Q;
@@ -159,15 +155,6 @@ void ntt_encode()
     }
 }
 
-void mul_encode()
-{
-    int k = 0;
-
-    for (int i = 0; i < 144; i++)
-    {
-        zetas_mul_exp[k++] = ntt_tree[6][2*i];
-    }  
-}
 
 void invntt_encode()
 {
@@ -204,7 +191,7 @@ void invntt_encode()
     
 //level0
     //(z-z^5)^-1
-    zetas_inv_exp[k++] = 1792;
+    zetas_inv_exp[k++] = 1665;
     
     printf("level %d - k : %d\n", 0, k);
 }
@@ -213,6 +200,13 @@ void init()
 {
     int t;
     gen_exp();
+
+    printf("exp_table\n");
+    for (int i = 0; i < 864; i++)
+    {
+        printf("%d ", exp_table[i]);
+    }
+    printf("\n\n");
 
     gen_tree();
 
@@ -257,19 +251,6 @@ void ntt()
     printf("\n\n");
 }
 
-void mul()
-{
-    mul_encode();
-
-    printf("zetas_mul[144] = {");
-    for (int i = 0; i < 143; i++)
-    {
-        printf("%d, ", zetas_mul_exp[i]);
-    }
-    printf("%d};", zetas_mul_exp[143]);
-    printf("\n\n");    
-}
-
 void invntt()
 {
     trans_tree_inv();
@@ -286,27 +267,21 @@ void invntt()
 
 }
 
-void ntt_multest()
-{
-    int k = 0;
-
-    for (int i = 0; i < 144; i++)
-    {                
-        printf("%d %d\n", ntt_tree[6][i << 1], 3457 - ntt_tree[6][(i << 1) + 1]);
-    }
-}
-
-
 int main(void)
 {
     init();
 
     ntt();
-    
-    mul();
 
     invntt();
 
-    ntt_multest();
+    printf("table\n");
+    for (int i = 0; i < 144; i++)
+    {
+
+        printf("%d, ",ntt_tree[6][i]);        
+    }
+    printf("\n");
+
     return 0;
 }

@@ -118,7 +118,12 @@ void poly_pack_short_partial(unsigned char *buf, const poly *a)
 {
 	int16_t t[8];
 
-	for(int i = 0; i < 6; i++)
+	for (int i = 0; i < 152; i++)
+	{
+		buf[i] = 0;
+	}
+	
+	for(int i = 0; i < 4; i++)
 	{
 		for (int j = 0; j < 16; j++)
 		{
@@ -143,38 +148,37 @@ void poly_pack_short_partial(unsigned char *buf, const poly *a)
 	{
 		for (int k = 0; k < 8; k++)
 		{
-			t[k] = a->coeffs[768 + 8*k + j] + 1;
+			t[k] = a->coeffs[512 + 8*k + j] + 1;
 		}
 
-		buf[192 + 2*j + 0] =  t[3] << 6;
-		buf[192 + 2*j + 0] |= t[2] << 4;
-		buf[192 + 2*j + 0] |= t[1] << 2;
-		buf[192 + 2*j + 0] |= t[0] << 0;
+		buf[128 + 2*j + 0] =  t[3] << 6;
+		buf[128 + 2*j + 0] |= t[2] << 4;
+		buf[128 + 2*j + 0] |= t[1] << 2;
+		buf[128 + 2*j + 0] |= t[0] << 0;
 
-		buf[192 + 2*j + 1] =  t[7] << 6;
-		buf[192 + 2*j + 1] |= t[6] << 4;
-		buf[192 + 2*j + 1] |= t[5] << 2;
-		buf[192 + 2*j + 1] |= t[4] << 0;
+		buf[128 + 2*j + 1] =  t[7] << 6;
+		buf[128 + 2*j + 1] |= t[6] << 4;
+		buf[128 + 2*j + 1] |= t[5] << 2;
+		buf[128 + 2*j + 1] |= t[4] << 0;
 	}
 
 	for (int j = 0; j < 4; j++)
 	{
 		for (int k = 0; k < 8; k++)
 		{
-			t[k] = a->coeffs[832 + 8*k + j] + 1;
+			t[k] = a->coeffs[576 + 4*k + j] + 1;
 		}
 
-		buf[208 + 2*j + 0] =  t[3] << 6;
-		buf[208 + 2*j + 0] |= t[2] << 4;
-		buf[208 + 2*j + 0] |= t[1] << 2;
-		buf[208 + 2*j + 0] |= t[0] << 0;
+		buf[144 + 2*j + 0] =  t[3] << 6;
+		buf[144 + 2*j + 0] |= t[2] << 4;
+		buf[144 + 2*j + 0] |= t[1] << 2;
+		buf[144 + 2*j + 0] |= t[0] << 0;
 
-		buf[208 + 2*j + 1] =  t[7] << 6;
-		buf[208 + 2*j + 1] |= t[6] << 4;
-		buf[208 + 2*j + 1] |= t[5] << 2;
-		buf[208 + 2*j + 1] |= t[4] << 0;
+		buf[144 + 2*j + 1] =  t[7] << 6;
+		buf[144 + 2*j + 1] |= t[6] << 4;
+		buf[144 + 2*j + 1] |= t[5] << 2;
+		buf[144 + 2*j + 1] |= t[4] << 0;
 	}
-
 }
 
 /*************************************************
@@ -266,11 +270,11 @@ void poly_add(poly *c, const poly *a, const poly *b)
 	for(int i = 0; i < NTRUPLUS_N; ++i) c->coeffs[i] = a->coeffs[i] + b->coeffs[i];
 }
 
-void poly_triple(poly *b, const poly *a) 
+void poly_triple(poly *a) 
 {
 	for(int i = 0; i < NTRUPLUS_N; ++i)
 	{
-		b->coeffs[i] = 3*a->coeffs[i];
+		a->coeffs[i] = 3*a->coeffs[i];
 	}
 }
 
@@ -418,18 +422,18 @@ void poly_cbd1_m1(poly *a, const unsigned char buf[192])
 
 void poly_sotp(poly *e, const unsigned char *msg)
 {
-  unsigned char buf[224] = {0};
+  unsigned char buf[152] = {0};
 
-  poly_pack_short_partial(buf, e);
-  sha512(buf, buf, 224);
+  poly_pack_short_partial(buf, e); 
+  sha512(buf, buf, 152);
   sotp_internal(e, msg, buf);
 }
 
 void poly_sotp_inv(unsigned char *msg, poly *e)
 {
-  unsigned char buf[224] = {0};
+  unsigned char buf[152] = {0};
 
   poly_pack_short_partial(buf, e);
-  sha512(buf, buf, 224);
+  sha512(buf, buf, 152);
   sotp_inv_internal(msg, e, buf);
 }

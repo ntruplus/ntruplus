@@ -22,12 +22,15 @@
 **************************************************/
 int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
 {
-  size_t i;
+    size_t i;
 
-  indcpa_keypair(pk,sk);
-  for(i = 0; i < NTRUPLUS_INDCPA_PUBLICKEYBYTES; i++)
-    sk[i+NTRUPLUS_INDCPA_SECRETKEYBYTES] = pk[i];  
-  return 0;
+    indcpa_keypair(pk,sk);
+    for(i = 0; i < NTRUPLUS_INDCPA_PUBLICKEYBYTES; i++)
+    {
+        sk[i+NTRUPLUS_INDCPA_SECRETKEYBYTES] = pk[i];
+    }
+
+    return 0;
 }
 
 /*************************************************
@@ -49,16 +52,19 @@ int crypto_kem_enc(unsigned char *ct,
                    unsigned char *ss,
                    const unsigned char *pk)
 {
-  size_t i;
-  uint8_t buf[544] ={0}; //key || coin
-  uint8_t msg[NTRUPLUS_SYMBYTES] = {0};
+    size_t i;
+    uint8_t buf[400] ={0};
+    uint8_t msg[NTRUPLUS_SYMBYTES] = {0};
 
-  randombytes(msg, NTRUPLUS_SYMBYTES);
-  hash_h(buf, msg);
-  indcpa_enc(ct, msg, pk, buf+NTRUPLUS_SSBYTES);
-  for (i = 0; i < NTRUPLUS_SSBYTES; i++)
-    ss[i] = buf[i];
-  return 0;
+    randombytes(msg, NTRUPLUS_SYMBYTES);
+    hash_h(buf, msg);
+    indcpa_enc(ct, msg, pk, buf+NTRUPLUS_SSBYTES);
+    for (i = 0; i < NTRUPLUS_SSBYTES; i++)
+    {
+        ss[i] = buf[i];
+    }
+
+    return 0;
 }
 
 /*************************************************
@@ -82,21 +88,24 @@ int crypto_kem_dec(unsigned char *ss,
                    const unsigned char *ct,
                    const unsigned char *sk)
 {
-  size_t i;
-  uint8_t msg[NTRUPLUS_SYMBYTES] = {0};
-  uint8_t buf[352] ={0}; //key || coin
-  uint8_t cmp[NTRUPLUS_CIPHERTEXTBYTES];
-  int8_t fail;
+    size_t i;
+    uint8_t msg[NTRUPLUS_SYMBYTES] = {0};
+    uint8_t buf[NTRUPLUS_INDCPA_MSGBYTES + NTRUPLUS_INDCPA_COIN] ={0};
+    uint8_t cmp[NTRUPLUS_CIPHERTEXTBYTES];
+    int8_t fail;
 
-  indcpa_dec(msg, ct, sk);
+    indcpa_dec(msg, ct, sk);
 
-  hash_h(buf, msg);
+    hash_h(buf, msg);
 
-  indcpa_enc(cmp, msg, sk+NTRUPLUS_INDCPA_SECRETKEYBYTES, buf+NTRUPLUS_SSBYTES);
+    indcpa_enc(cmp, msg, sk+NTRUPLUS_INDCPA_SECRETKEYBYTES, buf+NTRUPLUS_SSBYTES);
 
-  fail = verify(ct, cmp, NTRUPLUS_CIPHERTEXTBYTES);
+    fail = verify(ct, cmp, NTRUPLUS_CIPHERTEXTBYTES);
 
-  for(i = 0; i < NTRUPLUS_SSBYTES; i++)
-    ss[i] = buf[i] & ~fail;
-  return fail;
+    for(i = 0; i < NTRUPLUS_SSBYTES; i++)
+    {
+        ss[i] = buf[i] & ~fail;
+    }
+
+    return fail;
 }

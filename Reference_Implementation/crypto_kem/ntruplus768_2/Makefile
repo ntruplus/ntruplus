@@ -10,7 +10,7 @@ HEADERS= api.h indcpa.h params.h poly.h reduce.h rng.h verify.h symmetric.h sotp
 PQCgenKAT_kem: $(HEADERS) $(SOURCES)
 	$(CC) $(CFLAGS) -o $@ PQCgenKAT_kem.c $(SOURCES) $(LDFLAGS)
 
-main: $(HEADERS) $(SOURCES)
+main: $(HEADERS) $(SOURCES) main.c
 	$(CC) $(CFLAGS) -o $@ main.c $(SOURCES) $(LDFLAGS)
 #fastrandombytes.c kernelrandombytes.c 
 .PHONY: clean
