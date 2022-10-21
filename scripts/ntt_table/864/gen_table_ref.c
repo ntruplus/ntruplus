@@ -286,6 +286,17 @@ void invntt()
 
 }
 
+void ntt_multest()
+{
+    int k = 0;
+
+    for (int i = 0; i < 144; i++)
+    {                
+        printf("%d %d\n", ntt_tree[6][i << 1], 3457 - ntt_tree[6][(i << 1) + 1]);
+    }
+}
+
+
 int main(void)
 {
     init();
@@ -296,5 +307,6 @@ int main(void)
 
     invntt();
 
+    ntt_multest();
     return 0;
 }

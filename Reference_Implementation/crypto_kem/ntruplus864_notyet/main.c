@@ -106,9 +106,9 @@ void TEST_CCA_KEM_CLOCK()
 
 void test_ntt_clock()
 {
-    int16_t a[1152] = {0};
-    int16_t b[1152] = {0};
-    int16_t c[1152] = {0};
+    int16_t a[NTRUPLUS_N] = {0};
+    int16_t b[NTRUPLUS_N] = {0};
+    int16_t c[NTRUPLUS_N] = {0};
 
     unsigned long long kcycles, ecycles, dcycles;
     unsigned long long cycles1, cycles2;
@@ -138,32 +138,30 @@ int test_ntt()
 	for (int i = 0; i < NTRUPLUS_N; i++)
 	{
 		//buf[i] = i;
-		a.coeffs[i] = 1;
+		a.coeffs[i] = 0;
+		b.coeffs[i] = 0;
 	}
-	
-	printf("a\n");
-    for (int i = 0; i < NTRUPLUS_N; i++)
-    {
-        if(i%16==0) printf("\n");
-        printf("%d " , a.coeffs[i]);
-    }
-    printf("\n");
+
+	for (int i = 0; i < 30; i++)
+	{
+		//buf[i] = i;
+		a.coeffs[i] = 1;
+		b.coeffs[i] = 1;
+	}
+
 
 	poly_ntt(&a);
+	poly_ntt(&b);
 
-    for (int i = 0; i < NTRUPLUS_N; i++)
-    {
-        if(i%16==0) printf("\n");
-        printf("%d " , a.coeffs[i]);
-    }
-    printf("\n");
+	poly_basemul(&c, &a, &b);
 
+
+	poly_invntt(&c);
 	poly_invntt(&a);
-
     for (int i = 0; i < NTRUPLUS_N; i++)
     {
         if(i%16==0) printf("\n");
-        printf("%d " , a.coeffs[i]);
+        printf("%d " , c.coeffs[i]);
     }
     printf("\n");
 
@@ -204,10 +202,10 @@ int main(void)
 	randombytes_init(entropy_input, personalization_string, 128);
 
 	//test_tofrom();
-	//test_ntt();
+	test_ntt();
 	///test_ntt_clock();
-	TEST_CCA_KEM();
-	TEST_CCA_KEM_CLOCK();
+	//TEST_CCA_KEM();
+	//TEST_CCA_KEM_CLOCK();
 	
 	return 0;	
 }

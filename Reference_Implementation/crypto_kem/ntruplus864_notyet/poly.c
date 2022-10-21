@@ -220,7 +220,7 @@ void poly_basemul(poly *c, const poly *a, const poly *b)
 {
 	unsigned int i;
 
-	for(i = 0; i < NTRUPLUS_N/6; ++i)
+	for(i = 0; i < NTRUPLUS_N/6; i++)
 	{
 		basemul(c->coeffs + 6*i, a->coeffs + 6*i, b->coeffs + 6*i, zetas[143 + i]);
 		basemul(c->coeffs + 6*i + 3, a->coeffs + 6*i + 3, b->coeffs + 6*i + 3, -zetas[143 + i]);
