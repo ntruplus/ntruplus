@@ -1,7 +1,7 @@
 .global poly_ntt
 poly_ntt:
 vmovdqa		_16xq(%rip),%ymm0
-lea		zetas_exp(%rip),%rdx
+lea		    zetas(%rip),%rdx
 
 #level0
 #zetas
@@ -98,21 +98,22 @@ add		$8,%rdx
 sub		$768,%rdi
 
 #level 1
-xor         %rax,%rax
 #ws
-vpbroadcastd	_16xwqinv(%rip),%ymm1 #winv
-vpbroadcastd	_16xwinvqinv(%rip),%ymm2 #w^2inv
-vpbroadcastd	_16xw(%rip),%ymm3 #w
-vpbroadcastd	_16xwinv(%rip),%ymm4 #w^2
+vmovdqu	_16xwqinv(%rip),%ymm1 #winv
+vmovdqu	_16xwinvqinv(%rip),%ymm2 #w^2inv
+vmovdqu	_16xw(%rip),%ymm3 #w
+vmovdqu	_16xwinv(%rip),%ymm4 #w^2
 
+xor         %rax,%rax
 .p2align 5
 _looptop_start_1:
-xor		%rcx,%rcx
 #zetas
-vpbroadcastd    8(%rdx,%r8,4),%ymm5 #ainv
-vpbroadcastd    16(%rdx,%r8,4),%ymm6 #a^2inv
-vpbroadcastd    12(%rdx,%r8,4),%ymm7 #a
-vpbroadcastd    20(%rdx,%r8,4),%ymm8 #a^2
+vpbroadcastd    (%rdx),%ymm5 #ainv
+vpbroadcastd    8(%rdx),%ymm6 #a^2inv
+vpbroadcastd    4(%rdx),%ymm7 #a
+vpbroadcastd    12(%rdx),%ymm8 #a^2
+
+xor		%rcx,%rcx
 .p2align 5
 _looptop_j_1:
 #load
@@ -148,29 +149,28 @@ vpsubw		%ymm13,%ymm15,%ymm13 #Cb^2
 vpaddw		%ymm11,%ymm10,%ymm10 #Ba+Ca^2
 vpaddw		%ymm13,%ymm12,%ymm11 #Bb+Cb^2
 vpaddw		%ymm11,%ymm10,%ymm12 #Ba+Ca^2+Bb+Cb^2
-vpaddw		%ymm10,%ymm3,%ymm13  #A+Ba+Ca^2
-vpaddw		%ymm11,%ymm3,%ymm14  #A+Bb+Cb^2
-vpsubw		%ymm12,%ymm3,%ymm15  #A+Bc+Cc^2
+vpaddw		%ymm10,%ymm9,%ymm13  #A+Ba+Ca^2
+vpaddw		%ymm11,%ymm9,%ymm14  #A+Bb+Cb^2
+vpsubw		%ymm12,%ymm9,%ymm15  #A+Bc+Cc^2
 
 #store
 vmovdqa		%ymm13,(%rdi)
-vmovdqa		%ymm14,512(%rdi)
-vmovdqa		%ymm15,1024(%rdi)
+vmovdqa		%ymm14,256(%rdi)
+vmovdqa		%ymm15,512(%rdi)
 
 add		$32,%rdi
 add		$32,%rcx
 cmp		$256,%rcx
 jb		_looptop_j_1
 
-add		$8,%rdx
-add		$768,%rdi
+add		$16,%rdx
+add		$512,%rdi
 add		$768,%rax
 cmp		$1536,%rax
 jb		_looptop_start_1
 
 sub		$1536,%rdi
 vmovdqa		_low_mask(%rip),%ymm1
-
 
 
 xor		%rax,%rax
@@ -266,8 +266,13 @@ vpsubw		%ymm13,%ymm7,%ymm13
 #store
 vmovdqa		%ymm3,(%rdi)
 vmovdqa		%ymm4,32(%rdi)
+vmovdqa		%ymm5,64(%rdi)
+vmovdqa		%ymm6,96(%rdi)
 vmovdqa		%ymm10,128(%rdi)
 vmovdqa		%ymm11,160(%rdi)
+vmovdqa		%ymm12,192(%rdi)
+vmovdqa		%ymm13,224(%rdi)
+
 
 #level 3
 #load
@@ -276,10 +281,10 @@ vmovdqa		%ymm6,%ymm5
 vmovdqa		%ymm12,%ymm6
 vmovdqa		%ymm13,%ymm7
 
-vpbroadcastd	32(%rdx,%rax,2),%ymm12
-vpbroadcastd	40(%rdx,%rax,2),%ymm15
-vpbroadcastd	36(%rdx,%rax,2),%ymm2
-vpbroadcastd	44(%rdx,%rax,2),%ymm3
+vpbroadcastd	48(%rdx,%rax,2),%ymm12
+vpbroadcastd	56(%rdx,%rax,2),%ymm15
+vpbroadcastd	52(%rdx,%rax,2),%ymm2
+vpbroadcastd	60(%rdx,%rax,2),%ymm3
 
 #mul
 vpmullw		%ymm12,%ymm4,%ymm10
@@ -313,74 +318,57 @@ vpsubw		%ymm10,%ymm4,%ymm10
 vpaddw		%ymm11,%ymm5,%ymm4
 vpsubw		%ymm11,%ymm5,%ymm11
 vpaddw		%ymm12,%ymm6,%ymm5
-vpsubw		%ymm12,%ymm6,%ymm13
+vpsubw		%ymm12,%ymm6,%ymm12
 vpaddw		%ymm13,%ymm7,%ymm6
-vpsubw		%ymm13,%ymm7,%ymm14
-
-#shuffle
-vperm2i128	$0x20,%ymm10,%ymm3,%ymm2
-vperm2i128	$0x31,%ymm10,%ymm3,%ymm3
-vperm2i128	$0x20,%ymm11,%ymm4,%ymm10
-vperm2i128	$0x31,%ymm11,%ymm4,%ymm4
-vperm2i128	$0x20,%ymm12,%ymm5,%ymm11
-vperm2i128	$0x31,%ymm12,%ymm5,%ymm5
-vperm2i128	$0x20,%ymm13,%ymm6,%ymm12
-vperm2i128	$0x31,%ymm13,%ymm6,%ymm6
+vpsubw		%ymm13,%ymm7,%ymm13
 
 
 #store
-vmovdqa		%ymm2,(%rdi)
-vmovdqa		%ymm3,32(%rdi)
-vmovdqa		%ymm12,128(%rdi)
+vmovdqa		%ymm3,(%rdi)
+vmovdqa		%ymm4,32(%rdi)
+vmovdqa		%ymm10,64(%rdi)
+vmovdqa		%ymm11,96(%rdi)
+vmovdqa		%ymm5,128(%rdi)
 vmovdqa		%ymm6,160(%rdi)
-
+vmovdqa		%ymm12,192(%rdi)
+vmovdqa		%ymm13,224(%rdi)
 
 #level 4
 #load
-vmovdqa		%ymm5,%ymm6
+vmovdqa		%ymm4,%ymm4
 vmovdqa		%ymm11,%ymm5
-vmovdqa		%ymm8,%ymm9
-vmovdqa		%ymm14,%ymm8
-vmovdqu		96(%rdx,%r8),%ymm12
-vmovdqu		160(%rdx,%r8),%ymm15
-vmovdqu		128(%rdx,%r8),%ymm2
-vmovdqu		192(%rdx,%r8),%ymm3
+vmovdqa		%ymm6,%ymm6
+vmovdqa		%ymm13,%ymm7
+vpbroadcastd		144(%rdx,%r8),%ymm12
+vpbroadcastd		152(%rdx,%r8),%ymm15
+vpbroadcastd		148(%rdx,%r8),%ymm2
+vpbroadcastd		156(%rdx,%r8),%ymm3
 
 #mul
 vpmullw		%ymm12,%ymm4,%ymm10
 vpmullw		%ymm12,%ymm5,%ymm11
-vpmullw		%ymm12,%ymm6,%ymm12
+vpmullw		%ymm15,%ymm6,%ymm12
 vpmullw		%ymm15,%ymm7,%ymm13
-vpmullw		%ymm15,%ymm8,%ymm14
-vpmullw		%ymm15,%ymm9,%ymm15
 vpmulhw		%ymm2,%ymm4,%ymm4
 vpmulhw		%ymm2,%ymm5,%ymm5
-vpmulhw		%ymm2,%ymm6,%ymm6
+vpmulhw		%ymm3,%ymm6,%ymm6
 vpmulhw		%ymm3,%ymm7,%ymm7
-vpmulhw		%ymm3,%ymm8,%ymm8
-vpmulhw		%ymm3,%ymm9,%ymm9
 
 #reduce
 vpmulhw		%ymm0,%ymm10,%ymm10
 vpmulhw		%ymm0,%ymm11,%ymm11
 vpmulhw		%ymm0,%ymm12,%ymm12
 vpmulhw		%ymm0,%ymm13,%ymm13
-vpmulhw		%ymm0,%ymm14,%ymm14
-vpmulhw		%ymm0,%ymm15,%ymm15
 vpsubw		%ymm10,%ymm4,%ymm10
 vpsubw		%ymm11,%ymm5,%ymm11
 vpsubw		%ymm12,%ymm6,%ymm12
 vpsubw		%ymm13,%ymm7,%ymm13
-vpsubw		%ymm14,%ymm8,%ymm14
-vpsubw		%ymm15,%ymm9,%ymm15
 
 #load
 vmovdqa		(%rdi),%ymm4
-vmovdqa		32(%rdi),%ymm5
-vmovdqa		64(%rdi),%ymm6
+vmovdqa		64(%rdi),%ymm5
+vmovdqa		128(%rdi),%ymm6
 vmovdqa		192(%rdi),%ymm7
-vmovdqa		224(%rdi),%ymm8
-vmovdqa		256(%rdi),%ymm9
 
 #update
 vpaddw		%ymm10,%ymm4,%ymm3
@@ -391,11 +379,29 @@ vpaddw		%ymm12,%ymm6,%ymm5
 vpsubw		%ymm12,%ymm6,%ymm12
 vpaddw		%ymm13,%ymm7,%ymm6
 vpsubw		%ymm13,%ymm7,%ymm13
-vpaddw		%ymm14,%ymm8,%ymm7
-vpsubw		%ymm14,%ymm8,%ymm14
-vpaddw		%ymm15,%ymm9,%ymm8
-vpsubw		%ymm15,%ymm9,%ymm15
 
+#store
+vmovdqa		%ymm3,(%rdi)
+vmovdqa		%ymm10,32(%rdi)
+vmovdqa		%ymm4,64(%rdi)
+vmovdqa		%ymm11,96(%rdi)
+vmovdqa		%ymm5,128(%rdi)
+vmovdqa		%ymm12,160(%rdi)
+vmovdqa		%ymm6,192(%rdi)
+vmovdqa		%ymm13,224(%rdi)
+/*
+/*
+#shuffle
+vperm2i128	$0x20,%ymm10,%ymm3,%ymm2
+vperm2i128	$0x31,%ymm10,%ymm3,%ymm3
+vperm2i128	$0x20,%ymm11,%ymm4,%ymm10
+vperm2i128	$0x31,%ymm11,%ymm4,%ymm4
+vperm2i128	$0x20,%ymm12,%ymm5,%ymm11
+vperm2i128	$0x31,%ymm12,%ymm5,%ymm5
+vperm2i128	$0x20,%ymm13,%ymm6,%ymm12
+vperm2i128	$0x31,%ymm13,%ymm6,%ymm6
+*/
+/*
 #shuffle
 vpunpcklqdq	%ymm10,%ymm3,%ymm2
 vpunpckhqdq	%ymm10,%ymm3,%ymm3
@@ -662,11 +668,11 @@ vmovdqa		%ymm10,256(%rdi)
 vmovdqa		%ymm11,288(%rdi)
 vmovdqa		%ymm12,320(%rdi)
 vmovdqa		%ymm13,352(%rdi)
-
+*/
 add		$128,%r8
-add		$384,%rdi
+add		$256,%rdi
 add		$8,%rax
-cmp		$32,%rax
+cmp		$48,%rax
 
 jb		_looptop_start_234567
 

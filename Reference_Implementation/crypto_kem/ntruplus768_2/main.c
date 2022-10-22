@@ -109,15 +109,16 @@ int test_ntt()
 
     for (int i = 0; i < NTRUPLUS_N; i++)
     {
-		a.coeffs[i] = i;
+		a.coeffs[i] = 1;
     }
 
-	poly_ntt(&a);  
-	poly_invntt(&a);
+	poly_ntt(&a);
+	poly_freeze(&a);  
+	//poly_invntt(&a);
 	
     for (int i = 0; i < NTRUPLUS_N; i++)
     {
-        if(i%32==0) printf("\n");
+        if(i%16==0) printf("\n");
         printf("%d " , a.coeffs[i]);
     }
     printf("\n");
@@ -227,12 +228,12 @@ int main(void)
 	randombytes_init(entropy_input, personalization_string, 128);
 
 	//test_tofrom();
-	//test_ntt();
+	test_ntt();
 	//test_ntt2();
 	//test_ntt3();
 	///test_ntt_clock();
-	TEST_CCA_KEM();
-	TEST_CCA_KEM_CLOCK();
+	//TEST_CCA_KEM();
+	//TEST_CCA_KEM_CLOCK();
 	
 	return 0;	
 }

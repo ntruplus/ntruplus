@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include "api.h"
 #include "rng.h"
-
+#include "poly.h"
 #define TEST_LOOP 1
 int64_t cpucycles(void)
 {
@@ -107,6 +107,60 @@ void TEST_CCA_KEM_CLOCK()
 	printf("==================================================\n");
 }
 
+int test_ntt()
+{
+	poly a,b,c,d;
+	uint8_t buf[1000] = {0};
+
+    for (int i = 0; i < NTRUPLUS_N; i++)
+    {
+		a.coeffs[i] = 1;
+    }
+
+	poly_ntt(&a);  
+	poly_freeze(&a);
+	//poly_invntt(&a);
+	
+    for (int i = 0; i < NTRUPLUS_N; i++)
+    {
+        if(i%16==0) printf("\n");
+        printf("%d " , (int32_t)a.coeffs[i]);
+    }
+    printf("\n");
+}
+
+int test_ntt2()
+{
+	poly a,b,c;
+
+    for (int i = 0; i < NTRUPLUS_N; i++)
+    {
+		a.coeffs[i] = 0;
+		b.coeffs[i] = 0;
+    }
+
+    for (int i = 0; i < 383; i++)
+    {
+		a.coeffs[i] = 1;
+		b.coeffs[i] = 1;	
+    }
+
+	poly_ntt(&a);
+	poly_ntt(&b);
+
+	poly_basemul(&c, &a, &b);
+	poly_invntt(&c);
+	poly_freeze(&c);
+	poly_freeze(&c);
+
+    for (int i = 0; i < NTRUPLUS_N; i++)
+    {
+        if(i%16==0) printf("\n");
+        printf("%d " , c.coeffs[i]);
+    }
+    printf("\n");
+}
+
 int main(void)
 {
 
@@ -119,8 +173,13 @@ int main(void)
 
 	randombytes_init(entropy_input, personalization_string, 128);
 
-	TEST_CCA_KEM();
-	TEST_CCA_KEM_CLOCK();
-	
+		//test_tofrom();
+	test_ntt();
+	//test_ntt2();
+	//test_ntt3();
+	///test_ntt_clock();
+	//TEST_CCA_KEM();
+	//TEST_CCA_KEM_CLOCK();
+
 	return 0;	
 }

@@ -2,7 +2,7 @@
 poly_invntt:
 vmovdqa		_16xq(%rip),%ymm0
 vmovdqa		_16xv(%rip),%ymm1
-lea		zetas_inv_exp(%rip),%rdx
+lea		zetas_inv(%rip),%rdx
 
 mov		%rdx,%r9
 add		$3584,%r9
