@@ -68,7 +68,7 @@ void invntt(int16_t a[NTRUPLUS_N])
 	int k = 0;
 
 //	for(int step = 2; step <= 64; step <<= 1)
-	for(int step = 2; step <= 2; step <<= 1)
+	for(int step = 2; step <= 32; step <<= 1)
 	{
 		for(int start = 0; start < NTRUPLUS_N; start += (step << 1))
 		{
