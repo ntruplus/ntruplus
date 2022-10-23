@@ -43,7 +43,7 @@ void ntt(int16_t a[NTRUPLUS_N])
 		}
 	}
 //	for(int step = 64; step >= 2; step >>= 1)
-	for(int step = 64; step >= 16; step >>= 1)
+	for(int step = 64; step >= 4; step >>= 1)
 	{
 		for(int start = 0; start < NTRUPLUS_N; start += (step << 1))
 		{
