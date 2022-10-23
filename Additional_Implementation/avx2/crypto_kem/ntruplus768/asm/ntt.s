@@ -322,7 +322,6 @@ vpsubw		%ymm12,%ymm6,%ymm12
 vpaddw		%ymm13,%ymm7,%ymm6
 vpsubw		%ymm13,%ymm7,%ymm13
 
-
 #store
 vmovdqa		%ymm3,(%rdi)
 vmovdqa		%ymm4,32(%rdi)
@@ -392,9 +391,9 @@ vmovdqa		%ymm10,32(%rdi)
 vmovdqa		%ymm4,64(%rdi)
 vmovdqa		%ymm11,96(%rdi)
 vmovdqa		%ymm5,128(%rdi)
-vmovdqa		%ymm10,160(%rdi)
+vmovdqa		%ymm12,160(%rdi)
 vmovdqa		%ymm6,192(%rdi)
-vmovdqa		%ymm11,224(%rdi)
+vmovdqa		%ymm13,224(%rdi)
 
 #load
 vmovdqa     0(%rdi),%ymm3
@@ -559,7 +558,7 @@ vmovdqa		%ymm6,128(%rdi)
 vmovdqa		%ymm7,160(%rdi)
 vmovdqa		%ymm8,192(%rdi)
 vmovdqa		%ymm9,224(%rdi)
-/*
+
 #level 6
 #load
 vmovdqa     32(%rdi),%ymm4
@@ -714,7 +713,7 @@ vmovdqa		%ymm5,128(%rdi)
 vmovdqa		%ymm12,160(%rdi)
 vmovdqa		%ymm6,192(%rdi)
 vmovdqa		%ymm13,224(%rdi)
-*/
+
 add		$128,%r8
 add		$256,%rdi
 add		$8,%rax

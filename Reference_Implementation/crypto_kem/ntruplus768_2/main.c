@@ -114,14 +114,25 @@ int test_ntt()
 
 	poly_ntt(&a);
 	poly_freeze(&a);  
-	//poly_invntt(&a);
 	
+	printf("ntt\n");
     for (int i = 0; i < NTRUPLUS_N; i++)
     {
         if(i%16==0) printf("\n");
         printf("%d " , a.coeffs[i]);
     }
-    printf("\n");
+    printf("\n\n");
+
+	poly_invntt(&a);
+	poly_freeze(&a);
+	  
+	printf("invntt\n");
+    for (int i = 0; i < NTRUPLUS_N; i++)
+    {
+        if(i%16==0) printf("\n");
+        printf("%d " , a.coeffs[i]);
+    }
+    printf("\n\n");
 }
 
 int test_ntt2()
