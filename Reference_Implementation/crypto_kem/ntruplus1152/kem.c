@@ -53,7 +53,7 @@ int crypto_kem_enc(unsigned char *ct,
                    const unsigned char *pk)
 {
     size_t i;
-    uint8_t buf[400] ={0};
+    uint8_t buf[544] ={0};
     uint8_t msg[NTRUPLUS_SYMBYTES] = {0};
 
     randombytes(msg, NTRUPLUS_SYMBYTES);

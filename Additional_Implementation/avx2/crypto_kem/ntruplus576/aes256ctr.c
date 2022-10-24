@@ -6,7 +6,6 @@
   2018.02.23 djb: __m128i* for loadu
 */
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <immintrin.h>

@@ -160,6 +160,17 @@ void poly_invntt(poly *r)
 *              - const poly *a: pointer to first input polynomial
 *              - const poly *b: pointer to second input polynomial
 **************************************************/
+void poly_basemul(poly *c, const poly *a, const poly *b)
+{
+	unsigned int i;
+
+	for(i = 0; i < NTRUPLUS_N/4; i++)
+	{
+		basemul(c->coeffs + 4*i, a->coeffs + 4*i, b->coeffs + 4*i, zetas[143 + i]);
+		basemul(c->coeffs + 4*i + 2, a->coeffs + 4*i + 2, b->coeffs + 4*i + 2, -zetas[143 + i]);
+	}
+}
+/*
 void poly_basemul(poly *r, const poly *a, const poly *b)
 {
 	unsigned int i;
@@ -168,7 +179,7 @@ void poly_basemul(poly *r, const poly *a, const poly *b)
 		r->coeffs[i] = fqmul(a->coeffs[i], b->coeffs[i]);
 	}
 }
-
+*/
 /*************************************************
 * Name:        poly_baseinv
 *
@@ -177,6 +188,20 @@ void poly_basemul(poly *r, const poly *a, const poly *b)
 * Arguments:   - poly *r:       pointer to output polynomial
 *              - const poly *a: pointer to input polynomial
 **************************************************/
+int poly_baseinv(poly *b, const poly *a)
+{
+	unsigned int i;
+	int r = 0;
+
+	for(i = 0; i < NTRUPLUS_N/4; ++i)
+	{
+		r += baseinv(b->coeffs + 4*i, a->coeffs + 4*i, zetas[143 + i]);
+		r += baseinv(b->coeffs + 4*i + 2, a->coeffs + 4*i + 2, -zetas[143 + i]);
+	 }
+
+	return r;
+}
+/*
 int poly_baseinv(poly *r, const poly *a)
 {
 	unsigned int i;
@@ -192,7 +217,7 @@ int poly_baseinv(poly *r, const poly *a)
 
 	return result;
 }
-
+*/
 void poly_reduce(poly *a)
 {
 	for(int i = 0; i < NTRUPLUS_N; i++) a->coeffs[i] = fqred16(a->coeffs[i]);

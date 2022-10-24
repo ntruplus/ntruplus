@@ -3,11 +3,8 @@
 #include <stdint.h>
 #include "api.h"
 #include "rng.h"
-
 #include "poly.h"
-#include "ntt.h"
-
-#define TEST_LOOP 100000
+#define TEST_LOOP 1
 int64_t cpucycles(void)
 {
 	unsigned int hi, lo;
@@ -37,6 +34,12 @@ void TEST_CCA_KEM()
 	{
 		crypto_kem_enc(ct, ss, pk);
 		crypto_kem_dec(dss, ct, sk);
+
+		for(int i=0; i < CRYPTO_CIPHERTEXTBYTES; i++)
+		{
+			printf("%02X", ct[i]);
+		}
+		printf("\n");
 
 		if(memcmp(ss, dss, 32) != 0)
 		{
@@ -104,52 +107,38 @@ void TEST_CCA_KEM_CLOCK()
 	printf("==================================================\n");
 }
 
-void test_ntt_clock()
-{
-    int16_t a[NTRUPLUS_N] = {0};
-    int16_t b[NTRUPLUS_N] = {0};
-    int16_t c[NTRUPLUS_N] = {0};
-
-    unsigned long long kcycles, ecycles, dcycles;
-    unsigned long long cycles1, cycles2;
-
-	printf("========= CCA KEM ENCAP DECAP SPEED TEST =========\n");
-
-	kcycles=0;
-	for (int i = 0; i < TEST_LOOP; i++)
-	{
-		cycles1 = cpucycles();
-   		ntt(a);
-        cycles2 = cpucycles();
-        kcycles += cycles2-cycles1;
-	}
-    printf("  KEYGEN runs in ................. %8lld cycles", kcycles/TEST_LOOP);
-    printf("\n"); 
-
-	printf("==================================================\n");
-}
-
 int test_ntt()
 {
 	poly a,b,c,d;
 	uint8_t buf[1000] = {0};
 
-	for (int i = 0; i < NTRUPLUS_N; i++)
-	{
-		//buf[i] = i;
+    for (int i = 0; i < NTRUPLUS_N; i++)
+    {
 		a.coeffs[i] = 1;
-	}
+    }
 
-
-	poly_ntt(&a);  
-	poly_invntt(&a);
+	poly_ntt(&a);
+	poly_freeze(&a);  
 	
+	printf("ntt\n");
     for (int i = 0; i < NTRUPLUS_N; i++)
     {
         if(i%16==0) printf("\n");
         printf("%d " , a.coeffs[i]);
     }
-    printf("\n");
+    printf("\n\n");
+/*
+	poly_invntt(&a);
+	poly_freeze(&a);
+	  
+	printf("invntt\n");
+    for (int i = 0; i < NTRUPLUS_N; i++)
+    {
+        if(i%16==0) printf("\n");
+        printf("%d " , a.coeffs[i]);
+    }
+    printf("\n\n");
+	*/
 }
 
 int test_ntt2()
@@ -162,8 +151,7 @@ int test_ntt2()
 		b.coeffs[i] = 0;
     }
 
-
-    for (int i = 0; i < 499; i++)
+    for (int i = 0; i < 383; i++)
     {
 		a.coeffs[i] = 1;
 		b.coeffs[i] = 1;	
@@ -172,67 +160,17 @@ int test_ntt2()
 	poly_ntt(&a);
 	poly_ntt(&b);
 
-
-	poly_basemul(&c, &a, &a);
-	poly_freeze(&c);
+	poly_basemul(&c, &a, &b);
 	poly_invntt(&c);
-
-    for (int i = 0; i < NTRUPLUS_N; i++)
-    {
-        if(i%32==0) printf("\n");
-        printf("%d " , c.coeffs[i]);
-    }
-    printf("\n");
-
-}
-
-int test_ntt3()
-{
-	poly a,b,c,d;
-	uint8_t buf[1000] = {0};
-
-	for (int i = 0; i < 1000; i++)
-	{
-		buf[i] = i;
-	}
-	
-    poly_cbd1(&a, buf);  
-	poly_ntt(&a);
-
-    poly_baseinv(&c, &a);
-	poly_basemul(&d, &c, &a);
-	poly_freeze(&d);
-	poly_invntt(&d);
-
-    for (int i = 0; i < NTRUPLUS_N; i++)
-    {
-        if(i%32==0) printf("\n");
-        printf("%d " , d.coeffs[i]);
-    }
-    printf("\n");
-
-}
-
-void test_tofrom()
-{
-	poly a,b,c;
-
-	uint8_t buf[2000];
-    for (int i = 0; i < NTRUPLUS_N; i++)
-    {
-        a.coeffs[i] = i;
-    }
-
-	poly_tobytes(buf, &a);
-	poly_frombytes(&b, buf);
+	poly_freeze(&c);
+	poly_freeze(&c);
 
     for (int i = 0; i < NTRUPLUS_N; i++)
     {
         if(i%16==0) printf("\n");
-        printf("%d " , b.coeffs[i]);
+        printf("%d " , c.coeffs[i]);
     }
     printf("\n");
-
 }
 
 int main(void)
@@ -247,12 +185,13 @@ int main(void)
 
 	randombytes_init(entropy_input, personalization_string, 128);
 
-	//test_tofrom();
-	//test_ntt();
+		//test_tofrom();
+	test_ntt();
 	//test_ntt2();
-	//test_ntt_clock();
-	TEST_CCA_KEM();
-	TEST_CCA_KEM_CLOCK();
-	
+	//test_ntt3();
+	///test_ntt_clock();
+	//TEST_CCA_KEM();
+	//TEST_CCA_KEM_CLOCK();
+
 	return 0;	
 }

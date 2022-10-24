@@ -1,7 +1,14 @@
-#ifndef KEM_H
-#define KEM_H
+#ifndef API_H
+#define API_H
 
 #include "params.h"
+
+#define CRYPTO_SECRETKEYBYTES  NTRUPLUS_SECRETKEYBYTES
+#define CRYPTO_PUBLICKEYBYTES  NTRUPLUS_PUBLICKEYBYTES
+#define CRYPTO_CIPHERTEXTBYTES NTRUPLUS_CIPHERTEXTBYTES
+#define CRYPTO_BYTES           NTRUPLUS_SSBYTES
+
+#define CRYPTO_ALGNAME "NTRUPLUS768"
 
 int crypto_kem_keypair(unsigned char *pk, unsigned char *sk);
 

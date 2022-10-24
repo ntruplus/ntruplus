@@ -12,10 +12,17 @@ typedef struct{
   int16_t coeffs[NTRUPLUS_N];
 } poly __attribute__((aligned(32)));
 
+//void poly_tobytes(uint8_t r[NTRUPLUS_POLYBYTES], poly *a);
+//void poly_tobytes_partial(uint8_t r[NTRUPLUS_POLYBYTES], poly *a);
+//void poly_frombytes(poly *r, const uint8_t a[NTRUPLUS_POLYBYTES]);
+
 void poly_tobytes(uint8_t r[NTRUPLUS_POLYBYTES], const poly *a);
 //void poly_tobytes_partial(uint8_t r[NTRUPLUS_POLYBYTES], poly *a);
 void poly_frombytes(poly *r, const uint8_t a[NTRUPLUS_POLYBYTES]);
 
+
+void poly_ntt_pack(poly *b, const poly *a);
+void poly_ntt_unpack(poly *b, const poly *a);
 void poly_pack_uniform(unsigned char *buf, const poly *a);
 void poly_unpack_uniform(poly *a, const unsigned char *buf);
 void poly_pack_short_partial(unsigned char *buf, const poly *a);
@@ -28,16 +35,25 @@ int poly_baseinv(poly *r, const poly *a);
 void poly_reduce(poly *r);
 
 void poly_add(poly *r, const poly *a, const poly *b);
-void poly_triple(poly *r);
+void poly_triple(poly *r, const poly *a);
 void poly_crepmod3(poly *b, const poly *a);
 
 void poly_reduce(poly *a);
 void poly_freeze(poly *a);
 
+/*
+void poly_short(poly *a, const unsigned char *buf);
+void poly_short2(poly *a, const unsigned char *buf);
+void poly_short3(poly *a, const unsigned char *buf);
+void poly_short5(poly *a, const unsigned char *buf);
+void poly_short5_m1(poly *a, const unsigned char *buf);
+*/
 void poly_cbd1(poly *a, const unsigned char *buf);
 void poly_cbd1_m1(poly *a, const unsigned char *buf);
 
 void poly_sotp(poly *e, const unsigned char *msg);
 void poly_sotp_inv(unsigned char *msg, poly *e);
+
+uint32_t load32_littleendian(const uint8_t x[4]);
 
 #endif

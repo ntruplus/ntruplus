@@ -142,7 +142,7 @@ int test_ntt()
 
 
 	poly_ntt(&a);  
-	poly_invntt(&a);
+	//poly_invntt(&a);
 	
     for (int i = 0; i < NTRUPLUS_N; i++)
     {
@@ -163,7 +163,7 @@ int test_ntt2()
     }
 
 
-    for (int i = 0; i < 499; i++)
+    for (int i = 0; i < 200; i++)
     {
 		a.coeffs[i] = 1;
 		b.coeffs[i] = 1;	
@@ -248,11 +248,12 @@ int main(void)
 	randombytes_init(entropy_input, personalization_string, 128);
 
 	//test_tofrom();
-	//test_ntt();
+	test_ntt();
 	//test_ntt2();
+	//test_ntt3();
 	//test_ntt_clock();
-	TEST_CCA_KEM();
-	TEST_CCA_KEM_CLOCK();
+	//TEST_CCA_KEM();
+	//TEST_CCA_KEM_CLOCK();
 	
 	return 0;	
 }

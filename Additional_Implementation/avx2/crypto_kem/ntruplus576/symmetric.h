@@ -3,6 +3,8 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <openssl/sha.h>
+
 #include "params.h"
 
 void hash_h(unsigned char *buf, const unsigned char *msg);

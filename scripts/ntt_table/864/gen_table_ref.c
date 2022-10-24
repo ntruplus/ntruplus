@@ -20,7 +20,7 @@ int zetas_inv_exp[288] = {0};
 
 void gen_exp()
 {
-    int a = 24;
+    int a = 9;
 
     //exp_table[0] = (1 << 16) % Q;
     exp_table[0] = 1;

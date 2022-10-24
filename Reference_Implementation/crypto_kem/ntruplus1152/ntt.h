@@ -4,8 +4,8 @@
 #include <stdint.h>
 #include "params.h"
 
-extern int16_t zetas[1151];
-extern int16_t zetas_inv[1151];
+extern int16_t zetas[575];
+extern int16_t zetas_inv[575];
 
 void ntt(int16_t poly[NTRUPLUS_N]);
 void invntt(int16_t poly[NTRUPLUS_N]);
