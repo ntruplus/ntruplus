@@ -118,6 +118,11 @@ void poly_pack_short_partial(unsigned char *buf, const poly *a)
 {
 	int16_t t[8];
 
+	for (int i = 0; i < 152; i++)
+	{
+		buf[i] = 0;
+	}
+	
 	for(int i = 0; i < 4; i++)
 	{
 		for (int j = 0; j < 16; j++)

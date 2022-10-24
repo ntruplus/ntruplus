@@ -8,7 +8,9 @@
         "random": "c",
         "params.h": "c",
         "sha2.h": "c",
-        "sotp.h": "c"
+        "sotp.h": "c",
+        "util.h": "c",
+        "symmetric.h": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

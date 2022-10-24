@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "poly.h": "c",
+        "random": "c"
+    }
+}
