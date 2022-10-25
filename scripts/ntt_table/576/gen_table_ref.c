@@ -3,24 +3,19 @@
 #define Q 3457
 #define QINV 12929
 
-
 //basic
-int exp_table[3456] = {0};
+int exp_table[1728] = {0};
 
 //tree
-int tree[10][1152] = {0};
-int table[3900] = {0};
+int tree[8][1728] = {0};
 
 //ntt
-int ntt_tree[9][1152] = {0};
-int zetas_exp[1152] = {0};
-
-//mul
-int zetas_mul_exp[3900] = {0};
+int ntt_tree[8][1728] = {0};
+int zetas_exp[1728] = {0};
 
 //invntt
-int invntt_tree[8][1152] = {0};
-int zetas_inv_exp[1152] = {0};
+int invntt_tree[8][1728] = {0};
+int zetas_inv_exp[1728] = {0};
 
 void gen_exp()
 {
@@ -33,6 +28,7 @@ void gen_exp()
         exp_table[i] = (exp_table[i-1] * a) % Q;
     }
 }
+
 void gen_tree()
 {
     int t = 2;

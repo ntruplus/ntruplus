@@ -141,8 +141,10 @@ int test_ntt()
 	}
 
 
-	poly_ntt(&a);  
-	//poly_invntt(&a);
+	poly_ntt(&a); 
+	poly_freeze(&a); 
+	poly_invntt(&a);
+	poly_freeze(&a);
 	
     for (int i = 0; i < NTRUPLUS_N; i++)
     {

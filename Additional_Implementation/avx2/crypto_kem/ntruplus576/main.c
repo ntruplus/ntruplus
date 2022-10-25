@@ -127,7 +127,7 @@ int test_ntt()
         printf("%d " , a.coeffs[i]);
     }
     printf("\n\n");
-/*
+
 	poly_invntt(&a);
 	poly_freeze(&a);
 	  
@@ -138,7 +138,6 @@ int test_ntt()
         printf("%d " , a.coeffs[i]);
     }
     printf("\n\n");
-	*/
 }
 
 int test_ntt2()

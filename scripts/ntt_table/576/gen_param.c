@@ -4,18 +4,18 @@
 #define QINV 12929
 
 //basic
-int exp_table[3456] = {0};
+int exp_table[1728] = {0};
 
 //tree
-int tree[8][1024] = {0};
+int tree[8][1728] = {0};
 
 //ntt
-int ntt_tree[8][768] = {0};
-int zetas_exp[1852] = {0};
+int ntt_tree[8][1728] = {0};
+int zetas_exp[1728] = {0};
 
 //invntt
-int invntt_tree[8][768] = {0};
-int zetas_inv_exp[1856] = {0};
+int invntt_tree[8][1728] = {0};
+int zetas_inv_exp[1728] = {0};
 
 void gen_exp()
 {
@@ -28,6 +28,7 @@ void gen_exp()
         exp_table[i] = (exp_table[i-1] * a) % Q;
     }
 }
+
 void gen_tree()
 {
     int t = 2;
@@ -162,8 +163,8 @@ void ntt_encode()
         zetas_exp[k++] = (ntt_tree[2][6*i+1] * QINV) & 0xffff;
         zetas_exp[k++] = (ntt_tree[2][6*i+1] * QINV) & 0xffff;
 
-        zetas_exp[k++] = ntt_tree[1][6*i+1];
-        zetas_exp[k++] = ntt_tree[1][6*i+1];        
+        zetas_exp[k++] = ntt_tree[2][6*i+1];
+        zetas_exp[k++] = ntt_tree[2][6*i+1];        
     }
     printf("k : %d\n", k);
 
@@ -223,6 +224,7 @@ void ntt_encode()
     for (int i = 0; i < 18; i++)
     {
         zetas_exp[k++] = (ntt_tree[5][(i << 3)] * QINV) & 0xffff;
+        //printf("dd %d %d\n\n", k-1, zetas_exp[k-1]);
         zetas_exp[k++] = (ntt_tree[5][(i << 3)] * QINV) & 0xffff;
         zetas_exp[k++] = (ntt_tree[5][(i << 3)] * QINV) & 0xffff;
         zetas_exp[k++] = (ntt_tree[5][(i << 3)] * QINV) & 0xffff;
@@ -240,6 +242,8 @@ void ntt_encode()
         zetas_exp[k++] = (ntt_tree[5][(i << 3)+6] * QINV) & 0xffff;
 
         zetas_exp[k++] = ntt_tree[5][(i << 3)];
+        printf("dd %d %d\n\n", k-1, zetas_exp[k-1]);
+
         zetas_exp[k++] = ntt_tree[5][(i << 3)];
         zetas_exp[k++] = ntt_tree[5][(i << 3)];
         zetas_exp[k++] = ntt_tree[5][(i << 3)];
@@ -247,7 +251,9 @@ void ntt_encode()
         zetas_exp[k++] = ntt_tree[5][(i << 3)+2];
         zetas_exp[k++] = ntt_tree[5][(i << 3)+2];
         zetas_exp[k++] = ntt_tree[5][(i << 3)+2];
+        
         zetas_exp[k++] = ntt_tree[5][(i << 3)+4];
+        printf("dd %d %d\n\n", k-1, zetas_exp[k-1]);
         zetas_exp[k++] = ntt_tree[5][(i << 3)+4];
         zetas_exp[k++] = ntt_tree[5][(i << 3)+4];
         zetas_exp[k++] = ntt_tree[5][(i << 3)+4];

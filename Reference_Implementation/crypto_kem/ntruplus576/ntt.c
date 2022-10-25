@@ -46,7 +46,7 @@ void ntt(int16_t a[NTRUPLUS_N])
 			}
 		}
 	}
-/*
+
 	for(int step = 16; step >= 2; step >>= 1)
 	{
 		for(int start = 0; start < NTRUPLUS_N; start += (step << 1))
@@ -62,7 +62,6 @@ void ntt(int16_t a[NTRUPLUS_N])
 			}
 		}
 	}
-	*/
 }
 
 void invntt(int16_t a[NTRUPLUS_N])
@@ -71,7 +70,7 @@ void invntt(int16_t a[NTRUPLUS_N])
 	int16_t zeta, zeta1,zeta2;
 	int k = 0;
 
-	for(int step = 2; step <= 16; step <<= 1)
+	for(int step = 2; step <= 4; step <<= 1)
 	{
 		for(int start = 0; start < NTRUPLUS_N; start += (step << 1))
 		{
@@ -86,7 +85,7 @@ void invntt(int16_t a[NTRUPLUS_N])
 			}
 		}
 	}
-	
+/*	
 	for(int step = 32; step <= NTRUPLUS_N/6; step = 3*step)
 	{
 		for(int start = 0; start < NTRUPLUS_N; start += 3*step)
@@ -119,6 +118,7 @@ void invntt(int16_t a[NTRUPLUS_N])
 		a[i      ] = fqred16(fqmul(3424, t1 - t2));
 		a[i + NTRUPLUS_N/2] = fqred16(fqmul(3391, t2));	
 	}
+	*/
 }
 
 /*
