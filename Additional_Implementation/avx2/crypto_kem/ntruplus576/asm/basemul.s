@@ -1,10 +1,9 @@
 .global poly_basemul
 poly_basemul:
 vmovdqa		_16xq(%rip),%ymm0
-vmovdqa		_16xqinv(%rip),%ymm1
-lea		zetas_mul_exp(%rip),%rcx
-
-xor		%rax,%rax
+vmovdqa     _16xqinv(%rip),%ymm1
+lea		    zetas_mul(%rip),%rcx
+xor		    %rax,%rax
 
 .p2align 5
 _looptop:
@@ -66,7 +65,7 @@ add		$64,%rsi
 add		$64,%rdx
 add		$64,%rdi
 add		$64,%rax
-cmp		$1536,%rax
+cmp		$1152,%rax
 jb		_looptop
 
 ret

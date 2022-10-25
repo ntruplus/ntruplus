@@ -186,11 +186,11 @@ int main(void)
 
 		//test_tofrom();
 	test_ntt();
-	//test_ntt2();
+	test_ntt2();
 	//test_ntt3();
 	///test_ntt_clock();
 	//TEST_CCA_KEM();
-	//TEST_CCA_KEM_CLOCK();
+	TEST_CCA_KEM_CLOCK();
 
 	return 0;	
 }

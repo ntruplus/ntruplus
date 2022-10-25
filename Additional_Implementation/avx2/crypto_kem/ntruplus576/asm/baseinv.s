@@ -8,7 +8,7 @@ sub             %r11,%rsp
 vmovdqa		_16xq(%rip),%ymm0
 vmovdqa		_16xqinv(%rip),%ymm1
 
-lea		zetas_mul_exp(%rip),%rdx
+lea		zetas_mul(%rip),%rdx
 xor		%rcx,%rcx
 xor		%rax,%rax
 .p2align 5
@@ -213,7 +213,7 @@ add		$64,%rdi
 add		$64,%rsi
 add		$64,%rdx
 add		$32,%rax
-cmp		$768,%rax
+cmp		$576,%rax
 jb		_looptop
 
 add     %r11,%rsp

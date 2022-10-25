@@ -17,6 +17,7 @@ int zetas_exp[1728] = {0};
 int invntt_tree[8][1728] = {0};
 int zetas_inv_exp[1728] = {0};
 
+int zetas_mul_exp[768] = {0};
 void gen_exp()
 {
     int a = 9;
@@ -442,7 +443,6 @@ void invntt_encode()
     for (int i = 0; i < 6; i++)
     {
         zetas_inv_exp[k++] = (invntt_tree[2][6*i] * QINV) & 0xffff;
-                printf("dd %d %d\n\n", k-1, zetas_inv_exp[k-1]);
         zetas_inv_exp[k++] = (invntt_tree[2][6*i] * QINV) & 0xffff;
 
         zetas_inv_exp[k++] = invntt_tree[2][6*i];
@@ -556,13 +556,71 @@ void invntt()
 
 }
 
+void mul_encode()
+{
+    int k = 0;
+
+    for (int i = 0; i < 12; i++)
+    {
+        //alpha, beta
+        zetas_mul_exp[k++] = (ntt_tree[6][16*i + 0] * QINV) & 0xffff;
+        zetas_mul_exp[k++] = (ntt_tree[6][16*i + 1] * QINV) & 0xffff;
+        zetas_mul_exp[k++] = (ntt_tree[6][16*i + 2] * QINV) & 0xffff;
+        zetas_mul_exp[k++] = (ntt_tree[6][16*i + 3] * QINV) & 0xffff;
+        zetas_mul_exp[k++] = (ntt_tree[6][16*i + 4] * QINV) & 0xffff;
+        zetas_mul_exp[k++] = (ntt_tree[6][16*i + 5] * QINV) & 0xffff;
+        zetas_mul_exp[k++] = (ntt_tree[6][16*i + 6] * QINV) & 0xffff;
+        zetas_mul_exp[k++] = (ntt_tree[6][16*i + 7] * QINV) & 0xffff;
+        zetas_mul_exp[k++] = (ntt_tree[6][16*i + 8] * QINV) & 0xffff;
+        zetas_mul_exp[k++] = (ntt_tree[6][16*i + 9] * QINV) & 0xffff;
+        zetas_mul_exp[k++] = (ntt_tree[6][16*i + 10] * QINV) & 0xffff;
+        zetas_mul_exp[k++] = (ntt_tree[6][16*i + 11] * QINV) & 0xffff;
+        zetas_mul_exp[k++] = (ntt_tree[6][16*i + 12] * QINV) & 0xffff;
+        zetas_mul_exp[k++] = (ntt_tree[6][16*i + 13] * QINV) & 0xffff;
+        zetas_mul_exp[k++] = (ntt_tree[6][16*i + 14] * QINV) & 0xffff;
+        zetas_mul_exp[k++] = (ntt_tree[6][16*i + 15] * QINV) & 0xffff;
+
+        zetas_mul_exp[k++] = ntt_tree[6][16*i + 0];
+        zetas_mul_exp[k++] = ntt_tree[6][16*i + 1];
+        zetas_mul_exp[k++] = ntt_tree[6][16*i + 2];
+        zetas_mul_exp[k++] = ntt_tree[6][16*i + 3];
+        zetas_mul_exp[k++] = ntt_tree[6][16*i + 4];
+        zetas_mul_exp[k++] = ntt_tree[6][16*i + 5];
+        zetas_mul_exp[k++] = ntt_tree[6][16*i + 6];
+        zetas_mul_exp[k++] = ntt_tree[6][16*i + 7];
+        zetas_mul_exp[k++] = ntt_tree[6][16*i + 8];
+        zetas_mul_exp[k++] = ntt_tree[6][16*i + 9];
+        zetas_mul_exp[k++] = ntt_tree[6][16*i + 10];
+        zetas_mul_exp[k++] = ntt_tree[6][16*i + 11];
+        zetas_mul_exp[k++] = ntt_tree[6][16*i + 12];
+        zetas_mul_exp[k++] = ntt_tree[6][16*i + 13];
+        zetas_mul_exp[k++] = ntt_tree[6][16*i + 14];
+        zetas_mul_exp[k++] = ntt_tree[6][16*i + 15];
+    }
+
+    printf("k : %d\n", k);    
+}
+
+void mul()
+{
+    mul_encode();
+
+    printf("zetas_mul_exp\n");
+    for (int i = 0; i < 384; i++)
+    {
+        printf("%d, ", zetas_mul_exp[i]);
+    }
+    printf("\n");    
+}
+
 int main(void)
 {
     init();
 
     ntt();
-    //mul();
     invntt();
+    mul();
+
 
     return 0;
 }
