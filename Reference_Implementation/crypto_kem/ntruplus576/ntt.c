@@ -70,7 +70,7 @@ void invntt(int16_t a[NTRUPLUS_N])
 	int16_t zeta, zeta1,zeta2;
 	int k = 0;
 
-	for(int step = 2; step <= 4; step <<= 1)
+	for(int step = 2; step <= 16; step <<= 1)
 	{
 		for(int start = 0; start < NTRUPLUS_N; start += (step << 1))
 		{
@@ -85,8 +85,8 @@ void invntt(int16_t a[NTRUPLUS_N])
 			}
 		}
 	}
-/*	
-	for(int step = 32; step <= NTRUPLUS_N/6; step = 3*step)
+//	for(int step = 32; step <= NTRUPLUS_N/6; step = 3*step)
+	for(int step = 32; step <= 32; step = 3*step)
 	{
 		for(int start = 0; start < NTRUPLUS_N; start += 3*step)
 		{
@@ -104,7 +104,7 @@ void invntt(int16_t a[NTRUPLUS_N])
 			}
 		}
 	}
-
+/*
 	zeta = zetas_inv[k];//(\psi-\psi^5)^-1
 
 	for(int i = 0; i < NTRUPLUS_N/2; i++)

@@ -242,8 +242,6 @@ void ntt_encode()
         zetas_exp[k++] = (ntt_tree[5][(i << 3)+6] * QINV) & 0xffff;
 
         zetas_exp[k++] = ntt_tree[5][(i << 3)];
-        printf("dd %d %d\n\n", k-1, zetas_exp[k-1]);
-
         zetas_exp[k++] = ntt_tree[5][(i << 3)];
         zetas_exp[k++] = ntt_tree[5][(i << 3)];
         zetas_exp[k++] = ntt_tree[5][(i << 3)];
@@ -253,7 +251,6 @@ void ntt_encode()
         zetas_exp[k++] = ntt_tree[5][(i << 3)+2];
         
         zetas_exp[k++] = ntt_tree[5][(i << 3)+4];
-        printf("dd %d %d\n\n", k-1, zetas_exp[k-1]);
         zetas_exp[k++] = ntt_tree[5][(i << 3)+4];
         zetas_exp[k++] = ntt_tree[5][(i << 3)+4];
         zetas_exp[k++] = ntt_tree[5][(i << 3)+4];
@@ -351,7 +348,7 @@ void invntt_encode()
     printf("k : %d\n", k);
 
 //level5
-    for (int i = 0; i < 24; i++)
+    for (int i = 0; i < 18; i++)
     {
         zetas_inv_exp[k++] = (invntt_tree[5][(i << 3)] * QINV) & 0xffff;
         zetas_inv_exp[k++] = (invntt_tree[5][(i << 3)] * QINV) & 0xffff;
@@ -434,7 +431,9 @@ void invntt_encode()
     {
         zetas_inv_exp[k++] = (invntt_tree[3][i << 1] * QINV) & 0xffff;
         zetas_inv_exp[k++] = (invntt_tree[3][i << 1] * QINV) & 0xffff;
-        zetas_inv_exp[k++] = invntt_tree[3][i << 1];      
+
+
+        zetas_inv_exp[k++] = invntt_tree[3][i << 1];             
         zetas_inv_exp[k++] = invntt_tree[3][i << 1];
     }
     printf("k : %d\n", k);
@@ -443,6 +442,7 @@ void invntt_encode()
     for (int i = 0; i < 6; i++)
     {
         zetas_inv_exp[k++] = (invntt_tree[2][6*i] * QINV) & 0xffff;
+                printf("dd %d %d\n\n", k-1, zetas_inv_exp[k-1]);
         zetas_inv_exp[k++] = (invntt_tree[2][6*i] * QINV) & 0xffff;
 
         zetas_inv_exp[k++] = invntt_tree[2][6*i];
@@ -453,6 +453,7 @@ void invntt_encode()
 
         zetas_inv_exp[k++] = invntt_tree[2][6*i+1];
         zetas_inv_exp[k++] = invntt_tree[2][6*i+1];
+
     }
     printf("k : %d\n", k);
 
@@ -545,12 +546,12 @@ void invntt()
     trans_tree_inv();
     invntt_encode();
 
-    printf("int16_t zetas_inv[2064] = {");
-    for (int i = 0; i < 2063; i++)
+    printf("int16_t zetas_inv[1872] = {");
+    for (int i = 0; i < 1871; i++)
     {
         printf("%d, ", zetas_inv_exp[i]);
     }
-    printf("%d};", zetas_inv_exp[2063]);
+    printf("%d};", zetas_inv_exp[1871]);
     printf("\n\n");
 
 }
