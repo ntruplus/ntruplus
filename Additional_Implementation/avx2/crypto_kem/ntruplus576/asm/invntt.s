@@ -263,6 +263,12 @@ vpmulhw		%ymm0,%ymm12,%ymm12
 vpsubw		%ymm11,%ymm13,%ymm9
 vpsubw		%ymm12,%ymm14,%ymm10
 
+#reduce2
+vpmulhw		%ymm1,%ymm8,%ymm11
+vpsraw		$10,%ymm11,%ymm11
+vpmullw		%ymm0,%ymm11,%ymm11
+vpsubw		%ymm11,%ymm8,%ymm8
+
 #store
 vmovdqa		%ymm8,(%rdi)
 vmovdqa		%ymm9,64(%rdi)
@@ -279,6 +285,7 @@ cmp		$96,%rax
 jb		_looptop_start_2
 
 sub		$1152,%rdi
+
 
 #level1
 xor		%rax,%rax
@@ -361,6 +368,7 @@ vpbroadcastd	3732(%rdx),%ymm3   #(z-z^5)^-1
 
 vpbroadcastd	3736(%rdx),%ymm13 
 vpbroadcastd	3740(%rdx),%ymm14
+
 vpsllw			$1,%ymm13,%ymm15
 vpsllw			$1,%ymm14,%ymm1
 
