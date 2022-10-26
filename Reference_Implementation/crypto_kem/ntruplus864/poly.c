@@ -6,7 +6,6 @@
 #include "symmetric.h"
 #include "util.h"
 #include "sha2.h"
-#include "sotp.h"
 
 /*************************************************
 * Name:        poly_tobytes
@@ -114,68 +113,6 @@ void poly_frombytes(poly *r, const uint8_t a[NTRUPLUS_POLYBYTES])
 	}
 }
 
-void poly_pack_short_partial(unsigned char *buf, const poly *a)
-{
-	int16_t t[8];
-
-	for(int i = 0; i < 4; i++)
-	{
-		for (int j = 0; j < 16; j++)
-		{
-			for (int k = 0; k < 8; k++)
-			{
-				t[k] = a->coeffs[128*i + 16*k + j] + 1;
-			}
-
-			buf[32*i + 2*j + 0] =  t[3] << 6;
-			buf[32*i + 2*j + 0] |= t[2] << 4;
-			buf[32*i + 2*j + 0] |= t[1] << 2;
-			buf[32*i + 2*j + 0] |= t[0] << 0;
-
-			buf[32*i + 2*j + 1] =  t[7] << 6;
-			buf[32*i + 2*j + 1] |= t[6] << 4;
-			buf[32*i + 2*j + 1] |= t[5] << 2;
-			buf[32*i + 2*j + 1] |= t[4] << 0;
-		}
-	}
-
-	for (int j = 0; j < 8; j++)
-	{
-		for (int k = 0; k < 8; k++)
-		{
-			t[k] = a->coeffs[512 + 8*k + j] + 1;
-		}
-
-		buf[128 + 2*j + 0] =  t[3] << 6;
-		buf[128 + 2*j + 0] |= t[2] << 4;
-		buf[128 + 2*j + 0] |= t[1] << 2;
-		buf[128 + 2*j + 0] |= t[0] << 0;
-
-		buf[128 + 2*j + 1] =  t[7] << 6;
-		buf[128 + 2*j + 1] |= t[6] << 4;
-		buf[128 + 2*j + 1] |= t[5] << 2;
-		buf[128 + 2*j + 1] |= t[4] << 0;
-	}
-
-	for (int j = 0; j < 4; j++)
-	{
-		for (int k = 0; k < 8; k++)
-		{
-			t[k] = a->coeffs[576 + 4*k + j] + 1;
-		}
-
-		buf[144 + 2*j + 0] =  t[3] << 6;
-		buf[144 + 2*j + 0] |= t[2] << 4;
-		buf[144 + 2*j + 0] |= t[1] << 2;
-		buf[144 + 2*j + 0] |= t[0] << 0;
-
-		buf[144 + 2*j + 1] =  t[7] << 6;
-		buf[144 + 2*j + 1] |= t[6] << 4;
-		buf[144 + 2*j + 1] |= t[5] << 2;
-		buf[144 + 2*j + 1] |= t[4] << 0;
-	}
-}
-
 /*************************************************
 * Name:        poly_ntt
 *
@@ -185,10 +122,9 @@ void poly_pack_short_partial(unsigned char *buf, const poly *a)
 *
 * Arguments:   - uint16_t *r: pointer to in/output polynomial
 **************************************************/
-void poly_ntt(poly *r)
+void poly_ntt(poly *r, const poly *a)
 {
-  ntt(r->coeffs);
-  poly_reduce(r);
+	ntt(r->coeffs, a->coeffs);
 }
 
 /*************************************************
@@ -200,9 +136,9 @@ void poly_ntt(poly *r)
 *
 * Arguments:   - uint16_t *a: pointer to in/output polynomial
 **************************************************/
-void poly_invntt(poly *r)
+void poly_invntt(poly *r, const poly *a)
 {
-  invntt(r->coeffs);
+	invntt(r->coeffs, a->coeffs);
 }
 
 /*************************************************
@@ -263,6 +199,11 @@ void poly_freeze(poly *a)
 void poly_add(poly *c, const poly *a, const poly *b)
 {
 	for(int i = 0; i < NTRUPLUS_N; ++i) c->coeffs[i] = a->coeffs[i] + b->coeffs[i];
+}
+
+void poly_sub(poly *c, const poly *a, const poly *b)
+{
+	for(int i = 0; i < NTRUPLUS_N; ++i) c->coeffs[i] = a->coeffs[i] - b->coeffs[i];
 }
 
 void poly_triple(poly *a) 
@@ -356,79 +297,58 @@ void poly_cbd1(poly *a, const unsigned char buf[192])
 	}
 }
 
-void poly_cbd1_m1(poly *a, const unsigned char buf[192])
+void poly_sotp(poly *e, const unsigned char *msg, const unsigned char *buf)
 {
+    uint8_t tmp[NTRUPLUS_N/4];
 	uint32_t t1, t2;
 
-	for(int i = 0; i < 4; i++)
-	{
-		for(int j = 0; j < 8; j++)
-		{
-			t1 = load32_littleendian(buf + 32*i + 4*j);
-			t2 = t1 >> 1;
+    for(int i = 0; i < NTRUPLUS_N/8; i++)
+    {
+         tmp[i] = buf[i]^msg[i];
+    }
 
-			for (int k = 0; k < 2; k++)
-			{
-				for(int l = 0; l < 8; l++)
-				{
-					a->coeffs[128*i + 16*l + 2*j + k] = (t1 & 0x1) - (t2 & 0x1);
+    for(int i = NTRUPLUS_N/8; i < NTRUPLUS_N/4; i++)
+    {
+         tmp[i] = buf[i];
+    }
 
-					t1 >>= 2;
-					t2 >>= 2;
-				}
-			}
-		}
-	}
+    for(int i = 0; i < 27; i++)
+    {
+        t1 = load32_littleendian(tmp + 4*i);
+        t2 = load32_littleendian(buf + 4*i + 108);
 
-	for(int j = 0; j < 4; j++)
-	{
-		t1 = load32_littleendian(buf + 128 + 4*j);
-		t2 = t1 >> 1;
+        for (int j = 0; j < 32; j++)
+        {
+            e->coeffs[32*i + j] = (t1 & 0x1) - (t2 & 0x1);
 
-		for (int k = 0; k < 2; k++)
-		{
-			for(int l = 0; l < 8; l++)
-			{
-				a->coeffs[512 + 8*l + 2*j + k] = (t1 & 0x1) - (t2 & 0x1);
-
-				t1 >>= 2;
-				t2 >>= 2;
-			}
-		}
-	}
-
-	for(int j = 0; j < 2; j++)
-	{
-		t1 = load32_littleendian(buf + 144 + 4*j);
-		t2 = t1 >> 1;
-
-		for (int k = 0; k < 2; k++)
-		{
-			for(int l = 0; l < 8; l++)
-			{
-				a->coeffs[576 + 4*l + 2*j + k] = (t1 & 0x1) - (t2 & 0x1);
-
-				t1 >>= 2;
-				t2 >>= 2;
-			}
-		}
-	}
+            t1 = t1 >> 1;
+            t2 = t2 >> 1;
+        }
+    }
 }
 
-void poly_sotp(poly *e, const unsigned char *msg)
+void poly_sotp_inv(unsigned char *msg, const poly *e, const unsigned char *buf)
 {
-  unsigned char buf[152] = {0};
+    uint8_t tmp[64];
+	uint32_t t1, t2, t3;
 
-  poly_pack_short_partial(buf, e); 
-  sha512(buf, buf, 152);
-  sotp_internal(e, msg, buf);
-}
+    for(int i = 0; i < 27; i++)
+    {
+        t1 = load32_littleendian(buf + 4*i);
+        t2 = load32_littleendian(buf + 4*i + 108);
+        t3 = 0;
 
-void poly_sotp_inv(unsigned char *msg, poly *e)
-{
-  unsigned char buf[152] = {0};
+        for (int j = 0; j < 32; j++)
+        {
+            t3 ^= (((e->coeffs[32*i + j] + (t2 & 0x1)) & 0x1)^(t1 & 0x1)) << j;
 
-  poly_pack_short_partial(buf, e);
-  sha512(buf, buf, 152);
-  sotp_inv_internal(msg, e, buf);
+            t1 = t1 >> 1;
+            t2 = t2 >> 1;
+        }
+        
+        msg[4*i] = t3;
+        msg[4*i+1] = t3 >> 8;
+        msg[4*i+2] = t3 >> 16;
+        msg[4*i+3] = t3 >> 24;
+    }
 }

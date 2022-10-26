@@ -4,10 +4,7 @@
 #include "api.h"
 #include "rng.h"
 
-#include "poly.h"
-#include "ntt.h"
-
-#define TEST_LOOP 10000
+#define TEST_LOOP 1
 int64_t cpucycles(void)
 {
 	unsigned int hi, lo;
@@ -104,117 +101,12 @@ void TEST_CCA_KEM_CLOCK()
 	printf("==================================================\n");
 }
 
-void test_ntt_clock()
-{
-    int16_t a[1152] = {0};
-    int16_t b[1152] = {0};
-    int16_t c[1152] = {0};
-
-    unsigned long long kcycles, ecycles, dcycles;
-    unsigned long long cycles1, cycles2;
-
-	printf("========= CCA KEM ENCAP DECAP SPEED TEST =========\n");
-
-	kcycles=0;
-	for (int i = 0; i < TEST_LOOP; i++)
-	{
-		cycles1 = cpucycles();
-   		ntt(a);
-        cycles2 = cpucycles();
-        kcycles += cycles2-cycles1;
-	}
-    printf("  KEYGEN runs in ................. %8lld cycles", kcycles/TEST_LOOP);
-    printf("\n"); 
-
-	printf("==================================================\n");
-}
-
-
-int test_ntt()
-{
-	poly a,b,c,d;
-	uint8_t buf[1000] = {0};
-
-	for (int i = 0; i < 1000; i++)
-	{
-		buf[i] = i;
-	}
-	
-    poly_cbd1(&a, buf);
-   	poly_cbd1(&b, buf);
-   
-
-	printf("a\n");
-    for (int i = 0; i < 1152; i++)
-    {
-        if(i%32==0) printf("\n");
-        printf("%d " , a.coeffs[i]);
-    }
-    printf("\n");
-
-	printf("b\n");
-    for (int i = 0; i < 1152; i++)
-    {
-        if(i%32==0) printf("\n");
-        printf("%d " , b.coeffs[i]);
-    }
-    printf("\n");
-
-	poly_ntt(&a);
-	poly_ntt(&b);
-
-
-    poly_baseinv(&c, &a);
-	poly_basemul(&d, &c, &a);
-	poly_freeze(&d);
-	poly_invntt(&d);
-
-    for (int i = 0; i < 1152; i++)
-    {
-        if(i%32==0) printf("\n");
-        printf("%d " , d.coeffs[i]);
-    }
-    printf("\n");
-
-}
-
-void test_tofrom()
-{
-	poly a,b,c;
-
-	uint8_t buf[2000];
-    for (int i = 0; i < 1152; i++)
-    {
-        a.coeffs[i] = i;
-    }
-
-	poly_tobytes(buf, &a);
-	poly_frombytes(&b, buf);
-
-    for (int i = 0; i < 1152; i++)
-    {
-        if(i%16==0) printf("\n");
-        printf("%d " , b.coeffs[i]);
-    }
-    printf("\n");
-
-}
-
 int main(void)
 {
-
-	unsigned char entropy_input[48] = {0};
-	unsigned char personalization_string[48] = {0};
-
 	printf("PUBLICKEYBYTES : %d\n", CRYPTO_PUBLICKEYBYTES);
 	printf("SECRETKEYBYTES : %d\n", CRYPTO_SECRETKEYBYTES);
 	printf("CIPHERTEXTBYTES : %d\n", CRYPTO_CIPHERTEXTBYTES);
 
-	randombytes_init(entropy_input, personalization_string, 128);
-
-	//test_tofrom();
-	//test_ntt();
-	///test_ntt_clock();
 	TEST_CCA_KEM();
 	TEST_CCA_KEM_CLOCK();
 	

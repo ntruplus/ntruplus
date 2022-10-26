@@ -7,7 +7,7 @@
 #include "poly.h"
 #include "ntt.h"
 
-#define TEST_LOOP 100000
+#define TEST_LOOP 1000000
 int64_t cpucycles(void)
 {
 	unsigned int hi, lo;
@@ -137,14 +137,14 @@ int test_ntt()
 	for (int i = 0; i < NTRUPLUS_N; i++)
 	{
 		//buf[i] = i;
-		a.coeffs[i] = 1;
+		a.coeffs[i] = i;
 	}
 
 
 	poly_ntt(&a); 
 	poly_freeze(&a); 
-	poly_invntt(&a);
-	poly_freeze(&a);
+	//poly_invntt(&a);
+	//poly_freeze(&a);
 	
     for (int i = 0; i < NTRUPLUS_N; i++)
     {
@@ -205,6 +205,14 @@ int test_ntt3()
 	poly_basemul(&d, &c, &a);
 	poly_freeze(&d);
 	poly_invntt(&d);
+
+    for (int i = 0; i < NTRUPLUS_N; i++)
+    {
+        if(i%32==0) printf("\n");
+        printf("%d " , d.coeffs[i]);
+    }
+    printf("\n");
+
 }
 
 void test_tofrom()
@@ -229,40 +237,6 @@ void test_tofrom()
 
 }
 
-void test_sotp()
-{
-	poly a;
-	uint8_t buf[144];
-	uint8_t msg[32];
-
-	randombytes(msg,32);
-	randombytes(buf,144);
-
-	for (int i = 0; i < 32; i++)
-	{
-		if(i%16==0)	printf("\n");
-		printf("%d ", msg[i]);
-	}
-	printf("\n");
-
-	poly_sotp(&a,msg,buf);
-
-	for (int i = 0; i < NTRUPLUS_N; i++)
-	{
-		if(i%16==0)	printf("\n");
-		printf("%d ", a.coeffs[i]);
-	}
-	printf("\n");
-
-	poly_sotp_inv(msg,&a,buf);
-	
-	for (int i = 0; i < 32; i++)
-	{
-		if(i%16==0)	printf("\n");
-		printf("%d ", msg[i]);
-	}
-	printf("\n");
-}
 int main(void)
 {
 
@@ -276,13 +250,12 @@ int main(void)
 	randombytes_init(entropy_input, personalization_string, 128);
 
 	//test_tofrom();
-	//test_ntt();
+	test_ntt();
 	//test_ntt2();
 	//test_ntt3();
 	//test_ntt_clock();
-	//test_sotp();
-	TEST_CCA_KEM();
-	TEST_CCA_KEM_CLOCK();
+	//TEST_CCA_KEM();
+	//TEST_CCA_KEM_CLOCK();
 	
 	return 0;	
 }

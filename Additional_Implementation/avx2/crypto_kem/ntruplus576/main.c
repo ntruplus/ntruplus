@@ -117,7 +117,7 @@ int test_ntt()
 		a.coeffs[i] = i;
     }
 
-	poly_ntt(&a);
+	poly_ntt(&a,&a);
 	poly_freeze(&a);  
 	
 	printf("ntt\n");
@@ -127,7 +127,7 @@ int test_ntt()
         printf("%d " , a.coeffs[i]);
     }
     printf("\n\n");
-
+/*
 	poly_invntt(&a);
 	poly_freeze(&a);
 	  
@@ -138,6 +138,7 @@ int test_ntt()
         printf("%d " , a.coeffs[i]);
     }
     printf("\n\n");
+	*/
 }
 
 int test_ntt2()
@@ -186,10 +187,10 @@ int main(void)
 
 		//test_tofrom();
 	test_ntt();
-	test_ntt2();
+	//test_ntt2();
 	//test_ntt3();
 	///test_ntt_clock();
-	TEST_CCA_KEM();
+	//TEST_CCA_KEM();
 	//TEST_CCA_KEM_CLOCK();
 
 	return 0;	

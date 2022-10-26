@@ -26,7 +26,11 @@ static const unsigned char n[16] = {0};
 int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
 {
     uint8_t buf[NTRUPLUS_N];
-    poly f ,g, finv, ginv, h, hinv;
+ 
+    poly f, finv;
+    poly g, ginv;
+    poly h, hinv;
+
     int r;
 
     do {
@@ -34,29 +38,28 @@ int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
         randombytes(buf, 32);
         crypto_stream(buf, NTRUPLUS_N, n, buf);
 
-        poly_cbd1(&f, buf); //f
+        poly_cbd1(&f, buf);
         poly_triple(&f);
         f.coeffs[0] += 1;
-        poly_ntt(&f);
-        r = poly_baseinv(&finv, &f); //finv
+        poly_ntt(&f,&f);
+        r = poly_baseinv(&finv, &f);
 
-        poly_cbd1(&g, buf + NTRUPLUS_N/4); //g 
+        poly_cbd1(&g, buf + NTRUPLUS_N/4); 
         poly_triple(&g);
-        poly_ntt(&g);
-        r = poly_baseinv(&ginv, &g); //ginv
-
+        poly_ntt(&g,&g);
+        r |= poly_baseinv(&ginv, &g);
     } while(r);
 
     //sk
     poly_freeze(&f);  
     poly_tobytes(sk, &f);
 
-    poly_basemul(&hinv, &f, &ginv); // hinv = fg^-1
+    poly_basemul(&hinv, &f, &ginv);
     poly_freeze(&hinv);
     poly_tobytes(sk+NTRUPLUS_POLYBYTES, &hinv);
 
     //pk
-    poly_basemul(&h, &g, &finv); // h = gf^-1
+    poly_basemul(&h, &g, &finv);
     poly_freeze(&h);
     poly_tobytes(pk, &h);
     
@@ -82,28 +85,27 @@ int crypto_kem_enc(unsigned char *ct,
                    unsigned char *ss,
                    const unsigned char *pk)
 {
-    poly c, h, r, m;
-    uint8_t msg[NTRUPLUS_SYMBYTES];
-    uint8_t buf1[144 + NTRUPLUS_SYMBYTES];
+    uint8_t msg[NTRUPLUS_N/8];
+    uint8_t buf1[NTRUPLUS_SYMBYTES + NTRUPLUS_N/4];
     uint8_t buf2[NTRUPLUS_POLYBYTES];
-    uint8_t buf3[144];
 
-    randombytes(msg, NTRUPLUS_SYMBYTES);
-
-    hash_h(buf1, msg);
-    poly_cbd1(&r, buf1 + NTRUPLUS_SYMBYTES);
-    poly_ntt(&r);
-    poly_freeze(&r);
-
-    poly_tobytes(buf2, &r);
-    hash_g(buf3, buf2);
-
-
-    poly_sotp(&m, msg, buf3);
-   
-    poly_ntt(&m);
+    poly c, h, r, m;
 
     poly_frombytes(&h, pk);
+
+    randombytes(msg, NTRUPLUS_N/8);
+    hash_h(buf1, msg);
+
+    poly_cbd1(&r, buf1 + NTRUPLUS_SYMBYTES);
+    poly_ntt(&r,&r);
+    poly_freeze(&r);
+    
+    poly_tobytes(buf2, &r);
+    hash_g(buf2, buf2);
+
+    poly_sotp(&m, msg, buf2);  
+    poly_ntt(&m,&m);
+
     poly_basemul(&c, &h, &r);
     poly_add(&c, &c, &m);
     poly_freeze(&c);
@@ -136,57 +138,46 @@ int crypto_kem_dec(unsigned char *ss,
                    const unsigned char *ct,
                    const unsigned char *sk)
 {
+    uint8_t msg[NTRUPLUS_N/8];
     uint8_t buf1[NTRUPLUS_POLYBYTES];
-    uint8_t buf2[NTRUPLUS_POLYBYTES + NTRUPLUS_SYMBYTES]= {0};
-    uint8_t buf3[NTRUPLUS_POLYBYTES];
-    uint8_t msg[NTRUPLUS_SYMBYTES];
+    uint8_t buf2[NTRUPLUS_POLYBYTES];
+    uint8_t buf3[NTRUPLUS_POLYBYTES + NTRUPLUS_SYMBYTES]= {0};
+
     int8_t fail;
 
-    poly c, f, hinv, r1, r2, t1, m;
-    poly m2;
-	uint8_t t = 0;
+    poly c, f, hinv;
+    poly r1, r2;
+    poly m1, m2;
+    poly t1;
+
     poly_frombytes(&c, ct);
     poly_frombytes(&f, sk);
     poly_frombytes(&hinv, sk + NTRUPLUS_POLYBYTES);
-    poly_basemul(&t1, &c, &f);
-    poly_invntt(&t1);
-    poly_crepmod3(&m, &t1);
 
-    for (int i = 0; i < NTRUPLUS_N; i++)
-    {
-        m2.coeffs[i] = m.coeffs[i];
-    }
-      
-    poly_ntt(&m);
-    poly_sub(&c,&c,&m);
-    poly_freeze(&c);
+    poly_basemul(&t1, &c, &f);
+    poly_invntt(&t1,&t1);
+    poly_crepmod3(&m1, &t1);
+    
+    poly_ntt(&m2,&m1);
+    poly_sub(&c,&c,&m2);
     poly_basemul(&r2, &c, &hinv);
     poly_freeze(&r2);
     poly_tobytes(buf1, &r2);
-    hash_g(buf3, buf1);
 
-    poly_sotp_inv(msg, &m2, buf3);
+    hash_g(buf2, buf1);
+    poly_sotp_inv(msg, &m1, buf2);
 
-
-    hash_h(buf2, msg);
-
-    poly_cbd1(&r1,buf2 + NTRUPLUS_SSBYTES);
-    poly_ntt(&r1);
+    hash_h(buf3, msg);
+    poly_cbd1(&r1,buf3 + NTRUPLUS_SSBYTES);
+    poly_ntt(&r1,&r1);
     poly_freeze(&r1);
-    poly_tobytes(buf3, &r1);
+    poly_tobytes(buf2, &r1);
 
+    fail = verify(buf1, buf2, NTRUPLUS_POLYBYTES);
 
-	t = 0;
-	for(int i = 0; i < NTRUPLUS_N; ++i)
-	{
-		t |= buf1[i] ^ buf3[i];
-	}
-
-	fail = (uint16_t)t;
-	fail = (-fail) >> 31;
 	for(int i = 0; i < NTRUPLUS_SSBYTES; ++i)
 	{
-		ss[i] = buf2[i] & ~fail;
+		ss[i] = buf3[i] & ~fail;
 	}
 
     return fail;
