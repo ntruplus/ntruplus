@@ -4,8 +4,6 @@ vmovdqa		_16xq(%rip),%ymm0
 vmovdqa		_16xv(%rip),%ymm1
 lea		zetas_inv(%rip),%rdx
 
-mov		%rdx,%r9
-add		$2048,%r9
 xor		%rax,%rax
 xor		%r8,%r8
 .p2align 5

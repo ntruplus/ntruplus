@@ -119,17 +119,7 @@ int test_ntt()
         if(i%16==0) printf("\n");
         printf("%d " , a.coeffs[i]);
     }
-    printf("\n\n");
-	poly_invntt(&a,&a);
-	poly_freeze(&a);
-	  
-	printf("invntt\n");
-    for (int i = 0; i < NTRUPLUS_N; i++)
-    {
-        if(i%16==0) printf("\n");
-        printf("%d " , a.coeffs[i]);
-    }
-    printf("\n\n");
+
 }
 
 int test_ntt2()
@@ -142,7 +132,7 @@ int test_ntt2()
 		b.coeffs[i] = 0;
     }
 
-    for (int i = 0; i < 2; i++)
+    for (int i = 0; i < 3; i++)
     {
 		a.coeffs[i] = 1;
 		b.coeffs[i] = 1;	
@@ -151,12 +141,12 @@ int test_ntt2()
 	poly_ntt(&a,&a);
 	poly_ntt(&b,&b);
 	poly_basemul(&c, &a, &b);
-
+poly_freeze(&a);
 	//poly_invntt(&c,&c);
-		//poly_freeze(&c);
+		poly_freeze(&c);
 /*
 	poly_basemul(&c, &a, &b);
-	poly_freeze(&c);
+	
 */
     for (int i = 0; i < NTRUPLUS_N; i++)
     {
