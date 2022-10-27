@@ -117,7 +117,7 @@ int test_ntt()
 		a.coeffs[i] = i;
     }
 
-	poly_ntt(&a,&a);
+	poly_ntt(&a);
 	poly_freeze(&a);  
 	
 	printf("ntt\n");
@@ -127,7 +127,7 @@ int test_ntt()
         printf("%d " , a.coeffs[i]);
     }
     printf("\n\n");
-/*
+
 	poly_invntt(&a);
 	poly_freeze(&a);
 	  
@@ -138,7 +138,6 @@ int test_ntt()
         printf("%d " , a.coeffs[i]);
     }
     printf("\n\n");
-	*/
 }
 
 int test_ntt2()
@@ -151,7 +150,7 @@ int test_ntt2()
 		b.coeffs[i] = 0;
     }
 
-    for (int i = 0; i < 383; i++)
+    for (int i = 0; i < 2; i++)
     {
 		a.coeffs[i] = 1;
 		b.coeffs[i] = 1;	
@@ -160,10 +159,28 @@ int test_ntt2()
 	poly_ntt(&a);
 	poly_ntt(&b);
 
+
+	
 	poly_basemul(&c, &a, &b);
+//poly_freeze(&c);
+	for (int i = 0; i < NTRUPLUS_N; i++)
+    {
+        if(i%16==0) printf("\n");
+        printf("%d " , c.coeffs[i]);
+    }
+    printf("\n");
+
+/*
+
+    for (int i = 0; i < NTRUPLUS_N; i++)
+    {
+        if(i%16==0) printf("\n");
+        printf("%d " , c.coeffs[i]);
+    }
+    printf("\n\n");
 	poly_invntt(&c);
 	poly_freeze(&c);
-	poly_freeze(&c);
+	//poly_freeze(&c);
 
     for (int i = 0; i < NTRUPLUS_N; i++)
     {
@@ -171,6 +188,7 @@ int test_ntt2()
         printf("%d " , c.coeffs[i]);
     }
     printf("\n");
+	*/
 }
 
 int main(void)
@@ -186,8 +204,8 @@ int main(void)
 	randombytes_init(entropy_input, personalization_string, 128);
 
 		//test_tofrom();
-	test_ntt();
-	//test_ntt2();
+	//test_ntt();
+	test_ntt2();
 	//test_ntt3();
 	///test_ntt_clock();
 	//TEST_CCA_KEM();

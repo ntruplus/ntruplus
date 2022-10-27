@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include "api.h"
 #include "rng.h"
-
+#include "poly.h"
 #define TEST_LOOP 10000
 int64_t cpucycles(void)
 {
@@ -100,6 +100,83 @@ void TEST_CCA_KEM_CLOCK()
 
 	printf("==================================================\n");
 }
+int test_ntt()
+{
+	poly a,b,c,d;
+	uint8_t buf[1000] = {0};
+
+    for (int i = 0; i < NTRUPLUS_N; i++)
+    {
+		a.coeffs[i] = i;
+    }
+
+	poly_ntt(&a,&a);
+	poly_freeze(&a);  
+	
+	printf("ntt\n");
+    for (int i = 0; i < NTRUPLUS_N; i++)
+    {
+        if(i%16==0) printf("\n");
+        printf("%d " , a.coeffs[i]);
+    }
+    printf("\n\n");
+	poly_invntt(&a,&a);
+	poly_freeze(&a);
+	  
+	printf("invntt\n");
+    for (int i = 0; i < NTRUPLUS_N; i++)
+    {
+        if(i%16==0) printf("\n");
+        printf("%d " , a.coeffs[i]);
+    }
+    printf("\n\n");
+}
+
+int test_ntt2()
+{
+	poly a,b,c;
+
+    for (int i = 0; i < NTRUPLUS_N; i++)
+    {
+		a.coeffs[i] = 0;
+		b.coeffs[i] = 0;
+    }
+
+    for (int i = 0; i < 2; i++)
+    {
+		a.coeffs[i] = 1;
+		b.coeffs[i] = 1;	
+    }
+
+	poly_ntt(&a,&a);
+	poly_ntt(&b,&b);
+	poly_basemul(&c, &a, &b);
+
+	//poly_invntt(&c,&c);
+		//poly_freeze(&c);
+/*
+	poly_basemul(&c, &a, &b);
+	poly_freeze(&c);
+*/
+    for (int i = 0; i < NTRUPLUS_N; i++)
+    {
+        if(i%16==0) printf("\n");
+        printf("%d " , c.coeffs[i]);
+    }
+    printf("\n");
+/*
+	poly_invntt(&c,&c);
+	poly_freeze(&c);
+	//poly_freeze(&c);
+
+    for (int i = 0; i < NTRUPLUS_N; i++)
+    {
+        if(i%16==0) printf("\n");
+        printf("%d " , c.coeffs[i]);
+    }
+    printf("\n");
+*/
+}
 
 int main(void)
 {
@@ -107,8 +184,9 @@ int main(void)
 	printf("SECRETKEYBYTES : %d\n", CRYPTO_SECRETKEYBYTES);
 	printf("CIPHERTEXTBYTES : %d\n", CRYPTO_CIPHERTEXTBYTES);
 
-	TEST_CCA_KEM();
-	TEST_CCA_KEM_CLOCK();
+	test_ntt2();
+//	TEST_CCA_KEM();
+//	TEST_CCA_KEM_CLOCK();
 	
 	return 0;	
 }

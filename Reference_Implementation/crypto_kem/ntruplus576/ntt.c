@@ -88,6 +88,7 @@ void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 			}
 		}
 	}
+
 	for(int step = 32; step <= NTRUPLUS_N/6; step = 3*step)
 	{
 		for(int start = 0; start < NTRUPLUS_N; start += 3*step)
