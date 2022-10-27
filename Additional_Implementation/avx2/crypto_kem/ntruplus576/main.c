@@ -150,7 +150,7 @@ int test_ntt2()
 		b.coeffs[i] = 0;
     }
 
-    for (int i = 0; i < 2; i++)
+    for (int i = 0; i < 3; i++)
     {
 		a.coeffs[i] = 1;
 		b.coeffs[i] = 1;	
@@ -158,11 +158,9 @@ int test_ntt2()
 
 	poly_ntt(&a);
 	poly_ntt(&b);
-
-
-	
-	poly_basemul(&c, &a, &b);
-//poly_freeze(&c);
+	poly_basemul(&c,&a,&b);
+	poly_invntt(&c);
+	poly_freeze(&c);
 	for (int i = 0; i < NTRUPLUS_N; i++)
     {
         if(i%16==0) printf("\n");
