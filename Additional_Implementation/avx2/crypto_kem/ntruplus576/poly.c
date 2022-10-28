@@ -3,65 +3,7 @@
 #include "poly.h"
 #include "reduce.h"
 #include "symmetric.h"
-#include "sotp.h"
-/*
-void poly_sotp(poly *e, const unsigned char *msg, const unsigned char *buf)
-{
-    uint8_t tmp[NTRUPLUS_N/4];
-    uint32_t t1, t2;
 
-    for(int i = 0; i < NTRUPLUS_N/8; i++)
-    {
-         tmp[i] = buf[i]^msg[i];
-    }
-
-    for(int i = NTRUPLUS_N/8; i < NTRUPLUS_N/4; i++)
-    {
-         tmp[i] = buf[i];
-    }
-
-    for(int i = 0; i < 18; i++)
-    {
-        t1 = load32_littleendian(tmp + 4*i);
-        t2 = load32_littleendian(buf + 4*i + 72);
-
-        for (int j = 0; j < 32; j++)
-        {
-            e->coeffs[32*i + j] = (t1 & 0x1) - (t2 & 0x1);
-
-            t1 = t1 >> 1;
-            t2 = t2 >> 1;
-        }
-    }
-}
-*/
-/*
-void poly_sotp_inv(unsigned char *msg, const poly *e, const unsigned char *buf)
-{
-    uint8_t tmp[64];
-	uint32_t t1, t2, t3;
-
-    for(int i = 0; i < 18; i++)
-    {
-        t1 = load32_littleendian(buf + 4*i);
-        t2 = load32_littleendian(buf + 4*i + 72);
-        t3 = 0;
-
-        for (int j = 0; j < 32; j++)
-        {
-            t3 ^= (((e->coeffs[32*i + j] + (t2 & 0x1)) & 0x1)^(t1 & 0x1)) << j;
-
-            t1 = t1 >> 1;
-            t2 = t2 >> 1;
-        }
-        
-        msg[4*i] = t3;
-        msg[4*i+1] = t3 >> 8;
-        msg[4*i+2] = t3 >> 16;
-        msg[4*i+3] = t3 >> 24;
-    }
-}
-*/
 static int16_t crepmod3(int16_t a)
 {
   a += (a >> 15) & NTRUPLUS_Q;

@@ -1,5 +1,6 @@
 #include <stddef.h>
 #include <stdint.h>
+#include "kem.h"
 #include "params.h"
 #include "rng.h"
 #include "symmetric.h"
@@ -102,7 +103,12 @@ int crypto_kem_enc(unsigned char *ct,
     poly_tobytes(buf2, &r);
     hash_g(buf2, buf2);
 
-    poly_sotp(&m, msg, buf2);  
+    poly_sotp(&m, msg, buf2);
+    for(int i=0;i<NTRUPLUS_N;i++)
+    {
+        printf("%d ", m.coeffs[i]);
+    }
+    printf("\n");
     poly_ntt(&m,&m);
 
     poly_basemul(&c, &h, &r);
@@ -156,6 +162,10 @@ int crypto_kem_dec(unsigned char *ss,
     poly_basemul(&t1, &c, &f);
     poly_invntt(&t1,&t1);
     poly_crepmod3(&m1, &t1);
+    for(int i=0;i<NTRUPLUS_N;i++)
+    {
+        printf("%d ", m1.coeffs[i]);
+    }
     
     poly_ntt(&m2,&m1);
     poly_sub(&c,&c,&m2);

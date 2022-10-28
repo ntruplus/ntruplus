@@ -4,7 +4,7 @@
 #include "api.h"
 #include "rng.h"
 #include "poly.h"
-#define TEST_LOOP 100000
+#define TEST_LOOP 1
 int64_t cpucycles(void)
 {
 	unsigned int hi, lo;
@@ -34,12 +34,6 @@ void TEST_CCA_KEM()
 	{
 		crypto_kem_enc(ct, ss, pk);
 		crypto_kem_dec(dss, ct, sk);
-
-		for(int i=0; i < CRYPTO_CIPHERTEXTBYTES; i++)
-		{
-			printf("%02X", ct[i]);
-		}
-		printf("\n");
 
 		if(memcmp(ss, dss, 32) != 0)
 		{
@@ -106,112 +100,85 @@ void TEST_CCA_KEM_CLOCK()
 
 	printf("==================================================\n");
 }
-
-void test_poly()
+int test_ntt()
 {
-	uint8_t buf[144];
-	poly a, b,c;
-
-	for (int i = 0; i < 72; i++)
-	{
-		buf[i]=0x00;
-		buf[2*i+1]=0x0f;
-	}
-
-<<<<<<< HEAD
-	for (int i = 0; i < NTRUPLUS_N; i++)
-	{
-		a.coeffs[i] = 0x101;
-	}
-	
-
-	poly_cbd1(&a,buf);
-
-	for (int i = 512; i < 576; i++)
-	{
-		printf("%d ", a.coeffs[i]);
-	}
-	printf("\n");
-=======
-	poly_ntt(&a,&a);
-	poly_freeze(&a);  
-	
-	printf("ntt\n");
-    for (int i = 0; i < NTRUPLUS_N; i++)
-    {
-        if(i%16==0) printf("\n");
-        printf("%d " , a.coeffs[i]);
-    }
-    printf("\n\n");
-/*
-	poly_invntt(&a);
-	poly_freeze(&a);
-	  
-	printf("invntt\n");
-    for (int i = 0; i < NTRUPLUS_N; i++)
-    {
-        if(i%16==0) printf("\n");
-        printf("%d " , a.coeffs[i]);
-    }
-    printf("\n\n");
-	*/
-}
-
-int test_ntt2()
-{
-	poly a,b,c;
+	poly a,b,c,d,e;
+	uint8_t buf[1000] = {0};
 
     for (int i = 0; i < NTRUPLUS_N; i++)
     {
 		a.coeffs[i] = 0;
 		b.coeffs[i] = 0;
     }
-
-    for (int i = 0; i < 383; i++)
+    for (int i = 0; i < 3; i++)
     {
 		a.coeffs[i] = 1;
-		b.coeffs[i] = 1;	
+		b.coeffs[i] = 1;
     }
 
-	poly_ntt(&a);
-	poly_ntt(&b);
+	poly_ntt(&a,&a);
+	//poly_freeze(&a);
+	//poly_ntt(&b,&b);
 
-	poly_basemul(&c, &a, &b);
-	poly_invntt(&c);
-	poly_freeze(&c);
-	poly_freeze(&c);
+/*
+	poly_baseinv(&b,&a);
+	poly_basemul(&c,&a,&b);	
+*/
+	poly_invntt(&a,&a);
+	poly_freeze(&a);
 
     for (int i = 0; i < NTRUPLUS_N; i++)
     {
         if(i%16==0) printf("\n");
-        printf("%d " , c.coeffs[i]);
+        printf("%d " , a.coeffs[i]);
     }
-    printf("\n");
->>>>>>> parent of d4d4f37 (commit)
+	printf("\n");
+
 }
+
+void test_poly()
+{
+	poly a,b,c,d,e;
+
+	uint8_t msg[144] = {0};
+	uint8_t buf[144] = {0};
+
+	for(int i = 0; i < 144; i++)
+	{
+		buf[i] = i;
+		msg[i] = i;
+	}
+
+	poly_cbd1(&c,buf);
+	for(int i=0; i < 512;i++)
+	{
+		printf("%d ", c.coeffs[i]);
+	}
+	printf("\n\n");
+	poly_sotp(&c,msg,buf);
+	poly_sotp_inv(msg,&c,buf);
+	for(int i=0; i < 512;i++)
+	{
+		printf("%d ", c.coeffs[i]);
+	}
+	printf("\n");
+
+	for(int i=0; i < 144;i++)
+	{
+		printf("%d ", msg[i]);
+	}
+	printf("\n");	
+}
+
 int main(void)
 {
-
-	unsigned char entropy_input[48] = {0};
-	unsigned char personalization_string[48] = {0};
-
 	printf("PUBLICKEYBYTES : %d\n", CRYPTO_PUBLICKEYBYTES);
 	printf("SECRETKEYBYTES : %d\n", CRYPTO_SECRETKEYBYTES);
 	printf("CIPHERTEXTBYTES : %d\n", CRYPTO_CIPHERTEXTBYTES);
 
-	randombytes_init(entropy_input, personalization_string, 128);
-
-<<<<<<< HEAD
-	test_poly();
-=======
-		//test_tofrom();
 	test_ntt();
-	//test_ntt2();
-	//test_ntt3();
-	///test_ntt_clock();
->>>>>>> parent of d4d4f37 (commit)
 	//TEST_CCA_KEM();
-	//TEST_CCA_KEM_CLOCK();
-
+	////TEST_CCA_KEM_CLOCK();
+	
 	return 0;	
 }
