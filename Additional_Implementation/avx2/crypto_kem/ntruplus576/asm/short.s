@@ -141,20 +141,24 @@ vmovdqa		_8x1(%rip),%ymm5
 xor		    %rax,%rax
 .p2align 5
 _looptop_poly_sotp_inv_1:
-vmovdqu       (%rsi),%ymm1
-vmovdqu       (%rdx),%ymm2
-vmovdqu     72(%rdx),%ymm3
+vmovdqu       (%rsi),%ymm1 #message
+vmovdqu       (%rdx),%ymm2 #random 1
+vmovdqu     72(%rdx),%ymm3 #random 2
 
 vpand       %ymm0,%ymm3,%ymm6
-vpaddw	    %ymm4,%ymm1,%ymm15
+vpaddw	    %ymm6,%ymm1,%ymm6
+vpand       %ymm0,%ymm6,%ymm6
 
 xor         %r8,%r8
 .p2align 5
 _looptop_poly_sotp_inv_1_1:
-vmovdqu       32(%rsi, %r8),%ymm1
+vmovdqu     32(%rsi, %r8),%ymm1
 vpsrld		$1,%ymm3,%ymm3
 vpand       %ymm0,%ymm3,%ymm6
-vpaddw	    %ymm4,%ymm1,%ymm14
+vpaddw	    %ymm6,%ymm1,%ymm6
+vpand       %ymm0,%ymm6,%ymm6
+
+
 vpsllvd		%ymm4,%ymm14,%ymm14
 vpxor       %ymm14,%ymm15,%ymm15
 vpaddw      %ymm5,%ymm4,%ymm4
@@ -165,6 +169,11 @@ jb          _looptop_poly_sotp_inv_1_1
 
 vpxor       %ymm15,%ymm1,%ymm1
 vmovdqu     %ymm1,(%rdi)
+
+add		$32,%rsi
+add		$512,%rdi
+add		$512,%rax
+cmp		$1024,%rax
 jb		_looptop_poly_sotp_inv_1
 
 movq        (%rsi),%mm1
@@ -173,15 +182,18 @@ movq        72(%rdx),%mm3
 
 movq        _4x1(%rip),%mm8
 pand         %mm3,%mm8
-paddw	    %mm1,%ymm4
 
+
+paddw	    %mm1,%ymm3
+movq        _4x1(%rip),%mm8
+pand	    %mm8,%ymm4
 xor         %r8,%r8
 .p2align 5
 _looptop_poly_sotp_inv_2:
-movq        8(%rsi,%r8),%mm1
 psrlw 		$1,%mm3
 movq        _4x1(%rip),%mm5
 pand        %mm3,%mm5
+movq        8(%rsi,%r8),%mm1
 paddw	    %mm1,%ymm4
 
 psllw		%mm4,%mm14
