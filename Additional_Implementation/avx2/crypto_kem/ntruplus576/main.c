@@ -141,7 +141,7 @@ int test_ntt2()
 	poly_ntt(&a,&a);
 	poly_freeze(&a);
 
-	poly_ntt(&b,&b);
+	poly_baseinv(&b,&a);
 	poly_freeze(&b);
 
 	poly_basemul(&c,&a,&b);
@@ -153,26 +153,6 @@ int test_ntt2()
         printf("%d " , c.coeffs[i]);
     }
     printf("\n");
-
-/*
-
-    for (int i = 0; i < NTRUPLUS_N; i++)
-    {
-        if(i%16==0) printf("\n");
-        printf("%d " , c.coeffs[i]);
-    }
-    printf("\n\n");
-	poly_invntt(&c);
-	poly_freeze(&c);
-	//poly_freeze(&c);
-
-    for (int i = 0; i < NTRUPLUS_N; i++)
-    {
-        if(i%16==0) printf("\n");
-        printf("%d " , c.coeffs[i]);
-    }
-    printf("\n");
-	*/
 }
 
 void test_poly()
@@ -215,9 +195,9 @@ int main(void)
 	printf("SECRETKEYBYTES : %d\n", CRYPTO_SECRETKEYBYTES);
 	printf("CIPHERTEXTBYTES : %d\n", CRYPTO_CIPHERTEXTBYTES);
 
-	test_ntt2();
-	//TEST_CCA_KEM();
-	////TEST_CCA_KEM_CLOCK();
+	//test_ntt2();
+	TEST_CCA_KEM();
+	TEST_CCA_KEM_CLOCK();
 	
 	return 0;	
 }
