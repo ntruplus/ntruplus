@@ -4,7 +4,7 @@
 #include "api.h"
 #include "rng.h"
 
-#define TEST_LOOP 10000
+#define TEST_LOOP 100000
 int64_t cpucycles(void)
 {
 	unsigned int hi, lo;
@@ -107,7 +107,7 @@ int main(void)
 	printf("SECRETKEYBYTES : %d\n", CRYPTO_SECRETKEYBYTES);
 	printf("CIPHERTEXTBYTES : %d\n", CRYPTO_CIPHERTEXTBYTES);
 
-	TEST_CCA_KEM();
+	//TEST_CCA_KEM();
 	TEST_CCA_KEM_CLOCK();
 	
 	return 0;	

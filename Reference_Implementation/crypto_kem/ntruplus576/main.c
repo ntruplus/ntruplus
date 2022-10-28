@@ -3,8 +3,13 @@
 #include <stdint.h>
 #include "api.h"
 #include "rng.h"
+<<<<<<< HEAD
 #include "poly.h"
+#define TEST_LOOP 100000
+=======
+
 #define TEST_LOOP 10000
+>>>>>>> parent of d4d4f37 (commit)
 int64_t cpucycles(void)
 {
 	unsigned int hi, lo;
@@ -100,6 +105,7 @@ void TEST_CCA_KEM_CLOCK()
 
 	printf("==================================================\n");
 }
+<<<<<<< HEAD
 int test_ntt()
 {
 	poly a,b,c,d;
@@ -107,7 +113,7 @@ int test_ntt()
 
     for (int i = 0; i < NTRUPLUS_N; i++)
     {
-		a.coeffs[i] = i;
+		a.coeffs[i] = 1;
     }
 
 	poly_ntt(&a,&a);
@@ -119,7 +125,17 @@ int test_ntt()
         if(i%16==0) printf("\n");
         printf("%d " , a.coeffs[i]);
     }
-
+    printf("\n\n");
+	poly_invntt(&a,&a);
+	poly_freeze(&a);
+	  
+	printf("invntt\n");
+    for (int i = 0; i < NTRUPLUS_N; i++)
+    {
+        if(i%16==0) printf("\n");
+        printf("%d " , a.coeffs[i]);
+    }
+    printf("\n\n");
 }
 
 int test_ntt2()
@@ -128,36 +144,29 @@ int test_ntt2()
 
     for (int i = 0; i < NTRUPLUS_N; i++)
     {
-		a.coeffs[i] = 0;
-		b.coeffs[i] = 0;
+		a.coeffs[i] = 1;
     }
 
-    for (int i = 0; i < 3; i++)
-    {
-		a.coeffs[i] = 1;
-		b.coeffs[i] = 1;	
-    }
 
 	poly_ntt(&a,&a);
-	poly_ntt(&b,&b);
+	poly_baseinv(&b, &a);
+	poly_freeze(&b);
+	for (int i = 0; i < NTRUPLUS_N; i++)
+    {
+        if(i%16==0) printf("\n");
+        printf("%d " , b.coeffs[i]);
+    }
+
 	poly_basemul(&c, &a, &b);
-poly_freeze(&a);
-	//poly_invntt(&c,&c);
-		poly_freeze(&c);
-/*
-	poly_basemul(&c, &a, &b);
-	
-*/
-    for (int i = 0; i < NTRUPLUS_N; i++)
+    poly_freeze(&c);
+	for (int i = 0; i < NTRUPLUS_N; i++)
     {
         if(i%16==0) printf("\n");
         printf("%d " , c.coeffs[i]);
     }
     printf("\n");
-/*
 	poly_invntt(&c,&c);
 	poly_freeze(&c);
-	//poly_freeze(&c);
 
     for (int i = 0; i < NTRUPLUS_N; i++)
     {
@@ -165,8 +174,9 @@ poly_freeze(&a);
         printf("%d " , c.coeffs[i]);
     }
     printf("\n");
-*/
 }
+=======
+>>>>>>> parent of d4d4f37 (commit)
 
 int main(void)
 {
@@ -174,9 +184,12 @@ int main(void)
 	printf("SECRETKEYBYTES : %d\n", CRYPTO_SECRETKEYBYTES);
 	printf("CIPHERTEXTBYTES : %d\n", CRYPTO_CIPHERTEXTBYTES);
 
-	test_ntt2();
-//	TEST_CCA_KEM();
-//	TEST_CCA_KEM_CLOCK();
+<<<<<<< HEAD
+//	test_ntt2();
+=======
+>>>>>>> parent of d4d4f37 (commit)
+	TEST_CCA_KEM();
+	TEST_CCA_KEM_CLOCK();
 	
 	return 0;	
 }

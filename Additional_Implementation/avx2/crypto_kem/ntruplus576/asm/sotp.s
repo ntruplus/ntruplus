@@ -1,3 +1,4 @@
+/*
 .global sotp_internal
 sotp_internal:
 vmovdqa		_16x1(%rip),%ymm0
@@ -61,3 +62,4 @@ vpxor       %ymm15,%ymm0,%ymm0
 vmovdqu     %ymm0,(%rdi)
 
 ret
+*/

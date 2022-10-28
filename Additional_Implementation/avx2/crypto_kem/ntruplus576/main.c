@@ -4,7 +4,7 @@
 #include "api.h"
 #include "rng.h"
 #include "poly.h"
-#define TEST_LOOP 1
+#define TEST_LOOP 100000
 int64_t cpucycles(void)
 {
 	unsigned int hi, lo;
@@ -107,35 +107,43 @@ void TEST_CCA_KEM_CLOCK()
 	printf("==================================================\n");
 }
 
-int test_ntt()
+void test_poly()
 {
-	poly a,b,c,d;
-	uint8_t buf[1000] = {0};
+	uint8_t buf[144];
+	poly a, b,c;
 
-    for (int i = 0; i < NTRUPLUS_N; i++)
-    {
-		a.coeffs[i] = 1;
-    }
-		poly_freeze(&a); 
-		poly_freeze(&a); 
-	printf("ntt\n");
-    for (int i = 0; i < NTRUPLUS_N; i++)
-    {
-        if(i%16==0) printf("\n");
-        printf("%d " , a.coeffs[i] );
-    }
-    printf("\n\n");
-	poly_ntt(&a);
+	for (int i = 0; i < 72; i++)
+	{
+		buf[i]=0x00;
+		buf[2*i+1]=0x0f;
+	}
+
+<<<<<<< HEAD
+	for (int i = 0; i < NTRUPLUS_N; i++)
+	{
+		a.coeffs[i] = 0x101;
+	}
+	
+
+	poly_cbd1(&a,buf);
+
+	for (int i = 512; i < 576; i++)
+	{
+		printf("%d ", a.coeffs[i]);
+	}
+	printf("\n");
+=======
+	poly_ntt(&a,&a);
 	poly_freeze(&a);  
 	
 	printf("ntt\n");
     for (int i = 0; i < NTRUPLUS_N; i++)
     {
         if(i%16==0) printf("\n");
-        printf("%d " , a.coeffs[i] );
+        printf("%d " , a.coeffs[i]);
     }
     printf("\n\n");
-
+/*
 	poly_invntt(&a);
 	poly_freeze(&a);
 	  
@@ -143,10 +151,10 @@ int test_ntt()
     for (int i = 0; i < NTRUPLUS_N; i++)
     {
         if(i%16==0) printf("\n");
-        printf("%d " , a.coeffs[i] * 2775 % 3457);
+        printf("%d " , a.coeffs[i]);
     }
     printf("\n\n");
-
+	*/
 }
 
 int test_ntt2()
@@ -159,39 +167,19 @@ int test_ntt2()
 		b.coeffs[i] = 0;
     }
 
-    for (int i = 0; i < 3; i++)
+    for (int i = 0; i < 383; i++)
     {
 		a.coeffs[i] = 1;
 		b.coeffs[i] = 1;	
     }
 
 	poly_ntt(&a);
-	poly_freeze(&a);
-
 	poly_ntt(&b);
-	poly_freeze(&b);
 
-	poly_basemul(&c,&a,&b);
-	//poly_invntt(&c);
-	poly_freeze(&c);
-	for (int i = 0; i < NTRUPLUS_N; i++)
-    {
-        if(i%16==0) printf("\n");
-        printf("%d " , c.coeffs[i]);
-    }
-    printf("\n");
-
-/*
-
-    for (int i = 0; i < NTRUPLUS_N; i++)
-    {
-        if(i%16==0) printf("\n");
-        printf("%d " , c.coeffs[i]);
-    }
-    printf("\n\n");
+	poly_basemul(&c, &a, &b);
 	poly_invntt(&c);
 	poly_freeze(&c);
-	//poly_freeze(&c);
+	poly_freeze(&c);
 
     for (int i = 0; i < NTRUPLUS_N; i++)
     {
@@ -199,9 +187,8 @@ int test_ntt2()
         printf("%d " , c.coeffs[i]);
     }
     printf("\n");
-	*/
+>>>>>>> parent of d4d4f37 (commit)
 }
-
 int main(void)
 {
 
@@ -214,11 +201,15 @@ int main(void)
 
 	randombytes_init(entropy_input, personalization_string, 128);
 
+<<<<<<< HEAD
+	test_poly();
+=======
 		//test_tofrom();
-	test_ntt2();
+	test_ntt();
 	//test_ntt2();
 	//test_ntt3();
 	///test_ntt_clock();
+>>>>>>> parent of d4d4f37 (commit)
 	//TEST_CCA_KEM();
 	//TEST_CCA_KEM_CLOCK();
 
