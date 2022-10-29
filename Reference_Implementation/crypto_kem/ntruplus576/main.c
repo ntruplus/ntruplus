@@ -4,7 +4,8 @@
 #include "api.h"
 #include "rng.h"
 #include "poly.h"
-#define TEST_LOOP 1
+#include <stdlib.h>
+#define TEST_LOOP 100000
 int64_t cpucycles(void)
 {
 	unsigned int hi, lo;
@@ -28,27 +29,11 @@ void TEST_CCA_KEM()
 
 	//Generate public and secret key
 	crypto_kem_keypair(pk, sk);
-		for(int i =0;i<NTRUPLUS_POLYBYTES;i++)
-		{
-			printf("%02x",pk[i]);
-		}
-		printf("\n\n");	
 
-		for(int i =0;i<NTRUPLUS_POLYBYTES*2;i++)
-		{
-			printf("%02x",sk[i]);
-		}
-		printf("\n\n");	
 	//Encrypt and Decrypt message
 	for(int j = 0; j < TEST_LOOP; j++)
 	{
 		crypto_kem_enc(ct, ss, pk);
-
-		for(int i =0;i<NTRUPLUS_POLYBYTES;i++)
-		{
-			printf("%02x",ct[i]);
-		}
-		printf("\n\n");		
 		crypto_kem_dec(dss, ct, sk);
 
 		if(memcmp(ss, dss, 32) != 0)
@@ -116,48 +101,6 @@ void TEST_CCA_KEM_CLOCK()
 
 	printf("==================================================\n");
 }
-void test_cbd1()
-{
-	uint8_t buf[144];
-	poly a;
-
-	for(int i = 0; i < 144; i++)
-	{
-		buf[i] = i;
-	}
-
-	poly_cbd1(&a, buf);
-
-	for(int i = 512; i < 576; i++)
-	{
-		printf("%d ", a.coeffs[i]);
-	}
-	printf("\n");
-}
-
-
-
-void test_sotp()
-{
-	poly a;
-
-	for(int i = 0; i < NTRUPLUS_N; i++)
-	{
-		a.coeffs[i] = i;
-	}
-
-	poly_ntt(&a, &a);
-	poly_freeze(&a);
-
-	for(int i = 0; i < NTRUPLUS_N; i++)
-	{
-		if(i%16 == 0) printf("\n");
-		printf("%d ", a.coeffs[i]);
-	}
-	printf("\n\n");
-
-
-}
 
 int main(void)
 {
@@ -169,7 +112,7 @@ int main(void)
 	printf("CIPHERTEXTBYTES : %d\n", CRYPTO_CIPHERTEXTBYTES);
 
 	randombytes_init(entropy_input, personalization_string, 128);
-//	test_cbd1();
+
 	TEST_CCA_KEM();
 	TEST_CCA_KEM_CLOCK();
 	

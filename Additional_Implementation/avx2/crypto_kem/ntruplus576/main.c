@@ -5,7 +5,7 @@
 #include "rng.h"
 #include "poly.h"
 #include <stdlib.h>
-#define TEST_LOOP 1
+#define TEST_LOOP 100000
 int64_t cpucycles(void)
 {
 	unsigned int hi, lo;
@@ -29,28 +29,11 @@ void TEST_CCA_KEM()
 
 	//Generate public and secret key
 	crypto_kem_keypair(pk, sk);
-		for(int i =0;i<NTRUPLUS_POLYBYTES;i++)
-		{
-			printf("%02x",pk[i]);
-		}
-		printf("\n\n");	
-
-		for(int i =0;i<NTRUPLUS_POLYBYTES*2;i++)
-		{
-			printf("%02x",sk[i]);
-		}
-		printf("\n\n");	
 
 	//Encrypt and Decrypt message
 	for(int j = 0; j < TEST_LOOP; j++)
 	{
 		crypto_kem_enc(ct, ss, pk);
-
-		for(int i =0;i<NTRUPLUS_POLYBYTES;i++)
-		{
-			printf("%02x",ct[i]);
-		}
-		printf("\n\n");	
 		crypto_kem_dec(dss, ct, sk);
 
 		if(memcmp(ss, dss, 32) != 0)
