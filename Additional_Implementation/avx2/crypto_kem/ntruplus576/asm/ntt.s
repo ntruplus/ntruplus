@@ -12,7 +12,7 @@ xor		%rax,%rax
 .p2align 5
 _looptop_j_0:
 #load
-vmovdqa		576(%rdi),%ymm4
+vmovdqa		576(%rsi),%ymm4
 vmovdqa		608(%rsi),%ymm5
 vmovdqa		640(%rsi),%ymm6
 vmovdqa		672(%rsi),%ymm7

@@ -14,12 +14,13 @@ const int16_t zetas_inv[1224] __attribute__((aligned(32))) = {7280, 23337, 25460
 
 #define WINVQINV 51849
 #define WINV 1033
-
+/*
 const uint64_t _4x9[4] __attribute__((aligned(32))) = {9, 9, 9, 9};
 const uint64_t _4x3[8] __attribute__((aligned(32))) = {15, 15, 15, 15};
-
+*/
 const uint16_t _low_mask[16] __attribute__((aligned(32))) = {LOW, LOW, LOW, LOW, LOW, LOW, LOW, LOW, LOW, LOW, LOW, LOW, LOW, LOW, LOW, LOW};
-const uint16_t _4x1[8] __attribute__((aligned(32))) = {1, 1, 1, 1};
+const uint16_t _4x1[4] __attribute__((aligned(32))) = {1, 1, 1, 1};
+const uint16_t _4x01[4] __attribute__((aligned(32))) = {1, 0, 0, 0};
 const uint32_t _8x1[8] __attribute__((aligned(32))) = {1, 1, 1, 1, 1, 1, 1, 1};
 
 const uint16_t _16xv[16] __attribute__((aligned(32))) = {V, V, V, V, V, V, V, V, V, V, V, V, V, V, V, V};

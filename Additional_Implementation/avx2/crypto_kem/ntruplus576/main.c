@@ -4,7 +4,8 @@
 #include "api.h"
 #include "rng.h"
 #include "poly.h"
-#define TEST_LOOP 1
+#include <stdlib.h>
+#define TEST_LOOP 100000
 int64_t cpucycles(void)
 {
 	unsigned int hi, lo;
@@ -100,93 +101,25 @@ void TEST_CCA_KEM_CLOCK()
 
 	printf("==================================================\n");
 }
-int test_ntt()
+
+
+void test_cbd1()
 {
-	poly a,b,c,d;
-	uint8_t buf[1000] = {0};
-
-    for (int i = 0; i < NTRUPLUS_N; i++)
-    {
-		a.coeffs[i] = i;
-    }
-
-	poly_ntt(&a,&a);
-	poly_freeze(&a);  
-	
-	printf("ntt\n");
-    for (int i = 0; i < NTRUPLUS_N; i++)
-    {
-        if(i%16==0) printf("\n");
-        printf("%d " , a.coeffs[i]);
-    }
-
-}
-
-int test_ntt2()
-{
-	poly a,b,c;
-
-    for (int i = 0; i < NTRUPLUS_N; i++)
-    {
-		a.coeffs[i] = 0;
-		b.coeffs[i] = 0;
-    }
-
-    for (int i = 0; i < 3; i++)
-    {
-		a.coeffs[i] = 1;
-		b.coeffs[i] = 1;	
-    }
-
-	poly_ntt(&a,&a);
-	poly_freeze(&a);
-
-	poly_baseinv(&b,&a);
-	poly_freeze(&b);
-
-	poly_basemul(&c,&a,&b);
-	poly_invntt(&c,&c);
-	poly_freeze(&c);
-	for (int i = 0; i < NTRUPLUS_N; i++)
-    {
-        if(i%16==0) printf("\n");
-        printf("%d " , c.coeffs[i]);
-    }
-    printf("\n");
-}
-
-void test_poly()
-{
-	poly a,b,c,d,e;
-
-	uint8_t msg[144] = {0};
-	uint8_t buf[144] = {0};
+	uint8_t buf[144];
+	poly a;
 
 	for(int i = 0; i < 144; i++)
 	{
 		buf[i] = i;
-		msg[i] = i;
 	}
 
-	poly_cbd1(&c,buf);
-	for(int i=0; i < 512;i++)
+	poly_cbd1(&a, buf);
+
+	for(int i = 512; i < 576; i++)
 	{
-		printf("%d ", c.coeffs[i]);
-	}
-	printf("\n\n");
-	poly_sotp(&c,msg,buf);
-	poly_sotp_inv(msg,&c,buf);
-	for(int i=0; i < 512;i++)
-	{
-		printf("%d ", c.coeffs[i]);
+		printf("%d ", a.coeffs[i]);
 	}
 	printf("\n");
-
-	for(int i=0; i < 144;i++)
-	{
-		printf("%d ", msg[i]);
-	}
-	printf("\n");	
 }
 
 int main(void)
@@ -195,9 +128,11 @@ int main(void)
 	printf("SECRETKEYBYTES : %d\n", CRYPTO_SECRETKEYBYTES);
 	printf("CIPHERTEXTBYTES : %d\n", CRYPTO_CIPHERTEXTBYTES);
 
+	test_cbd1();
+	//test_poly();
 	//test_ntt2();
-	TEST_CCA_KEM();
-	TEST_CCA_KEM_CLOCK();
+	//TEST_CCA_KEM();
+	//TEST_CCA_KEM_CLOCK();
 	
 	return 0;	
 }

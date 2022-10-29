@@ -100,72 +100,23 @@ void TEST_CCA_KEM_CLOCK()
 
 	printf("==================================================\n");
 }
-int test_ntt()
+void test_cbd1()
 {
-	poly a,b,c,d;
-	uint8_t buf[1000] = {0};
+	uint8_t buf[144];
+	poly a;
 
-    for (int i = 0; i < NTRUPLUS_N; i++)
-    {
-		a.coeffs[i] = i;
-    }
+	for(int i = 0; i < 144; i++)
+	{
+		buf[i] = i;
+	}
 
-	poly_ntt(&a,&a);
-	poly_freeze(&a);  
-	
-	printf("ntt\n");
-    for (int i = 0; i < NTRUPLUS_N; i++)
-    {
-        if(i%16==0) printf("\n");
-        printf("%d " , a.coeffs[i]);
-    }
+	poly_cbd1(&a, buf);
 
-}
-
-int test_ntt2()
-{
-	poly a,b,c;
-
-    for (int i = 0; i < NTRUPLUS_N; i++)
-    {
-		a.coeffs[i] = 0;
-		b.coeffs[i] = 0;
-    }
-
-    for (int i = 0; i < 3; i++)
-    {
-		a.coeffs[i] = 1;
-		b.coeffs[i] = 1;	
-    }
-
-	poly_ntt(&a,&a);
-	poly_ntt(&b,&b);
-	poly_basemul(&c, &a, &b);
-poly_freeze(&a);
-	//poly_invntt(&c,&c);
-		poly_freeze(&c);
-/*
-	poly_basemul(&c, &a, &b);
-	
-*/
-    for (int i = 0; i < NTRUPLUS_N; i++)
-    {
-        if(i%16==0) printf("\n");
-        printf("%d " , c.coeffs[i]);
-    }
-    printf("\n");
-/*
-	poly_invntt(&c,&c);
-	poly_freeze(&c);
-	//poly_freeze(&c);
-
-    for (int i = 0; i < NTRUPLUS_N; i++)
-    {
-        if(i%16==0) printf("\n");
-        printf("%d " , c.coeffs[i]);
-    }
-    printf("\n");
-*/
+	for(int i = 512; i < 576; i++)
+	{
+		printf("%d ", a.coeffs[i]);
+	}
+	printf("\n");
 }
 
 int main(void)
@@ -174,7 +125,7 @@ int main(void)
 	printf("SECRETKEYBYTES : %d\n", CRYPTO_SECRETKEYBYTES);
 	printf("CIPHERTEXTBYTES : %d\n", CRYPTO_CIPHERTEXTBYTES);
 
-	test_ntt2();
+	test_cbd1();
 //	TEST_CCA_KEM();
 //	TEST_CCA_KEM_CLOCK();
 	
