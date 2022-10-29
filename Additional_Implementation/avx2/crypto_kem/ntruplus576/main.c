@@ -3,8 +3,6 @@
 #include <stdint.h>
 #include "api.h"
 #include "rng.h"
-#include "poly.h"
-#include <stdlib.h>
 #define TEST_LOOP 100000
 int64_t cpucycles(void)
 {
@@ -102,75 +100,11 @@ void TEST_CCA_KEM_CLOCK()
 	printf("==================================================\n");
 }
 
-
-void test_cbd1()
-{
-	uint8_t buf[144];
-	poly a;
-
-	for(int i = 0; i < 144; i++)
-	{
-		buf[i] = i;
-	}
-
-	poly_cbd1(&a, buf);
-
-	for(int i = 512; i < 576; i++)
-	{
-		printf("%d ", a.coeffs[i]);
-	}
-	printf("\n");
-}
-
-void test_sotp()
-{
-	poly a;
-
-	for(int i = 0; i < NTRUPLUS_N; i++)
-	{
-		a.coeffs[i] = i;
-	}
-
-	poly_ntt(&a, &a);
-	poly_freeze(&a);
-
-	for(int i = 0; i < NTRUPLUS_N; i++)
-	{
-		if(i%16 == 0) printf("\n");
-		printf("%d ", a.coeffs[i]);
-	}
-	printf("\n\n");
-
-
-	poly_invntt_unpack(&a, &a);
-
-	for(int i = 0; i < NTRUPLUS_N; i++)
-	{
-		if(i%16 == 0) printf("\n");
-		printf("%d ", a.coeffs[i]);
-	}
-	printf("\n");
-
-	poly_ntt_unpack(&a, &a);
-
-	for(int i = 0; i < NTRUPLUS_N; i++)
-	{
-		if(i%16 == 0) printf("\n");
-		printf("%d ", a.coeffs[i]);
-	}
-	printf("\n");
-}
-
 int main(void)
 {
-	unsigned char entropy_input[48] = {0};
-	unsigned char personalization_string[48] = {0};
-
 	printf("PUBLICKEYBYTES : %d\n", CRYPTO_PUBLICKEYBYTES);
 	printf("SECRETKEYBYTES : %d\n", CRYPTO_SECRETKEYBYTES);
 	printf("CIPHERTEXTBYTES : %d\n", CRYPTO_CIPHERTEXTBYTES);
-
-	randombytes_init(entropy_input, personalization_string, 128);
 
 	TEST_CCA_KEM();
 	TEST_CCA_KEM_CLOCK();
