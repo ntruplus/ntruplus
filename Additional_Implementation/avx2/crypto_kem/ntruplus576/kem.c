@@ -50,19 +50,22 @@ int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
         r |= poly_baseinv(&ginv, &g);
     } while(r);
 
-    //sk
-    poly_freeze(&f);  
-    poly_tobytes(sk, &f);
-
-    poly_basemul(&hinv, &f, &ginv);
-    poly_freeze(&hinv);
-    poly_tobytes(sk+NTRUPLUS_POLYBYTES, &hinv);
-
     //pk
     poly_basemul(&h, &g, &finv);
     poly_freeze(&h);
+    poly_invntt_unpack(&h,&h);
     poly_tobytes(pk, &h);
     
+    //sk
+    poly_basemul(&hinv, &f, &ginv);
+    poly_freeze(&hinv);
+    poly_invntt_unpack(&hinv,&hinv);
+    poly_tobytes(sk+NTRUPLUS_POLYBYTES, &hinv);
+
+    poly_freeze(&f);  
+    poly_invntt_unpack(&f,&f);
+    poly_tobytes(sk, &f);
+
     return 0;
 }
 
@@ -89,9 +92,10 @@ int crypto_kem_enc(unsigned char *ct,
     uint8_t buf1[NTRUPLUS_SYMBYTES + NTRUPLUS_N/4];
     uint8_t buf2[NTRUPLUS_POLYBYTES];
 
-    poly c, h, r, m;
+    poly c, h, r, m, r2;
 
     poly_frombytes(&h, pk);
+    poly_ntt_unpack(&h,&h);
 
     randombytes(msg, NTRUPLUS_N/8);
     hash_h(buf1, msg);
@@ -99,8 +103,9 @@ int crypto_kem_enc(unsigned char *ct,
     poly_cbd1(&r, buf1 + NTRUPLUS_SYMBYTES);
     poly_ntt(&r,&r);
     poly_freeze(&r);
+    poly_invntt_unpack(&r2,&r);
     
-    poly_tobytes(buf2, &r);
+    poly_tobytes(buf2, &r2);
     hash_g(buf2, buf2);
 
     poly_sotp(&m, msg, buf2);  
@@ -109,6 +114,7 @@ int crypto_kem_enc(unsigned char *ct,
     poly_basemul(&c, &h, &r);
     poly_add(&c, &c, &m);
     poly_freeze(&c);
+    poly_invntt_unpack(&c,&c);
     poly_tobytes(ct, &c);
 
     for (int i = 0; i < NTRUPLUS_SSBYTES; i++)
@@ -154,6 +160,10 @@ int crypto_kem_dec(unsigned char *ss,
     poly_frombytes(&f, sk);
     poly_frombytes(&hinv, sk + NTRUPLUS_POLYBYTES);
 
+    poly_ntt_unpack(&c,&c);
+    poly_ntt_unpack(&f,&f);
+    poly_ntt_unpack(&hinv,&hinv);
+
     poly_basemul(&t1, &c, &f);
     poly_invntt(&t1,&t1);
     poly_crepmod3(&m1, &t1);
@@ -162,6 +172,7 @@ int crypto_kem_dec(unsigned char *ss,
     poly_sub(&c,&c,&m2);
     poly_basemul(&r2, &c, &hinv);
     poly_freeze(&r2);
+    poly_invntt_unpack(&r2,&r2);
     poly_tobytes(buf1, &r2);
 
     hash_g(buf2, buf1);
@@ -171,6 +182,7 @@ int crypto_kem_dec(unsigned char *ss,
     poly_cbd1(&r1,buf3 + NTRUPLUS_SSBYTES);
     poly_ntt(&r1,&r1);
     poly_freeze(&r1);
+    poly_invntt_unpack(&r1,&r1);
     poly_tobytes(buf2, &r1);
 
     fail = verify(buf1, buf2, NTRUPLUS_POLYBYTES);

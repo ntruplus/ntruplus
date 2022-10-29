@@ -217,7 +217,7 @@ void poly_cbd1(poly *a, const unsigned char buf[NTRUPLUS_N/4])
 				{
 					a->coeffs[256*i + 16*l + 2*j + k] = (t1 & 0x1) - (t2 & 0x1);
 
-					t1 >>= 1;
+					t1 >>= 1;   
 					t2 >>= 1;
 				}
 			}
@@ -268,7 +268,7 @@ void poly_sotp(poly *e, const unsigned char *msg, const unsigned char *buf)
 			{
 				for(int l = 0; l < 16; l++)
 				{
-					a->coeffs[256*i + 16*l + 2*j + k] = (t1 & 0x1) - (t2 & 0x1);
+					e->coeffs[256*i + 16*l + 2*j + k] = (t1 & 0x1) - (t2 & 0x1);
 
 					t1 >>= 1;
 					t2 >>= 1;
@@ -286,7 +286,7 @@ void poly_sotp(poly *e, const unsigned char *msg, const unsigned char *buf)
 		{
 			for(int l = 0; l < 16; l++)
 			{
-				a->coeffs[512 + 4*l + 2*j + k] = (t1 & 0x1) - (t2 & 0x1);
+				e->coeffs[512 + 4*l + 2*j + k] = (t1 & 0x1) - (t2 & 0x1);
 
 				t1 >>= 1;
 				t2 >>= 1;
@@ -297,59 +297,55 @@ void poly_sotp(poly *e, const unsigned char *msg, const unsigned char *buf)
 
 void poly_sotp_inv(unsigned char *msg, const poly *e, const unsigned char *buf)
 {
-    uint8_t tmp[64];
 	uint32_t t1, t2, t3;
 
 	for(int i = 0; i < 2; i++)
 	{
 		for(int j = 0; j < 8; j++)
 		{
-			t1 = load32_littleendian(tmp + 32*i + 4*j);
-			t2 = load32_littleendian(tmp + 32*i + 4*j + 72);
+			t1 = load32_littleendian(buf + 32*i + 4*j);
+			t2 = load32_littleendian(buf + 32*i + 4*j + 72);
 			t3 = 0;
-
+			
 			for (int k = 0; k < 2; k++)
 			{
 				for(int l = 0; l < 16; l++)
 				{
-					t3 ^= ((a->coeffs[256*i + 16*l + 2*j + k] + (t2 & 0x1))^0x1)^(t1 & 0x1);
+					t3 ^= (((e->coeffs[256*i + 16*l + 2*j + k] + t2)^t1) & 0x1) << (l+16*k);
 
-					t1 = t1 >> 1;
-					t2 = t2 >> 1;
-
+					t1 >>= 1;
+					t2 >>= 1;
 				}
 			}
 
-			msg[4*i] = t3;
-			msg[4*i+1] = t3 >> 8;
-			msg[4*i+2] = t3 >> 16;
-			msg[4*i+3] = t3 >> 24;
+			msg[32*i + 4*j   ] = t3;
+			msg[32*i + 4*j + 1] = t3 >> 8;
+			msg[32*i + 4*j + 2] = t3 >> 16;
+			msg[32*i + 4*j + 3] = t3 >> 24;
 		}
 	}
 
 	for(int j = 0; j < 2; j++)
 	{
-		t1 = load32_littleendian(tmp + 4*j + 64 );
-		t2 = load32_littleendian(tmp + 4*j + 136);
+		t1 = load32_littleendian(buf + 4*j + 64 );
+		t2 = load32_littleendian(buf + 4*j + 136);
 		t3 = 0;
 
 		for (int k = 0; k < 2; k++)
 		{
 			for(int l = 0; l < 16; l++)
 			{
-				t3 ^= ((a->coeffs[256*i + 16*l + 2*j + k] + (t2 & 0x1))^0x1)^(t1 & 0x1);
+				t3 ^= (((e->coeffs[512 + 4*l + 2*j + k] + t2)^t1) & 0x1) << (l+16*k);
 
-				t1 = t1 >> 1;
-				t2 = t2 >> 1;
-
+				t1 >>= 1;
+				t2 >>= 1;
 			}
-
-			msg[4*i] = t3;
-			msg[4*i+1] = t3 >> 8;
-			msg[4*i+2] = t3 >> 16;
-			msg[4*i+3] = t3 >> 24;
 		}
+		
+		msg[64 + 4*j   ] = t3;
+		msg[64 + 4*j + 1] = t3 >> 8;
+		msg[64 + 4*j + 2] = t3 >> 16;
+		msg[64 + 4*j + 3] = t3 >> 24;
 	}
-
-
 }
+

@@ -12,20 +12,12 @@ typedef struct{
   int16_t coeffs[NTRUPLUS_N];
 } poly __attribute__((aligned(32)));
 
-//void poly_tobytes(uint8_t r[NTRUPLUS_POLYBYTES], poly *a);
-//void poly_tobytes_partial(uint8_t r[NTRUPLUS_POLYBYTES], poly *a);
-//void poly_frombytes(poly *r, const uint8_t a[NTRUPLUS_POLYBYTES]);
-
 void poly_tobytes(uint8_t r[NTRUPLUS_POLYBYTES], const poly *a);
-//void poly_tobytes_partial(uint8_t r[NTRUPLUS_POLYBYTES], poly *a);
 void poly_frombytes(poly *r, const uint8_t a[NTRUPLUS_POLYBYTES]);
 
-
-void poly_ntt_pack(poly *b, const poly *a);
+void poly_invntt_unpack(poly *b, const poly *a);
 void poly_ntt_unpack(poly *b, const poly *a);
-void poly_pack_uniform(unsigned char *buf, const poly *a);
-void poly_unpack_uniform(poly *a, const unsigned char *buf);
-void poly_pack_short_partial(unsigned char *buf, const poly *a);
+
 
 void poly_ntt(poly *r, const poly *a);
 void poly_invntt(poly *r, const poly *a);

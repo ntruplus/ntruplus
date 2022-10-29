@@ -5,7 +5,7 @@
 #include "rng.h"
 #include "poly.h"
 #include <stdlib.h>
-#define TEST_LOOP 100000
+#define TEST_LOOP 1
 int64_t cpucycles(void)
 {
 	unsigned int hi, lo;
@@ -29,11 +29,28 @@ void TEST_CCA_KEM()
 
 	//Generate public and secret key
 	crypto_kem_keypair(pk, sk);
+		for(int i =0;i<NTRUPLUS_POLYBYTES;i++)
+		{
+			printf("%02x",pk[i]);
+		}
+		printf("\n\n");	
+
+		for(int i =0;i<NTRUPLUS_POLYBYTES*2;i++)
+		{
+			printf("%02x",sk[i]);
+		}
+		printf("\n\n");	
 
 	//Encrypt and Decrypt message
 	for(int j = 0; j < TEST_LOOP; j++)
 	{
 		crypto_kem_enc(ct, ss, pk);
+
+		for(int i =0;i<NTRUPLUS_POLYBYTES;i++)
+		{
+			printf("%02x",ct[i]);
+		}
+		printf("\n\n");	
 		crypto_kem_dec(dss, ct, sk);
 
 		if(memcmp(ss, dss, 32) != 0)
@@ -122,17 +139,58 @@ void test_cbd1()
 	printf("\n");
 }
 
+void test_sotp()
+{
+	poly a;
+
+	for(int i = 0; i < NTRUPLUS_N; i++)
+	{
+		a.coeffs[i] = i;
+	}
+
+	poly_ntt(&a, &a);
+	poly_freeze(&a);
+
+	for(int i = 0; i < NTRUPLUS_N; i++)
+	{
+		if(i%16 == 0) printf("\n");
+		printf("%d ", a.coeffs[i]);
+	}
+	printf("\n\n");
+
+
+	poly_invntt_unpack(&a, &a);
+
+	for(int i = 0; i < NTRUPLUS_N; i++)
+	{
+		if(i%16 == 0) printf("\n");
+		printf("%d ", a.coeffs[i]);
+	}
+	printf("\n");
+
+	poly_ntt_unpack(&a, &a);
+
+	for(int i = 0; i < NTRUPLUS_N; i++)
+	{
+		if(i%16 == 0) printf("\n");
+		printf("%d ", a.coeffs[i]);
+	}
+	printf("\n");
+}
+
 int main(void)
 {
+	unsigned char entropy_input[48] = {0};
+	unsigned char personalization_string[48] = {0};
+
 	printf("PUBLICKEYBYTES : %d\n", CRYPTO_PUBLICKEYBYTES);
 	printf("SECRETKEYBYTES : %d\n", CRYPTO_SECRETKEYBYTES);
 	printf("CIPHERTEXTBYTES : %d\n", CRYPTO_CIPHERTEXTBYTES);
 
-	test_cbd1();
-	//test_poly();
-	//test_ntt2();
-	//TEST_CCA_KEM();
-	//TEST_CCA_KEM_CLOCK();
+	randombytes_init(entropy_input, personalization_string, 128);
+
+	TEST_CCA_KEM();
+	TEST_CCA_KEM_CLOCK();
 	
 	return 0;	
 }
