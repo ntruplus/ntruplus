@@ -138,12 +138,13 @@ int poly_baseinv(poly *b, const poly *a)
 	unsigned int i;
 	int r = 0;
 
-	for(i = 0; i < NTRUPLUS_N/4; ++i)
+	for(i = 0; i < NTRUPLUS_N/4; i++)
 	{
 		r += baseinv(b->coeffs + 4*i, a->coeffs + 4*i, zetas[143 + i]);
 		r += baseinv(b->coeffs + 4*i + 2, a->coeffs + 4*i + 2, -zetas[143 + i]);
 	 }
 
+	if(r != 0) printf("iiii  : %d\n",i);
 	return r;
 }
 

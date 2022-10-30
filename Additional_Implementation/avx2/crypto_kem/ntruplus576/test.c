@@ -141,7 +141,7 @@ int main(void)
 	printf("CIPHERTEXTBYTES : %d\n", CRYPTO_CIPHERTEXTBYTES);
 
 	TEST_CCA_KEM();
-	TEST_CCA_KEM_CLOCK();
+	//TEST_CCA_KEM_CLOCK();
 	
 	return 0;	
 }

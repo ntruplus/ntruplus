@@ -47,7 +47,13 @@ int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
         f.coeffs[0] += 1;
         poly_ntt(&f,&f);
         r = poly_baseinv(&finv, &f);
+        for (int i = 0; i < NTRUPLUS_N; i++)
+        {
+            printf("%d ", finv.coeffs[i]);
+        }
+        printf("\n");
 
+        printf("r : %d\n", r);
         poly_cbd1(&g, buf + NTRUPLUS_N/4);
 
 
@@ -55,17 +61,14 @@ int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
         poly_triple(&g,&g);
         poly_ntt(&g,&g);
         poly_freeze(&g);
-        for (int i = 0; i < NTRUPLUS_N; i++)
-        {
-            printf("%d ", g.coeffs[i]);
-        }
-        printf("\n");
+
 
         r |= poly_baseinv(&ginv, &g);
 
-        poly_freeze(&ginv);
+     //   poly_freeze(&ginv);
         for (int i = 0; i < NTRUPLUS_N; i++)
         {
+            if(i%16 == 0) printf("\n");
             printf("%d ", ginv.coeffs[i]);
         }
         printf("\n");

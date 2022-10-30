@@ -25,7 +25,7 @@ static const unsigned char n[16] = {0};
 **************************************************/
 int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
 {
-    uint8_t buf[NTRUPLUS_N];
+    uint8_t buf[NTRUPLUS_N/2];
  
     poly f, finv;
     poly g, ginv;
@@ -36,7 +36,7 @@ int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
     do {
         r = 0;
         randombytes(buf, 32);
-        crypto_stream(buf, NTRUPLUS_N, n, buf);
+        crypto_stream(buf, NTRUPLUS_N/2, n, buf);
 
         poly_cbd1(&f, buf);
         poly_triple(&f);
