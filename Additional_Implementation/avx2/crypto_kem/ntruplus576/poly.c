@@ -1,7 +1,6 @@
 #include <stdint.h>
 #include "params.h"
 #include "poly.h"
-#include "reduce.h"
 #include "symmetric.h"
 
 static int16_t crepmod3(int16_t a)

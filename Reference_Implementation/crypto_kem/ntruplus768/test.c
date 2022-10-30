@@ -3,8 +3,8 @@
 #include <stdint.h>
 #include "api.h"
 #include "rng.h"
+#define TEST_LOOP 100000
 
-#define TEST_LOOP 10000
 int64_t cpucycles(void)
 {
 	unsigned int hi, lo;

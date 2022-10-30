@@ -25,7 +25,7 @@ static const unsigned char n[16] = {0};
 **************************************************/
 int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
 {
-    uint8_t buf[NTRUPLUS_N];
+    uint8_t buf[NTRUPLUS_N/2];
  
     poly f, finv;
     poly g, ginv;
@@ -36,7 +36,11 @@ int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
     do {
         r = 0;
         randombytes(buf, 32);
-        crypto_stream(buf, NTRUPLUS_N, n, buf);
+        crypto_stream(buf, NTRUPLUS_N/2, n, buf);
+
+        printf("buf  : ");
+        for(int i=0; i<NTRUPLUS_N/2; i++) printf("%02X", buf[i]);
+        printf("\n");
 
         poly_cbd1(&f, buf);
         poly_triple(&f,&f);
@@ -44,26 +48,45 @@ int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
         poly_ntt(&f,&f);
         r = poly_baseinv(&finv, &f);
 
-        poly_cbd1(&g, buf + NTRUPLUS_N/4); 
+        poly_cbd1(&g, buf + NTRUPLUS_N/4);
+
+
+
         poly_triple(&g,&g);
         poly_ntt(&g,&g);
+        poly_freeze(&g);
+        for (int i = 0; i < NTRUPLUS_N; i++)
+        {
+            printf("%d ", g.coeffs[i]);
+        }
+        printf("\n");
+
         r |= poly_baseinv(&ginv, &g);
+
+        poly_freeze(&ginv);
+        for (int i = 0; i < NTRUPLUS_N; i++)
+        {
+            printf("%d ", ginv.coeffs[i]);
+        }
+        printf("\n");
+        printf("r : %d\n", r);
+
     } while(r);
 
     //pk
     poly_basemul(&h, &g, &finv);
     poly_freeze(&h);
-    poly_invntt_unpack(&h,&h);
+    poly_ntt_pack(&h,&h);
     poly_tobytes(pk, &h);
     
     //sk
     poly_basemul(&hinv, &f, &ginv);
     poly_freeze(&hinv);
-    poly_invntt_unpack(&hinv,&hinv);
+    poly_ntt_pack(&hinv,&hinv);
     poly_tobytes(sk+NTRUPLUS_POLYBYTES, &hinv);
 
     poly_freeze(&f);  
-    poly_invntt_unpack(&f,&f);
+    poly_ntt_pack(&f,&f);
     poly_tobytes(sk, &f);
 
     return 0;
@@ -103,7 +126,7 @@ int crypto_kem_enc(unsigned char *ct,
     poly_cbd1(&r, buf1 + NTRUPLUS_SYMBYTES);
     poly_ntt(&r,&r);
     poly_freeze(&r);
-    poly_invntt_unpack(&r2,&r);
+    poly_ntt_pack(&r2,&r);
     
     poly_tobytes(buf2, &r2);
     hash_g(buf2, buf2);
@@ -114,7 +137,7 @@ int crypto_kem_enc(unsigned char *ct,
     poly_basemul(&c, &h, &r);
     poly_add(&c, &c, &m);
     poly_freeze(&c);
-    poly_invntt_unpack(&c,&c);
+    poly_ntt_pack(&c,&c);
     poly_tobytes(ct, &c);
 
     for (int i = 0; i < NTRUPLUS_SSBYTES; i++)
@@ -172,7 +195,7 @@ int crypto_kem_dec(unsigned char *ss,
     poly_sub(&c,&c,&m2);
     poly_basemul(&r2, &c, &hinv);
     poly_freeze(&r2);
-    poly_invntt_unpack(&r2,&r2);
+    poly_ntt_pack(&r2,&r2);
     poly_tobytes(buf1, &r2);
 
     hash_g(buf2, buf1);
@@ -182,7 +205,7 @@ int crypto_kem_dec(unsigned char *ss,
     poly_cbd1(&r1,buf3 + NTRUPLUS_SSBYTES);
     poly_ntt(&r1,&r1);
     poly_freeze(&r1);
-    poly_invntt_unpack(&r1,&r1);
+    poly_ntt_pack(&r1,&r1);
     poly_tobytes(buf2, &r1);
 
     fail = verify(buf1, buf2, NTRUPLUS_POLYBYTES);

@@ -3,9 +3,7 @@
 #include <stdint.h>
 #include "api.h"
 #include "rng.h"
-#include "poly.h"
-#include <stdlib.h>
-#define TEST_LOOP 100000
+#define TEST_LOOP 1
 int64_t cpucycles(void)
 {
 	unsigned int hi, lo;
@@ -34,10 +32,25 @@ void TEST_CCA_KEM()
 	for(int j = 0; j < TEST_LOOP; j++)
 	{
 		crypto_kem_enc(ct, ss, pk);
+
+
 		crypto_kem_dec(dss, ct, sk);
 
 		if(memcmp(ss, dss, 32) != 0)
 		{
+
+			printf("pk[%d]  : ", j);
+			for(int i=0; i<CRYPTO_PUBLICKEYBYTES; i++) printf("%02X", pk[i]);
+			printf("\n");
+
+			printf("sk[%d]  : ", j);
+			for(int i=0; i<CRYPTO_SECRETKEYBYTES; i++) printf("%02X", sk[i]);
+			printf("\n");
+
+			printf("ct[%d]  : ", j);
+			for(int i=0; i<CRYPTO_CIPHERTEXTBYTES; i++) printf("%02X", sk[i]);
+			printf("\n");
+
 			printf("ss[%d]  : ", j);
 			for(int i=0; i<32; i++) printf("%02X", ss[i]);
 			printf("\n");
@@ -45,7 +58,7 @@ void TEST_CCA_KEM()
 			printf("dss[%d] : ", j);
 			for(int i=0; i<32; i++) printf("%02X", dss[i]);
 			printf("\n");
-		
+	
 			cnt++;
 		}
 	}
@@ -105,13 +118,27 @@ void TEST_CCA_KEM_CLOCK()
 int main(void)
 {
 	unsigned char entropy_input[48] = {0};
-	unsigned char personalization_string[48] = {0};
+	unsigned char       seed[48];
+
+    for (int i=0; i<48; i++)
+        entropy_input[i] = i;
+
+    randombytes_init(entropy_input, NULL, 256);
+	randombytes(seed, 48);
+	randombytes(seed, 48);
+	
+	for (int i = 0; i < 48; i++)
+	{
+		printf("%02x",seed[i]);
+	}
+	printf("\n");
+
+	randombytes_init(seed, NULL, 256);
+	
 
 	printf("PUBLICKEYBYTES : %d\n", CRYPTO_PUBLICKEYBYTES);
 	printf("SECRETKEYBYTES : %d\n", CRYPTO_SECRETKEYBYTES);
 	printf("CIPHERTEXTBYTES : %d\n", CRYPTO_CIPHERTEXTBYTES);
-
-	randombytes_init(entropy_input, personalization_string, 128);
 
 	TEST_CCA_KEM();
 	TEST_CCA_KEM_CLOCK();

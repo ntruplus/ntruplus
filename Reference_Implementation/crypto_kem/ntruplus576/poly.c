@@ -176,7 +176,6 @@ void poly_triple(poly *r)
 	}
 }
 
-// Assumes -Q < a < Q
 static int16_t crepmod3(int16_t a) {
   a += (a >> 15) & NTRUPLUS_Q;
   a -= (NTRUPLUS_Q-1)/2;
@@ -303,8 +302,8 @@ void poly_sotp_inv(unsigned char *msg, const poly *e, const unsigned char *buf)
 	{
 		for(int j = 0; j < 8; j++)
 		{
-			t1 = load32_littleendian(tmp + 32*i + 4*j);
-			t2 = load32_littleendian(tmp + 32*i + 4*j + NTRUPLUS_N/8);
+			t1 = load32_littleendian(buf + 32*i + 4*j);
+			t2 = load32_littleendian(buf + 32*i + 4*j + NTRUPLUS_N/8);
 			t3 = 0;
 			
 			for (int k = 0; k < 2; k++)
@@ -327,8 +326,8 @@ void poly_sotp_inv(unsigned char *msg, const poly *e, const unsigned char *buf)
 
 	for(int j = 0; j < 2; j++)
 	{
-		t1 = load32_littleendian(tmp + 4*j + 64);
-		t2 = load32_littleendian(tmp + 4*j + 64 + NTRUPLUS_N/8);
+		t1 = load32_littleendian(buf + 4*j + 64);
+		t2 = load32_littleendian(buf + 4*j + 64 + NTRUPLUS_N/8);
 		t3 = 0;
 
 		for (int k = 0; k < 2; k++)

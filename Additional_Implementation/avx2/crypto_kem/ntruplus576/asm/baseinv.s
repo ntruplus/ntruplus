@@ -1,5 +1,10 @@
 .global poly_baseinv
 poly_baseinv:
+mov             %rsp,%r11
+and             $31,%r11
+add             $32,%r11
+sub             %r11,%rsp
+
 vmovdqa     _16xqinv(%rip),%ymm15
 vmovdqa		_16xq(%rip),%ymm0
 vmovdqa		_low_mask(%rip),%ymm1
@@ -410,5 +415,6 @@ add		$64,%rax
 cmp		$576,%rax
 jb		_looptop
 
+add		%r11,%rsp
 mov		%rcx,%rax
 ret
