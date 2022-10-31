@@ -31,7 +31,7 @@ int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
     poly g, ginv;
     poly h, hinv;
 
-    int r;
+    int64_t r;
 
     do {
         r = 0;
@@ -53,7 +53,7 @@ int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
         }
         printf("\n");
 
-        printf("r : %d\n", r);
+        printf("r : %ld\n", r);
         poly_cbd1(&g, buf + NTRUPLUS_N/4);
 
 
@@ -72,7 +72,7 @@ int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
             printf("%d ", ginv.coeffs[i]);
         }
         printf("\n");
-        printf("r : %d\n", r);
+        printf("r : %ld\n", r);
 
     } while(r);
 

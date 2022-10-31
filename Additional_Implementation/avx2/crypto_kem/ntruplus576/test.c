@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include "api.h"
 #include "rng.h"
+#include "poly.h"
 #define TEST_LOOP 1
 int64_t cpucycles(void)
 {
@@ -115,10 +116,14 @@ void TEST_CCA_KEM_CLOCK()
 	printf("==================================================\n");
 }
 
+int test(uint16_t* a, uint16_t* b);
+
 int main(void)
 {
 	unsigned char entropy_input[48] = {0};
 	unsigned char       seed[48];
+	uint16_t a[16];
+	uint16_t b[8];
 
     for (int i=0; i<48; i++)
         entropy_input[i] = i;
@@ -142,6 +147,44 @@ int main(void)
 
 	TEST_CCA_KEM();
 	//TEST_CCA_KEM_CLOCK();
+
+	int t1 = 6;
+	int t2 = 16;
+	for (int i = 0; i < t1; i++)
+	{
+		a[i] = i;
+	}
+
+
+	for (int i = t1; i < t2; i++)
+	{
+		a[i] = i;
+	}
+
+	for (int i = t2; i < 16; i++)
+	{
+		a[i] = 1;
+	}
+
+	for (int i = 0; i < 8; i++)
+	{
+		b[i] = 1;
+	}
+
+
+	printf("%d\n",test(b,a));
+
+	for (int i = 0; i < 16; i++)
+	{	
+		printf("%d ",a[i]);
+	}
+	printf("\n\n");
+	
+	for (int i = 0; i < 8; i++)
+	{	
+		printf("%d ",b[i]);
+	}
+	printf("\n");	
 	
 	return 0;	
 }
