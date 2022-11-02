@@ -34,7 +34,7 @@ void TEST_CCA_KEM()
 	{
 		crypto_kem_enc(ct, ss, pk);
 		crypto_kem_dec(dss, ct, sk);
-		
+
 		if(memcmp(ss, dss, 32) != 0)
 		{
 			printf("ss[%d]  : ", j);
@@ -44,7 +44,7 @@ void TEST_CCA_KEM()
 			printf("dss[%d] : ", j);
 			for(int i=0; i<32; i++) printf("%02X", dss[i]);
 			printf("\n");
-	
+		
 			cnt++;
 		}
 	}
