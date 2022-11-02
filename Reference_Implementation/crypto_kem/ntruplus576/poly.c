@@ -144,7 +144,6 @@ int poly_baseinv(poly *b, const poly *a)
 		r += baseinv(b->coeffs + 4*i + 2, a->coeffs + 4*i + 2, -zetas[143 + i]);
 	 }
 
-	if(r != 0) printf("iiii  : %d\n",i);
 	return r;
 }
 
@@ -215,7 +214,8 @@ void poly_cbd1(poly *a, const unsigned char buf[NTRUPLUS_N/4])
 			{
 				for(int l = 0; l < 16; l++)
 				{
-					a->coeffs[256*i + 16*l + 2*j + k] = (t1 & 0x1) - (t2 & 0x1);
+					
+					
 
 					t1 >>= 1;   
 					t2 >>= 1;

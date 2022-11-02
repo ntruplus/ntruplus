@@ -38,48 +38,16 @@ int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
         randombytes(buf, 32);
         crypto_stream(buf, NTRUPLUS_N/2, n, buf);
 
-        printf("buf  : ");
-        for(int i=0; i<NTRUPLUS_N/2; i++) printf("%02X", buf[i]);
-        printf("\n");
-
         poly_cbd1(&f, buf);
         poly_triple(&f);
         f.coeffs[0] += 1;
         poly_ntt(&f,&f);
         r = poly_baseinv(&finv, &f);
-         poly_freeze(&finv);
-        for (int i = 0; i < NTRUPLUS_N; i++)
-        {
-            printf("%d ", finv.coeffs[i]);
-        }
-        printf("\n");
-        printf("r : %d\n", r);
 
-        poly_cbd1(&g, buf + NTRUPLUS_N/4);
-
-
+        poly_cbd1(&g, buf + NTRUPLUS_N/4); 
         poly_triple(&g);
         poly_ntt(&g,&g);
-        poly_freeze(&g);
-        for (int i = 0; i < NTRUPLUS_N; i++)
-        {
-            printf("%d ", g.coeffs[i]);
-        }
-        printf("\n");
-
-
         r |= poly_baseinv(&ginv, &g);
-
-        poly_freeze(&ginv);
-        for (int i = 0; i < NTRUPLUS_N; i++)
-        {
-            printf("%d ", ginv.coeffs[i]);
-        }
-        printf("\n");
-        printf("r : %d\n", r);
-
-
-
     } while(r);
 
     //sk
