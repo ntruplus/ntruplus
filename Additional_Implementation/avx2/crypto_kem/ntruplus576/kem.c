@@ -43,15 +43,10 @@ int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
         f.coeffs[0] += 1;
         poly_ntt(&f,&f);
         r = poly_baseinv(&finv, &f);
+
         poly_cbd1(&g, buf + NTRUPLUS_N/4);
-
-
-
         poly_triple(&g,&g);
         poly_ntt(&g,&g);
-        poly_freeze(&g);
-
-
         r |= poly_baseinv(&ginv, &g);
         poly_freeze(&ginv);
     } while(r);

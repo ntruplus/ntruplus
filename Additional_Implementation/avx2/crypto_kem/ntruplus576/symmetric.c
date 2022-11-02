@@ -11,6 +11,6 @@ void hash_h(unsigned char *buf, const unsigned char *msg)
 
 void hash_g(unsigned char *buf, const unsigned char *msg)
 {
-	SHA512(msg, NTRUPLUS_POLYBYTES, buf);
+	SHA256(msg, NTRUPLUS_POLYBYTES, buf);
 	crypto_stream(buf, NTRUPLUS_N/4, n, buf);
 }

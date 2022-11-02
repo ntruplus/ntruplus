@@ -50,19 +50,19 @@ int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
         r |= poly_baseinv(&ginv, &g);
     } while(r);
 
-    //sk
-    poly_freeze(&f);  
-    poly_tobytes(sk, &f);
-
-    poly_basemul(&hinv, &f, &ginv);
-    poly_freeze(&hinv);
-    poly_tobytes(sk+NTRUPLUS_POLYBYTES, &hinv);
-
     //pk
     poly_basemul(&h, &g, &finv);
     poly_freeze(&h);
     poly_tobytes(pk, &h);
-    
+
+    //sk
+    poly_basemul(&hinv, &f, &ginv);
+    poly_freeze(&hinv);
+    poly_tobytes(sk+NTRUPLUS_POLYBYTES, &hinv);
+
+    poly_freeze(&f);  
+    poly_tobytes(sk, &f);
+        
     return 0;
 }
 

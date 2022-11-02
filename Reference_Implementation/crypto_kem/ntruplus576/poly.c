@@ -261,7 +261,7 @@ void poly_sotp(poly *e, const unsigned char *msg, const unsigned char *buf)
 		for(int j = 0; j < 8; j++)
 		{
 			t1 = load32_littleendian(tmp + 32*i + 4*j);
-			t2 = load32_littleendian(tmp + 32*i + 4*j + NTRUPLUS_N/8);
+			t2 = load32_littleendian(tmp + 32*i + 4*j + 72);
 
 			for (int k = 0; k < 2; k++)
 			{
@@ -269,7 +269,7 @@ void poly_sotp(poly *e, const unsigned char *msg, const unsigned char *buf)
 				{
 					e->coeffs[256*i + 16*l + 2*j + k] = (t1 & 0x1) - (t2 & 0x1);
 
-					t1 >>= 1;
+					t1 >>= 1;   
 					t2 >>= 1;
 				}
 			}
@@ -278,8 +278,8 @@ void poly_sotp(poly *e, const unsigned char *msg, const unsigned char *buf)
 
 	for(int j = 0; j < 2; j++)
 	{
-		t1 = load32_littleendian(tmp + 4*j + 64);
-		t2 = load32_littleendian(tmp + 4*j + 64 + NTRUPLUS_N/8);
+		t1 = load32_littleendian(tmp + 4*j + 64 );
+		t2 = load32_littleendian(tmp + 4*j + 136);
 
 		for (int k = 0; k < 2; k++)
 		{
