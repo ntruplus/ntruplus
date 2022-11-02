@@ -5,7 +5,7 @@ vmovdqa		_16xv(%rip),%ymm1
 lea		zetas_inv(%rip),%rdx
 
 xor		%rax,%rax
-xor		%r8,%r8
+xor		%rcx,%rcx
 .p2align 5
 _looptop_start_76543:
 #level7
@@ -36,12 +36,6 @@ vpmulhw		%ymm0,%ymm8,%ymm8
 vpmulhw		%ymm0,%ymm9,%ymm9
 vpsubw		%ymm8,%ymm10,%ymm8
 vpsubw		%ymm9,%ymm11,%ymm9
-
-#store
-vmovdqa		%ymm6,(%rdi)
-vmovdqa		%ymm7,32(%rdi)
-vmovdqa		%ymm8,64(%rdi)
-vmovdqa		%ymm9,96(%rdi)
 
 #shuffle
 vpslld		$16,%ymm7,%ymm10
@@ -95,7 +89,6 @@ vpsrlq		$32,%ymm6,%ymm12
 vpsrlq		$32,%ymm8,%ymm13
 vpblendd	$0xAA,%ymm7,%ymm12,%ymm6
 vpblendd	$0xAA,%ymm9,%ymm13,%ymm7
-
 
 #level5
 #update
@@ -173,8 +166,8 @@ vpaddw		%ymm6,%ymm4,%ymm6
 vpaddw		%ymm7,%ymm5,%ymm7
 
 #zetas
-vpbroadcastd		4608(%rdx,%rax),%ymm2
-vpbroadcastd		4612(%rdx,%rax),%ymm3
+vpbroadcastd		4608(%rdx,%rcx),%ymm2
+vpbroadcastd		4612(%rdx,%rcx),%ymm3
 
 #mul
 vpmullw		%ymm2,%ymm10,%ymm8
@@ -188,16 +181,6 @@ vpmulhw		%ymm0,%ymm9,%ymm9
 vpsubw		%ymm8,%ymm10,%ymm8
 vpsubw		%ymm9,%ymm11,%ymm9
 
-#reduce2
-vpmulhw		%ymm1,%ymm6,%ymm10
-vpmulhw		%ymm1,%ymm7,%ymm11
-vpsraw		$10,%ymm10,%ymm10
-vpsraw		$10,%ymm11,%ymm11
-vpmullw		%ymm0,%ymm10,%ymm10
-vpmullw		%ymm0,%ymm11,%ymm11
-vpsubw		%ymm10,%ymm6,%ymm6
-vpsubw		%ymm11,%ymm7,%ymm7
-
 #store
 vmovdqa		%ymm6,(%rdi)
 vmovdqa		%ymm7,32(%rdi)
@@ -206,7 +189,7 @@ vmovdqa		%ymm9,96(%rdi)
 
 add		$128,%rsi
 add		$128,%rdi
-add     $16,%r8
+add		$8,%rcx
 add		$64,%rax
 cmp		$1152,%rax
 jb		_looptop_start_76543
@@ -221,10 +204,10 @@ xor		%rax,%rax
 .p2align 5
 _looptop_start_2:
 #load
-vpbroadcastd 4608(%rdx,%rax),%ymm4 #z^-1qinv
-vpbroadcastd 4616(%rdx,%rax),%ymm5 #z^-2qinv
-vpbroadcastd 4612(%rdx,%rax),%ymm6 #z^-1
-vpbroadcastd 4620(%rdx,%rax),%ymm7 #z^-2
+vpbroadcastd 4752(%rdx,%rax),%ymm4 #z^-1qinv
+vpbroadcastd 4760(%rdx,%rax),%ymm5 #z^-2qinv
+vpbroadcastd 4756(%rdx,%rax),%ymm6 #z^-1
+vpbroadcastd 4764(%rdx,%rax),%ymm7 #z^-2
 
 xor		%rcx,%rcx
 .p2align 5
@@ -296,23 +279,22 @@ jb		_looptop_start_2
 
 sub		$2304,%rdi
 
-
 #level1
 xor		%rax,%rax
 .p2align 5
 _looptop_start_1:
 #load
-vpbroadcastd 4704(%rdx,%rax),%ymm4 #z^-1qinv
-vpbroadcastd 4712(%rdx,%rax),%ymm5 #z^-2qinv
-vpbroadcastd 4708(%rdx,%rax),%ymm6 #z^-1
-vpbroadcastd 4716(%rdx,%rax),%ymm7 #z^-2
+vpbroadcastd 4848(%rdx,%rax),%ymm4 #z^-1qinv
+vpbroadcastd 4856(%rdx,%rax),%ymm5 #z^-2qinv
+vpbroadcastd 4852(%rdx,%rax),%ymm6 #z^-1
+vpbroadcastd 4860(%rdx,%rax),%ymm7 #z^-2
 
 xor		%rcx,%rcx
 .p2align 5
 _looptop_j_1:
 vmovdqa		(%rdi),%ymm8   #X
-vmovdqa		192(%rdi),%ymm9 #Y
-vmovdqa		384(%rdi),%ymm10 #Z
+vmovdqa		384(%rdi),%ymm9 #Y
+vmovdqa		768(%rdi),%ymm10 #Z
 
 #add
 vpaddw %ymm9,%ymm10,%ymm11   #Y+Z
@@ -356,28 +338,28 @@ vpsubw		%ymm12,%ymm14,%ymm10
 
 #store
 vmovdqa		%ymm8,(%rdi)
-vmovdqa		%ymm9,192(%rdi)
-vmovdqa		%ymm10,384(%rdi)
+vmovdqa		%ymm9,384(%rdi)
+vmovdqa		%ymm10,768(%rdi)
 
 add		$32,%rdi
 add		$32,%rcx
-cmp		$192,%rcx
+cmp		$384,%rcx
 jb		_looptop_j_1
 
-add		$384,%rdi
+add		$768,%rdi
 add     $16,%rax
 cmp		$32,%rax
 jb		_looptop_start_1
 
-sub		$1152,%rdi
+sub		$2304,%rdi
 
 #level 0
 #zetas
-vpbroadcastd	2432(%rdx),%ymm2    #(z-z^5)^-1
-vpbroadcastd	2436(%rdx),%ymm3   #(z-z^5)^-1
+vpbroadcastd	4880(%rdx),%ymm2    #(z-z^5)^-1
+vpbroadcastd	4884(%rdx),%ymm3   #(z-z^5)^-1
 
-vpbroadcastd	2440(%rdx),%ymm13 
-vpbroadcastd	2444(%rdx),%ymm14
+vpbroadcastd	4888(%rdx),%ymm13 
+vpbroadcastd	4892(%rdx),%ymm14
 
 vpsllw			$1,%ymm13,%ymm15
 vpsllw			$1,%ymm14,%ymm1

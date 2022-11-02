@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include "api.h"
 #include "rng.h"
+#include "poly.h"
 #define TEST_LOOP 100000
 
 int64_t cpucycles(void)
@@ -28,7 +29,7 @@ void TEST_CCA_KEM()
 
 	//Generate public and secret key
 	crypto_kem_keypair(pk, sk);
-
+/*
 	//Encrypt and Decrypt message
 	for(int j = 0; j < TEST_LOOP; j++)
 	{
@@ -50,7 +51,7 @@ void TEST_CCA_KEM()
 	}
 	printf("count: %d\n", cnt);
 	printf("==================================================\n\n");
-
+*/
 }
 
 void TEST_CCA_KEM_CLOCK()
@@ -100,15 +101,61 @@ void TEST_CCA_KEM_CLOCK()
 
 	printf("==================================================\n");
 }
+void test_ntt()
+{
+	poly a,b,c,d;
 
+	for(int i=0; i<NTRUPLUS_N;i++)
+	{
+		a.coeffs[i] = i;
+		b.coeffs[i] = 0;
+		c.coeffs[i] = 0;
+	}
+
+	printf("\n");
+
+	poly_ntt(&b,&a);
+	poly_baseinv(&c,&b);
+	poly_basemul(&d,&c,&b);
+	poly_invntt(&d,&d);
+	poly_freeze(&d);
+
+	for(int i=0; i<NTRUPLUS_N;i++)
+	{
+		if(i%16==0) printf("\n");
+		printf("%d ",d.coeffs[i]);
+	}
+	printf("\n");
+}
+void test_cbd()
+{
+	poly a;
+	uint8_t buf[NTRUPLUS_N];
+
+	for(int i = 0; i< NTRUPLUS_N;i++)
+	{
+		buf[i] = i;
+	}
+
+	poly_cbd1(&a,buf);
+
+	for(int i = 0; i< NTRUPLUS_N;i++)
+	{
+		if(i%32==0)printf("\n");
+		printf("%d ", a.coeffs[i]);
+	}
+	printf("\n\n");
+}
 int main(void)
 {
 	printf("PUBLICKEYBYTES : %d\n", CRYPTO_PUBLICKEYBYTES);
 	printf("SECRETKEYBYTES : %d\n", CRYPTO_SECRETKEYBYTES);
 	printf("CIPHERTEXTBYTES : %d\n", CRYPTO_CIPHERTEXTBYTES);
 
+	//test_ntt();
+test_cbd();	
 	TEST_CCA_KEM();
-	TEST_CCA_KEM_CLOCK();
+	//TEST_CCA_KEM_CLOCK();
 	
 	return 0;	
 }

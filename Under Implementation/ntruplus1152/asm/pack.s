@@ -28,7 +28,7 @@ add     $96,%rdi
 add     $128,%rsi
 
 add		$64,%eax
-cmp		$576,%eax
+cmp		$1152,%eax
 jb		_looptop_poly_tobytes
 
 ret
@@ -69,7 +69,7 @@ add     $128,%rdi
 add     $96,%rsi
 
 add		$64,%eax
-cmp		$576,%eax
+cmp		$1152,%eax
 jb		_looptop_poly_frombytes
 
 ret
@@ -136,7 +136,7 @@ vmovdqa		%ymm7,96(%rdi)
 add		$128,%rsi
 add		$128,%rdi
 add		$64,%rax
-cmp		$576,%rax
+cmp		$1152,%rax
 
 jb		_looptop_poly_ntt_unpack
 
@@ -211,7 +211,7 @@ vmovdqa		%ymm7,96(%rdi)
 add		$128,%rsi
 add		$128,%rdi
 add		$64,%rax
-cmp		$576,%rax
+cmp		$1152,%rax
 jb		_looptop_poly_ntt_pack
 
 ret

@@ -21,7 +21,6 @@ void ntt(int16_t b[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 		b[i      ] = (a[i] + t1);
 	}
 
-
 	for(int step = NTRUPLUS_N/6; step >= 64; step = step/3)
 	{
 		for(int start = 0; start < NTRUPLUS_N; start += 3*step)
