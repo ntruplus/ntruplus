@@ -5,7 +5,6 @@ vmovdqa		_16xv(%rip),%ymm1
 lea		zetas_inv(%rip),%rdx
 
 xor		%rax,%rax
-xor		%r8,%r8
 .p2align 5
 _looptop_start_6543:
 #level6
@@ -36,12 +35,6 @@ vpmulhw		%ymm0,%ymm8,%ymm8
 vpmulhw		%ymm0,%ymm9,%ymm9
 vpsubw		%ymm8,%ymm10,%ymm8
 vpsubw		%ymm9,%ymm11,%ymm9
-
-#store
-vmovdqa		%ymm6,(%rdi)
-vmovdqa		%ymm7,32(%rdi)
-vmovdqa		%ymm8,64(%rdi)
-vmovdqa		%ymm9,96(%rdi)
 
 #shuffle
 vpslld		$16,%ymm7,%ymm10
@@ -173,7 +166,6 @@ vmovdqa		%ymm7,96(%rdi)
 
 add		$128,%rsi
 add		$128,%rdi
-add     $16,%r8
 add		$64,%rax
 cmp		$576,%rax
 jb		_looptop_start_6543
