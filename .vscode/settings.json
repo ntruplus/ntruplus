@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "crypto_stream.h": "c",
+        "symmetric.h": "c"
+    }
+}
