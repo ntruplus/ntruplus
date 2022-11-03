@@ -6,7 +6,7 @@ xor		    %rax,%rax
 .p2align 5
 _looptop_poly_cbd1_1:
 vmovdqu  	(%rsi),%ymm2
-vmovdqu  	144(%rsi),%ymm3
+vmovdqu  	72(%rsi),%ymm3
 
 vpand       %ymm0,%ymm2,%ymm4
 vpand       %ymm0,%ymm3,%ymm5
@@ -30,31 +30,33 @@ jb          _looptop_poly_cbd1_1_1
 add		$32,%rsi
 add		$512,%rdi
 add		$512,%rax
-cmp		$2048,%rax
+cmp		$1024,%rax
 jb		_looptop_poly_cbd1_1
 
-vmovdqa		_8x1_16(%rip),%ymm0
+movq         (%rsi),%mm2
+movq       72(%rsi),%mm3
 
-vmovdqu     (%rsi),%xmm2
-vmovdqu     144(%rsi),%xmm3
-
-vpand       %xmm0,%xmm2,%xmm4
-vpand       %xmm0,%xmm3,%xmm5
-vpsubw      %xmm5,%xmm4,%xmm1
-vmovdqa     %xmm1,(%rdi)
+movq    _4x1(%rip),%mm4
+movq    _4x1(%rip),%mm5
+pand        %mm2,%mm4
+pand        %mm3,%mm5
+psubw       %mm5,%mm4
+movq        %mm4,(%rdi)
 
 xor         %r8,%r8
-add         $16,%r8
+add         $8,%r8
 _looptop_poly_cbd1_2:
-vpsrlw 		$1,%xmm2,%xmm2
-vpsrlw		$1,%xmm3,%xmm3
+psrlw 		$1,%mm2
+psrlw		$1,%mm3
 
-vpand       %xmm0,%xmm2,%xmm4
-vpand       %xmm0,%xmm3,%xmm5
-vpsubw      %xmm5,%xmm4,%xmm1
-vmovdqa     %xmm1,(%rdi,%r8)
-add         $16,%r8
-cmp         $256,%r8
+movq    _4x1(%rip),%mm4
+movq    _4x1(%rip),%mm5
+pand        %mm2,%mm4
+pand        %mm3,%mm5
+psubw       %mm5,%mm4
+movq        %mm4,(%rdi,%r8)
+add         $8,%r8
+cmp         $128,%r8
 jb          _looptop_poly_cbd1_2
 
 ret
@@ -68,7 +70,7 @@ xor		    %rax,%rax
 _looptop_poly_sotp_1:
 vmovdqu  	  (%rsi),%ymm1
 vmovdqu   	  (%rdx),%ymm2
-vmovdqu     144(%rdx),%ymm3
+vmovdqu     72(%rdx),%ymm3
 
 #msg xor g1
 vpxor       %ymm1,%ymm2,%ymm2
@@ -96,36 +98,37 @@ add		$32,%rsi
 add		$32,%rdx
 add		$512,%rdi
 add		$512,%rax
-cmp		$2048,%rax
+cmp		$1024,%rax
 jb		_looptop_poly_sotp_1
 
-
-vmovdqa		_8x1_16(%rip),%ymm0
-
-vmovdqa     (%rsi),%xmm1
-vmovdqa     (%rdx),%xmm2
-vmovdqa     144(%rdx),%xmm3
+movq         (%rsi),%mm1
+movq         (%rdx),%mm2
+movq       72(%rdx),%mm3
 
 #msg xor g1
-vpxor       %xmm1,%xmm2,%xmm2
+pxor        %mm1,%mm2
 
-vpand       %xmm0,%xmm2,%xmm4
-vpand       %xmm0,%xmm3,%xmm5
-vpsubw      %xmm5,%xmm4,%xmm1
-vmovdqa     %xmm1,(%rdi)
+movq        _4x1(%rip),%mm4
+movq        %mm4,%mm5
+pand        %mm2,%mm4
+pand        %mm3,%mm5
+psubw       %mm5,%mm4
+movq        %mm4,(%rdi)
 
 xor         %r8,%r8
-add         $16,%r8
+add         $8,%r8
 _looptop_poly_sotp_2:
-vpsrlw 		$1,%xmm2,%xmm2
-vpsrlw		$1,%xmm3,%xmm3
+psrlw 		$1,%mm2
+psrlw		$1,%mm3
 
-vpand       %xmm0,%xmm2,%xmm4
-vpand       %xmm0,%xmm3,%xmm5
-vpsubw      %xmm5,%xmm4,%xmm1
-vmovdqa     %xmm1,(%rdi,%r8)
-add         $16,%r8
-cmp         $256,%r8
+movq        _4x1(%rip),%mm4
+movq        %mm4,%mm5
+pand        %mm2,%mm4
+pand        %mm3,%mm5
+psubw       %mm5,%mm4
+movq        %mm4,(%rdi,%r8)
+add         $8,%r8
+cmp         $128,%r8
 jb          _looptop_poly_sotp_2
 
 ret
@@ -135,12 +138,13 @@ poly_sotp_inv:
 vmovdqa		_16x1(%rip),%ymm0
 vmovdqa		_8x1(%rip),%ymm4
 vmovdqa		_8x1(%rip),%ymm5
+
 xor		    %rax,%rax
 .p2align 5
 _looptop_poly_sotp_inv_1:
 vmovdqu       (%rsi),%ymm1
 vmovdqu       (%rdx),%ymm2
-vmovdqu     144(%rdx),%ymm3
+vmovdqu     72(%rdx),%ymm3
 
 vpand       %ymm0,%ymm3,%ymm6
 vpaddw	    %ymm6,%ymm1,%ymm6
@@ -171,37 +175,41 @@ add		$32,%rdi
 add		$32,%rdx
 add		$512,%rsi
 add		$512,%rax
-cmp		$2048,%rax
+cmp		$1024,%rax
 jb		_looptop_poly_sotp_inv_1
 
-vmovdqa		_8x1(%rip),%xmm4
+movq        (%rsi),%mm1
+movq        72(%rdx),%mm3
 
-vmovdqu        (%rsi),%xmm1
-vmovdqu        (%rdx),%xmm2
-vmovdqu     144(%rdx),%xmm3
-
-vpand       %xmm0,%xmm3,%xmm6
-vpaddw	    %xmm6,%xmm1,%xmm6
-vpand       %xmm0,%xmm6,%xmm7
+movq        _4x1(%rip),%mm6
+pand        %mm3,%mm6
+paddw	    %mm1,%mm6
+movq        _4x1(%rip),%mm7
+pand	    %mm6,%mm7
 
 xor         %r8,%r8
-add         $16,%r8
+add         $8,%r8
+movq        _4x01(%rip),%mm2
+movq        _4x01(%rip),%mm4
 .p2align 5
 _looptop_poly_sotp_inv_2:
-vmovdqu     (%rsi, %r8),%xmm1
-vpsrld		$1,%xmm3,%xmm3
-vpand       %xmm0,%xmm3,%xmm6
-vpaddw	    %xmm6,%xmm1,%xmm6
-vpand       %xmm0,%xmm6,%xmm6
-vpsllvd		%xmm4,%xmm6,%xmm6
-vpxor       %xmm6,%xmm7,%xmm7
-vpaddw      %xmm5,%xmm4,%xmm4
+movq        (%rsi,%r8),%mm1
+psrlw 		$1,%mm3
+movq        _4x1(%rip),%mm6
+pand        %mm3,%mm6
+paddw	    %mm1,%mm6
+movq        _4x1(%rip),%mm5
+pand        %mm5,%mm6
+psllw       %mm4,%mm6
+pxor        %mm6,%mm7
+paddw       %mm2,%mm4
 
-add         $16,%r8
-cmp         $256,%r8
+add         $8,%r8
+cmp         $128,%r8
 jb          _looptop_poly_sotp_inv_2
 
-vpxor       %xmm7,%xmm2,%xmm2
-vmovdqu     %xmm2,(%rdi)
+movq        (%rdx),%mm2
+pxor         %mm7,%mm2
+movq        %mm2,(%rdi)
 
 ret

@@ -28,7 +28,7 @@ add		$128,%rsi
 add		$128,%rdx
 add		$128,%rdi
 add		$128,%rax
-cmp		$2304,%rax
+cmp		$1728,%rax
 jb		_looptop_add
 
 ret
@@ -63,7 +63,7 @@ add		$128,%rsi
 add		$128,%rdx
 add		$128,%rdi
 add		$128,%rax
-cmp		$2304,%rax
+cmp		$1728,%rax
 jb		_looptop_sub
 
 ret
@@ -98,7 +98,7 @@ add		$128,%rsi
 add		$128,%rdx
 add		$128,%rdi
 add		$128,%rax
-cmp		$2304,%rax
+cmp		$1728,%rax
 jb		_looptop_triple
 
 ret
