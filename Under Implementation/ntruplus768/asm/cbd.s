@@ -6,7 +6,7 @@ xor		    %rax,%rax
 .p2align 5
 _looptop_poly_cbd1_1:
 vmovdqu  	(%rsi),%ymm2
-vmovdqu  	108(%rsi),%ymm3
+vmovdqu  	72(%rsi),%ymm3
 
 vpand       %ymm0,%ymm2,%ymm4
 vpand       %ymm0,%ymm3,%ymm5
@@ -30,11 +30,11 @@ jb          _looptop_poly_cbd1_1_1
 add		$32,%rsi
 add		$512,%rdi
 add		$512,%rax
-cmp		$1536,%rax
+cmp		$1024,%rax
 jb		_looptop_poly_cbd1_1
 
-movq         (%rsi),%ax
-movq       108(%rsi),%bx
+movq         (%rsi),%mm2
+movq       72(%rsi),%mm3
 
 movq    _4x1(%rip),%mm4
 movq    _4x1(%rip),%mm5
@@ -49,8 +49,8 @@ _looptop_poly_cbd1_2:
 psrlw 		$1,%mm2
 psrlw		$1,%mm3
 
-movd    _4x1(%rip),%mm4
-movd    _4x1(%rip),%mm5
+movq    _4x1(%rip),%mm4
+movq    _4x1(%rip),%mm5
 pand        %mm2,%mm4
 pand        %mm3,%mm5
 psubw       %mm5,%mm4
@@ -58,32 +58,6 @@ movq        %mm4,(%rdi,%r8)
 add         $8,%r8
 cmp         $128,%r8
 jb          _looptop_poly_cbd1_2
-
-mov         (%rsi),%ax
-mov       108(%rsi),%bx
-mov         %ax,%cx
-mov         %bx,%dx
-and         $1,%cx
-and         $1,%dx
-sub         %dx,%cx
-movq        %cx,(%rdi)
-
-xor         %r8,%r8
-add         $8,%r8
-_looptop_poly_cbd1_3:
-shr 		$1,%ax
-shr		    $1,%bx
-mov         %ax,%cx
-mov         %bx,%dx
-and         $1,%cx
-and         $1,%dx
-sub         %dx,%cx
-movq        %cx,(%rdi,%r8)
-add         $4,%r8
-cmp         $64,%r8
-jb          _looptop_poly_cbd1_3
-
-
 
 ret
 
