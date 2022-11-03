@@ -33,7 +33,7 @@ add		$512,%rax
 cmp		$2048,%rax
 jb		_looptop_poly_cbd1_1
 
-vmovdqa		_8x1(%rip),%ymm0
+vmovdqa		_8x1_16(%rip),%ymm0
 
 vmovdqu     (%rsi),%xmm2
 vmovdqu     144(%rsi),%xmm3
@@ -100,7 +100,7 @@ cmp		$2048,%rax
 jb		_looptop_poly_sotp_1
 
 
-vmovdqa		_8x1(%rip),%ymm0
+vmovdqa		_8x1_16(%rip),%ymm0
 
 vmovdqa     (%rsi),%xmm1
 vmovdqa     (%rdx),%xmm2
@@ -128,10 +128,13 @@ add         $16,%r8
 cmp         $256,%r8
 jb          _looptop_poly_sotp_2
 
+ret
+
 .global poly_sotp_inv
 poly_sotp_inv:
 vmovdqa		_16x1(%rip),%ymm0
-
+vmovdqa		_8x1(%rip),%ymm4
+vmovdqa		_8x1(%rip),%ymm5
 xor		    %rax,%rax
 .p2align 5
 _looptop_poly_sotp_inv_1:
@@ -171,10 +174,10 @@ add		$512,%rax
 cmp		$2048,%rax
 jb		_looptop_poly_sotp_inv_1
 
-vmovdqa		_8x1(%rip),%xmm0
+vmovdqa		_8x1(%rip),%xmm4
 
-vmovdqu       (%rsi),%xmm1
-vmovdqu       (%rdx),%xmm2
+vmovdqu        (%rsi),%xmm1
+vmovdqu        (%rdx),%xmm2
 vmovdqu     144(%rdx),%xmm3
 
 vpand       %xmm0,%xmm3,%xmm6

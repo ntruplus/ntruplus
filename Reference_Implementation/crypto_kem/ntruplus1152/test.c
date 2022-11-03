@@ -110,5 +110,5 @@ int main(void)
 	TEST_CCA_KEM();
 	TEST_CCA_KEM_CLOCK();
 	
-	return 0;	
+	return 0;
 }
