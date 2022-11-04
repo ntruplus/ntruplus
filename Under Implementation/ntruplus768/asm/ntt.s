@@ -84,7 +84,7 @@ vmovdqa		%ymm7,128(%rdi)
 vmovdqa		%ymm8,160(%rdi)
 vmovdqa		%ymm10,768(%rdi)
 vmovdqa		%ymm11,800(%rdi)
-vmovdqa		%ymm12,832%rdi)
+vmovdqa		%ymm12,832(%rdi)
 vmovdqa		%ymm13,864(%rdi)
 vmovdqa		%ymm14,896(%rdi)
 vmovdqa		%ymm15,928(%rdi)
@@ -163,18 +163,18 @@ vmovdqa		%ymm12,512(%rdi)
 
 add		$32,%rdi
 add		$32,%rcx
-cmp		$128,%rcx
+cmp		$256,%rcx
 jb		_looptop_j_1
 
 add		$16,%rdx
-add		$256,%rdi
-add		$384,%rax
-cmp		$768,%rax
+add		$512,%rdi
+add		$768,%rax
+cmp		$1536,%rax
 jb		_looptop_start_1
 
-sub		$768,%rdi
+sub		$1536,%rdi
 vmovdqa		_low_mask(%rip),%ymm1
-
+/*
 #level 2
 xor         %rax,%rax
 .p2align 5
@@ -451,5 +451,5 @@ add		$64,%rax
 cmp		$576,%rax
 
 jb		_looptop_start_3456
-
+*/
 ret

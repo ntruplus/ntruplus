@@ -65,7 +65,7 @@ vmovdqa		%ymm5,160(%rdi)
 
 add		$192,%rdi
 add		$96,%eax
-cmp		$576,%eax
+cmp		$768,%eax
 jb		_looptop_reduce
 
 ret
@@ -181,7 +181,7 @@ vmovdqa		%ymm5,160(%rdi)
 
 add		$192,%rdi
 add		$96,%eax
-cmp		$576,%eax
+cmp		$768,%eax
 jb		_looptop_freeze
 
 ret

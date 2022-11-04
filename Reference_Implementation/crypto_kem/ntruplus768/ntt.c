@@ -42,7 +42,7 @@ void ntt(int16_t b[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 			b[i    ] = fqred16(b[i] + t1);
 		}
 	}
-
+/*
 	for(int step = 64; step >= 2; step >>= 1)
 	{
 		for(int start = 0; start < NTRUPLUS_N; start += (step << 1))
@@ -58,6 +58,7 @@ void ntt(int16_t b[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 			}
 		}
 	}
+*/
 }
 
 void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])

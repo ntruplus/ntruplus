@@ -3,7 +3,8 @@
 #include <stdint.h>
 #include "api.h"
 #include "rng.h"
-#define TEST_LOOP 100000
+#include "poly.h"
+#define TEST_LOOP 1
 
 int64_t cpucycles(void)
 {
@@ -101,14 +102,38 @@ void TEST_CCA_KEM_CLOCK()
 	printf("==================================================\n");
 }
 
+void test_ntt()
+{
+	poly a,b,c,d;
+
+	for (int i = 0; i < NTRUPLUS_N; i++)
+	{
+		a.coeffs[i] = 1;
+	}
+
+	poly_ntt(&b,&a);
+	poly_freeze(&b);
+/*
+	poly_invntt(&c,&b);
+	poly_freeze(&c);
+*/
+	for (int i = 0; i < NTRUPLUS_N; i++)
+	{
+		if(i%16==0) printf("\n");
+		printf("%d ", b.coeffs[i]);
+	}
+	printf("\n");
+}
+
 int main(void)
 {
 	printf("PUBLICKEYBYTES : %d\n", CRYPTO_PUBLICKEYBYTES);
 	printf("SECRETKEYBYTES : %d\n", CRYPTO_SECRETKEYBYTES);
 	printf("CIPHERTEXTBYTES : %d\n", CRYPTO_CIPHERTEXTBYTES);
 
-	TEST_CCA_KEM();
-	TEST_CCA_KEM_CLOCK();
+test_ntt();
+	//TEST_CCA_KEM();
+	//TEST_CCA_KEM_CLOCK();
 	
 	return 0;	
 }
