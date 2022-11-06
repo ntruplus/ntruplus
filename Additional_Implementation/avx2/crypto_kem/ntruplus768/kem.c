@@ -65,7 +65,7 @@ int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
 
     poly_freeze(&f);  
     poly_ntt_pack(&f,&f);
-    poly_tobytes(sk, &f);
+    poly_tobytes(sk, &f);    
 
     return 0;
 }

@@ -214,13 +214,10 @@ por         %xmm11,%xmm12
 movq        %xmm12,%r10
 or		    %r10,%rcx
 
-
-
 add		$64,%rdi
 add		$64,%rsi
 
 #negative zeta
-
 #load
 vmovdqa		(%rsi),%ymm3    #a[0]
 vmovdqa		32(%rsi),%ymm5  #a[1]

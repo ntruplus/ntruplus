@@ -181,16 +181,6 @@ vpmulhw		%ymm0,%ymm9,%ymm9
 vpsubw		%ymm8,%ymm10,%ymm8
 vpsubw		%ymm9,%ymm11,%ymm9
 
-#reduce2
-vpmulhw		%ymm1,%ymm6,%ymm10
-vpmulhw		%ymm1,%ymm7,%ymm11
-vpsraw		$10,%ymm10,%ymm10
-vpsraw		$10,%ymm11,%ymm11
-vpmullw		%ymm0,%ymm10,%ymm10
-vpmullw		%ymm0,%ymm11,%ymm11
-vpsubw		%ymm10,%ymm6,%ymm6
-vpsubw		%ymm11,%ymm7,%ymm7
-
 #store
 vmovdqa		%ymm6,(%rdi)
 vmovdqa		%ymm7,32(%rdi)
@@ -256,6 +246,25 @@ vpsubw		%ymm8,%ymm12,%ymm8
 vpsubw		%ymm9,%ymm13,%ymm9
 vpsubw		%ymm10,%ymm14,%ymm10
 vpsubw		%ymm11,%ymm15,%ymm11
+
+#reduce2
+vpmulhw		%ymm1,%ymm4,%ymm2
+vpmulhw		%ymm1,%ymm5,%ymm3
+vpsraw		$10,%ymm2,%ymm2
+vpsraw		$10,%ymm3,%ymm3
+vpmullw		%ymm0,%ymm2,%ymm2
+vpmullw		%ymm0,%ymm3,%ymm3
+vpsubw		%ymm2,%ymm4,%ymm4
+vpsubw		%ymm3,%ymm5,%ymm5
+
+vpmulhw		%ymm1,%ymm6,%ymm2
+vpmulhw		%ymm1,%ymm7,%ymm3
+vpsraw		$10,%ymm2,%ymm2
+vpsraw		$10,%ymm3,%ymm3
+vpmullw		%ymm0,%ymm2,%ymm2
+vpmullw		%ymm0,%ymm3,%ymm3
+vpsubw		%ymm2,%ymm6,%ymm6
+vpsubw		%ymm3,%ymm7,%ymm7
 
 #store
 vmovdqa		%ymm4,(%rdi)
