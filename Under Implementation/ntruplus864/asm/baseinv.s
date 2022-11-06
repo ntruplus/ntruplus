@@ -220,11 +220,10 @@ vpsllw		$2,%ymm3,%ymm3
 vpsllw		$2,%ymm8,%ymm8
 vpaddw		%ymm3,%ymm2,%ymm2
 vpaddw		%ymm8,%ymm7,%ymm7
-
+/*
 vmovdqa		%ymm2,%ymm4
 vmovdqa		%ymm7,%ymm9
 
-#inverse of determinants
 #i = 1, t^2
 vpmullw     %ymm1,%ymm4,%ymm6
 vpmullw		%ymm6,%ymm4,%ymm7
@@ -338,7 +337,8 @@ vpmulhw		%ymm2,%ymm4,%ymm12
 vpmulhw		%ymm0,%ymm7,%ymm7
 vpsubw		%ymm7,%ymm12,%ymm4
 
-#inverse of determinants
+
+
 #i = 1, t^2
 vpmullw     %ymm1,%ymm9,%ymm6
 vpmullw		%ymm6,%ymm9,%ymm7
@@ -479,9 +479,9 @@ vpsubw		%ymm9,%ymm8,%ymm8
 #store
 vmovdqa		%ymm4,(%rdi)
 vmovdqa		%ymm8,96(%rdi)
-
+*/
 add		$32,%rdi
-
+/*
 #load b1
 vmovdqa		(%rdi),%ymm4
 vmovdqa		96(%rdi),%ymm8
@@ -501,9 +501,9 @@ vpsubw		%ymm9,%ymm8,%ymm8
 #store
 vmovdqa		%ymm4,(%rdi)
 vmovdqa		%ymm8,96(%rdi)
-
+*/
 add		$32,%rdi
-
+/*
 #load b2
 vmovdqa		(%rdi),%ymm4
 vmovdqa		96(%rdi),%ymm8
@@ -535,7 +535,7 @@ vpshufd		$0x0E,%xmm2,%xmm3
 por		%xmm3,%xmm2
 vpextrq		$0,%xmm2,%r10
 or		%r10,%rcx
-
+*/
 add		$32,%rdi
 
 add		$96,%rsi

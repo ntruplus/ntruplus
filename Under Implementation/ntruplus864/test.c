@@ -132,7 +132,7 @@ void test_ntt()
 	poly_baseinv(&d,&c);
 	poly_freeze(&d);
 
-	poly_ntt_pack(&d,&d);
+	//poly_ntt_pack(&d,&d);
 /*
 	poly_basemul(&e,&c,&d);
 
