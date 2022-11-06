@@ -157,14 +157,7 @@ int crypto_kem_dec(unsigned char *ss,
     poly_basemul(&t1, &c, &f);
     poly_freeze(&t1);
     poly_invntt(&t1,&t1);
-    for(int i = 0; i<NTRUPLUS_N; i++)
-    {
-        printf("%d ",t1.coeffs[i]);
-    }
-    printf("\n");
     poly_crepmod3(&m1, &t1);
-
-
 
     poly_ntt(&m2,&m1);
     poly_sub(&c,&c,&m2);
