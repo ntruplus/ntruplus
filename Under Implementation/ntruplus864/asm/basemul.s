@@ -2,7 +2,7 @@
 poly_basemul:
 vmovdqa		_16xq(%rip),%ymm0
 
-lea		zetas_exp(%rip),%rcx
+lea		zetas(%rip),%rcx
 add		$1864,%rcx
 xor		%rax,%rax
 .p2align 5

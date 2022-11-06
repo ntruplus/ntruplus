@@ -8,7 +8,7 @@ sub             %r11,%rsp
 vmovdqa		_16xq(%rip),%ymm0
 vmovdqa		_16xqinv(%rip),%ymm1
 
-lea		zetas_exp(%rip),%rdx
+lea		zetas(%rip),%rdx
 add		$1864,%rdx
 xor		%rcx,%rcx
 xor		%rax,%rax
@@ -198,279 +198,262 @@ sub		$96,%rdi
 #inverse of determinants
 #load
 vmovdqa		(%rsp),%ymm2
-vmovdqa		%ymm12,%ymm6
+vmovdqa		%ymm12,%ymm7
 
 #reduce2
 vmovdqa		_low_mask(%rip),%ymm15
-vpsraw		$13,%ymm2,%ymm3
-vpsraw		$13,%ymm6,%ymm7
+vpsraw		$12,%ymm2,%ymm3
+vpsraw		$12,%ymm7,%ymm8
 vpand		%ymm15,%ymm2,%ymm2
-vpand		%ymm15,%ymm6,%ymm6
+vpand		%ymm15,%ymm7,%ymm7
 vpsubw		%ymm3,%ymm2,%ymm2
-vpsubw		%ymm7,%ymm6,%ymm6
-vpsllw		$9,%ymm3,%ymm3
-vpsllw		$9,%ymm7,%ymm7
+vpsubw		%ymm8,%ymm7,%ymm7
+vpsllw		$7,%ymm3,%ymm3
+vpsllw		$7,%ymm8,%ymm8
+vpsubw		%ymm3,%ymm2,%ymm2
+vpsubw		%ymm8,%ymm7,%ymm7
+vpsllw		$1,%ymm3,%ymm3
+vpsllw		$1,%ymm8,%ymm8
+vpsubw		%ymm3,%ymm2,%ymm2
+vpsubw		%ymm8,%ymm7,%ymm7
+vpsllw		$2,%ymm3,%ymm3
+vpsllw		$2,%ymm8,%ymm8
 vpaddw		%ymm3,%ymm2,%ymm2
-vpaddw		%ymm7,%ymm6,%ymm6
+vpaddw		%ymm8,%ymm7,%ymm7
 
 vmovdqa		%ymm2,%ymm4
-vmovdqa		%ymm6,%ymm8
+vmovdqa		%ymm7,%ymm9
 
-#a^2
-vpmullw		%ymm4,%ymm4,%ymm5
-vpmullw		%ymm8,%ymm8,%ymm9
-vpmulhw		%ymm4,%ymm4,%ymm4
-vpmulhw		%ymm8,%ymm8,%ymm8
-vpmullw		%ymm1,%ymm5,%ymm5
-vpmullw		%ymm1,%ymm9,%ymm9
-vpmulhw		%ymm0,%ymm5,%ymm5
-vpmulhw		%ymm0,%ymm9,%ymm9
-vpsubw		%ymm5,%ymm4,%ymm4
-vpsubw		%ymm9,%ymm8,%ymm8
-
-#a^4, t = a^3
-vpmullw		%ymm2,%ymm4,%ymm3
-vpmullw		%ymm4,%ymm4,%ymm5
-vpmullw		%ymm6,%ymm8,%ymm7
-vpmullw		%ymm8,%ymm8,%ymm9
-vpmulhw		%ymm2,%ymm4,%ymm2
-vpmulhw		%ymm4,%ymm4,%ymm4
-vpmulhw		%ymm6,%ymm8,%ymm6
-vpmulhw		%ymm8,%ymm8,%ymm8
-vpmullw		%ymm1,%ymm3,%ymm3
-vpmullw		%ymm1,%ymm5,%ymm5
-vpmullw		%ymm1,%ymm7,%ymm7
-vpmullw		%ymm1,%ymm9,%ymm9
-vpmulhw		%ymm0,%ymm3,%ymm3
-vpmulhw		%ymm0,%ymm5,%ymm5
+#inverse of determinants
+#i = 1, t^2
+vpmullw     %ymm1,%ymm4,%ymm6
+vpmullw		%ymm6,%ymm4,%ymm7
+vpmulhw		%ymm4,%ymm4,%ymm12
 vpmulhw		%ymm0,%ymm7,%ymm7
-vpmulhw		%ymm0,%ymm9,%ymm9
-vpsubw		%ymm3,%ymm2,%ymm2
-vpsubw		%ymm5,%ymm4,%ymm4
-vpsubw		%ymm7,%ymm6,%ymm6
-vpsubw		%ymm9,%ymm8,%ymm8
-
-#a^8, t = a^7
-vpmullw		%ymm2,%ymm4,%ymm3
-vpmullw		%ymm4,%ymm4,%ymm5
-vpmullw		%ymm6,%ymm8,%ymm7
-vpmullw		%ymm8,%ymm8,%ymm9
-vpmulhw		%ymm2,%ymm4,%ymm2
-vpmulhw		%ymm4,%ymm4,%ymm4
-vpmulhw		%ymm6,%ymm8,%ymm6
-vpmulhw		%ymm8,%ymm8,%ymm8
-vpmullw		%ymm1,%ymm3,%ymm3
-vpmullw		%ymm1,%ymm5,%ymm5
-vpmullw		%ymm1,%ymm7,%ymm7
-vpmullw		%ymm1,%ymm9,%ymm9
-vpmulhw		%ymm0,%ymm3,%ymm3
-vpmulhw		%ymm0,%ymm5,%ymm5
+vpsubw		%ymm7,%ymm12,%ymm4
+vpmullw		%ymm6,%ymm4,%ymm7
+vpmulhw		%ymm2,%ymm4,%ymm12
 vpmulhw		%ymm0,%ymm7,%ymm7
-vpmulhw		%ymm0,%ymm9,%ymm9
-vpsubw		%ymm3,%ymm2,%ymm2
-vpsubw		%ymm5,%ymm4,%ymm4
-vpsubw		%ymm7,%ymm6,%ymm6
-vpsubw		%ymm9,%ymm8,%ymm8
+vpsubw		%ymm7,%ymm12,%ymm4
 
-#a^16, t = a^15
-vpmullw		%ymm2,%ymm4,%ymm3
-vpmullw		%ymm4,%ymm4,%ymm5
-vpmullw		%ymm6,%ymm8,%ymm7
-vpmullw		%ymm8,%ymm8,%ymm9
-vpmulhw		%ymm2,%ymm4,%ymm2
-vpmulhw		%ymm4,%ymm4,%ymm4
-vpmulhw		%ymm6,%ymm8,%ymm6
-vpmulhw		%ymm8,%ymm8,%ymm8
-vpmullw		%ymm1,%ymm3,%ymm3
-vpmullw		%ymm1,%ymm5,%ymm5
-vpmullw		%ymm1,%ymm7,%ymm7
-vpmullw		%ymm1,%ymm9,%ymm9
-vpmulhw		%ymm0,%ymm3,%ymm3
-vpmulhw		%ymm0,%ymm5,%ymm5
+#i = 2
+vpmullw     %ymm1,%ymm4,%ymm7
+vpmullw		%ymm7,%ymm4,%ymm7
+vpmulhw		%ymm4,%ymm4,%ymm12
 vpmulhw		%ymm0,%ymm7,%ymm7
-vpmulhw		%ymm0,%ymm9,%ymm9
-vpsubw		%ymm3,%ymm2,%ymm2
-vpsubw		%ymm5,%ymm4,%ymm4
-vpsubw		%ymm7,%ymm6,%ymm6
-vpsubw		%ymm9,%ymm8,%ymm8
+vpsubw		%ymm7,%ymm12,%ymm4
 
-#a^32, t = a^31
-vpmullw		%ymm2,%ymm4,%ymm3
-vpmullw		%ymm4,%ymm4,%ymm5
-vpmullw		%ymm6,%ymm8,%ymm7
-vpmullw		%ymm8,%ymm8,%ymm9
-vpmulhw		%ymm2,%ymm4,%ymm2
-vpmulhw		%ymm4,%ymm4,%ymm4
-vpmulhw		%ymm6,%ymm8,%ymm6
-vpmulhw		%ymm8,%ymm8,%ymm8
-vpmullw		%ymm1,%ymm3,%ymm3
-vpmullw		%ymm1,%ymm5,%ymm5
-vpmullw		%ymm1,%ymm7,%ymm7
-vpmullw		%ymm1,%ymm9,%ymm9
-vpmulhw		%ymm0,%ymm3,%ymm3
-vpmulhw		%ymm0,%ymm5,%ymm5
+#i=3
+vpmullw     %ymm1,%ymm4,%ymm7
+vpmullw		%ymm7,%ymm4,%ymm7
+vpmulhw		%ymm4,%ymm4,%ymm12
 vpmulhw		%ymm0,%ymm7,%ymm7
-vpmulhw		%ymm0,%ymm9,%ymm9
-vpsubw		%ymm3,%ymm2,%ymm2
-vpsubw		%ymm5,%ymm4,%ymm4
-vpsubw		%ymm7,%ymm6,%ymm6
-vpsubw		%ymm9,%ymm8,%ymm8
-
-#a^64, t = a^63
-vpmullw		%ymm2,%ymm4,%ymm3
-vpmullw		%ymm4,%ymm4,%ymm5
-vpmullw		%ymm6,%ymm8,%ymm7
-vpmullw		%ymm8,%ymm8,%ymm9
-vpmulhw		%ymm2,%ymm4,%ymm2
-vpmulhw		%ymm4,%ymm4,%ymm4
-vpmulhw		%ymm6,%ymm8,%ymm6
-vpmulhw		%ymm8,%ymm8,%ymm8
-vpmullw		%ymm1,%ymm3,%ymm3
-vpmullw		%ymm1,%ymm5,%ymm5
-vpmullw		%ymm1,%ymm7,%ymm7
-vpmullw		%ymm1,%ymm9,%ymm9
-vpmulhw		%ymm0,%ymm3,%ymm3
-vpmulhw		%ymm0,%ymm5,%ymm5
+vpsubw		%ymm7,%ymm12,%ymm4
+vpmullw		%ymm6,%ymm4,%ymm7
+vpmulhw		%ymm2,%ymm4,%ymm12
 vpmulhw		%ymm0,%ymm7,%ymm7
-vpmulhw		%ymm0,%ymm9,%ymm9
-vpsubw		%ymm3,%ymm2,%ymm2
-vpsubw		%ymm5,%ymm4,%ymm4
-vpsubw		%ymm7,%ymm6,%ymm6
-vpsubw		%ymm9,%ymm8,%ymm8
+vpsubw		%ymm7,%ymm12,%ymm4
 
-#a^128, t = a^127
-vpmullw		%ymm2,%ymm4,%ymm3
-vpmullw		%ymm4,%ymm4,%ymm5
-vpmullw		%ymm6,%ymm8,%ymm7
-vpmullw		%ymm8,%ymm8,%ymm9
-vpmulhw		%ymm2,%ymm4,%ymm2
-vpmulhw		%ymm4,%ymm4,%ymm4
-vpmulhw		%ymm6,%ymm8,%ymm6
-vpmulhw		%ymm8,%ymm8,%ymm8
-vpmullw		%ymm1,%ymm3,%ymm3
-vpmullw		%ymm1,%ymm5,%ymm5
-vpmullw		%ymm1,%ymm7,%ymm7
-vpmullw		%ymm1,%ymm9,%ymm9
-vpmulhw		%ymm0,%ymm3,%ymm3
-vpmulhw		%ymm0,%ymm5,%ymm5
+#i=4
+vpmullw     %ymm1,%ymm4,%ymm7
+vpmullw		%ymm7,%ymm4,%ymm7
+vpmulhw		%ymm4,%ymm4,%ymm12
 vpmulhw		%ymm0,%ymm7,%ymm7
-vpmulhw		%ymm0,%ymm9,%ymm9
-vpsubw		%ymm3,%ymm2,%ymm2
-vpsubw		%ymm5,%ymm4,%ymm4
-vpsubw		%ymm7,%ymm6,%ymm6
-vpsubw		%ymm9,%ymm8,%ymm8
+vpsubw		%ymm7,%ymm12,%ymm4
 
-#a^256, t = a^255
-vpmullw		%ymm2,%ymm4,%ymm3
-vpmullw		%ymm4,%ymm4,%ymm5
-vpmullw		%ymm6,%ymm8,%ymm7
-vpmullw		%ymm8,%ymm8,%ymm9
-vpmulhw		%ymm2,%ymm4,%ymm2
-vpmulhw		%ymm4,%ymm4,%ymm4
-vpmulhw		%ymm6,%ymm8,%ymm6
-vpmulhw		%ymm8,%ymm8,%ymm8
-vpmullw		%ymm1,%ymm3,%ymm3
-vpmullw		%ymm1,%ymm5,%ymm5
-vpmullw		%ymm1,%ymm7,%ymm7
-vpmullw		%ymm1,%ymm9,%ymm9
-vpmulhw		%ymm0,%ymm3,%ymm3
-vpmulhw		%ymm0,%ymm5,%ymm5
+#i=5
+vpmullw     %ymm1,%ymm4,%ymm7
+vpmullw		%ymm7,%ymm4,%ymm7
+vpmulhw		%ymm4,%ymm4,%ymm12
 vpmulhw		%ymm0,%ymm7,%ymm7
-vpmulhw		%ymm0,%ymm9,%ymm9
-vpsubw		%ymm3,%ymm2,%ymm2
-vpsubw		%ymm5,%ymm4,%ymm4
-vpsubw		%ymm7,%ymm6,%ymm6
-vpsubw		%ymm9,%ymm8,%ymm8
-
-#a^512, t = a^511
-vpmullw		%ymm2,%ymm4,%ymm3
-vpmullw		%ymm4,%ymm4,%ymm5
-vpmullw		%ymm6,%ymm8,%ymm7
-vpmullw		%ymm8,%ymm8,%ymm9
-vpmulhw		%ymm2,%ymm4,%ymm2
-vpmulhw		%ymm4,%ymm4,%ymm4
-vpmulhw		%ymm6,%ymm8,%ymm6
-vpmulhw		%ymm8,%ymm8,%ymm8
-vpmullw		%ymm1,%ymm3,%ymm3
-vpmullw		%ymm1,%ymm5,%ymm5
-vpmullw		%ymm1,%ymm7,%ymm7
-vpmullw		%ymm1,%ymm9,%ymm9
-vpmulhw		%ymm0,%ymm3,%ymm3
-vpmulhw		%ymm0,%ymm5,%ymm5
+vpsubw		%ymm7,%ymm12,%ymm4
+vpmullw		%ymm6,%ymm4,%ymm7
+vpmulhw		%ymm2,%ymm4,%ymm12
 vpmulhw		%ymm0,%ymm7,%ymm7
-vpmulhw		%ymm0,%ymm9,%ymm9
-vpsubw		%ymm3,%ymm2,%ymm2
-vpsubw		%ymm5,%ymm4,%ymm4
-vpsubw		%ymm7,%ymm6,%ymm6
-vpsubw		%ymm9,%ymm8,%ymm8
+vpsubw		%ymm7,%ymm12,%ymm4
 
-#a^1024
-vpmullw		%ymm4,%ymm4,%ymm5
-vpmullw		%ymm8,%ymm8,%ymm9
-vpmulhw		%ymm4,%ymm4,%ymm4
-vpmulhw		%ymm8,%ymm8,%ymm8
-vpmullw		%ymm1,%ymm5,%ymm5
-vpmullw		%ymm1,%ymm9,%ymm9
-vpmulhw		%ymm0,%ymm5,%ymm5
-vpmulhw		%ymm0,%ymm9,%ymm9
-vpsubw		%ymm5,%ymm4,%ymm4
-vpsubw		%ymm9,%ymm8,%ymm8
-
-#a^2048, t = a^1535
-vpmullw		%ymm2,%ymm4,%ymm3
-vpmullw		%ymm4,%ymm4,%ymm5
-vpmullw		%ymm6,%ymm8,%ymm7
-vpmullw		%ymm8,%ymm8,%ymm9
-vpmulhw		%ymm2,%ymm4,%ymm2
-vpmulhw		%ymm4,%ymm4,%ymm4
-vpmulhw		%ymm6,%ymm8,%ymm6
-vpmulhw		%ymm8,%ymm8,%ymm8
-vpmullw		%ymm1,%ymm3,%ymm3
-vpmullw		%ymm1,%ymm5,%ymm5
-vpmullw		%ymm1,%ymm7,%ymm7
-vpmullw		%ymm1,%ymm9,%ymm9
-vpmulhw		%ymm0,%ymm3,%ymm3
-vpmulhw		%ymm0,%ymm5,%ymm5
+#i=6
+vpmullw     %ymm1,%ymm4,%ymm7
+vpmullw		%ymm7,%ymm4,%ymm7
+vpmulhw		%ymm4,%ymm4,%ymm12
 vpmulhw		%ymm0,%ymm7,%ymm7
-vpmulhw		%ymm0,%ymm9,%ymm9
-vpsubw		%ymm3,%ymm2,%ymm2
-vpsubw		%ymm5,%ymm4,%ymm4
-vpsubw		%ymm7,%ymm6,%ymm6
-vpsubw		%ymm9,%ymm8,%ymm8
-
-#a^4096, t = a^3583
-vpmullw		%ymm2,%ymm4,%ymm3
-vpmullw		%ymm4,%ymm4,%ymm5
-vpmullw		%ymm6,%ymm8,%ymm7
-vpmullw		%ymm8,%ymm8,%ymm9
-vpmulhw		%ymm2,%ymm4,%ymm2
-vpmulhw		%ymm4,%ymm4,%ymm4
-vpmulhw		%ymm6,%ymm8,%ymm6
-vpmulhw		%ymm8,%ymm8,%ymm8
-vpmullw		%ymm1,%ymm3,%ymm3
-vpmullw		%ymm1,%ymm5,%ymm5
-vpmullw		%ymm1,%ymm7,%ymm7
-vpmullw		%ymm1,%ymm9,%ymm9
-vpmulhw		%ymm0,%ymm3,%ymm3
-vpmulhw		%ymm0,%ymm5,%ymm5
+vpsubw		%ymm7,%ymm12,%ymm4
+vpmullw		%ymm6,%ymm4,%ymm7
+vpmulhw		%ymm2,%ymm4,%ymm12
 vpmulhw		%ymm0,%ymm7,%ymm7
-vpmulhw		%ymm0,%ymm9,%ymm9
-vpsubw		%ymm3,%ymm2,%ymm2
-vpsubw		%ymm5,%ymm4,%ymm4
-vpsubw		%ymm7,%ymm6,%ymm6
-vpsubw		%ymm9,%ymm8,%ymm8
+vpsubw		%ymm7,%ymm12,%ymm4
 
-#t = a^7679
-vpmullw		%ymm2,%ymm4,%ymm3
-vpmullw		%ymm6,%ymm8,%ymm7
-vpmulhw		%ymm2,%ymm4,%ymm2
-vpmulhw		%ymm6,%ymm8,%ymm6
-vpmullw		%ymm1,%ymm3,%ymm3
-vpmullw		%ymm1,%ymm7,%ymm7
-vpmulhw		%ymm0,%ymm3,%ymm3
+#i=7
+vpmullw     %ymm1,%ymm4,%ymm7
+vpmullw		%ymm7,%ymm4,%ymm7
+vpmulhw		%ymm4,%ymm4,%ymm12
 vpmulhw		%ymm0,%ymm7,%ymm7
-vpsubw		%ymm3,%ymm2,%ymm2
-vpsubw		%ymm7,%ymm6,%ymm6
+vpsubw		%ymm7,%ymm12,%ymm4
+vpmullw		%ymm6,%ymm4,%ymm7
+vpmulhw		%ymm2,%ymm4,%ymm12
+vpmulhw		%ymm0,%ymm7,%ymm7
+vpsubw		%ymm7,%ymm12,%ymm4
+
+#i=8
+vpmullw     %ymm1,%ymm4,%ymm7
+vpmullw		%ymm7,%ymm4,%ymm7
+vpmulhw		%ymm4,%ymm4,%ymm12
+vpmulhw		%ymm0,%ymm7,%ymm7
+vpsubw		%ymm7,%ymm12,%ymm4
+vpmullw		%ymm6,%ymm4,%ymm7
+vpmulhw		%ymm2,%ymm4,%ymm12
+vpmulhw		%ymm0,%ymm7,%ymm7
+vpsubw		%ymm7,%ymm12,%ymm4
+
+#i=9
+vpmullw     %ymm1,%ymm4,%ymm7
+vpmullw		%ymm7,%ymm4,%ymm7
+vpmulhw		%ymm4,%ymm4,%ymm12
+vpmulhw		%ymm0,%ymm7,%ymm7
+vpsubw		%ymm7,%ymm12,%ymm4
+vpmullw		%ymm6,%ymm4,%ymm7
+vpmulhw		%ymm2,%ymm4,%ymm12
+vpmulhw		%ymm0,%ymm7,%ymm7
+vpsubw		%ymm7,%ymm12,%ymm4
+
+#i=10
+vpmullw     %ymm1,%ymm4,%ymm7
+vpmullw		%ymm7,%ymm4,%ymm7
+vpmulhw		%ymm4,%ymm4,%ymm12
+vpmulhw		%ymm0,%ymm7,%ymm7
+vpsubw		%ymm7,%ymm12,%ymm4
+vpmullw		%ymm6,%ymm4,%ymm7
+vpmulhw		%ymm2,%ymm4,%ymm12
+vpmulhw		%ymm0,%ymm7,%ymm7
+vpsubw		%ymm7,%ymm12,%ymm4
+
+#i=11
+vpmullw     %ymm1,%ymm4,%ymm7
+vpmullw		%ymm7,%ymm4,%ymm7
+vpmulhw		%ymm4,%ymm4,%ymm12
+vpmulhw		%ymm0,%ymm7,%ymm7
+vpsubw		%ymm7,%ymm12,%ymm4
+vpmullw		%ymm6,%ymm4,%ymm7
+vpmulhw		%ymm2,%ymm4,%ymm12
+vpmulhw		%ymm0,%ymm7,%ymm7
+vpsubw		%ymm7,%ymm12,%ymm4
+
+#inverse of determinants
+#i = 1, t^2
+vpmullw     %ymm1,%ymm9,%ymm6
+vpmullw		%ymm6,%ymm9,%ymm7
+vpmulhw		%ymm9,%ymm9,%ymm12
+vpmulhw		%ymm0,%ymm7,%ymm7
+vpsubw		%ymm7,%ymm12,%ymm9
+vpmullw		%ymm6,%ymm9,%ymm7
+vpmulhw		%ymm2,%ymm9,%ymm12
+vpmulhw		%ymm0,%ymm7,%ymm7
+vpsubw		%ymm7,%ymm12,%ymm9
+
+#i = 2
+vpmullw     %ymm1,%ymm9,%ymm7
+vpmullw		%ymm7,%ymm9,%ymm7
+vpmulhw		%ymm9,%ymm9,%ymm12
+vpmulhw		%ymm0,%ymm7,%ymm7
+vpsubw		%ymm7,%ymm12,%ymm9
+
+#i=3
+vpmullw     %ymm1,%ymm9,%ymm7
+vpmullw		%ymm7,%ymm9,%ymm7
+vpmulhw		%ymm9,%ymm9,%ymm12
+vpmulhw		%ymm0,%ymm7,%ymm7
+vpsubw		%ymm7,%ymm12,%ymm9
+vpmullw		%ymm6,%ymm9,%ymm7
+vpmulhw		%ymm2,%ymm9,%ymm12
+vpmulhw		%ymm0,%ymm7,%ymm7
+vpsubw		%ymm7,%ymm12,%ymm9
+
+#i=9
+vpmullw     %ymm1,%ymm9,%ymm7
+vpmullw		%ymm7,%ymm9,%ymm7
+vpmulhw		%ymm9,%ymm9,%ymm12
+vpmulhw		%ymm0,%ymm7,%ymm7
+vpsubw		%ymm7,%ymm12,%ymm9
+
+#i=5
+vpmullw     %ymm1,%ymm9,%ymm7
+vpmullw		%ymm7,%ymm9,%ymm7
+vpmulhw		%ymm9,%ymm9,%ymm12
+vpmulhw		%ymm0,%ymm7,%ymm7
+vpsubw		%ymm7,%ymm12,%ymm9
+vpmullw		%ymm6,%ymm9,%ymm7
+vpmulhw		%ymm2,%ymm9,%ymm12
+vpmulhw		%ymm0,%ymm7,%ymm7
+vpsubw		%ymm7,%ymm12,%ymm9
+
+#i=6
+vpmullw     %ymm1,%ymm9,%ymm7
+vpmullw		%ymm7,%ymm9,%ymm7
+vpmulhw		%ymm9,%ymm9,%ymm12
+vpmulhw		%ymm0,%ymm7,%ymm7
+vpsubw		%ymm7,%ymm12,%ymm9
+vpmullw		%ymm6,%ymm9,%ymm7
+vpmulhw		%ymm2,%ymm9,%ymm12
+vpmulhw		%ymm0,%ymm7,%ymm7
+vpsubw		%ymm7,%ymm12,%ymm9
+
+#i=7
+vpmullw     %ymm1,%ymm9,%ymm7
+vpmullw		%ymm7,%ymm9,%ymm7
+vpmulhw		%ymm9,%ymm9,%ymm12
+vpmulhw		%ymm0,%ymm7,%ymm7
+vpsubw		%ymm7,%ymm12,%ymm9
+vpmullw		%ymm6,%ymm9,%ymm7
+vpmulhw		%ymm2,%ymm9,%ymm12
+vpmulhw		%ymm0,%ymm7,%ymm7
+vpsubw		%ymm7,%ymm12,%ymm9
+
+#i=8
+vpmullw     %ymm1,%ymm9,%ymm7
+vpmullw		%ymm7,%ymm9,%ymm7
+vpmulhw		%ymm9,%ymm9,%ymm12
+vpmulhw		%ymm0,%ymm7,%ymm7
+vpsubw		%ymm7,%ymm12,%ymm9
+vpmullw		%ymm6,%ymm9,%ymm7
+vpmulhw		%ymm2,%ymm9,%ymm12
+vpmulhw		%ymm0,%ymm7,%ymm7
+vpsubw		%ymm7,%ymm12,%ymm9
+
+#i=9
+vpmullw     %ymm1,%ymm9,%ymm7
+vpmullw		%ymm7,%ymm9,%ymm7
+vpmulhw		%ymm9,%ymm9,%ymm12
+vpmulhw		%ymm0,%ymm7,%ymm7
+vpsubw		%ymm7,%ymm12,%ymm9
+vpmullw		%ymm6,%ymm9,%ymm7
+vpmulhw		%ymm2,%ymm9,%ymm12
+vpmulhw		%ymm0,%ymm7,%ymm7
+vpsubw		%ymm7,%ymm12,%ymm9
+
+#i=10
+vpmullw     %ymm1,%ymm9,%ymm7
+vpmullw		%ymm7,%ymm9,%ymm7
+vpmulhw		%ymm9,%ymm9,%ymm12
+vpmulhw		%ymm0,%ymm7,%ymm7
+vpsubw		%ymm7,%ymm12,%ymm9
+vpmullw		%ymm6,%ymm9,%ymm7
+vpmulhw		%ymm2,%ymm9,%ymm12
+vpmulhw		%ymm0,%ymm7,%ymm7
+vpsubw		%ymm7,%ymm12,%ymm9
+
+#i=11
+vpmullw     %ymm1,%ymm9,%ymm7
+vpmullw		%ymm7,%ymm9,%ymm7
+vpmulhw		%ymm9,%ymm9,%ymm12
+vpmulhw		%ymm0,%ymm7,%ymm7
+vpsubw		%ymm7,%ymm12,%ymm9
+vpmullw		%ymm6,%ymm9,%ymm7
+vpmulhw		%ymm2,%ymm9,%ymm12
+vpmulhw		%ymm0,%ymm7,%ymm7
+vpsubw		%ymm7,%ymm12,%ymm9
+
+vmovdqa    %ymm4, %ymm2
+vmovdqa    %ymm9, %ymm6
 
 #divide by determinant
 #premul
@@ -505,7 +488,7 @@ vmovdqa		96(%rdi),%ymm8
 
 #mul
 vpmullw		%ymm3,%ymm4,%ymm5
-vpmullw		%ymm7,%ymm8,%ymm9
+vpmullw		%ymm7,%ymm8,%ymm9 
 vpmulhw		%ymm2,%ymm4,%ymm4
 vpmulhw		%ymm6,%ymm8,%ymm8
 
@@ -546,15 +529,12 @@ vpxor		%ymm15,%ymm15,%ymm15
 vpcmpeqw	%ymm15,%ymm2,%ymm2
 vpcmpeqw	%ymm15,%ymm6,%ymm6
 vpor		%ymm6,%ymm2,%ymm2
-vperm2i128	$0x01,%ymm2,%ymm2,%ymm3
+vperm2i128	$0x10,%ymm2,%ymm2,%ymm3
 por		%xmm3,%xmm2
 vpshufd		$0x0E,%xmm2,%xmm3
 por		%xmm3,%xmm2
-
-vpsrlq		$32,%xmm2,%xmm3
-por         %xmm2,%xmm3
-movq        %xmm12,%r10
-or		    %r10,%rcx
+vpextrq		$0,%xmm2,%r10
+or		%r10,%rcx
 
 add		$32,%rdi
 
@@ -567,4 +547,5 @@ jb		_looptop
 
 add             %r11,%rsp
 mov		%rcx,%rax
+
 ret

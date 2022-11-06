@@ -49,6 +49,8 @@ int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
         poly_ntt(&g,&g);
         r |= poly_baseinv(&ginv, &g);
         poly_freeze(&ginv);
+
+        printf("1");
     } while(r);
 
     //pk
