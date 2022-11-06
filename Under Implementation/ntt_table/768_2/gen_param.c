@@ -19,7 +19,7 @@ int zetas_inv_exp[1632] = {0};
 
 void gen_exp()
 {
-    int a = 5;
+    int a = 19;
 
     exp_table[0] = (1 << 16) % Q;
     //exp_table[0] = 1;
@@ -290,7 +290,7 @@ void ntt_encode()
         zetas_exp[k++] = ntt_tree[6][(i << 4)+14];       
     }
     printf("k : %d\n", k);
-
+    printf("helloe\n");
 //level7
     for (int i = 0; i < 12; i++)
     {
@@ -532,10 +532,10 @@ void invntt_encode()
     for (int i = 0; i < 1; i++)
     {
         //(z-z^5)^-1
-        zetas_inv_exp[k++] = (1665 * QINV) & 0xffff;
-        zetas_inv_exp[k++] = (1665 * QINV) & 0xffff;
-        zetas_inv_exp[k++] = 1665;
-        zetas_inv_exp[k++] = 1665;
+        zetas_inv_exp[k++] = (1792 * QINV) & 0xffff;
+        zetas_inv_exp[k++] = (1792 * QINV) & 0xffff;
+        zetas_inv_exp[k++] = 1792;
+        zetas_inv_exp[k++] = 1792;
 
         //기억이 안남.... 전체적인 기법이랑, 3*2^x의 역수 포함
         zetas_inv_exp[k++] = (2568 * QINV) & 0xffff;

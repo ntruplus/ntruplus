@@ -10,7 +10,7 @@ vmovdqa		_16xq(%rip),%ymm0
 vmovdqa		_low_mask(%rip),%ymm1
 
 lea		    zetas(%rip),%rdx
-add         $1864,%rdx
+add         $2488,%rdx
 xor		    %rax,%rax
 xor		    %rcx,%rcx
 .p2align 5
@@ -213,8 +213,6 @@ vpsrlq		$32,%xmm11,%xmm12
 por         %xmm11,%xmm12
 movq        %xmm12,%r10
 or		    %r10,%rcx
-
-
 
 add		$64,%rdi
 add		$64,%rsi
@@ -419,9 +417,10 @@ add		$64,%rsi
 add		$64,%rdx
 add		$64,%rax
 
-cmp		$576,%rax
+cmp		$768,%rax
 jb		_looptop
 
 add		%r11,%rsp
 mov		%rcx,%rax
+
 ret

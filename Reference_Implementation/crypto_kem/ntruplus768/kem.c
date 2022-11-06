@@ -40,6 +40,14 @@ int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
 
         poly_cbd1(&f, buf);
         poly_triple(&f);
+
+        for(int i = 0; i < NTRUPLUS_N; i++)
+        {
+            printf("%d", f.coeffs[i]);
+        }
+        printf("\n");
+
+
         f.coeffs[0] += 1;
         poly_ntt(&f,&f);
         r = poly_baseinv(&finv, &f);

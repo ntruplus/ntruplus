@@ -20,7 +20,7 @@ int zetas_inv_exp[1152] = {0};
 
 void gen_exp()
 {
-    int a = 5;
+    int a = 19;
 
     exp_table[0] = (1 << 16) % Q;
     //exp_table[0] = 1;
@@ -193,7 +193,7 @@ void invntt_encode()
     
 //level0
     //(z-z^5)^-1
-    zetas_inv_exp[k++] = 1665;
+    zetas_inv_exp[k++] = 1792;
     
     printf("level %d - k : %d\n", 0, k);
 }
