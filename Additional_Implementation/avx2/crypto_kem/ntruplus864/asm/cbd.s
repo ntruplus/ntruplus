@@ -271,9 +271,9 @@ movq        (%rdx),%mm2
 pxor         %mm7,%mm2
 movq        %mm2,(%rdi)
 
-add		$8,%rsi
+add		$128,%rsi
 add		$8,%rdx
-add		$128,%rdi 
+add		$8,%rdi 
 
 vpbroadcastd (%rsi),%ymm1
 vpbroadcastd (%rdx), %ymm2
@@ -288,7 +288,7 @@ add         $4,%r8
 vmovdqa     %ymm5,%ymm4
 .p2align 5
 _looptop_poly_sotp_inv_3:
-vmovdqu     (%rsi, %r8),%ymm1
+vpbroadcastd (%rsi, %r8),%ymm1
 vpsrld		$1,%ymm3,%ymm3
 vpand       %ymm0,%ymm3,%ymm6
 vpaddw	    %ymm6,%ymm1,%ymm6

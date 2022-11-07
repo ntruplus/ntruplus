@@ -157,7 +157,7 @@ int baseinv(int16_t b[3], const int16_t a[3], int16_t zeta)
 	b[2]  = fqmul(a[1], a[1]);
 	t     = fqmul(a[0], a[2]);
 	b[2] -= t;
-  /*
+
 	det   = fqmul(b[2], a[1]);
 	t     = fqmul(b[1], a[2]);
 	det  += t;
@@ -172,6 +172,6 @@ int baseinv(int16_t b[3], const int16_t a[3], int16_t zeta)
 
 	r = (uint16_t)det;
 	r = (uint32_t)(-r) >> 31;
-	*/
+
 	return r - 1;
 }

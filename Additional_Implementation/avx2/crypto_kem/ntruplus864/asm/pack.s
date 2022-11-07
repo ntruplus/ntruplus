@@ -33,9 +33,9 @@ jb		_looptop_poly_tobytes
 
 #load
 vmovdqa		(%rsi),%xmm0
-vmovdqa		32(%rsi),%xmm1
-vmovdqa		64(%rsi),%xmm2
-vmovdqa		96(%rsi),%xmm3
+vmovdqa		16(%rsi),%xmm1
+vmovdqa		32(%rsi),%xmm2
+vmovdqa		48(%rsi),%xmm3
 
 vpsllw		$12,%xmm1,%xmm15
 vpxor		%xmm15,%xmm0,%xmm0
@@ -94,8 +94,8 @@ jb		_looptop_poly_frombytes
 
 #load
 vmovdqu		(%rsi),%xmm0
-vmovdqu		32(%rsi),%xmm1
-vmovdqu		64(%rsi),%xmm2
+vmovdqu		16(%rsi),%xmm1
+vmovdqu		32(%rsi),%xmm2
 
 vpand       %xmm15,%xmm0,%xmm13
 vmovdqa		%xmm13,(%rdi)

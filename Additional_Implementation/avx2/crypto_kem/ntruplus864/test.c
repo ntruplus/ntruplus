@@ -3,8 +3,7 @@
 #include <stdint.h>
 #include "api.h"
 #include "rng.h"
-#include "poly.h"
-#define TEST_LOOP 1
+#define TEST_LOOP 100000
 
 int64_t cpucycles(void)
 {
@@ -102,59 +101,14 @@ void TEST_CCA_KEM_CLOCK()
 	printf("==================================================\n");
 }
 
-void test_ntt()
-{
-	poly a,b,c,d,e,f;
-
-	for(int i = 0; i < NTRUPLUS_N; i++)
-	{
-		a.coeffs[i] = 0;
-		b.coeffs[i] = 0;
-		c.coeffs[i] = 0;
-		d.coeffs[i] = 0;
-	}
-
-	for(int i = 0; i < NTRUPLUS_N/3; i++)
-	{
-		a.coeffs[i] = 1;
-		b.coeffs[i] = 1;
-	}	
-
-	poly_ntt(&c,&a);
-	poly_freeze(&c);
-	for(int i = 0; i < NTRUPLUS_N; i++)
-	{
-		if(i%16==0) printf("\n");
-		printf("%d ", c.coeffs[i]);
-	}
-	printf("\n");
-
-	poly_baseinv(&d,&c);
-	poly_freeze(&d);
-
-	//poly_ntt_pack(&d,&d);
-/*
-	poly_basemul(&e,&c,&d);
-
-	poly_invntt(&f,&e);
-*/
-	for(int i = 0; i < NTRUPLUS_N; i++)
-	{
-		if(i%16==0) printf("\n");
-		printf("%d ", d.coeffs[i]);
-	}
-	printf("\n");
-}
-
 int main(void)
 {
 	printf("PUBLICKEYBYTES : %d\n", CRYPTO_PUBLICKEYBYTES);
 	printf("SECRETKEYBYTES : %d\n", CRYPTO_SECRETKEYBYTES);
 	printf("CIPHERTEXTBYTES : %d\n", CRYPTO_CIPHERTEXTBYTES);
 
-	test_ntt();
-	//TEST_CCA_KEM();
-	//TEST_CCA_KEM_CLOCK();
+	TEST_CCA_KEM();
+	TEST_CCA_KEM_CLOCK();
 	
 	return 0;	
 }
