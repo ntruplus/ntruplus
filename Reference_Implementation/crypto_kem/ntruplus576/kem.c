@@ -47,25 +47,24 @@ int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
         poly_cbd1(&g, buf + NTRUPLUS_N/4); 
         poly_triple(&g);
         poly_ntt(&g,&g);
-        r |= poly_baseinv(&ginv, &g);
+
+        poly_basemul(&h,&g,&finv);
+        r |= poly_baseinv(&hinv,&h);
     } while(r);
 
     //pk
-    poly_basemul(&h, &g, &finv);
     poly_freeze(&h);
     poly_tobytes(pk, &h);
 
     //sk
-    poly_basemul(&hinv, &f, &ginv);
-    poly_freeze(&hinv);
-    poly_tobytes(sk+NTRUPLUS_POLYBYTES, &hinv);
-
     poly_freeze(&f);  
     poly_tobytes(sk, &f);
+
+    poly_freeze(&hinv);
+    poly_tobytes(sk+NTRUPLUS_POLYBYTES, &hinv);
         
     return 0;
 }
-
 /*************************************************
 * Name:        crypto_kem_enc
 *

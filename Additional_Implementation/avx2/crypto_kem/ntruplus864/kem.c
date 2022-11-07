@@ -31,7 +31,7 @@ int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
     poly g, ginv;
     poly h, hinv;
 
-    int64_t r;
+    int r;
 
     do {
         r = 0;
@@ -44,29 +44,28 @@ int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
         poly_ntt(&f,&f);
         r = poly_baseinv(&finv, &f);
 
-        poly_cbd1(&g, buf + NTRUPLUS_N/4);
+        poly_cbd1(&g, buf + NTRUPLUS_N/4); 
         poly_triple(&g,&g);
         poly_ntt(&g,&g);
-        r |= poly_baseinv(&ginv, &g);
-        poly_freeze(&ginv);
+
+        poly_basemul(&h,&g,&finv);
+        r |= poly_baseinv(&hinv,&h);
     } while(r);
 
     //pk
-    poly_basemul(&h, &g, &finv);
     poly_freeze(&h);
     poly_ntt_pack(&h,&h);
     poly_tobytes(pk, &h);
-    
+
     //sk
-    poly_basemul(&hinv, &f, &ginv);
+    poly_freeze(&f);
+    poly_ntt_pack(&f,&f);  
+    poly_tobytes(sk, &f);
+
     poly_freeze(&hinv);
     poly_ntt_pack(&hinv,&hinv);
     poly_tobytes(sk+NTRUPLUS_POLYBYTES, &hinv);
-
-    poly_freeze(&f);  
-    poly_ntt_pack(&f,&f);
-    poly_tobytes(sk, &f);
-
+        
     return 0;
 }
 
