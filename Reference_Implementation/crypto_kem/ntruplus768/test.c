@@ -3,16 +3,9 @@
 #include <stdint.h>
 #include "api.h"
 #include "rng.h"
+#include "cpucycles.h"
+
 #define TEST_LOOP 100000
-
-int64_t cpucycles(void)
-{
-	unsigned int hi, lo;
-
-    __asm__ __volatile__ ("rdtsc\n\t" : "=a" (lo), "=d"(hi));
-
-    return ((int64_t)lo) | (((int64_t)hi) << 32);
-}
 
 void TEST_CCA_KEM()
 {

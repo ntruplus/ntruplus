@@ -3,6 +3,7 @@
         "symmetric.h": "c",
         "params.h": "c",
         "aes256ctr.h": "c",
-        "sha.h": "c"
+        "sha.h": "c",
+        "api.h": "c"
     }
 }
