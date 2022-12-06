@@ -114,6 +114,8 @@ int crypto_kem_enc(unsigned char *ct,
     {
         ss[i] = buf1[i];
     }
+
+    return 0;
 }
 
 /*************************************************
