@@ -1,16 +1,15 @@
 #include <openssl/sha.h>
 #include "symmetric.h"
-#include "crypto_stream.h"
-static const unsigned char n[16] = {0};
+#include "aes256ctr.h"
 
 void hash_h(unsigned char *buf, const unsigned char *msg)
 {
 	SHA512(msg, NTRUPLUS_N/8, buf);
-	crypto_stream(buf + NTRUPLUS_SYMBYTES, NTRUPLUS_N/4, n, buf + NTRUPLUS_SYMBYTES);
+	aes256ctr_prf(buf + NTRUPLUS_SYMBYTES, NTRUPLUS_N/4, buf + NTRUPLUS_SYMBYTES, 0);
 }
 
 void hash_g(unsigned char *buf, const unsigned char *msg)
 {
 	SHA256(msg, NTRUPLUS_POLYBYTES, buf);
-	crypto_stream(buf, NTRUPLUS_N/4, n, buf);
+	aes256ctr_prf(buf, NTRUPLUS_N/4, buf, 0);
 }

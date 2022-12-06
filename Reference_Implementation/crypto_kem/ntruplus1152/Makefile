@@ -1,9 +1,9 @@
 CC=/usr/bin/gcc
-CFLAGS += -O3 -march=native -fomit-frame-pointer
+CFLAGS += -O3 -fomit-frame-pointer
 LDFLAGS=-lcrypto
 
 SOURCES= aes256ctr.c kem.c ntt.c poly.c reduce.c rng.c sha512.c symmetric.c util.c verify.c sha256.c
-HEADERS= api.h crypto_stream.h kem.h ntt.h params.h poly.h reduce.h rng.h sha2.h symmetric.h util.h verify.h
+HEADERS= api.h kem.h ntt.h params.h poly.h reduce.h rng.h sha2.h symmetric.h util.h verify.h
 
 .PHONY: all PQCgenKAT_kem test clean
 

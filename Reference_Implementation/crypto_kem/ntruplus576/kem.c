@@ -6,8 +6,7 @@
 #include "symmetric.h"
 #include "poly.h"
 #include "verify.h"
-#include "verify.h"
-#include "crypto_stream.h"
+#include "aes256ctr.h"
 
 static const unsigned char n[16] = {0};
 /*************************************************
@@ -36,7 +35,7 @@ int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
     do {
         r = 0;
         randombytes(buf, 32);
-        crypto_stream(buf, NTRUPLUS_N/2, n, buf);
+        aes256ctr_prf(buf, NTRUPLUS_N/2, buf, n);
 
         poly_cbd1(&f, buf);
         poly_triple(&f);
