@@ -62,9 +62,9 @@ void TEST_CCA_KEM_CLOCK()
 	kcycles=0;
 	for (int i = 0; i < TEST_LOOP; i++)
 	{
-		cycles1 = cpucycles();
+		cycles1 = cpucycles1();
 		crypto_kem_keypair(pk, sk);
-        cycles2 = cpucycles();
+        cycles2 = cpucycles2();
         kcycles += cycles2-cycles1;
 	}
     printf("  KEYGEN runs in ................. %8lld cycles", kcycles/TEST_LOOP);
@@ -74,14 +74,14 @@ void TEST_CCA_KEM_CLOCK()
 	dcycles=0;
 	for (int i = 0; i < TEST_LOOP; i++)
 	{
-		cycles1 = cpucycles();
+		cycles1 = cpucycles1();
 		crypto_kem_enc(ct, ss, pk);
-        cycles2 = cpucycles();
+        cycles2 = cpucycles2();
         ecycles += cycles2-cycles1;
 
-		cycles1 = cpucycles(); 
+		cycles1 = cpucycles1(); 
 		crypto_kem_dec(dss, ct, sk);
-		cycles2 = cpucycles();
+		cycles2 = cpucycles2();
         dcycles += cycles2-cycles1;
 	}
 
