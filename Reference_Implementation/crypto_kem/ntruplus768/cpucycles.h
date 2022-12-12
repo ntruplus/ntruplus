@@ -27,9 +27,10 @@ static inline uint64_t cpucycles2(void) {
 
 static inline uint64_t cpucycles1(void)
 {
-	unsigned int result;
+	uint64_t result;
+	uint64_t zero;
 
-    asm volatile ("msr pmccntr_el0, %0" :  : "r" ($0));
+    asm volatile ("msr PMCCNTR_EL0, %0" :  : "r" (zero));
     asm volatile("mrs %0, PMCCNTR_EL0":"=r"(result));
 
     return result;
@@ -37,7 +38,7 @@ static inline uint64_t cpucycles1(void)
 
 static inline uint64_t cpucycles2(void)
 {
-	unsigned int result;
+	uint64_t result;
 
     asm volatile("mrs %0, PMCCNTR_EL0":"=r"(result));
 
