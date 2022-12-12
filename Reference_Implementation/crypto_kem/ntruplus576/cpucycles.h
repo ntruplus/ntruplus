@@ -3,31 +3,29 @@
 
 #include <stdint.h>
 
-#ifdef USE_RDPMC  /* Needs echo 2 > /sys/devices/cpu/rdpmc */
+#if defined(__x86_64__)
 
-static inline uint64_t cpucycles(void) {
-  const uint32_t ecx = (1U << 30) + 1;
-  uint64_t result;
+int64_t cpucycles(void)
+{
+	unsigned int hi, lo;
 
-  __asm__ volatile ("rdpmc; shlq $32,%%rdx; orq %%rdx,%%rax"
-    : "=a" (result) : "c" (ecx) : "rdx");
+    __asm__ __volatile__ ("rdtsc\n\t" : "=a" (lo), "=d"(hi));
 
-  return result;
+    return ((int64_t)lo) | (((int64_t)hi) << 32);
+}
+
+#elif defined(__aarch64__)
+
+int64_t cpucycles(void)
+{
+	unsigned int hi, lo;
+
+    asm volatile("mrs %0, PMCCNTR_EL0":"=r"(result));
+
+    return result;
 }
 
 #else
 
-static inline uint64_t cpucycles(void) {
-  uint64_t result;
-
-  __asm__ volatile ("rdtsc; shlq $32,%%rdx; orq %%rdx,%%rax"
-    : "=a" (result) : : "%rdx");
-
-  return result;
-}
-
 #endif
-
-uint64_t cpucycles_overhead(void);
-
 #endif
