@@ -18,7 +18,7 @@ int64_t cpucycles(void)
 
 int64_t cpucycles(void)
 {
-	unsigned int hi, lo;
+	unsigned int result;
 
     asm volatile("mrs %0, PMCCNTR_EL0":"=r"(result));
 
