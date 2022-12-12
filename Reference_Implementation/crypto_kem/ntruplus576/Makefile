@@ -12,7 +12,7 @@ all: test PQCgenKAT_kem
 PQCgenKAT_kem: $(HEADERS) $(SOURCES)
 	$(CC) $(CFLAGS) -o $@ PQCgenKAT_kem.c $(SOURCES) $(LDFLAGS)
 
-test: $(HEADERS) $(SOURCES) test.c  cpucycles.h
+test: $(HEADERS) $(SOURCES) test.c cpucycles.h
 	$(CC) $(CFLAGS) -o $@ test.c $(SOURCES) $(LDFLAGS)
 
 clean:
