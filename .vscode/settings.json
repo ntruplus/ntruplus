@@ -4,6 +4,7 @@
         "params.h": "c",
         "aes256ctr.h": "c",
         "sha.h": "c",
-        "api.h": "c"
+        "api.h": "c",
+        "functional": "cpp"
     }
 }

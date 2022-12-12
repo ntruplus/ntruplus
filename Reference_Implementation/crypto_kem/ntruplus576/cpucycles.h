@@ -5,18 +5,18 @@
 
 #if defined(__x86_64__)
 
-int64_t cpucycles(void)
-{
-	unsigned int hi, lo;
+static inline uint64_t cpucycles(void) {
+  uint64_t result;
 
-    __asm__ __volatile__ ("rdtsc\n\t" : "=a" (lo), "=d"(hi));
+  __asm__ volatile ("rdtsc; shlq $32,%%rdx; orq %%rdx,%%rax"
+    : "=a" (result) : : "%rdx");
 
-    return ((int64_t)lo) | (((int64_t)hi) << 32);
+  return result;
 }
 
 #elif defined(__aarch64__)
 
-int64_t cpucycles(void)
+static inline uint64_t cpucycles(void)
 {
 	unsigned int result;
 
