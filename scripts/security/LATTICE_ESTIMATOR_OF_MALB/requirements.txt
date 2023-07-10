@@ -1,0 +1,8 @@
+black
+flake8
+pyproject-flake8
+pytest
+pytest-xdist
+nbmake
+sphinx-book-theme
+sphinxcontrib-jupyter
