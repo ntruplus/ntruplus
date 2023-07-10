@@ -265,9 +265,10 @@ void poly_sotp(poly *e, const unsigned char *msg, const unsigned char *buf)
 	}
 }
 
-void poly_sotp_inv(unsigned char *msg, const poly *e, const unsigned char *buf)
+int poly_sotp_inv(unsigned char *msg, const poly *e, const unsigned char *buf)
 {
-	uint32_t t1, t2, t3;
+	uint32_t t1, t2, t3, t4;
+	uint32_t r = 0;
 
 	for(int i = 0; i < 3; i++)
 	{
@@ -281,7 +282,11 @@ void poly_sotp_inv(unsigned char *msg, const poly *e, const unsigned char *buf)
 			{
 				for(int l = 0; l < 16; l++)
 				{
-					t3 ^= (((e->coeffs[256*i + 16*l + 2*j + k] + t2)^t1) & 0x1) << (l+16*k);
+					t4 = t2 & 0x1;
+					t4 = e->coeffs[256*i + 16*l + 2*j + k] + t4;
+					r |= t4;
+					t4 = (t4^t1) & 0x1;
+					t3 ^= t4 << (l+16*k);
 
 					t1 >>= 1;
 					t2 >>= 1;
@@ -294,4 +299,9 @@ void poly_sotp_inv(unsigned char *msg, const poly *e, const unsigned char *buf)
 			msg[32*i + 4*j + 3] = t3 >> 24;
 		}
 	}
+
+	r = r >> 1;
+	r = (-(uint64_t)r) >> 63;
+
+	return r;
 }

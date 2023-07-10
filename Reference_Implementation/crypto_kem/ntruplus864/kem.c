@@ -166,7 +166,7 @@ int crypto_kem_dec(unsigned char *ss,
     poly_tobytes(buf1, &r2);
 
     hash_g(buf2, buf1);
-    poly_sotp_inv(msg, &m1, buf2);
+    fail = poly_sotp_inv(msg, &m1, buf2);
 
     hash_h(buf3, msg);
     poly_cbd1(&r1,buf3 + NTRUPLUS_SSBYTES);
@@ -174,11 +174,11 @@ int crypto_kem_dec(unsigned char *ss,
     poly_freeze(&r1);
     poly_tobytes(buf2, &r1);
 
-    fail = verify(buf1, buf2, NTRUPLUS_POLYBYTES);
+    fail |= verify(buf1, buf2, NTRUPLUS_POLYBYTES);
 
 	for(int i = 0; i < NTRUPLUS_SSBYTES; ++i)
 	{
-		ss[i] = buf3[i] & ~fail;
+		ss[i] = buf3[i] & ~(-fail);
 	}
 
     return fail;
