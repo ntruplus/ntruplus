@@ -119,8 +119,8 @@ void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 			t2 = fqmul(zeta1, r[i] - r[i + 128] - t1);
 			t3 = fqmul(zeta2, r[i] - r[i + 256] + t1);
 			r[i         ] = fqred16(r[i] + r[i + 128] + r[i + 256]);
-			r[i +   step] = t2;			
-			r[i + 2*step] = t3;
+			r[i + 128] = t2;			
+			r[i + 256] = t3;
 		}
 	}
 
