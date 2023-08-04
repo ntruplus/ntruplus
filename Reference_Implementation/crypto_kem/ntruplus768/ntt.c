@@ -102,7 +102,7 @@ void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 	{
 		zeta1 = zetas_inv[k++];
 		zeta2 = zetas_inv[k++];
-
+/*
 		for(int i = start; i < start + 128; i++)
 		{
 			t1 = fqred16(fqmul(1033, r[i + 128]) + fqmul(2571, r[i + 256]));
@@ -111,6 +111,16 @@ void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 			r[i + 256] = fqred16(fqmul(zeta2, r[i] - (t1 + t2)));
 			r[i + 128] = fqred16(fqmul(zeta1, r[i] + t1));
 			r[i    ] = fqred16(r[i] + t2);
+		}
+*/
+		for(int i = start; i < start + 128; i++)
+		{
+			t1 = fqmul(2571, r[i + 128] - r[i + 256]);
+			t2 = fqmul(zeta1, r[i] - r[i + 128] - t1);
+			t3 = fqmul(zeta2, r[i] - r[i + 256] + t1);
+			r[i         ] = fqred16(r[i] + r[i + 128] + r[i + 256]);
+			r[i +   step] = t2;			
+			r[i + 2*step] = t3;
 		}
 	}
 
