@@ -227,11 +227,8 @@ vpmulhw		%ymm3,%ymm11,%ymm11  #w(Y-Z)
 vpmulhw		%ymm0,%ymm12,%ymm12  #w(Y-Z)
 vpsubw		%ymm12,%ymm11,%ymm11 #w(Y-Z)
 
-
-#sub
 vpsubw      %ymm9,%ymm8,%ymm12   #X-Y
 vpsubw      %ymm10,%ymm8,%ymm13  #X-Z
-
 vpsubw      %ymm11,%ymm12,%ymm12 #X-Y - w(Y-Z)
 vpaddw      %ymm11,%ymm13,%ymm13 #X-Z + w(Y-Z)
 
@@ -275,9 +272,6 @@ jb		_looptop_start_2
 sub		$2304,%rdi
 
 #level1
-vmovdqu	_16xwqinv(%rip),%ymm2 #winv
-vmovdqu	_16xw(%rip),%ymm3 #w
-
 xor		%rax,%rax
 .p2align 5
 _looptop_start_1:
@@ -305,11 +299,8 @@ vpmulhw		%ymm3,%ymm11,%ymm11  #w(Y-Z)
 vpmulhw		%ymm0,%ymm12,%ymm12  #w(Y-Z)
 vpsubw		%ymm12,%ymm11,%ymm11 #w(Y-Z)
 
-
-#sub
 vpsubw      %ymm9,%ymm8,%ymm12   #X-Y
 vpsubw      %ymm10,%ymm8,%ymm13  #X-Z
-
 vpsubw      %ymm11,%ymm12,%ymm12 #X-Y - w(Y-Z)
 vpaddw      %ymm11,%ymm13,%ymm13 #X-Z + w(Y-Z)
 
@@ -348,8 +339,8 @@ sub		$2304,%rdi
 
 #level 0
 #zetas
-vpbroadcastd	4880(%rdx),%ymm2    #(z-z^5)^-1
-vpbroadcastd	4884(%rdx),%ymm3   #(z-z^5)^-1
+vpbroadcastd	4880(%rdx),%ymm2  #(z-z^5)^-1
+vpbroadcastd	4884(%rdx),%ymm3  #(z-z^5)^-1
 
 vpbroadcastd	4888(%rdx),%ymm13 
 vpbroadcastd	4892(%rdx),%ymm14

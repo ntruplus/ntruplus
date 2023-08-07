@@ -250,11 +250,8 @@ vpmulhw		%ymm3,%ymm11,%ymm11  #w(Y-Z)
 vpmulhw		%ymm0,%ymm12,%ymm12  #w(Y-Z)
 vpsubw		%ymm12,%ymm11,%ymm11 #w(Y-Z)
 
-
-#sub
 vpsubw      %ymm9,%ymm8,%ymm12   #X-Y
 vpsubw      %ymm10,%ymm8,%ymm13  #X-Z
-
 vpsubw      %ymm11,%ymm12,%ymm12 #X-Y - w(Y-Z)
 vpaddw      %ymm11,%ymm13,%ymm13 #X-Z + w(Y-Z)
 
@@ -319,11 +316,8 @@ vpmulhw		%ymm3,%ymm11,%ymm11  #w(Y-Z)
 vpmulhw		%ymm0,%ymm12,%ymm12  #w(Y-Z)
 vpsubw		%ymm12,%ymm11,%ymm11 #w(Y-Z)
 
-
-#sub
 vpsubw      %ymm9,%ymm8,%ymm12   #X-Y
 vpsubw      %ymm10,%ymm8,%ymm13  #X-Z
-
 vpsubw      %ymm11,%ymm12,%ymm12 #X-Y - w(Y-Z)
 vpaddw      %ymm11,%ymm13,%ymm13 #X-Z + w(Y-Z)
 
@@ -362,8 +356,8 @@ sub		$1728,%rdi
 
 #level 0
 #zetas
-vpbroadcastd	2432(%rdx),%ymm2    #(z-z^5)^-1
-vpbroadcastd	2436(%rdx),%ymm3   #(z-z^5)^-1
+vpbroadcastd	2432(%rdx),%ymm2  #(z-z^5)^-1
+vpbroadcastd	2436(%rdx),%ymm3  #(z-z^5)^-1
 
 vpbroadcastd	2440(%rdx),%ymm13 
 vpbroadcastd	2444(%rdx),%ymm14

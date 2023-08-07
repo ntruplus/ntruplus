@@ -147,9 +147,9 @@ vpsubw		%ymm11,%ymm10,%ymm10 #w(Ba-Ca^2)
 vmovdqa		(%rdi),%ymm11 #A
 
 #update
-vpaddw		%ymm8,%ymm11,%ymm12 #A + Ba
-vpsubw		%ymm9,%ymm11,%ymm13 #A - Ca^2
-vpsubw		%ymm8,%ymm11,%ymm14 #A - Ba
+vpaddw		%ymm8,%ymm11,%ymm12  #A + Ba
+vpsubw		%ymm9,%ymm11,%ymm13  #A - Ca^2
+vpsubw		%ymm8,%ymm11,%ymm14  #A - Ba
 
 vpaddw		%ymm9,%ymm12,%ymm12  #A + Ba   + Ca^2
 vpaddw		%ymm10,%ymm13,%ymm13 #A - Ca^2 + w(Ba-Ca^2)
@@ -178,9 +178,9 @@ xor         %rax,%rax
 .p2align 5
 _looptop_start_2:
 #zetas
-vpbroadcastd    (%rdx),%ymm4 #ainv
-vpbroadcastd    8(%rdx),%ymm5 #a^2inv
-vpbroadcastd    4(%rdx),%ymm6 #a
+vpbroadcastd    (%rdx),%ymm4   #ainv
+vpbroadcastd    8(%rdx),%ymm5  #a^2inv
+vpbroadcastd    4(%rdx),%ymm6  #a
 vpbroadcastd    12(%rdx),%ymm7 #a^2
 
 xor		%rcx,%rcx
@@ -191,23 +191,23 @@ vmovdqa		64(%rdi),%ymm8
 vmovdqa		128(%rdi),%ymm9
 
 #mul
-vpmullw		%ymm4,%ymm8,%ymm10 #Ba
-vpmullw		%ymm5,%ymm9,%ymm11 #Ca^2
-vpmulhw		%ymm6,%ymm8,%ymm8  #Ba
-vpmulhw		%ymm7,%ymm9,%ymm9  #Ca^2
+vpmullw		%ymm4,%ymm8,%ymm10   #Ba
+vpmullw		%ymm5,%ymm9,%ymm11   #Ca^2
+vpmulhw		%ymm6,%ymm8,%ymm8    #Ba
+vpmulhw		%ymm7,%ymm9,%ymm9    #Ca^2
 
 #reduce
-vpmulhw		%ymm0,%ymm10,%ymm10 #Ba
-vpmulhw		%ymm0,%ymm11,%ymm11 #Ca^2
-vpsubw		%ymm10,%ymm8,%ymm8  #Ba
-vpsubw		%ymm11,%ymm9,%ymm9  #Ca^2
+vpmulhw		%ymm0,%ymm10,%ymm10  #Ba
+vpmulhw		%ymm0,%ymm11,%ymm11  #Ca^2
+vpsubw		%ymm10,%ymm8,%ymm8   #Ba
+vpsubw		%ymm11,%ymm9,%ymm9   #Ca^2
 
 #sub
-vpsubw		%ymm9,%ymm8,%ymm10 #(Ba-Ca^2)
+vpsubw		%ymm9,%ymm8,%ymm10   #(Ba-Ca^2)
 
 #mul
-vpmullw		%ymm2,%ymm10,%ymm11 #w(Ba-Ca^2)
-vpmulhw		%ymm3,%ymm10,%ymm10 #w(Ba-Ca^2)
+vpmullw		%ymm2,%ymm10,%ymm11  #w(Ba-Ca^2)
+vpmulhw		%ymm3,%ymm10,%ymm10  #w(Ba-Ca^2)
 
 #reduce
 vpmulhw		%ymm0,%ymm11,%ymm11  #w(Ba-Ca^2)
@@ -217,9 +217,9 @@ vpsubw		%ymm11,%ymm10,%ymm10 #w(Ba-Ca^2)
 vmovdqa		(%rdi),%ymm11 #A
 
 #update
-vpaddw		%ymm8,%ymm11,%ymm12 #A + Ba
-vpsubw		%ymm9,%ymm11,%ymm13 #A - Ca^2
-vpsubw		%ymm8,%ymm11,%ymm14 #A - Ba
+vpaddw		%ymm8,%ymm11,%ymm12  #A + Ba
+vpsubw		%ymm9,%ymm11,%ymm13  #A - Ca^2
+vpsubw		%ymm8,%ymm11,%ymm14  #A - Ba
 
 vpaddw		%ymm9,%ymm12,%ymm12  #A + Ba   + Ca^2
 vpaddw		%ymm10,%ymm13,%ymm13 #A - Ca^2 + w(Ba-Ca^2)
@@ -242,8 +242,6 @@ cmp		$1152,%rax
 jb		_looptop_start_2
 
 sub		$1152,%rdi
-vmovdqa		_low_mask(%rip),%ymm1
-
 
 xor		%rax,%rax
 .p2align 5
@@ -262,7 +260,7 @@ vperm2i128	$0x31,%ymm9,%ymm7,%ymm7
 
 #level3
 #zetas
-vmovdqu    (%rdx,%rax),%ymm15 #zetaqinv
+vmovdqu    (%rdx,%rax),%ymm15  #zetaqinv
 vmovdqu    32(%rdx,%rax),%ymm2 #zeta
 
 #mul

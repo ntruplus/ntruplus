@@ -174,7 +174,7 @@ sub		$1152,%rdi
 
 #level2
 vmovdqu	_16xwqinv(%rip),%ymm2 #winv
-vmovdqu	_16xw(%rip),%ymm3 #w
+vmovdqu	_16xw(%rip),%ymm3     #w
 
 xor		%rax,%rax
 .p2align 5
@@ -203,11 +203,8 @@ vpmulhw		%ymm3,%ymm11,%ymm11  #w(Y-Z)
 vpmulhw		%ymm0,%ymm12,%ymm12  #w(Y-Z)
 vpsubw		%ymm12,%ymm11,%ymm11 #w(Y-Z)
 
-
-#sub
 vpsubw      %ymm9,%ymm8,%ymm12   #X-Y
 vpsubw      %ymm10,%ymm8,%ymm13  #X-Z
-
 vpsubw      %ymm11,%ymm12,%ymm12 #X-Y - w(Y-Z)
 vpaddw      %ymm11,%ymm13,%ymm13 #X-Z + w(Y-Z)
 
@@ -226,13 +223,7 @@ vpsubw		%ymm15,%ymm13,%ymm13 #alpha^-2(X-Z + w(Y-Z))
 #add
 vpaddw      %ymm9,%ymm8,%ymm11   #Y+Z
 vpaddw      %ymm10,%ymm11,%ymm11 #Y+Z
-/*
-#reduce2
-vpmulhw		%ymm1,%ymm8,%ymm11
-vpsraw		$10,%ymm11,%ymm11
-vpmullw		%ymm0,%ymm11,%ymm11
-vpsubw		%ymm11,%ymm8,%ymm8
-*/
+
 #store
 vmovdqa		%ymm11,(%rdi)
 vmovdqa		%ymm12,64(%rdi)
@@ -250,11 +241,7 @@ jb		_looptop_start_2
 
 sub		$1152,%rdi
 
-
 #level1
-vmovdqu	_16xwqinv(%rip),%ymm2 #winv
-vmovdqu	_16xw(%rip),%ymm3 #w
-
 xor		%rax,%rax
 .p2align 5
 _looptop_start_1:
@@ -282,10 +269,8 @@ vpmulhw		%ymm3,%ymm11,%ymm11  #w(Y-Z)
 vpmulhw		%ymm0,%ymm12,%ymm12  #w(Y-Z)
 vpsubw		%ymm12,%ymm11,%ymm11 #w(Y-Z)
 
-#sub
 vpsubw      %ymm9,%ymm8,%ymm12   #X-Y
 vpsubw      %ymm10,%ymm8,%ymm13  #X-Z
-
 vpsubw      %ymm11,%ymm12,%ymm12 #X-Y - w(Y-Z)
 vpaddw      %ymm11,%ymm13,%ymm13 #X-Z + w(Y-Z)
 
@@ -324,8 +309,8 @@ sub		$1152,%rdi
 
 #level 0
 #zetas
-vpbroadcastd	2432(%rdx),%ymm2    #(z-z^5)^-1
-vpbroadcastd	2436(%rdx),%ymm3   #(z-z^5)^-1
+vpbroadcastd	2432(%rdx),%ymm2  #(z-z^5)^-1
+vpbroadcastd	2436(%rdx),%ymm3  #(z-z^5)^-1
 
 vpbroadcastd	2440(%rdx),%ymm13 
 vpbroadcastd	2444(%rdx),%ymm14
