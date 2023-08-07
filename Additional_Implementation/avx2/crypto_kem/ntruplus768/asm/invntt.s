@@ -284,8 +284,8 @@ jb		_looptop_start_2
 sub		$1536,%rdi
 
 #level1
-vmovdqa _16xwinvqinv(%rip),%ymm2 #w^-1qinv
-vmovdqa _16xwinv(%rip),%ymm3     #w^-1
+vmovdqu	_16xwqinv(%rip),%ymm2 #winv
+vmovdqu	_16xw(%rip),%ymm3 #w
 
 xor		%rax,%rax
 .p2align 5
@@ -304,50 +304,45 @@ vmovdqa		(%rdi),%ymm8   #X
 vmovdqa		256(%rdi),%ymm9 #Y
 vmovdqa		512(%rdi),%ymm10 #Z
 
-#add
-vpaddw      %ymm9,%ymm10,%ymm11   #Y+Z
+#sub
+vpsubw      %ymm10,%ymm9,%ymm11   #Y-Z
 
 #mul
-vpmullw		%ymm2,%ymm10,%ymm12  #Zw^-1
-vpmulhw		%ymm3,%ymm10,%ymm13  #Zw^-1
+vpmullw		%ymm2,%ymm11,%ymm12  #w(Y-Z)
+vpmulhw		%ymm3,%ymm11,%ymm11  #w(Y-Z)
 
 #reduce
-vpmulhw		%ymm0,%ymm12,%ymm12  #Zw^-1
-vpsubw		%ymm12,%ymm13,%ymm12 #Zw^-1
+vpmulhw		%ymm0,%ymm12,%ymm12  #w(Y-Z)
+vpsubw		%ymm12,%ymm11,%ymm11 #w(Y-Z)
 
-#add
-vpaddw      %ymm12,%ymm9,%ymm10 #Y + Zw^-1
+
+#sub
+vpsubw      %ymm9,%ymm8,%ymm12   #X-Y
+vpsubw      %ymm10,%ymm8,%ymm13   #X-Z
+
+vpsubw      %ymm11,%ymm12,%ymm12   #X-Y - w(Y-Z)
+vpaddw      %ymm11,%ymm13,%ymm13   #X-Z + w(Y-Z)
 
 #mul
-vpmullw		%ymm2,%ymm10,%ymm12  #w^-1(Y + Zw^-1)
-vpmulhw		%ymm3,%ymm10,%ymm13  #w^-1(Y + Zw^-1)
+vpmullw		%ymm4,%ymm12,%ymm14  #alpha^-1(X-Y - w(Y-Z))
+vpmullw		%ymm5,%ymm13,%ymm15  #alpha^-2(X-Z + w(Y-Z))
+vpmulhw		%ymm6,%ymm12,%ymm12  #alpha^-1(X-Y - w(Y-Z))
+vpmulhw		%ymm7,%ymm13,%ymm13  #alpha^-2(X-Z + w(Y-Z))
 
 #reduce
-vpmulhw		%ymm0,%ymm12,%ymm12  #w^-1(Y + Zw^-1)
-vpsubw		%ymm12,%ymm13,%ymm12 #w^-1(Y + Zw^-1)
+vpmulhw		%ymm0,%ymm14,%ymm14  #alpha^-1(X-Y - w(Y-Z))
+vpmulhw		%ymm0,%ymm15,%ymm15  #alpha^-2(X-Z + w(Y-Z))
+vpsubw		%ymm14,%ymm12,%ymm12 #alpha^-1(X-Y - w(Y-Z))
+vpsubw		%ymm15,%ymm13,%ymm13 #alpha^-2(X-Z + w(Y-Z))
 
 #add
-vpaddw      %ymm12,%ymm11,%ymm9  #Y + Z + Yw^-1 + Zw^-2
-vpsubw      %ymm9,%ymm8,%ymm10   #X + Yw^-2 + Zw^-4
-vpaddw      %ymm12,%ymm8,%ymm9   #X + Yw^-1 + Zw^-2
-vpaddw      %ymm11,%ymm8,%ymm8   #X + Y + Z
-
-#mul
-vpmullw		%ymm4,%ymm9,%ymm11 #z^-1(X + Yw^-1 + Zw^-2)
-vpmullw		%ymm5,%ymm10,%ymm12 #z^-2(X + Yw^-2 + Zw^-4)
-vpmulhw		%ymm6,%ymm9,%ymm13 #z^-1(X + Yw^-1 + Zw^-2)
-vpmulhw		%ymm7,%ymm10,%ymm14 #z^-2(X + Yw^-2 + Zw^-4)
-
-#reduce
-vpmulhw		%ymm0,%ymm11,%ymm11
-vpmulhw		%ymm0,%ymm12,%ymm12
-vpsubw		%ymm11,%ymm13,%ymm9
-vpsubw		%ymm12,%ymm14,%ymm10
+vpaddw      %ymm9,%ymm8,%ymm11   #Y+Z
+vpaddw      %ymm10,%ymm11,%ymm11 #Y+Z
 
 #store
-vmovdqa		%ymm8,(%rdi)
-vmovdqa		%ymm9,256(%rdi)
-vmovdqa		%ymm10,512(%rdi)
+vmovdqa		%ymm11,(%rdi)
+vmovdqa		%ymm12,256(%rdi)
+vmovdqa		%ymm13,512(%rdi)
 
 add		$32,%rdi
 add		$32,%rcx
