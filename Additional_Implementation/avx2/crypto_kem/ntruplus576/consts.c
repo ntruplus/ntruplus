@@ -11,9 +11,6 @@ const int16_t zetas_inv[1224] __attribute__((aligned(32))) = {7280, 23337, 25460
 #define WQINV 13707
 #define W 2571
 
-#define WINVQINV 51849
-#define WINV 1033
-
 const uint16_t _low_mask[16] __attribute__((aligned(32))) = {LOW, LOW, LOW, LOW, LOW, LOW, LOW, LOW, LOW, LOW, LOW, LOW, LOW, LOW, LOW, LOW};
 const uint16_t _4x1[4] __attribute__((aligned(32))) = {1, 1, 1, 1};
 const uint16_t _4x01[4] __attribute__((aligned(32))) = {1, 0, 0, 0};
@@ -26,13 +23,9 @@ const uint16_t _16xqinv[16] __attribute__((aligned(32))) = {QINV, QINV, QINV, QI
 
 const uint16_t _16xw[16] __attribute__((aligned(32))) = {W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W};
 const uint16_t _16xwqinv[16] __attribute__((aligned(32))) = {WQINV, WQINV, WQINV, WQINV, WQINV, WQINV, WQINV, WQINV, WQINV, WQINV, WQINV, WQINV, WQINV, WQINV, WQINV, WQINV};
-const uint16_t _16xwinvqinv[16] __attribute__((aligned(32))) = {WINVQINV, WINVQINV, WINVQINV, WINVQINV, WINVQINV, WINVQINV, WINVQINV, WINVQINV, WINVQINV, WINVQINV, WINVQINV, WINVQINV, WINVQINV, WINVQINV, WINVQINV, WINVQINV};
-const uint16_t _16xwinv[16] __attribute__((aligned(32))) = {WINV, WINV, WINV, WINV, WINV, WINV, WINV, WINV, WINV, WINV, WINV, WINV, WINV, WINV, WINV, WINV};
 
 #undef QINV
 #undef LOW
 #undef V
 #undef WQINV
 #undef W
-#undef WINVQINV
-#undef WINV

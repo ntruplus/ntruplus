@@ -100,66 +100,65 @@ sub		$1152,%rdi
 
 #level 1
 #load
+vmovdqa		_low_mask(%rip),%ymm1
 vmovdqu	_16xwqinv(%rip),%ymm2 #winv
-vmovdqu	_16xwinvqinv(%rip),%ymm3 #w^2inv
-vmovdqu	_16xw(%rip),%ymm4 #w
-vmovdqu	_16xwinv(%rip),%ymm5 #w^2
+vmovdqu	_16xw(%rip),%ymm3 #w
 
 xor         %rax,%rax
 .p2align 5
 _looptop_start_1:
 #zetas
-vpbroadcastd    (%rdx),%ymm6 #ainv
-vpbroadcastd    8(%rdx),%ymm7 #a^2inv
-vpbroadcastd    4(%rdx),%ymm8 #a
-vpbroadcastd    12(%rdx),%ymm9 #a^2
+vpbroadcastd    (%rdx),%ymm4 #ainv
+vpbroadcastd    8(%rdx),%ymm5 #a^2inv
+vpbroadcastd    4(%rdx),%ymm6 #a
+vpbroadcastd    12(%rdx),%ymm7 #a^2
 
 xor		%rcx,%rcx
 .p2align 5
 _looptop_j_1:
 #load
-vmovdqa		384(%rdi),%ymm10
-vmovdqa		768(%rdi),%ymm11
+vmovdqa		384(%rdi),%ymm8
+vmovdqa		768(%rdi),%ymm9
 
 #mul
-vpmullw		%ymm6,%ymm10,%ymm12 #Ba
-vpmullw		%ymm7,%ymm11,%ymm13 #Ca^2
-vpmulhw		%ymm8,%ymm10,%ymm10 #Ba
-vpmulhw		%ymm9,%ymm11,%ymm11 #Ca^2
+vpmullw		%ymm4,%ymm8,%ymm10 #Ba
+vpmullw		%ymm5,%ymm9,%ymm11 #Ca^2
+vpmulhw		%ymm6,%ymm8,%ymm8  #Ba
+vpmulhw		%ymm7,%ymm9,%ymm9  #Ca^2
 
 #reduce
-vpmulhw		%ymm0,%ymm12,%ymm12  #Ba
-vpmulhw		%ymm0,%ymm13,%ymm13  #Ca^2
-vpsubw		%ymm12,%ymm10,%ymm10 #Ba
-vpsubw		%ymm13,%ymm11,%ymm11 #Ca^2
+vpmulhw		%ymm0,%ymm10,%ymm10 #Ba
+vpmulhw		%ymm0,%ymm11,%ymm11 #Ca^2
+vpsubw		%ymm10,%ymm8,%ymm8  #Ba
+vpsubw		%ymm11,%ymm9,%ymm9  #Ca^2
+
+#sub
+vpsubw		%ymm9,%ymm8,%ymm10 #(Ba-Ca^2)
 
 #mul
-vpmullw		%ymm2,%ymm10,%ymm12 #Bb
-vpmullw		%ymm3,%ymm11,%ymm13 #Cb^2
-vpmulhw		%ymm4,%ymm10,%ymm14 #Bb
-vpmulhw		%ymm5,%ymm11,%ymm15 #Cb^2
+vpmullw		%ymm2,%ymm10,%ymm11 #w(Ba-Ca^2)
+vpmulhw		%ymm3,%ymm10,%ymm10 #w(Ba-Ca^2)
 
 #reduce
-vpmulhw		%ymm0,%ymm12,%ymm12  #Bb
-vpmulhw		%ymm0,%ymm13,%ymm13  #Cb^2
-vpsubw		%ymm12,%ymm14,%ymm12 #Bb
-vpsubw		%ymm13,%ymm15,%ymm13 #Cb^2
+vpmulhw		%ymm0,%ymm11,%ymm11  #w(Ba-Ca^2)
+vpsubw		%ymm11,%ymm10,%ymm10 #w(Ba-Ca^2)
 
 #load
-vmovdqa		(%rdi),%ymm14
+vmovdqa		(%rdi),%ymm11 #A
 
 #update
-vpaddw		%ymm11,%ymm10,%ymm10 #Ba+Ca^2
-vpaddw		%ymm13,%ymm12,%ymm11 #Bb+Cb^2
-vpaddw		%ymm11,%ymm10,%ymm12 #Ba+Ca^2+Bb+Cb^2
-vpaddw		%ymm10,%ymm14,%ymm10  #A+Ba+Ca^2
-vpaddw		%ymm11,%ymm14,%ymm11  #A+Bb+Cb^2
-vpsubw		%ymm12,%ymm14,%ymm12  #A+Bc+Cc^2
+vpaddw		%ymm8,%ymm11,%ymm12 #A + Ba
+vpsubw		%ymm9,%ymm11,%ymm13 #A - Ca^2
+vpsubw		%ymm8,%ymm11,%ymm14 #A - Ba
+
+vpaddw		%ymm9,%ymm12,%ymm12  #A + Ba   + Ca^2
+vpaddw		%ymm10,%ymm13,%ymm13 #A - Ca^2 + w(Ba-Ca^2)
+vpsubw		%ymm10,%ymm14,%ymm14 #A - Ba   - w(Ba-Ca^2)
 
 #store
-vmovdqa		%ymm10,(%rdi)
-vmovdqa		%ymm11,384(%rdi)
-vmovdqa		%ymm12,768(%rdi)
+vmovdqa		%ymm12,(%rdi)
+vmovdqa		%ymm13,384(%rdi)
+vmovdqa		%ymm14,768(%rdi)
 
 add		$32,%rdi
 add		$32,%rcx
@@ -180,68 +179,57 @@ xor         %rax,%rax
 .p2align 5
 _looptop_start_2:
 #zetas
-vpbroadcastd    (%rdx),%ymm6 #ainv
-vpbroadcastd    8(%rdx),%ymm7 #a^2inv
-vpbroadcastd    4(%rdx),%ymm8 #a
-vpbroadcastd    12(%rdx),%ymm9 #a^2
+vpbroadcastd    (%rdx),%ymm4 #ainv
+vpbroadcastd    8(%rdx),%ymm5 #a^2inv
+vpbroadcastd    4(%rdx),%ymm6 #a
+vpbroadcastd    12(%rdx),%ymm7 #a^2
 
 xor		%rcx,%rcx
 .p2align 5
 _looptop_j_2:
 #load
-vmovdqa		128(%rdi),%ymm10
-vmovdqa		256(%rdi),%ymm11
+vmovdqa		128(%rdi),%ymm8
+vmovdqa		256(%rdi),%ymm9
 
 #mul
-vpmullw		%ymm6,%ymm10,%ymm12 #Ba
-vpmullw		%ymm7,%ymm11,%ymm13 #Ca^2
-vpmulhw		%ymm8,%ymm10,%ymm10 #Ba
-vpmulhw		%ymm9,%ymm11,%ymm11 #Ca^2
+vpmullw		%ymm4,%ymm8,%ymm10 #Ba
+vpmullw		%ymm5,%ymm9,%ymm11 #Ca^2
+vpmulhw		%ymm6,%ymm8,%ymm8  #Ba
+vpmulhw		%ymm7,%ymm9,%ymm9  #Ca^2
 
 #reduce
-vpmulhw		%ymm0,%ymm12,%ymm12  #Ba
-vpmulhw		%ymm0,%ymm13,%ymm13  #Ca^2
-vpsubw		%ymm12,%ymm10,%ymm10 #Ba
-vpsubw		%ymm13,%ymm11,%ymm11 #Ca^2
+vpmulhw		%ymm0,%ymm10,%ymm10 #Ba
+vpmulhw		%ymm0,%ymm11,%ymm11 #Ca^2
+vpsubw		%ymm10,%ymm8,%ymm8  #Ba
+vpsubw		%ymm11,%ymm9,%ymm9  #Ca^2
+
+#sub
+vpsubw		%ymm9,%ymm8,%ymm10 #(Ba-Ca^2)
 
 #mul
-vpmullw		%ymm2,%ymm10,%ymm12 #Bb
-vpmullw		%ymm3,%ymm11,%ymm13 #Cb^2
-vpmulhw		%ymm4,%ymm10,%ymm14 #Bb
-vpmulhw		%ymm5,%ymm11,%ymm15 #Cb^2
+vpmullw		%ymm2,%ymm10,%ymm11 #w(Ba-Ca^2)
+vpmulhw		%ymm3,%ymm10,%ymm10 #w(Ba-Ca^2)
 
 #reduce
-vpmulhw		%ymm0,%ymm12,%ymm12  #Bb
-vpmulhw		%ymm0,%ymm13,%ymm13  #Cb^2
-vpsubw		%ymm12,%ymm14,%ymm12 #Bb
-vpsubw		%ymm13,%ymm15,%ymm13 #Cb^2
+vpmulhw		%ymm0,%ymm11,%ymm11  #w(Ba-Ca^2)
+vpsubw		%ymm11,%ymm10,%ymm10 #w(Ba-Ca^2)
 
 #load
-vmovdqa		(%rdi),%ymm14
-
-#reduce2
-vpsraw		$12,%ymm14,%ymm15
-vpand		%ymm1,%ymm14,%ymm14
-vpsubw		%ymm15,%ymm14,%ymm14
-vpsllw		$7,%ymm15,%ymm15
-vpsubw		%ymm15,%ymm14,%ymm14
-vpsllw		$1,%ymm15,%ymm15
-vpsubw		%ymm15,%ymm14,%ymm14
-vpsllw		$2,%ymm15,%ymm15
-vpaddw		%ymm15,%ymm14,%ymm14
+vmovdqa		(%rdi),%ymm11 #A
 
 #update
-vpaddw		%ymm11,%ymm10,%ymm10 #Ba+Ca^2
-vpaddw		%ymm13,%ymm12,%ymm11 #Bb+Cb^2
-vpaddw		%ymm11,%ymm10,%ymm12 #Ba+Ca^2+Bb+Cb^2
-vpaddw		%ymm10,%ymm14,%ymm10  #A+Ba+Ca^2
-vpaddw		%ymm11,%ymm14,%ymm11  #A+Bb+Cb^2
-vpsubw		%ymm12,%ymm14,%ymm12  #A+Bc+Cc^2
+vpaddw		%ymm8,%ymm11,%ymm12 #A + Ba
+vpsubw		%ymm9,%ymm11,%ymm13 #A - Ca^2
+vpsubw		%ymm8,%ymm11,%ymm14 #A - Ba
+
+vpaddw		%ymm9,%ymm12,%ymm12  #A + Ba   + Ca^2
+vpaddw		%ymm10,%ymm13,%ymm13 #A - Ca^2 + w(Ba-Ca^2)
+vpsubw		%ymm10,%ymm14,%ymm14 #A - Ba   - w(Ba-Ca^2)
 
 #store
-vmovdqa		%ymm10,(%rdi)
-vmovdqa		%ymm11,128(%rdi)
-vmovdqa		%ymm12,256(%rdi)
+vmovdqa		%ymm12,(%rdi)
+vmovdqa		%ymm13,128(%rdi)
+vmovdqa		%ymm14,256(%rdi)
 
 add		$32,%rdi
 add		$32,%rcx
