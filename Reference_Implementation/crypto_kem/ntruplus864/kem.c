@@ -27,7 +27,7 @@ int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
     uint8_t buf[NTRUPLUS_N/2];
  
     poly f, finv;
-    poly g, ginv;
+    poly g;
     poly h, hinv;
 
     int r;

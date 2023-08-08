@@ -1,6 +1,3 @@
-#ifndef UTIL_H
-#define UTIL_H
-
 #include "util.h"
 #include <stdint.h>
 /*************************************************
@@ -22,5 +19,3 @@ uint32_t load32_littleendian(const uint8_t x[4])
   r |= (uint32_t)x[3] << 24;
   return r;
 }
-
-#endif

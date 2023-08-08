@@ -6,7 +6,7 @@ int16_t zetas[383] = {2424, 2192, 708, 460, 1265, 722, 723, 1, 2590, 257, 1124, 
 
 void ntt(int16_t b[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 {
-	int16_t t1,t2,t3,t4;
+	int16_t t1,t2,t3;
 	int16_t zeta1, zeta2;
 	int k = 0;
 
@@ -56,7 +56,7 @@ void ntt(int16_t b[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 
 void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 {
-	int16_t t1,t2,t3,t4;
+	int16_t t1,t2,t3;
 	int16_t zeta1,zeta2;
 	int k = 382;
 
