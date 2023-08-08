@@ -290,7 +290,7 @@ vpunpckhqdq	%ymm14,%ymm12,%ymm7
 #level4
 #zetas
 vmovdqu    576(%rdx,%rax),%ymm15 #zetaqinv
-vmovdqu    608(%rdx,%rax),%ymm2 #zeta
+vmovdqu    608(%rdx,%rax),%ymm2  #zeta
 
 #mul
 vpmullw		%ymm15,%ymm6,%ymm13

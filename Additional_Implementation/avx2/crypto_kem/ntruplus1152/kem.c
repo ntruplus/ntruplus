@@ -8,7 +8,6 @@
 #include "verify.h"
 #include "aes256ctr.h"
 
-static const unsigned char n[16] = {0};
 /*************************************************
 * Name:        crypto_kem_keypair
 *
@@ -27,7 +26,7 @@ int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
     uint8_t buf[NTRUPLUS_N/2];
  
     poly f, finv;
-    poly g, ginv;
+    poly g;
     poly h, hinv;
 
     int r;

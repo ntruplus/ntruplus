@@ -7,7 +7,7 @@
 
 #define TEST_LOOP 100000
 
-void TEST_CCA_KEM()
+static void TEST_CCA_KEM()
 {
 	unsigned char pk[CRYPTO_PUBLICKEYBYTES];
 	unsigned char sk[CRYPTO_SECRETKEYBYTES];
@@ -46,7 +46,7 @@ void TEST_CCA_KEM()
 
 }
 
-void TEST_CCA_KEM_CLOCK()
+static void TEST_CCA_KEM_CLOCK()
 {
 	unsigned char pk[CRYPTO_PUBLICKEYBYTES];
 	unsigned char sk[CRYPTO_SECRETKEYBYTES];

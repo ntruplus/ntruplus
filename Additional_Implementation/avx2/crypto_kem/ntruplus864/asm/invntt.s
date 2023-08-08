@@ -221,7 +221,7 @@ sub		$1728,%rdi
 
 #level2
 vmovdqu	_16xwqinv(%rip),%ymm2 #winv
-vmovdqu	_16xw(%rip),%ymm3 #w
+vmovdqu	_16xw(%rip),%ymm3     #w
 
 xor		%rax,%rax
 .p2align 5
@@ -268,8 +268,8 @@ vpsubw		%ymm14,%ymm12,%ymm12 #alpha^-1(X-Y - w(Y-Z))
 vpsubw		%ymm15,%ymm13,%ymm13 #alpha^-2(X-Z + w(Y-Z))
 
 #add
-vpaddw      %ymm9,%ymm8,%ymm11   #Y+Z
-vpaddw      %ymm10,%ymm11,%ymm11 #Y+Z
+vpaddw      %ymm9,%ymm8,%ymm11   #X+Y
+vpaddw      %ymm10,%ymm11,%ymm11 #X+Y+Z
 
 #store
 vmovdqa		%ymm11,(%rdi)
@@ -334,8 +334,8 @@ vpsubw		%ymm14,%ymm12,%ymm12 #alpha^-1(X-Y - w(Y-Z))
 vpsubw		%ymm15,%ymm13,%ymm13 #alpha^-2(X-Z + w(Y-Z))
 
 #add
-vpaddw      %ymm9,%ymm8,%ymm11   #Y+Z
-vpaddw      %ymm10,%ymm11,%ymm11 #Y+Z
+vpaddw      %ymm9,%ymm8,%ymm11   #X+Y
+vpaddw      %ymm10,%ymm11,%ymm11 #X+Y+Z
 
 #store
 vmovdqa		%ymm11,(%rdi)
