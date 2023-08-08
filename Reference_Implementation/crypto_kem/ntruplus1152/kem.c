@@ -2,12 +2,11 @@
 #include <stdint.h>
 #include "kem.h"
 #include "params.h"
-#include "rng.h"
 #include "symmetric.h"
 #include "poly.h"
 #include "verify.h"
-#include "verify.h"
 #include "aes256ctr.h"
+#include "randombytes.h"
 
 static const unsigned char n[16] = {0};
 /*************************************************
