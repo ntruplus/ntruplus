@@ -5,7 +5,6 @@
 #include "params.h"
 
 extern int16_t zetas[383];
-extern int16_t zetas_inv[383];
 
 void ntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N]);
 void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N]);

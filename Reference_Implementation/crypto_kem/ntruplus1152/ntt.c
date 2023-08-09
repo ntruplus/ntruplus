@@ -108,8 +108,8 @@ void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 		t1 = fqred16(r[i] + r[i + NTRUPLUS_N/2]);
 		t2 = fqmul(1792, r[i] - r[i + NTRUPLUS_N/2]);
 
-		r[i      ] = fqred16(fqmul(1712, t1 - t2));
-		r[i + 576] = fqred16(fqmul(3424, t2));	
+		r[i               ] = fqred16(fqmul(1712, t1 - t2));
+		r[i + NTRUPLUS_N/2] = fqred16(fqmul(3424, t2));	
 	}
 }
 

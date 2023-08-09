@@ -124,12 +124,12 @@ xor		%rax,%rax
 .p2align 5
 _looptop_poly_ntt_unpack:
 #load
-vmovdqa		(%rdi),%ymm8
-vmovdqa		32(%rdi),%ymm9
-vmovdqa		64(%rdi),%ymm10
-vmovdqa		96(%rdi),%ymm11
-vmovdqa		128(%rdi),%ymm12
-vmovdqa		160(%rdi),%ymm13
+vmovdqa		(%rsi),%ymm8
+vmovdqa		32(%rsi),%ymm9
+vmovdqa		64(%rsi),%ymm10
+vmovdqa		96(%rsi),%ymm11
+vmovdqa		128(%rsi),%ymm12
+vmovdqa		160(%rsi),%ymm13
 
 #shuffle
 vperm2i128	$0x20,%ymm11,%ymm8,%ymm5
@@ -205,8 +205,9 @@ vmovdqa		%ymm9,128(%rdi)
 vmovdqa		%ymm10,160(%rdi)
 
 add		$192,%rdi
-add		$64,%rax
-cmp		$576,%rax
+add		$192,%rsi
+add		$192,%rax
+cmp		$1728,%rax
 
 jb		_looptop_poly_ntt_unpack
 
@@ -300,8 +301,8 @@ vmovdqa		%ymm9,160(%rdi)
 
 add		$192,%rsi
 add		$192,%rdi
-add		$64,%rax
-cmp		$576,%rax
+add		$192,%rax
+cmp		$1728,%rax
 jb		_looptop_poly_ntt_pack
 
 ret

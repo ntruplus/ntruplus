@@ -100,7 +100,7 @@ sub		$1152,%rdi
 
 #level 1
 #load
-vmovdqa		_low_mask(%rip),%ymm1
+vmovdqa	_low_mask(%rip),%ymm1
 vmovdqu	_16xwqinv(%rip),%ymm2 #winv
 vmovdqu	_16xw(%rip),%ymm3 #w
 

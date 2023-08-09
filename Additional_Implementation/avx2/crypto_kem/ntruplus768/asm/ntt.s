@@ -278,8 +278,7 @@ cmp		$1536,%rax
 jb		_looptop_start_2
 
 sub		$1536,%rdi
-vmovdqa		_low_mask(%rip),%ymm1
-
+vmovdqa	_low_mask(%rip),%ymm1
 
 xor		%rax,%rax
 xor		%rcx,%rcx

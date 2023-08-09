@@ -527,7 +527,7 @@ vpxor		%ymm15,%ymm15,%ymm15
 vpcmpeqw	%ymm15,%ymm2,%ymm2
 vpcmpeqw	%ymm15,%ymm6,%ymm6
 vpor		%ymm6,%ymm2,%ymm2
-vperm2i128	$0x10,%ymm2,%ymm2,%ymm3
+vperm2i128	$0x01,%ymm2,%ymm2,%ymm3
 por		%xmm3,%xmm2
 vpshufd		$0x0E,%xmm2,%xmm3
 por		%xmm3,%xmm2
@@ -546,7 +546,7 @@ add		$32,%rax
 cmp		$288,%rax
 jb		_looptop
 
-add             %r11,%rsp
+add     %r11,%rsp
 mov		%rcx,%rax
 
 ret
