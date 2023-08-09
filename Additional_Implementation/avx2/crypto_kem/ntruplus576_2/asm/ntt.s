@@ -178,30 +178,30 @@ xor         %rax,%rax
 .p2align 5
 _looptop_start_2:
 #load
-vmovdqa		192(%rdi),%ymm4
-vmovdqa		224(%rdi),%ymm5
-vmovdqa		256(%rdi),%ymm6
+vmovdqa		96(%rdi),%ymm4
+vmovdqa		128(%rdi),%ymm5
+vmovdqa		160(%rdi),%ymm6
 
 #zetas
 vpbroadcastd (%rdx),%ymm15
 vpbroadcastd 4(%rdx),%ymm2
 
 #mul
-vpmullw		%ymm15,%ymm4,%ymm10
-vpmullw		%ymm15,%ymm5,%ymm11
-vpmullw		%ymm15,%ymm6,%ymm12
+vpmullw		%ymm15,%ymm4,%ymm12
+vpmullw		%ymm15,%ymm5,%ymm13
+vpmullw		%ymm15,%ymm6,%ymm14
 
 vpmulhw		%ymm2,%ymm4,%ymm4
 vpmulhw		%ymm2,%ymm5,%ymm5
 vpmulhw		%ymm2,%ymm6,%ymm6
 
 #reduce
-vpmulhw		%ymm0,%ymm10,%ymm10
-vpmulhw		%ymm0,%ymm11,%ymm11
 vpmulhw		%ymm0,%ymm12,%ymm12
-vpsubw		%ymm10,%ymm4,%ymm10
-vpsubw		%ymm11,%ymm5,%ymm11
-vpsubw		%ymm12,%ymm6,%ymm12
+vpmulhw		%ymm0,%ymm13,%ymm13
+vpmulhw		%ymm0,%ymm14,%ymm14
+vpsubw		%ymm12,%ymm4,%ymm12
+vpsubw		%ymm13,%ymm5,%ymm13
+vpsubw		%ymm14,%ymm6,%ymm14
 
 vmovdqa		(%rdi),%ymm4
 vmovdqa		32(%rdi),%ymm5
@@ -238,31 +238,33 @@ vpsllw		$2,%ymm2,%ymm2
 vpaddw		%ymm2,%ymm6,%ymm6
 
 #update
-vpaddw		%ymm10,%ymm4,%ymm3
-vpsubw		%ymm10,%ymm4,%ymm10
-vpaddw		%ymm11,%ymm5,%ymm4
-vpsubw		%ymm11,%ymm5,%ymm11
-vpaddw		%ymm12,%ymm6,%ymm5
-vpsubw		%ymm12,%ymm6,%ymm12
-vpaddw		%ymm13,%ymm7,%ymm6
-vpsubw		%ymm13,%ymm7,%ymm13
-vpaddw		%ymm14,%ymm8,%ymm7
-vpsubw		%ymm14,%ymm8,%ymm14
-vpaddw		%ymm15,%ymm9,%ymm8
-vpsubw		%ymm15,%ymm9,%ymm15
+vpaddw		%ymm12,%ymm4,%ymm3
+vpsubw		%ymm12,%ymm4,%ymm10
+vpaddw		%ymm13,%ymm5,%ymm4
+vpsubw		%ymm13,%ymm5,%ymm11
+vpaddw		%ymm14,%ymm6,%ymm5
+vpsubw		%ymm14,%ymm6,%ymm12
+
+#shuffle
+vperm2i128	$0x20,%ymm10,%ymm3,%ymm6
+vperm2i128	$0x31,%ymm11,%ymm4,%ymm7
+vperm2i128	$0x20,%ymm12,%ymm5,%ymm8
+vperm2i128	$0x31,%ymm10,%ymm3,%ymm9
+vperm2i128	$0x20,%ymm11,%ymm4,%ymm10
+vperm2i128	$0x31,%ymm12,%ymm5,%ymm11
 
 #store
-vmovdqa		%ymm3,(%rdi)
-vmovdqa		%ymm4,32(%rdi)
-vmovdqa		%ymm5,64(%rdi)
-vmovdqa		%ymm6,96(%rdi)
-vmovdqa		%ymm7,128(%rdi)
-vmovdqa		%ymm8,160(%rdi)
+vmovdqa		%ymm6,(%rdi)
+vmovdqa		%ymm7,32(%rdi)
+vmovdqa		%ymm8,64(%rdi)
+vmovdqa		%ymm9,96(%rdi)
+vmovdqa		%ymm10,128(%rdi)
+vmovdqa		%ymm11,160(%rdi)
 
 add		$8,%rdx
-add		$384,%rdi
-add		$384,%rax
-cmp		$2304,%rax
+add		$192,%rdi
+add		$192,%rax
+cmp		$1152,%rax
 jb		_looptop_start_2
 
 sub		$1152,%rdi
@@ -271,8 +273,9 @@ vmovdqa	_low_mask(%rip),%ymm1
 xor		%rax,%rax
 xor		%rcx,%rcx
 .p2align 5
-_looptop_start_34567:
+_looptop_start_3456:
 #level3
+#load
 #load
 vmovdqa		(%rdi),%ymm5
 vmovdqa		32(%rdi),%ymm6
@@ -282,45 +285,8 @@ vmovdqa		128(%rdi),%ymm9
 vmovdqa		160(%rdi),%ymm10
 
 #zetas
-vpbroadcastd    (%rdx,%rcx),%ymm15 #zetaqinv
-vpbroadcastd    4(%rdx,%rcx),%ymm2 #zeta
-
-#mul
-vpmullw		%ymm15,%ymm8,%ymm12
-vpmullw		%ymm15,%ymm9,%ymm13
-vpmullw		%ymm15,%ymm10,%ymm14
-vpmulhw		%ymm2,%ymm8,%ymm8
-vpmulhw		%ymm2,%ymm9,%ymm9
-vpmulhw		%ymm2,%ymm10,%ymm10
-
-#reduce
-vpmulhw		%ymm0,%ymm12,%ymm12
-vpmulhw		%ymm0,%ymm13,%ymm13
-vpmulhw		%ymm0,%ymm14,%ymm14
-vpsubw		%ymm12,%ymm8,%ymm12
-vpsubw		%ymm13,%ymm9,%ymm13
-vpsubw		%ymm14,%ymm10,%ymm14
-
-#update
-vpaddw		%ymm12,%ymm5,%ymm9
-vpaddw		%ymm13,%ymm6,%ymm10
-vpaddw		%ymm14,%ymm7,%ymm11
-vpsubw		%ymm12,%ymm5,%ymm12
-vpsubw		%ymm13,%ymm6,%ymm13
-vpsubw		%ymm14,%ymm7,%ymm14
-
-#shuffle
-vperm2i128	$0x20,%ymm12,%ymm9,%ymm5
-vperm2i128	$0x31,%ymm12,%ymm9,%ymm6
-vperm2i128	$0x20,%ymm13,%ymm10,%ymm7
-vperm2i128	$0x31,%ymm13,%ymm10,%ymm8
-vperm2i128	$0x20,%ymm14,%ymm11,%ymm9
-vperm2i128	$0x31,%ymm14,%ymm11,%ymm10
-
-#level4
-#zetas
-vmovdqu    96(%rdx,%rax),%ymm15 #zetaqinv
-vmovdqu    128(%rdx,%rax),%ymm2 #zeta
+vmovdqu    (%rdx,%rax),%ymm15 #zetaqinv
+vmovdqu    32(%rdx,%rax),%ymm2 #zeta
 
 #mul
 vpmullw		%ymm15,%ymm8,%ymm12
@@ -383,10 +349,10 @@ vpunpckhqdq	%ymm13,%ymm10,%ymm8
 vpunpcklqdq	%ymm14,%ymm11,%ymm9
 vpunpckhqdq	%ymm14,%ymm11,%ymm10
 
-#level5
+#level4
 #zetas
-vmovdqu    864(%rdx,%rax),%ymm15 #zetaqinv
-vmovdqu    896(%rdx,%rax),%ymm2 #zeta
+vmovdqu    384(%rdx,%rax),%ymm15 #zetaqinv
+vmovdqu    416(%rdx,%rax),%ymm2 #zeta
 
 #mul
 vpmullw		%ymm15,%ymm8,%ymm12
@@ -426,10 +392,10 @@ vpblendd	$0xAA,%ymm2,%ymm11,%ymm9
 vpsrlq		$32,%ymm11,%ymm11
 vpblendd	$0xAA,%ymm14,%ymm11,%ymm10
 
-#level6
+#level5
 #zetas
-vmovdqu    1632(%rdx,%rax),%ymm15 #ainv
-vmovdqu    1664(%rdx,%rax),%ymm2 #ainv
+vmovdqu    768(%rdx,%rax),%ymm15 #ainv
+vmovdqu    800(%rdx,%rax),%ymm2 #ainv
 
 #mul
 vpmullw		%ymm15,%ymm8,%ymm12
@@ -498,10 +464,10 @@ vpblendw	$0xAA,%ymm2,%ymm11,%ymm9
 vpsrlq		$16,%ymm11,%ymm11
 vpblendw	$0xAA,%ymm14,%ymm11,%ymm10
 
-#level7
+#level6
 #zetas
-vmovdqu    2400(%rdx,%rax),%ymm15 #ainv
-vmovdqu    2432(%rdx,%rax),%ymm2 #ainv
+vmovdqu    1152(%rdx,%rax),%ymm15 #ainv
+vmovdqu    1184(%rdx,%rax),%ymm2 #ainv
 
 #mul
 vpmullw		%ymm15,%ymm8,%ymm12
@@ -538,8 +504,8 @@ vmovdqa		%ymm14,160(%rdi)
 add		$192,%rdi
 add     $8,%rcx
 add		$64,%rax
-cmp		$768,%rax
+cmp		$384,%rax
 
-jb		_looptop_start_34567
+jb		_looptop_start_3456
 
 ret

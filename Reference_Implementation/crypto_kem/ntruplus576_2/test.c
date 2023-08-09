@@ -93,15 +93,35 @@ static void TEST_CCA_KEM_CLOCK()
 
 	printf("==================================================\n");
 }
+#include "poly.h"
+int test()
+{
+	poly a,b,c;
 
+	for (int i = 0; i < 576; i++)
+	{
+		a.coeffs[i] = 1;
+	}
+
+	poly_ntt(&b,&a);
+	poly_invntt(&c,&b);
+
+	for (int i = 0; i < 576; i++)
+	{
+		if(i%16 == 0) printf("\n");
+		printf("%d ", ((c.coeffs[i] % 3457)+3457)%3457);
+	}
+	printf("\n");
+	
+}
 int main(void)
 {
 	printf("PUBLICKEYBYTES : %d\n", CRYPTO_PUBLICKEYBYTES);
 	printf("SECRETKEYBYTES : %d\n", CRYPTO_SECRETKEYBYTES);
 	printf("CIPHERTEXTBYTES : %d\n", CRYPTO_CIPHERTEXTBYTES);
 
-	TEST_CCA_KEM();
-	TEST_CCA_KEM_CLOCK();
-	
+	//TEST_CCA_KEM();
+	//TEST_CCA_KEM_CLOCK();
+	test();
 	return 0;	
 }
