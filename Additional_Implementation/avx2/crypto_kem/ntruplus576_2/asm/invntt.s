@@ -17,6 +17,10 @@ vmovdqa		96(%rsi),%ymm7
 vmovdqa		128(%rsi),%ymm8
 vmovdqa		160(%rsi),%ymm9
 
+#zetas
+vmovdqa		(%rdx,%rax),%ymm2
+vmovdqa		32(%rdx,%rax),%ymm3
+
 #update
 vpsubw		%ymm7,%ymm4,%ymm13
 vpsubw		%ymm8,%ymm5,%ymm14
@@ -24,10 +28,6 @@ vpsubw		%ymm9,%ymm6,%ymm15
 vpaddw		%ymm7,%ymm4,%ymm7
 vpaddw		%ymm8,%ymm5,%ymm8
 vpaddw		%ymm9,%ymm6,%ymm9
-
-#zetas
-vmovdqa		(%rdx,%rax),%ymm2
-vmovdqa		32(%rdx,%rax),%ymm3
 
 #mul
 vpmullw		%ymm2,%ymm13,%ymm10
@@ -60,6 +60,10 @@ vpblendw	$0xAA,%ymm10,%ymm14,%ymm8
 vpblendw	$0xAA,%ymm12,%ymm15,%ymm9
 
 #level5
+#zetas
+vmovdqa		384(%rdx,%rax),%ymm2
+vmovdqa		416(%rdx,%rax),%ymm3
+
 #update
 vpsubw		%ymm7,%ymm4,%ymm13
 vpsubw		%ymm8,%ymm5,%ymm14
@@ -67,10 +71,6 @@ vpsubw		%ymm9,%ymm6,%ymm15
 vpaddw		%ymm7,%ymm4,%ymm7
 vpaddw		%ymm8,%ymm5,%ymm8
 vpaddw		%ymm9,%ymm6,%ymm9
-
-#zetas
-vmovdqa		384(%rdx,%rax),%ymm2
-vmovdqa		416(%rdx,%rax),%ymm3
 
 #mul
 vpmullw		%ymm2,%ymm13,%ymm10
@@ -117,6 +117,10 @@ vpblendd	$0xAA,%ymm10,%ymm14,%ymm8
 vpblendd	$0xAA,%ymm12,%ymm15,%ymm9
 
 #level4
+#zetas
+vmovdqa		768(%rdx,%rax),%ymm2
+vmovdqa		800(%rdx,%rax),%ymm3
+
 #update
 vpsubw		%ymm7,%ymm4,%ymm13
 vpsubw		%ymm8,%ymm5,%ymm14
@@ -124,10 +128,6 @@ vpsubw		%ymm9,%ymm6,%ymm15
 vpaddw		%ymm7,%ymm4,%ymm7
 vpaddw		%ymm8,%ymm5,%ymm8
 vpaddw		%ymm9,%ymm6,%ymm9
-
-#zetas
-vmovdqa		768(%rdx,%rax),%ymm2
-vmovdqa		800(%rdx,%rax),%ymm3
 
 #mul
 vpmullw		%ymm2,%ymm13,%ymm10
@@ -144,20 +144,6 @@ vpmulhw		%ymm0,%ymm12,%ymm12
 vpsubw		%ymm10,%ymm13,%ymm10
 vpsubw		%ymm11,%ymm14,%ymm11
 vpsubw		%ymm12,%ymm15,%ymm12
-
-#reduce2
-vpmulhw		%ymm1,%ymm7,%ymm13
-vpmulhw		%ymm1,%ymm8,%ymm14
-vpmulhw		%ymm1,%ymm9,%ymm15
-vpsraw		$10,%ymm13,%ymm13
-vpsraw		$10,%ymm14,%ymm14
-vpsraw		$10,%ymm15,%ymm15
-vpmullw		%ymm0,%ymm13,%ymm13
-vpmullw		%ymm0,%ymm14,%ymm14
-vpmullw		%ymm0,%ymm15,%ymm15
-vpsubw		%ymm13,%ymm7,%ymm7
-vpsubw		%ymm14,%ymm8,%ymm8
-vpsubw		%ymm15,%ymm9,%ymm9
 
 #shuffle
 vpunpcklqdq	%ymm8,%ymm7,%ymm4
@@ -168,6 +154,10 @@ vpunpckhqdq	%ymm10,%ymm9,%ymm8
 vpunpckhqdq	%ymm12,%ymm11,%ymm9
 
 #level3
+#zetas
+vmovdqa		1152(%rdx,%rax),%ymm2
+vmovdqa		1184(%rdx,%rax),%ymm3
+
 #update
 vpsubw		%ymm7,%ymm4,%ymm13
 vpsubw		%ymm8,%ymm5,%ymm14
@@ -175,10 +165,6 @@ vpsubw		%ymm9,%ymm6,%ymm15
 vpaddw		%ymm7,%ymm4,%ymm7
 vpaddw		%ymm8,%ymm5,%ymm8
 vpaddw		%ymm9,%ymm6,%ymm9
-
-#zetas
-vmovdqa		1152(%rdx,%rax),%ymm2
-vmovdqa		1184(%rdx,%rax),%ymm3
 
 #mul
 vpmullw		%ymm2,%ymm13,%ymm10
@@ -196,20 +182,6 @@ vpsubw		%ymm10,%ymm13,%ymm10
 vpsubw		%ymm11,%ymm14,%ymm11
 vpsubw		%ymm12,%ymm15,%ymm12
 
-#reduce2
-vpmulhw		%ymm1,%ymm7,%ymm13
-vpmulhw		%ymm1,%ymm8,%ymm14
-vpmulhw		%ymm1,%ymm9,%ymm15
-vpsraw		$10,%ymm13,%ymm13
-vpsraw		$10,%ymm14,%ymm14
-vpsraw		$10,%ymm15,%ymm15
-vpmullw		%ymm0,%ymm13,%ymm13
-vpmullw		%ymm0,%ymm14,%ymm14
-vpmullw		%ymm0,%ymm15,%ymm15
-vpsubw		%ymm13,%ymm7,%ymm7
-vpsubw		%ymm14,%ymm8,%ymm8
-vpsubw		%ymm15,%ymm9,%ymm9
-
 #shuffle
 vperm2i128	$0x20,%ymm8,%ymm7,%ymm4
 vperm2i128	$0x20,%ymm10,%ymm9,%ymm5
@@ -219,6 +191,10 @@ vperm2i128	$0x31,%ymm10,%ymm9,%ymm8
 vperm2i128	$0x31,%ymm12,%ymm11,%ymm9
 
 #level2
+#zetas
+vpbroadcastd 1536(%rdx,%rcx),%ymm2
+vpbroadcastd 1540(%rdx,%rcx),%ymm3
+
 #update
 vpsubw		%ymm7,%ymm4,%ymm13
 vpsubw		%ymm8,%ymm5,%ymm14
@@ -226,10 +202,6 @@ vpsubw		%ymm9,%ymm6,%ymm15
 vpaddw		%ymm7,%ymm4,%ymm7
 vpaddw		%ymm8,%ymm5,%ymm8
 vpaddw		%ymm9,%ymm6,%ymm9
-
-#zetas
-vpbroadcastd 1536(%rdx,%rcx),%ymm2
-vpbroadcastd 1540(%rdx,%rcx),%ymm3
 
 #mul
 vpmullw		%ymm2,%ymm13,%ymm10

@@ -1,60 +1,59 @@
 .global poly_ntt
 poly_ntt:
 vmovdqa		_16xq(%rip),%ymm0
+vmovdqa	_low_mask(%rip),%ymm1
 lea		    zetas(%rip),%rdx
 
 #level0
 #zetas
-vpbroadcastd	(%rdx),%ymm1
+vpbroadcastd	(%rdx),%ymm15
 vpbroadcastd	4(%rdx),%ymm2
 
 xor		%rax,%rax
 .p2align 5
 _looptop_j_0:
 #load
-vmovdqa		864(%rsi),%ymm4
-vmovdqa		896(%rsi),%ymm5
-vmovdqa		928(%rsi),%ymm6
+vmovdqa		(%rsi),%ymm3
+vmovdqa		32(%rsi),%ymm4
+vmovdqa		64(%rsi),%ymm5
+vmovdqa		864(%rsi),%ymm6
+vmovdqa		896(%rsi),%ymm7
+vmovdqa		928(%rsi),%ymm8
 
 #mul
-vpmullw		%ymm1,%ymm4,%ymm10
-vpmullw		%ymm1,%ymm5,%ymm11
-vpmullw		%ymm1,%ymm6,%ymm12
-vpmulhw		%ymm2,%ymm4,%ymm4
-vpmulhw		%ymm2,%ymm5,%ymm5
-vpmulhw		%ymm2,%ymm6,%ymm6
+vpmullw		%ymm15,%ymm6,%ymm12
+vpmullw		%ymm15,%ymm7,%ymm13
+vpmullw		%ymm15,%ymm8,%ymm14
+vpmulhw		%ymm2,%ymm6,%ymm9
+vpmulhw		%ymm2,%ymm7,%ymm10
+vpmulhw		%ymm2,%ymm8,%ymm11
 
 #reduce
-vpmulhw		%ymm0,%ymm10,%ymm10
-vpmulhw		%ymm0,%ymm11,%ymm11
 vpmulhw		%ymm0,%ymm12,%ymm12
-vpsubw		%ymm10,%ymm4,%ymm10
-vpsubw		%ymm11,%ymm5,%ymm11
-vpsubw		%ymm12,%ymm6,%ymm12
-
-#load
-vmovdqa		(%rsi),%ymm4
-vmovdqa		32(%rsi),%ymm5
-vmovdqa		64(%rsi),%ymm6
+vpmulhw		%ymm0,%ymm13,%ymm13
+vpmulhw		%ymm0,%ymm14,%ymm14
+vpsubw		%ymm12,%ymm9,%ymm12
+vpsubw		%ymm13,%ymm10,%ymm13
+vpsubw		%ymm14,%ymm11,%ymm14
 
 #update
-vpaddw		%ymm10,%ymm4,%ymm3
-vpsubw		%ymm10,%ymm4,%ymm10
-vpaddw		864(%rsi),%ymm10,%ymm10
-vpaddw		%ymm11,%ymm5,%ymm4
-vpsubw		%ymm11,%ymm5,%ymm11
-vpaddw		896(%rsi),%ymm11,%ymm11
-vpaddw		%ymm12,%ymm6,%ymm5
-vpsubw		%ymm12,%ymm6,%ymm12
-vpaddw		928(%rsi),%ymm12,%ymm12
+vpaddw		%ymm12,%ymm3,%ymm9
+vpaddw		%ymm13,%ymm4,%ymm10
+vpaddw		%ymm14,%ymm5,%ymm11
+vpsubw		%ymm12,%ymm3,%ymm12
+vpsubw		%ymm13,%ymm4,%ymm13
+vpsubw		%ymm14,%ymm5,%ymm14
+vpaddw		%ymm6,%ymm12,%ymm12
+vpaddw		%ymm7,%ymm13,%ymm13
+vpaddw		%ymm8,%ymm14,%ymm14
 
 #store
-vmovdqa		%ymm3,(%rdi)
-vmovdqa		%ymm4,32(%rdi)
-vmovdqa		%ymm5,64(%rdi)
-vmovdqa		%ymm10,864(%rdi)
-vmovdqa		%ymm11,896(%rdi)
-vmovdqa		%ymm12,928(%rdi)
+vmovdqa		%ymm9,(%rdi)
+vmovdqa		%ymm10,32(%rdi)
+vmovdqa		%ymm11,64(%rdi)
+vmovdqa		%ymm12,864(%rdi)
+vmovdqa		%ymm13,896(%rdi)
+vmovdqa		%ymm14,928(%rdi)
 
 add		$96,%rsi
 add		$96,%rdi
