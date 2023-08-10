@@ -36,7 +36,6 @@ void ntt(int16_t b[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 			b[i      ] = fqred16(b[i] + t1 + t2);
 		}		
 	}
-
 	for(int step = 48; step >= 3; step >>= 1)
 	{
 		for(int start = 0; start < NTRUPLUS_N; start += (step << 1))
@@ -65,8 +64,7 @@ void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 		r[i] = a[i];
 	}
 
-	//for(int step = 3; step <= 48; step <<= 1)
-	for(int step = 3; step <= 12; step <<= 1)	
+	for(int step = 3; step <= 48; step <<= 1)	
 	{
 		for(int start = 0; start < NTRUPLUS_N; start += (step << 1))
 		{
@@ -81,7 +79,7 @@ void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 			}
 		}
 	}
-/*
+
 	for(int start = 0; start < NTRUPLUS_N; start += 288)
 	{
 		zeta2 = zetas[k--];
@@ -106,7 +104,7 @@ void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 		r[i               ] = fqred16(fqmul(1679, t1 - t2));
 		r[i + NTRUPLUS_N/2] = fqred16(fqmul(3358, t2));			
 	}
-*/
+
 }
 
 void basemul(int16_t c[3], const int16_t a[3], const int16_t b[3], int16_t zeta)

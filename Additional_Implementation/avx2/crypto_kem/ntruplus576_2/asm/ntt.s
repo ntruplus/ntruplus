@@ -1,97 +1,63 @@
 .global poly_ntt
 poly_ntt:
 vmovdqa		_16xq(%rip),%ymm0
+vmovdqa	_low_mask(%rip),%ymm1
 lea		    zetas(%rip),%rdx
 
 #level0
 #zetas
-vpbroadcastd	(%rdx),%ymm1
+vpbroadcastd	(%rdx),%ymm15
 vpbroadcastd	4(%rdx),%ymm2
 
 xor		%rax,%rax
 .p2align 5
 _looptop_j_0:
 #load
-vmovdqa		576(%rsi),%ymm4
-vmovdqa		608(%rsi),%ymm5
-vmovdqa		640(%rsi),%ymm6
-vmovdqa		672(%rsi),%ymm7
-vmovdqa		704(%rsi),%ymm8
-vmovdqa		736(%rsi),%ymm9
+vmovdqa		(%rsi),%ymm3
+vmovdqa		32(%rsi),%ymm4
+vmovdqa		64(%rsi),%ymm5
+vmovdqa		576(%rsi),%ymm6
+vmovdqa		608(%rsi),%ymm7
+vmovdqa		640(%rsi),%ymm8
 
 #mul
-vpmullw		%ymm1,%ymm4,%ymm10
-vpmullw		%ymm1,%ymm5,%ymm11
-vpmullw		%ymm1,%ymm6,%ymm12
-vpmullw		%ymm1,%ymm7,%ymm13
-vpmullw		%ymm1,%ymm8,%ymm14
-vpmullw		%ymm1,%ymm9,%ymm15
-vpmulhw		%ymm2,%ymm4,%ymm4
-vpmulhw		%ymm2,%ymm5,%ymm5
-vpmulhw		%ymm2,%ymm6,%ymm6
-vpmulhw		%ymm2,%ymm7,%ymm7
-vpmulhw		%ymm2,%ymm8,%ymm8
-vpmulhw		%ymm2,%ymm9,%ymm9
+vpmullw		%ymm15,%ymm6,%ymm12
+vpmullw		%ymm15,%ymm7,%ymm13
+vpmullw		%ymm15,%ymm8,%ymm14
+vpmulhw		%ymm2,%ymm6,%ymm9
+vpmulhw		%ymm2,%ymm7,%ymm10
+vpmulhw		%ymm2,%ymm8,%ymm11
 
 #reduce
-vpmulhw		%ymm0,%ymm10,%ymm10
-vpmulhw		%ymm0,%ymm11,%ymm11
 vpmulhw		%ymm0,%ymm12,%ymm12
 vpmulhw		%ymm0,%ymm13,%ymm13
 vpmulhw		%ymm0,%ymm14,%ymm14
-vpmulhw		%ymm0,%ymm15,%ymm15
-vpsubw		%ymm10,%ymm4,%ymm10
-vpsubw		%ymm11,%ymm5,%ymm11
-vpsubw		%ymm12,%ymm6,%ymm12
-vpsubw		%ymm13,%ymm7,%ymm13
-vpsubw		%ymm14,%ymm8,%ymm14
-vpsubw		%ymm15,%ymm9,%ymm15
-
-#load
-vmovdqa		(%rsi),%ymm4
-vmovdqa		32(%rsi),%ymm5
-vmovdqa		64(%rsi),%ymm6
-vmovdqa		96(%rsi),%ymm7
-vmovdqa		128(%rsi),%ymm8
-vmovdqa		160(%rsi),%ymm9
+vpsubw		%ymm12,%ymm9,%ymm12
+vpsubw		%ymm13,%ymm10,%ymm13
+vpsubw		%ymm14,%ymm11,%ymm14
 
 #update
-vpaddw		%ymm10,%ymm4,%ymm3
-vpsubw		%ymm10,%ymm4,%ymm10
-vpaddw		576(%rsi),%ymm10,%ymm10
-vpaddw		%ymm11,%ymm5,%ymm4
-vpsubw		%ymm11,%ymm5,%ymm11
-vpaddw		608(%rsi),%ymm11,%ymm11
-vpaddw		%ymm12,%ymm6,%ymm5
-vpsubw		%ymm12,%ymm6,%ymm12
-vpaddw		640(%rsi),%ymm12,%ymm12
-vpaddw		%ymm13,%ymm7,%ymm6
-vpsubw		%ymm13,%ymm7,%ymm13
-vpaddw		672(%rsi),%ymm13,%ymm13
-vpaddw		%ymm14,%ymm8,%ymm7
-vpsubw		%ymm14,%ymm8,%ymm14
-vpaddw		704(%rsi),%ymm14,%ymm14
-vpaddw		%ymm15,%ymm9,%ymm8
-vpsubw		%ymm15,%ymm9,%ymm15
-vpaddw		736(%rsi),%ymm15,%ymm15
+vpaddw		%ymm12,%ymm3,%ymm9
+vpaddw		%ymm13,%ymm4,%ymm10
+vpaddw		%ymm14,%ymm5,%ymm11
+vpsubw		%ymm12,%ymm3,%ymm12
+vpsubw		%ymm13,%ymm4,%ymm13
+vpsubw		%ymm14,%ymm5,%ymm14
+vpaddw		%ymm6,%ymm12,%ymm12
+vpaddw		%ymm7,%ymm13,%ymm13
+vpaddw		%ymm8,%ymm14,%ymm14
 
 #store
-vmovdqa		%ymm3,(%rdi)
-vmovdqa		%ymm4,32(%rdi)
-vmovdqa		%ymm5,64(%rdi)
-vmovdqa		%ymm6,96(%rdi)
-vmovdqa		%ymm7,128(%rdi)
-vmovdqa		%ymm8,160(%rdi)
-vmovdqa		%ymm10,576(%rdi)
-vmovdqa		%ymm11,608(%rdi)
-vmovdqa		%ymm12,640(%rdi)
-vmovdqa		%ymm13,672(%rdi)
-vmovdqa		%ymm14,704(%rdi)
-vmovdqa		%ymm15,736(%rdi)
+vmovdqa		%ymm9,(%rdi)
+vmovdqa		%ymm10,32(%rdi)
+vmovdqa		%ymm11,64(%rdi)
+vmovdqa		%ymm12,576(%rdi)
+vmovdqa		%ymm13,608(%rdi)
+vmovdqa		%ymm14,640(%rdi)
 
-add		$192,%rsi
-add		$192,%rdi
-add		$192,%rax
+add		$96,%rsi
+add		$96,%rdi
+add		$96,%rax
 cmp		$576,%rax
 jb		_looptop_j_0
 
@@ -100,9 +66,8 @@ sub		$576,%rdi
 
 #level 1
 #load
-vmovdqa	_low_mask(%rip),%ymm1
 vmovdqu	_16xwqinv(%rip),%ymm2 #winv
-vmovdqu	_16xw(%rip),%ymm3 #w
+vmovdqu	_16xw(%rip),%ymm3     #w
 
 xor         %rax,%rax
 .p2align 5
@@ -190,7 +155,6 @@ vpbroadcastd 4(%rdx),%ymm2
 vpmullw		%ymm15,%ymm4,%ymm12
 vpmullw		%ymm15,%ymm5,%ymm13
 vpmullw		%ymm15,%ymm6,%ymm14
-
 vpmulhw		%ymm2,%ymm4,%ymm4
 vpmulhw		%ymm2,%ymm5,%ymm5
 vpmulhw		%ymm2,%ymm6,%ymm6
@@ -247,10 +211,10 @@ vpsubw		%ymm14,%ymm6,%ymm12
 
 #shuffle
 vperm2i128	$0x20,%ymm10,%ymm3,%ymm6
-vperm2i128	$0x31,%ymm11,%ymm4,%ymm7
-vperm2i128	$0x20,%ymm12,%ymm5,%ymm8
-vperm2i128	$0x31,%ymm10,%ymm3,%ymm9
-vperm2i128	$0x20,%ymm11,%ymm4,%ymm10
+vperm2i128	$0x31,%ymm10,%ymm3,%ymm7
+vperm2i128	$0x20,%ymm11,%ymm4,%ymm8
+vperm2i128	$0x31,%ymm11,%ymm4,%ymm9
+vperm2i128	$0x20,%ymm12,%ymm5,%ymm10
 vperm2i128	$0x31,%ymm12,%ymm5,%ymm11
 
 #store
@@ -268,14 +232,12 @@ cmp		$1152,%rax
 jb		_looptop_start_2
 
 sub		$1152,%rdi
-vmovdqa	_low_mask(%rip),%ymm1
 
 xor		%rax,%rax
 xor		%rcx,%rcx
 .p2align 5
 _looptop_start_3456:
 #level3
-#load
 #load
 vmovdqa		(%rdi),%ymm5
 vmovdqa		32(%rdi),%ymm6
@@ -369,6 +331,35 @@ vpmulhw		%ymm0,%ymm14,%ymm14
 vpsubw		%ymm12,%ymm8,%ymm12
 vpsubw		%ymm13,%ymm9,%ymm13
 vpsubw		%ymm14,%ymm10,%ymm14
+
+#reduce2
+vpsraw		$12,%ymm5,%ymm2
+vpsraw		$12,%ymm6,%ymm3
+vpsraw		$12,%ymm7,%ymm4
+vpand		%ymm1,%ymm5,%ymm5
+vpand		%ymm1,%ymm6,%ymm6
+vpand		%ymm1,%ymm7,%ymm7
+vpsubw		%ymm2,%ymm5,%ymm5
+vpsubw		%ymm3,%ymm6,%ymm6
+vpsubw		%ymm4,%ymm7,%ymm7
+vpsllw		$7,%ymm2,%ymm2
+vpsllw		$7,%ymm3,%ymm3
+vpsllw		$7,%ymm4,%ymm4
+vpsubw		%ymm2,%ymm5,%ymm5
+vpsubw		%ymm3,%ymm6,%ymm6
+vpsubw		%ymm4,%ymm7,%ymm7
+vpsllw		$1,%ymm2,%ymm2
+vpsllw		$1,%ymm3,%ymm3
+vpsllw		$1,%ymm4,%ymm4
+vpsubw		%ymm2,%ymm5,%ymm5
+vpsubw		%ymm3,%ymm6,%ymm6
+vpsubw		%ymm4,%ymm7,%ymm7
+vpsllw		$2,%ymm2,%ymm2
+vpsllw		$2,%ymm3,%ymm3
+vpsllw		$2,%ymm4,%ymm4
+vpaddw		%ymm2,%ymm5,%ymm5
+vpaddw		%ymm3,%ymm6,%ymm6
+vpaddw		%ymm4,%ymm7,%ymm7
 
 #update
 vpaddw		%ymm12,%ymm5,%ymm9
@@ -484,6 +475,35 @@ vpmulhw		%ymm0,%ymm14,%ymm14
 vpsubw		%ymm12,%ymm8,%ymm12
 vpsubw		%ymm13,%ymm9,%ymm13
 vpsubw		%ymm14,%ymm10,%ymm14
+
+#reduce2
+vpsraw		$12,%ymm5,%ymm2
+vpsraw		$12,%ymm6,%ymm3
+vpsraw		$12,%ymm7,%ymm4
+vpand		%ymm1,%ymm5,%ymm5
+vpand		%ymm1,%ymm6,%ymm6
+vpand		%ymm1,%ymm7,%ymm7
+vpsubw		%ymm2,%ymm5,%ymm5
+vpsubw		%ymm3,%ymm6,%ymm6
+vpsubw		%ymm4,%ymm7,%ymm7
+vpsllw		$7,%ymm2,%ymm2
+vpsllw		$7,%ymm3,%ymm3
+vpsllw		$7,%ymm4,%ymm4
+vpsubw		%ymm2,%ymm5,%ymm5
+vpsubw		%ymm3,%ymm6,%ymm6
+vpsubw		%ymm4,%ymm7,%ymm7
+vpsllw		$1,%ymm2,%ymm2
+vpsllw		$1,%ymm3,%ymm3
+vpsllw		$1,%ymm4,%ymm4
+vpsubw		%ymm2,%ymm5,%ymm5
+vpsubw		%ymm3,%ymm6,%ymm6
+vpsubw		%ymm4,%ymm7,%ymm7
+vpsllw		$2,%ymm2,%ymm2
+vpsllw		$2,%ymm3,%ymm3
+vpsllw		$2,%ymm4,%ymm4
+vpaddw		%ymm2,%ymm5,%ymm5
+vpaddw		%ymm3,%ymm6,%ymm6
+vpaddw		%ymm4,%ymm7,%ymm7
 
 #update
 vpaddw		%ymm12,%ymm5,%ymm9
