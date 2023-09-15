@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdint.h>
 #include "api.h"
-#include "rng.h"
+#include "randombytes.h"
 #include "cpucycles.h"
 
 #define TEST_LOOP 100000
@@ -102,6 +102,6 @@ int main(void)
 
 	TEST_CCA_KEM();
 	TEST_CCA_KEM_CLOCK();
-	
+
 	return 0;	
 }

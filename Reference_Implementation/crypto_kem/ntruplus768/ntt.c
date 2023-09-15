@@ -2,13 +2,106 @@
 #include "reduce.h"
 #include "ntt.h"
 
-int16_t zetas[383] = {2424, 2192, 708, 460, 1265, 722, 723, 1, 2590, 257, 1124, 1590, 1262, 3235, 1611, 3201, 1484, 3100, 395, 2111, 2293, 1936, 1741, 1577, 95, 699, 2916, 39, 44, 2216, 550, 3002, 639, 2955, 2802, 603, 1744, 2352, 1058, 3336, 2700, 216, 2637, 2564, 3070, 937, 348, 1507, 1257, 3281, 156, 2627, 3407, 3453, 2832, 565, 992, 1877, 2029, 3077, 2851, 2164, 2796, 2008, 2620, 901, 1637, 1617, 2888, 1199, 1530, 1267, 1784, 281, 1558, 1993, 2869, 2442, 3021, 2496, 2816, 87, 630, 371, 64, 2909, 800, 1351, 1081, 1331, 1413, 3252, 3403, 2623, 2782, 2245, 760, 2135, 2586, 601, 3160, 2327, 1473, 2683, 1786, 696, 1583, 2968, 512, 2530, 2943, 3222, 444, 2248, 2093, 2116, 2210, 2251, 3426, 312, 352, 443, 943, 2207, 8, 1660, 100, 2319, 223, 3060, 1059, 3274, 1655, 2898, 1674, 437, 1734, 277, 933, 1817, 3025, 242, 1514, 2349, 3182, 3435, 1748, 2489, 858, 1728, 354, 2236, 218, 294, 2725, 2565, 2362, 2678, 1869, 1063, 1022, 1188, 2404, 417, 2066, 27, 1626, 251, 2056, 1409, 1501, 3227, 361, 582, 2784, 1367, 124, 1531, 1550, 1681, 2517, 1999, 2078, 274, 3057, 3425, 1914, 2049, 1248, 3142, 1772, 664, 40, 1386, 500, 2215, 1258, 1760, 1897, 869, 94, 2220, 1175, 884, 3302, 679, 3248, 2432, 3187, 2744, 82, 3198, 151, 1948, 159, 184, 1094, 2300, 3304, 947, 182, 3195, 2275, 83, 5, 2766, 1791, 709, 2750, 220, 3262, 1405, 876, 2006, 579, 1839, 1277, 517, 406, 304, 2559, 343, 2603, 1264, 451, 1972, 452, 23, 1001, 2016, 413, 2279, 887, 2560, 2445, 2171, 1297, 1210, 656, 1385, 1208, 1756, 1272, 1472, 1838, 1115, 2233, 662, 1456, 1361, 915, 38, 752, 475, 2486, 158, 2217, 1975, 1785, 435, 3150, 252, 1348, 717, 543, 320, 1602, 977, 3141, 113, 2964, 1515, 2507, 3381, 1953, 1086, 2023, 3204, 2817, 2696, 2953, 2587, 614, 2912, 2133, 1830, 735, 1009, 1227, 513, 3238, 1312, 1037, 2572, 863, 2544, 3402, 687, 1041, 3147, 1689, 3039, 2099, 2350, 2474, 1719, 3269, 1000, 685, 2129, 3377, 337, 3394, 2484, 941, 364, 1563, 1093, 524, 3151, 2314, 3089, 1269, 164, 1426, 2050, 540, 318, 3018, 518, 3155, 2554, 3236, 812, 2423, 1158, 2902, 647, 1705, 125, 1382, 3291, 3447, 3067, 3017, 2039, 1414, 1774, 2356, 1433, 1794, 826, 2882, 3411, 1455, 1749, 2771, 2849, 1796, 904, 2970, 929, 2555};
+const int16_t zetas[384] = {
+	 -147, -1033, -1265,   708,   460,  1265,   722,   723,
+        1,  -867,   257,  1124,  1590,  1262,  -222,  1611,
+     -256,  1484,  -357,   395, -1346, -1164, -1521, -1716,
+     1577,    95,   699,  -541,    39,    44, -1241,   550,
+     -455,   639,  -502,  -655,   603, -1713, -1105,  1058,
+     -121,  -757,   216,  -820,  -893,  -387,   937,   348,
+     1507,  1257,  -176,   156,  -830,   -50,    -4,  -625,
+      565,   992, -1580, -1428,  -380,  -606, -1293,  -661,
+    -1449,  -837,   901,  1637,  1617,  -569,  1199,  1530,
+     1267, -1673,   281,  1558, -1464,  -588, -1015,  -436,
+     -961,  -641,    87,   630,   371,    64,  -548,   800,
+     1351,  1081,  1331,  1413,  -205,   -54,  -834,  -675,
+    -1212,   760, -1322,  -871,   601,  -297, -1130,  1473,
+     -774, -1671,   696,  1583,  -489,   512,  -927,  -514,
+     -235,   444, -1209, -1364, -1341, -1247, -1206,   -31,
+      312,   352,   443,   943, -1250,     8,  1660,   100,
+    -1138,   223,  -397,  1059,  -183,  1655,  -559,  1674,
+      437, -1723,   277,   933, -1640,  -432,   242,  1514,
+    -1108,  -275,   -22, -1709,  -968,   858,  1728,   354,
+    -1221,   218,   294,  -732,  -892, -1095,  -779, -1588,
+     1063,  1022,  1188, -1053,   417, -1391,    27,  1626,
+      251, -1401,  1409,  1501,  -230,   361,   582,  -673,
+     1367,   124,  1531,  1550,  1681,  -940, -1458, -1379,
+      274,  -400,   -32, -1543, -1408,  1248,  -315, -1685,
+      664,    40,  1386,   500, -1242,  1258, -1697, -1560,
+      869,    94, -1237,  1175,   884,  -155,   679,  -209,
+    -1025,  -270,  -713,    82,  -259,   151, -1509,   159,
+      184,  1094, -1157,  -153,   947,   182,  -262, -1182,
+       83,     5,  -691, -1666,   709,  -707,   220,  -195,
+     1405,   876, -1451,   579, -1618,  1277,   517,   406,
+      304,  -898,   343,  -854,  1264,   451, -1485,   452,
+       23,  1001, -1441,   413, -1178,   887,  -897, -1012,
+    -1286,  1297,  1210,   656,  1385,  1208, -1701,  1272,
+     1472, -1619,  1115, -1224,   662,  1456,  1361,   915,
+       38,   752,   475,  -971,   158, -1240, -1482, -1672,
+      435,  -307,   252,  1348,   717,   543,   320,  1602,
+      977,  -316,   113,  -493,  1515,  -950,   -76, -1504,
+     1086, -1434,  -253,  -640,  -761,  -504,  -870,   614,
+     -545, -1324, -1627,   735,  1009,  1227,   513,  -219,
+     1312,  1037,  -885,   863,  -913,   -55,   687,  1041,
+     -310,  1689,  -418, -1358, -1107,  -983,  1719,  -188,
+     1000,   685, -1328,   -80,   337,   -63,  -973,   941,
+      364,  1563,  1093,   524,  -306, -1143,  -368,  1269,
+      164,  1426, -1407,   540,   318,  -439,   518,  -302,
+     -903,  -221,   812, -1034,  1158,  -555,   647,  1705,
+      125,  1382,  -166,   -10,  -390,  -440, -1418,  1414,
+    -1683, -1101,  1433, -1663,   826,  -575,   -46,  1455,
+    -1708,  -686,  -608, -1661,   904,  -487,   929,  -902};
 
+/*************************************************
+* Name:        fqmul
+*
+* Description: Multiplication followed by Montgomery reduction
+*
+* Arguments:   - int16_t a: first factor
+*              - int16_t b: second factor
+*
+* Returns 16-bit integer congruent to a*b*R^{-1} mod q
+**************************************************/
+static int16_t fqmul(int16_t a, int16_t b)
+{
+  return montgomery_reduce((int32_t)a*b);
+}
+
+/*************************************************
+* Name:        fqinv
+*
+* Description: Inversion
+*
+* Arguments:   - int16_t a: first factor a = x * R mod q
+*
+* Returns 16-bit integer congruent to x^{-1} * R^3 mod q
+**************************************************/
+static int16_t fqinv(int16_t a)
+{
+	int16_t t = a;
+
+	for(int i = 1; i <= 11; i++)
+	{
+		t = fqmul(t, t);
+		if(i != 2 && i != 4) t = fqmul(t, a);
+	}
+
+	return t;
+}
+
+/*************************************************
+* Name:        ntt
+*
+* Description: number-theoretic transform (NTT) in Rq.
+*
+* Arguments:   - int16_t b[NTRUPLUS_N]: pointer to output vector of elements of Zq
+*              - int16_t a[NTRUPLUS_N]: pointer to input vector of elements of Zq
+**************************************************/
 void ntt(int16_t b[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 {
 	int16_t t1,t2,t3;
-	int16_t zeta1, zeta2;
-	int k = 0;
+	int16_t zeta1,zeta2;
+	int k = 1;
 
 	zeta1 = zetas[k++];
 
@@ -16,8 +109,8 @@ void ntt(int16_t b[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 	{
 		t1 = fqmul(zeta1, a[i + NTRUPLUS_N/2]);
 
-		b[i + NTRUPLUS_N/2] = (a[i] + a[i + NTRUPLUS_N/2] - t1);
-		b[i      ] = (a[i] + t1);
+		b[i + NTRUPLUS_N/2] = a[i] + a[i + NTRUPLUS_N/2] - t1;
+		b[i               ] = a[i]                       + t1;
 	}
 
 	for(int start = 0; start < NTRUPLUS_N; start += 384)
@@ -31,9 +124,9 @@ void ntt(int16_t b[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 			t2 = fqmul(zeta2, b[i + 256]);
 			t3 = fqmul(2571, t1 - t2);
 
-			b[i + 256] = fqred16(b[i] - t1 - t3);
-			b[i + 128] = fqred16(b[i] - t2 + t3);
-			b[i      ] = fqred16(b[i] + t1 + t2);
+			b[i + 256] = b[i] - t1 - t3;
+			b[i + 128] = b[i] - t2 + t3;
+			b[i      ] = b[i] + t1 + t2;
 		}		
 	}
 
@@ -47,18 +140,27 @@ void ntt(int16_t b[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 			{
 				t1 = fqmul(zeta1, b[i + step]);
 				
-				b[i + step] = fqred16(b[i] - t1);
-				b[i       ] = fqred16(b[i] + t1);
+				b[i + step] = b[i] - t1;
+				b[i       ] = b[i] + t1;
 			}
 		}
 	}
 }
 
+/*************************************************
+* Name:        invntt
+*
+* Description: inverse number-theoretic transform in Rq and
+*              multiplication by Montgomery factor R = 2^16.
+*
+* Arguments:   - int16_t b[NTRUPLUS_N]: pointer to output vector of elements of Zq
+*              - int16_t a[NTRUPLUS_N]: pointer to input vector of elements of Zq
+**************************************************/
 void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 {
 	int16_t t1,t2,t3;
 	int16_t zeta1,zeta2;
-	int k = 382;
+	int k = 383;
 
 	for(int i = 0; i < NTRUPLUS_N; i++)
 	{
@@ -69,14 +171,14 @@ void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 	{
 		for(int start = 0; start < NTRUPLUS_N; start += (step << 1))
 		{
-			zeta1 = zetas[k--];;
+			zeta1 = zetas[k--];
 
 			for(int i = start; i < start + step; i++)
 			{
 				t1 = r[i + step];
 
-				r[i + step] = fqred16(fqmul(zeta1, t1 - r[i]));
-				r[i       ] = fqred16(r[i] + t1);
+				r[i + step] = fqmul(zeta1, t1 - r[i]);
+				r[i       ] = barrett_reduce(r[i] + t1);
 			}
 		}
 	}
@@ -91,7 +193,8 @@ void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 			t1 = fqmul(2571,  r[i + 128] - r[i]);
 			t2 = fqmul(zeta1, r[i + 256] - r[i]       + t1);
 			t3 = fqmul(zeta2, r[i + 256] - r[i + 128] - t1);
-			r[i         ] = fqred16(r[i] + r[i + 128] + r[i + 256]);
+			
+			r[i      ] = r[i] + r[i + 128] + r[i + 256];
 			r[i + 128] = t2;			
 			r[i + 256] = t3;
 		}
@@ -99,40 +202,63 @@ void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 
 	for(int i = 0; i < NTRUPLUS_N/2; i++)
 	{
-		t1 = fqred16(r[i] + r[i + NTRUPLUS_N/2]);
+		t1 = r[i] + r[i + NTRUPLUS_N/2];
 		t2 = fqmul(1792, r[i] - r[i + NTRUPLUS_N/2]);
 
-		r[i               ] = fqred16(fqmul(2568, t1 - t2));
-		r[i + NTRUPLUS_N/2] = fqred16(fqmul(1679, t2));	
+		r[i               ] = fqmul(2568, t1 - t2);
+		r[i + NTRUPLUS_N/2] = fqmul(1679, t2);	
 	}
 }
 
+/*************************************************
+* Name:        basemul
+*
+* Description: Multiplication of polynomials in Zq[X]/(X^2-zeta)
+*              used for multiplication of elements in Rq in NTT domain
+*
+* Arguments:   - int16_t c[2]: pointer to the output polynomial
+*              - const int16_t a[2]: pointer to the first factor
+*              - const int16_t b[2]: pointer to the second factor
+*              - int16_t zeta: integer defining the reduction polynomial
+**************************************************/
 void basemul(int16_t c[2], const int16_t a[2], const int16_t b[2], int16_t zeta)
 {
 	int16_t t1 = fqmul(a[0], b[0]);
 	int16_t t2 = fqmul(a[1], b[1]);
 	int16_t t3 = fqmul((a[0] + a[1]),(b[0] + b[1]));
 
-	c[1] = t3 - t1 - t2;
-	c[0] = fqmul(t2, zeta);
+	c[1]  = barrett_reduce(t3 - t1 - t2);
+	c[0]  = fqmul(t2, zeta);
 	c[0] += t1;
+	c[0]  = barrett_reduce(c[0]);
 }
 
+/*************************************************
+* Name:        basemul
+*
+* Description: Inversion of polynomial in Zq[X]/(X^2-zeta)
+*              used for inversion of element in Rq in NTT domain
+*
+* Arguments:   - int16_t b[2]: pointer to the output polynomial
+*              - const int16_t a[2]: pointer to the input polynomial
+*              - int16_t zeta: integer defining the reduction polynomial
+**************************************************/
 int baseinv(int16_t b[2], const int16_t a[2], int16_t zeta)
 {
 	int16_t det, t;
 	int r;
 
-	det = fqmul(a[0], a[0]);
-	t = fqmul(a[1], a[1]);
-	t = fqmul(t, zeta);
-	det = det - t;
+	t     = fqmul(a[1], a[1]);
+	t     = fqmul(t, zeta);
+	det   = fqmul(a[0], a[0]);
+	det  -= t;
 
 	det   = fqinv(det);
-	b[0] = fqmul(a[0], det);
-	b[1] = fqmul(NTRUPLUS_Q - a[1], det);
+	b[0]  = fqmul( a[0], det);
+	b[1]  = fqmul(-a[1], det);
 
 	r = (uint16_t)det;
 	r = (uint32_t)(-r) >> 31;
+
 	return r - 1;
 }

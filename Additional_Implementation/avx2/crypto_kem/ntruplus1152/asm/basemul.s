@@ -1,126 +1,226 @@
 .global poly_basemul
 poly_basemul:
-vmovdqa     _16xqinv(%rip),%ymm15
 vmovdqa		_16xq(%rip),%ymm0
-lea		    zetas(%rip), %rcx
-xor		    %rax,%rax
+
+lea		zetas(%rip),%rcx
+add		$2488,%rcx
+xor		%rax,%rax
 .p2align 5
 _looptop:
-vmovdqu		3736(%rcx),%ymm14#zqinv
-vmovdqu		3768(%rcx),%ymm1 #z
-
 #positive zeta
-vmovdqa		  (%rsi),%ymm4  #a0
-vmovdqa		  (%rdx),%ymm5  #b0
-vmovdqa		32(%rsi),%ymm6  #a1
-vmovdqa		32(%rdx),%ymm7  #b1
-
-#add
-vpaddw		%ymm6,%ymm4,%ymm8 #a0+a1
-vpaddw		%ymm7,%ymm5,%ymm9 #b0+b1
+#load
+vmovdqa		_16xqinv(%rip),%ymm15
+vmovdqa		(%rsi),%ymm1
+vmovdqa		32(%rsi),%ymm3
+vmovdqa		64(%rsi),%ymm5
+vmovdqa		(%rdx),%ymm7
+vmovdqa		32(%rdx),%ymm8
+vmovdqa		64(%rdx),%ymm9
 
 #premul
-vpmullw		%ymm15,%ymm5,%ymm11 #b0qinv
-vpmullw		%ymm15,%ymm7,%ymm12 #b1qinv
-vpmullw		%ymm15,%ymm9,%ymm13 #(a0+a1)(b0+b1)qinv
+vpmullw		%ymm15,%ymm5,%ymm6
+vpmullw		%ymm15,%ymm3,%ymm4
+vpmullw		%ymm15,%ymm1,%ymm2
 
-#mul (a0+a1) * (b0+b1)
-vpmullw		%ymm11,%ymm4,%ymm11 #a0 b0
-vpmullw		%ymm12,%ymm6,%ymm12 #a1 b1
-vpmullw		%ymm13,%ymm8,%ymm13 #(a0+a1)(b0+b1)
-vpmulhw		%ymm5,%ymm4,%ymm5  #a0 b0
-vpmulhw		%ymm7,%ymm6,%ymm7  #a1 b1
-vpmulhw		%ymm9,%ymm8,%ymm9  #(a0+a1)(b0+b1)
-
-#reduce
-vpmulhw		%ymm0,%ymm11,%ymm11  #a0 b0
-vpmulhw		%ymm0,%ymm12,%ymm12  #a1 b1
-vpmulhw		%ymm0,%ymm13,%ymm13  #(a0+a1)(b0+b1)
-vpsubw		%ymm11,%ymm5,%ymm11 #a0 b0
-vpsubw		%ymm12,%ymm7,%ymm12 #a1 b1
-vpsubw		%ymm13,%ymm9,%ymm13 #(a0+a1)(b0+b1)
-
-#c1
-vpaddw		%ymm12,%ymm11,%ymm10
-vpsubw		%ymm10,%ymm13,%ymm5
-
-#c0
+#const in X
 #mul
-vpmullw		%ymm14,%ymm12,%ymm10  #a1b1zeta
-vpmulhw		%ymm1,%ymm12,%ymm12  #a1b1zeta
+vpmullw		%ymm6,%ymm7,%ymm10
+vpmullw		%ymm4,%ymm8,%ymm12
+vpmullw		%ymm2,%ymm9,%ymm14
+vpmulhw		%ymm5,%ymm7,%ymm11
+vpmulhw		%ymm3,%ymm8,%ymm13
+vpmulhw		%ymm1,%ymm9,%ymm15
 
 #reduce
-vpmulhw		%ymm0,%ymm10,%ymm10  #a1b1zeta
-vpsubw		%ymm10,%ymm12,%ymm10  #a1b1zeta
+vpmulhw		%ymm0,%ymm10,%ymm10
+vpmulhw		%ymm0,%ymm12,%ymm12
+vpmulhw		%ymm0,%ymm14,%ymm14
+vpsubw		%ymm10,%ymm11,%ymm10
+vpsubw		%ymm12,%ymm13,%ymm12
+vpsubw		%ymm14,%ymm15,%ymm14
 
-#update
-vpaddw		%ymm10,%ymm11,%ymm4
+#add
+vpaddw		%ymm10,%ymm12,%ymm10
+vpaddw		%ymm10,%ymm14,%ymm10
 
 #store
-vmovdqa		%ymm4,(%rdi)
-vmovdqa		%ymm5,32(%rdi)
+vmovdqa		%ymm10,64(%rdi)
 
-add		$64,%rdi
-add		$64,%rsi
-add		$64,%rdx
+#const in zeta
+#mul
+vpmullw		%ymm2,%ymm7,%ymm10
+vpmullw		%ymm2,%ymm8,%ymm12
+vpmullw		%ymm4,%ymm7,%ymm14
+vpmulhw		%ymm1,%ymm7,%ymm11
+vpmulhw		%ymm1,%ymm8,%ymm13
+vpmulhw		%ymm3,%ymm7,%ymm15
+
+#reduce
+vpmulhw		%ymm0,%ymm10,%ymm10
+vpmulhw		%ymm0,%ymm12,%ymm12
+vpmulhw		%ymm0,%ymm14,%ymm14
+vpsubw		%ymm10,%ymm11,%ymm10
+vpsubw		%ymm12,%ymm13,%ymm12
+vpsubw		%ymm14,%ymm15,%ymm14
+
+#add
+vpaddw		%ymm12,%ymm14,%ymm11
+
+#load zeta
+vmovdqu		(%rcx),%ymm1
+vmovdqu		32(%rcx),%ymm2
+
+#mul
+vpmullw		%ymm6,%ymm8,%ymm12
+vpmullw		%ymm4,%ymm9,%ymm14
+vpmullw		%ymm6,%ymm9,%ymm7
+vpmulhw		%ymm5,%ymm8,%ymm13
+vpmulhw		%ymm3,%ymm9,%ymm15
+vpmulhw		%ymm5,%ymm9,%ymm8
+
+#reduce
+vpmulhw		%ymm0,%ymm12,%ymm12
+vpmulhw		%ymm0,%ymm14,%ymm14
+vpmulhw		%ymm0,%ymm7,%ymm7
+vpsubw		%ymm12,%ymm13,%ymm12
+vpsubw		%ymm14,%ymm15,%ymm14
+vpsubw		%ymm7,%ymm8,%ymm7
+
+#add
+vpaddw		%ymm12,%ymm14,%ymm12
+
+#mul zeta
+vpmullw		%ymm1,%ymm12,%ymm3
+vpmullw		%ymm1,%ymm7,%ymm4
+vpmulhw		%ymm2,%ymm12,%ymm12
+vpmulhw		%ymm2,%ymm7,%ymm7
+
+#reduce
+vpmulhw		%ymm0,%ymm3,%ymm3
+vpmulhw		%ymm0,%ymm4,%ymm4
+vpsubw		%ymm3,%ymm12,%ymm12
+vpsubw		%ymm4,%ymm7,%ymm7
+
+#add
+vpaddw		%ymm10,%ymm12,%ymm10
+vpaddw		%ymm11,%ymm7,%ymm11
+
+#store
+vmovdqa		%ymm10,(%rdi)
+vmovdqa		%ymm11,32(%rdi)
+
+add		$96,%rdi
+add		$96,%rsi
+add		$96,%rdx
 
 #negative zeta
-vmovdqa		  (%rsi),%ymm4  #a0
-vmovdqa		  (%rdx),%ymm5  #b0
-vmovdqa		32(%rsi),%ymm6  #a1
-vmovdqa		32(%rdx),%ymm7  #b1
-
-#add
-vpaddw		%ymm6,%ymm4,%ymm8 #a0+a1
-vpaddw		%ymm7,%ymm5,%ymm9 #b0+b1
+#load
+vmovdqa		_16xqinv(%rip),%ymm15
+vmovdqa		(%rsi),%ymm1
+vmovdqa		32(%rsi),%ymm3
+vmovdqa		64(%rsi),%ymm5
+vmovdqa		(%rdx),%ymm7
+vmovdqa		32(%rdx),%ymm8
+vmovdqa		64(%rdx),%ymm9
 
 #premul
-vpmullw		%ymm15,%ymm5,%ymm11 #b0qinv
-vpmullw		%ymm15,%ymm7,%ymm12 #b1qinv
-vpmullw		%ymm15,%ymm9,%ymm13 #(a0+a1)(b0+b1)qinv
+vpmullw		%ymm15,%ymm5,%ymm6
+vpmullw		%ymm15,%ymm3,%ymm4
+vpmullw		%ymm15,%ymm1,%ymm2
 
-#mul (a0+a1) * (b0+b1)
-vpmullw		%ymm11,%ymm4,%ymm11 #a0 b0
-vpmullw		%ymm12,%ymm6,%ymm12 #a1 b1
-vpmullw		%ymm13,%ymm8,%ymm13 #(a0+a1)(b0+b1)
-vpmulhw		%ymm5,%ymm4,%ymm5  #a0 b0
-vpmulhw		%ymm7,%ymm6,%ymm7  #a1 b1
-vpmulhw		%ymm9,%ymm8,%ymm9  #(a0+a1)(b0+b1)
-
-#reduce
-vpmulhw		%ymm0,%ymm11,%ymm11  #a0 b0
-vpmulhw		%ymm0,%ymm12,%ymm12  #a1 b1
-vpmulhw		%ymm0,%ymm13,%ymm13  #(a0+a1)(b0+b1)
-vpsubw		%ymm11,%ymm5,%ymm11 #a0 b0
-vpsubw		%ymm12,%ymm7,%ymm12 #a1 b1
-vpsubw		%ymm13,%ymm9,%ymm13 #(a0+a1)(b0+b1)
-
-#c1
-vpaddw		%ymm12,%ymm11,%ymm10
-vpsubw		%ymm10,%ymm13,%ymm5
-
-#c0
+#const in X
 #mul
-vpmullw		%ymm14,%ymm12,%ymm10  #a1b1zeta
-vpmulhw		%ymm1,%ymm12,%ymm12  #a1b1zeta
+vpmullw		%ymm6,%ymm7,%ymm10
+vpmullw		%ymm4,%ymm8,%ymm12
+vpmullw		%ymm2,%ymm9,%ymm14
+vpmulhw		%ymm5,%ymm7,%ymm11
+vpmulhw		%ymm3,%ymm8,%ymm13
+vpmulhw		%ymm1,%ymm9,%ymm15
 
 #reduce
-vpmulhw		%ymm0,%ymm10,%ymm10  #a1b1zeta
-vpsubw		%ymm10,%ymm12,%ymm10  #a1b1zeta
+vpmulhw		%ymm0,%ymm10,%ymm10
+vpmulhw		%ymm0,%ymm12,%ymm12
+vpmulhw		%ymm0,%ymm14,%ymm14
+vpsubw		%ymm10,%ymm11,%ymm10
+vpsubw		%ymm12,%ymm13,%ymm12
+vpsubw		%ymm14,%ymm15,%ymm14
 
-#update
-vpsubw		%ymm10,%ymm11,%ymm4
+#add
+vpaddw		%ymm10,%ymm12,%ymm10
+vpaddw		%ymm10,%ymm14,%ymm10
 
 #store
-vmovdqa		%ymm4,(%rdi)
-vmovdqa		%ymm5,32(%rdi)
+vmovdqa		%ymm10,64(%rdi)
 
-add		$64,%rsi
-add		$64,%rdi
-add		$64,%rdx
+#const in zeta
+#mul
+vpmullw		%ymm2,%ymm7,%ymm10
+vpmullw		%ymm2,%ymm8,%ymm12
+vpmullw		%ymm4,%ymm7,%ymm14
+vpmulhw		%ymm1,%ymm7,%ymm11
+vpmulhw		%ymm1,%ymm8,%ymm13
+vpmulhw		%ymm3,%ymm7,%ymm15
+
+#reduce
+vpmulhw		%ymm0,%ymm10,%ymm10
+vpmulhw		%ymm0,%ymm12,%ymm12
+vpmulhw		%ymm0,%ymm14,%ymm14
+vpsubw		%ymm10,%ymm11,%ymm10
+vpsubw		%ymm12,%ymm13,%ymm12
+vpsubw		%ymm14,%ymm15,%ymm14
+
+#add
+vpaddw		%ymm12,%ymm14,%ymm11
+
+#load zeta
+vmovdqu		(%rcx),%ymm1
+vmovdqu		32(%rcx),%ymm2
+
+#mul
+vpmullw		%ymm6,%ymm8,%ymm12
+vpmullw		%ymm4,%ymm9,%ymm14
+vpmullw		%ymm6,%ymm9,%ymm7
+vpmulhw		%ymm5,%ymm8,%ymm13
+vpmulhw		%ymm3,%ymm9,%ymm15
+vpmulhw		%ymm5,%ymm9,%ymm8
+
+#reduce
+vpmulhw		%ymm0,%ymm12,%ymm12
+vpmulhw		%ymm0,%ymm14,%ymm14
+vpmulhw		%ymm0,%ymm7,%ymm7
+vpsubw		%ymm12,%ymm13,%ymm12
+vpsubw		%ymm14,%ymm15,%ymm14
+vpsubw		%ymm7,%ymm8,%ymm7
+
+#add
+vpaddw		%ymm12,%ymm14,%ymm12
+
+#mul zeta
+vpmullw		%ymm1,%ymm12,%ymm3
+vpmullw		%ymm1,%ymm7,%ymm4
+vpmulhw		%ymm2,%ymm12,%ymm12
+vpmulhw		%ymm2,%ymm7,%ymm7
+
+#reduce
+vpmulhw		%ymm0,%ymm3,%ymm3
+vpmulhw		%ymm0,%ymm4,%ymm4
+vpsubw		%ymm3,%ymm12,%ymm12
+vpsubw		%ymm4,%ymm7,%ymm7
+
+#sub
+vpsubw		%ymm12,%ymm10,%ymm10
+vpsubw		%ymm7,%ymm11,%ymm11
+
+#store
+vmovdqa		%ymm10,(%rdi)
+vmovdqa		%ymm11,32(%rdi)
+
+add		$96,%rsi
+add		$96,%rdi
+add		$96,%rdx
 add		$64,%rcx
-add		$64,%rax
-cmp		$1152,%rax
+add		$32,%rax
+cmp		$384,%rax
 jb		_looptop
 
 ret

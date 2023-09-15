@@ -33,7 +33,6 @@ int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
     int r;
 
     do {
-        r = 0;
         randombytes(buf, 32);
         aes256ctr_prf(buf, NTRUPLUS_N/2, buf, n);
 
@@ -52,19 +51,20 @@ int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
     } while(r);
 
     //pk
-    poly_freeze(&h);
+    poly_reduce(&h);
     poly_tobytes(pk, &h);
 
     //sk
-    poly_freeze(&f);  
+    poly_reduce(&f);  
     poly_tobytes(sk, &f);
 
-    poly_freeze(&hinv);
+    poly_reduce(&hinv);
     poly_tobytes(sk+NTRUPLUS_POLYBYTES, &hinv);
+
+    hash_f(sk + 2*NTRUPLUS_POLYBYTES, pk); 
         
     return 0;
 }
-
 /*************************************************
 * Name:        crypto_kem_enc
 *
@@ -84,20 +84,19 @@ int crypto_kem_enc(unsigned char *ct,
                    unsigned char *ss,
                    const unsigned char *pk)
 {
-    uint8_t msg[NTRUPLUS_N/8];
+    uint8_t msg[NTRUPLUS_N/8 + NTRUPLUS_SYMBYTES];
     uint8_t buf1[NTRUPLUS_SYMBYTES + NTRUPLUS_N/4];
     uint8_t buf2[NTRUPLUS_POLYBYTES];
 
     poly c, h, r, m;
 
-    poly_frombytes(&h, pk);
-
     randombytes(msg, NTRUPLUS_N/8);
+    hash_f(msg + NTRUPLUS_N/8, pk);
     hash_h(buf1, msg);
 
     poly_cbd1(&r, buf1 + NTRUPLUS_SYMBYTES);
     poly_ntt(&r,&r);
-    poly_freeze(&r);
+    poly_reduce(&r);
     
     poly_tobytes(buf2, &r);
     hash_g(buf2, buf2);
@@ -105,9 +104,10 @@ int crypto_kem_enc(unsigned char *ct,
     poly_sotp(&m, msg, buf2);  
     poly_ntt(&m,&m);
 
+    poly_frombytes(&h, pk);
     poly_basemul(&c, &h, &r);
     poly_add(&c, &c, &m);
-    poly_freeze(&c);
+    poly_reduce(&c);
     poly_tobytes(ct, &c);
 
     for (int i = 0; i < NTRUPLUS_SSBYTES; i++)
@@ -139,7 +139,7 @@ int crypto_kem_dec(unsigned char *ss,
                    const unsigned char *ct,
                    const unsigned char *sk)
 {
-    uint8_t msg[NTRUPLUS_N/8];
+    uint8_t msg[NTRUPLUS_N/8 + NTRUPLUS_SYMBYTES];
     uint8_t buf1[NTRUPLUS_POLYBYTES];
     uint8_t buf2[NTRUPLUS_POLYBYTES];
     uint8_t buf3[NTRUPLUS_POLYBYTES + NTRUPLUS_SYMBYTES]= {0};
@@ -156,23 +156,28 @@ int crypto_kem_dec(unsigned char *ss,
     poly_frombytes(&hinv, sk + NTRUPLUS_POLYBYTES);
 
     poly_basemul(&t1, &c, &f);
-    poly_freeze(&t1);
     poly_invntt(&t1,&t1);
     poly_crepmod3(&m1, &t1);
-
+    
     poly_ntt(&m2,&m1);
     poly_sub(&c,&c,&m2);
     poly_basemul(&r2, &c, &hinv);
-    poly_freeze(&r2);
+    poly_reduce(&r2);
     poly_tobytes(buf1, &r2);
 
     hash_g(buf2, buf1);
     fail = poly_sotp_inv(msg, &m1, buf2);
 
+    for (int i = 0; i < NTRUPLUS_SYMBYTES; i++)
+    {
+        msg[i + NTRUPLUS_N/8] = sk[i + 2*NTRUPLUS_POLYBYTES]; 
+    }
+    
     hash_h(buf3, msg);
+
     poly_cbd1(&r1,buf3 + NTRUPLUS_SSBYTES);
     poly_ntt(&r1,&r1);
-    poly_freeze(&r1);
+    poly_reduce(&r1);
     poly_tobytes(buf2, &r1);
 
     fail |= verify(buf1, buf2, NTRUPLUS_POLYBYTES);

@@ -6,8 +6,8 @@ RM = /bin/rm
 
 LDFLAGS=-lcrypto
 
-SOURCES= kem.c poly.c ntt.c aes256ctr.c  sha256.c sha512.c symmetric.c util.c reduce.c verify.c 
-HEADERS= params.h kem.h poly.h ntt.h sha2.h symmetric.h util.h reduce.h verify.h 
+SOURCES= kem.c poly.c ntt.c aes256ctr.c sha256.c sha512.c symmetric.c reduce.c verify.c
+HEADERS= params.h kem.h poly.h ntt.h sha2.h symmetric.h reduce.h verify.h
 
 .PHONY: all PQCgenKAT_kem test clean
 

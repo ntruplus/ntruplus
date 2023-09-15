@@ -79,64 +79,91 @@ poly_ntt_unpack:
 xor		%rax,%rax
 .p2align 5
 _looptop_poly_ntt_unpack:
-#loads
-vmovdqa		(%rsi),%ymm6
-vmovdqa		32(%rsi),%ymm7
-vmovdqa		64(%rsi),%ymm8
-vmovdqa		96(%rsi),%ymm9
+#load
+vmovdqa		(%rsi),%ymm8
+vmovdqa		32(%rsi),%ymm9
+vmovdqa		64(%rsi),%ymm10
+vmovdqa		96(%rsi),%ymm11
+vmovdqa		128(%rsi),%ymm12
+vmovdqa		160(%rsi),%ymm13
 
 #shuffle
-vperm2i128	$0x20,%ymm8,%ymm6,%ymm11
-vperm2i128	$0x31,%ymm8,%ymm6,%ymm12
-vperm2i128	$0x20,%ymm9,%ymm7,%ymm13
-vperm2i128	$0x31,%ymm9,%ymm7,%ymm14
+vperm2i128	$0x20,%ymm11,%ymm8,%ymm5
+vperm2i128	$0x31,%ymm11,%ymm8,%ymm6
+vperm2i128	$0x20,%ymm12,%ymm9,%ymm7
+vperm2i128	$0x31,%ymm12,%ymm9,%ymm8
+vperm2i128	$0x20,%ymm13,%ymm10,%ymm9
+vperm2i128	$0x31,%ymm13,%ymm10,%ymm10
+
+vmovdqa		%ymm10,%ymm14
+vmovdqa		%ymm9,%ymm13
+vmovdqa		%ymm8,%ymm12
+vmovdqa		%ymm7,%ymm11
+vmovdqa		%ymm6,%ymm10
+vmovdqa		%ymm5,%ymm9
 
 #shuffle
-vpunpcklqdq	%ymm13,%ymm11,%ymm4
-vpunpckhqdq	%ymm13,%ymm11,%ymm5
-vpunpcklqdq	%ymm14,%ymm12,%ymm6
-vpunpckhqdq	%ymm14,%ymm12,%ymm7
+vpunpcklqdq	%ymm12,%ymm9,%ymm5
+vpunpckhqdq	%ymm12,%ymm9,%ymm6
+vpunpcklqdq	%ymm13,%ymm10,%ymm7
+vpunpckhqdq	%ymm13,%ymm10,%ymm8
+vpunpcklqdq	%ymm14,%ymm11,%ymm9
+vpunpckhqdq	%ymm14,%ymm11,%ymm10
 
-vmovdqa %ymm4,%ymm11
-vmovdqa %ymm5,%ymm12
-vmovdqa %ymm6,%ymm13
-vmovdqa %ymm7,%ymm14
+vmovdqa		%ymm10,%ymm14
+vmovdqa		%ymm9,%ymm13
+vmovdqa		%ymm8,%ymm12
+vmovdqa		%ymm7,%ymm11
+vmovdqa		%ymm6,%ymm10
+vmovdqa		%ymm5,%ymm9
 
 #shuffle
+vpsllq		$32,%ymm12,%ymm2
+vpblendd	$0xAA,%ymm2,%ymm9,%ymm5
+vpsrlq		$32,%ymm9,%ymm9
+vpblendd	$0xAA,%ymm12,%ymm9,%ymm6
 vpsllq		$32,%ymm13,%ymm2
-vpblendd	$0xAA,%ymm2,%ymm11,%ymm4
-vpsrlq		$32,%ymm11,%ymm11
-vpblendd	$0xAA,%ymm13,%ymm11,%ymm5
+vpblendd	$0xAA,%ymm2,%ymm10,%ymm7
+vpsrlq		$32,%ymm10,%ymm10
+vpblendd	$0xAA,%ymm13,%ymm10,%ymm8
 vpsllq		$32,%ymm14,%ymm2
-vpblendd	$0xAA,%ymm2,%ymm12,%ymm6
-vpsrlq		$32,%ymm12,%ymm12
-vpblendd	$0xAA,%ymm14,%ymm12,%ymm7
+vpblendd	$0xAA,%ymm2,%ymm11,%ymm9
+vpsrlq		$32,%ymm11,%ymm11
+vpblendd	$0xAA,%ymm14,%ymm11,%ymm10
 
-vmovdqa %ymm4,%ymm11
-vmovdqa %ymm5,%ymm12
-vmovdqa %ymm6,%ymm13
-vmovdqa %ymm7,%ymm14
+vmovdqa		%ymm10,%ymm14
+vmovdqa		%ymm9,%ymm13
+vmovdqa		%ymm8,%ymm12
+vmovdqa		%ymm7,%ymm11
+vmovdqa		%ymm6,%ymm10
+vmovdqa		%ymm5,%ymm9
 
 #shuffle
+vpsllq		$16,%ymm12,%ymm2
+vpblendw	$0xAA,%ymm2,%ymm9,%ymm5
+vpsrlq		$16,%ymm9,%ymm9
+vpblendw	$0xAA,%ymm12,%ymm9,%ymm6
 vpsllq		$16,%ymm13,%ymm2
-vpblendw	$0xAA,%ymm2,%ymm11,%ymm4
-vpsrlq		$16,%ymm11,%ymm11
-vpblendw	$0xAA,%ymm13,%ymm11,%ymm5
+vpblendw	$0xAA,%ymm2,%ymm10,%ymm7
+vpsrlq		$16,%ymm10,%ymm10
+vpblendw	$0xAA,%ymm13,%ymm10,%ymm8
 vpsllq		$16,%ymm14,%ymm2
-vpblendw	$0xAA,%ymm2,%ymm12,%ymm6
-vpsrlq		$16,%ymm12,%ymm12
-vpblendw	$0xAA,%ymm14,%ymm12,%ymm7
+vpblendw	$0xAA,%ymm2,%ymm11,%ymm9
+vpsrlq		$16,%ymm11,%ymm11
+vpblendw	$0xAA,%ymm14,%ymm11,%ymm10
 
 #store
-vmovdqa		%ymm4,(%rdi)
-vmovdqa		%ymm5,32(%rdi)
-vmovdqa		%ymm6,64(%rdi)
-vmovdqa		%ymm7,96(%rdi)
+vmovdqa		%ymm5,(%rdi)
+vmovdqa		%ymm6,32(%rdi)
+vmovdqa		%ymm7,64(%rdi)
+vmovdqa		%ymm8,96(%rdi)
+vmovdqa		%ymm9,128(%rdi)
+vmovdqa		%ymm10,160(%rdi)
 
-add		$128,%rsi
-add		$128,%rdi
-add		$64,%rax
-cmp		$576,%rax
+add		$192,%rdi
+add		$192,%rsi
+add		$192,%rax
+cmp		$1152,%rax
 
 jb		_looptop_poly_ntt_unpack
 
@@ -147,71 +174,91 @@ poly_ntt_pack:
 xor		%rax,%rax
 .p2align 5
 _looptop_poly_ntt_pack:
-#level6
 #load
-#load
-vmovdqa		(%rsi),%ymm6
-vmovdqa		32(%rsi),%ymm7
-vmovdqa		64(%rsi),%ymm8
-vmovdqa		96(%rsi),%ymm9
+vmovdqa		(%rsi),%ymm7
+vmovdqa		32(%rsi),%ymm8
+vmovdqa		64(%rsi),%ymm9
+vmovdqa		96(%rsi),%ymm10
+vmovdqa		128(%rsi),%ymm11
+vmovdqa		160(%rsi),%ymm12
 
 #shuffle
-vpslld		$16,%ymm7,%ymm10
-vpslld		$16,%ymm9,%ymm11
-vpblendw	$0xAA,%ymm10,%ymm6,%ymm4
-vpblendw	$0xAA,%ymm11,%ymm8,%ymm5
-vpsrld		$16,%ymm6,%ymm12
-vpsrld		$16,%ymm8,%ymm13
-vpblendw	$0xAA,%ymm7,%ymm12,%ymm6
-vpblendw	$0xAA,%ymm9,%ymm13,%ymm7
+vpslld		$16,%ymm8,%ymm13
+vpslld		$16,%ymm10,%ymm14
+vpslld		$16,%ymm12,%ymm15
+vpblendw	$0xAA,%ymm13,%ymm7,%ymm4
+vpblendw	$0xAA,%ymm14,%ymm9,%ymm5
+vpblendw	$0xAA,%ymm15,%ymm11,%ymm6
+vpsrld		$16,%ymm7,%ymm13
+vpsrld		$16,%ymm9,%ymm14
+vpsrld		$16,%ymm11,%ymm15
+vpblendw	$0xAA,%ymm8,%ymm13,%ymm7
+vpblendw	$0xAA,%ymm10,%ymm14,%ymm8
+vpblendw	$0xAA,%ymm12,%ymm15,%ymm9
 
-vmovdqa %ymm7,%ymm9
-vmovdqa %ymm6,%ymm8
-vmovdqa %ymm5,%ymm7
-vmovdqa %ymm4,%ymm6
-
-#shuffle
-vpsllq		$32,%ymm7,%ymm10
-vpsllq		$32,%ymm9,%ymm11
-vpblendd	$0xAA,%ymm10,%ymm6,%ymm4
-vpblendd	$0xAA,%ymm11,%ymm8,%ymm5
-vpsrlq		$32,%ymm6,%ymm12
-vpsrlq		$32,%ymm8,%ymm13
-vpblendd	$0xAA,%ymm7,%ymm12,%ymm6
-vpblendd	$0xAA,%ymm9,%ymm13,%ymm7
-
-vmovdqa %ymm7,%ymm9
-vmovdqa %ymm6,%ymm8
-vmovdqa %ymm5,%ymm7
-vmovdqa %ymm4,%ymm6
+vmovdqa		%ymm9,%ymm12
+vmovdqa		%ymm8,%ymm11
+vmovdqa		%ymm7,%ymm10
+vmovdqa		%ymm6,%ymm9
+vmovdqa		%ymm5,%ymm8
+vmovdqa		%ymm4,%ymm7
 
 #shuffle
-vpunpcklqdq	%ymm7,%ymm6,%ymm4
-vpunpcklqdq	%ymm9,%ymm8,%ymm5
-vpunpckhqdq	%ymm7,%ymm6,%ymm6
-vpunpckhqdq	%ymm9,%ymm8,%ymm7
+vpsllq		$32,%ymm8,%ymm13
+vpsllq		$32,%ymm10,%ymm14
+vpsllq		$32,%ymm12,%ymm15
+vpblendd	$0xAA,%ymm13,%ymm7,%ymm4
+vpblendd	$0xAA,%ymm14,%ymm9,%ymm5
+vpblendd	$0xAA,%ymm15,%ymm11,%ymm6
+vpsrlq		$32,%ymm7,%ymm13
+vpsrlq		$32,%ymm9,%ymm14
+vpsrlq		$32,%ymm11,%ymm15
+vpblendd	$0xAA,%ymm8,%ymm13,%ymm7
+vpblendd	$0xAA,%ymm10,%ymm14,%ymm8
+vpblendd	$0xAA,%ymm12,%ymm15,%ymm9
 
-vmovdqa %ymm7,%ymm9
-vmovdqa %ymm6,%ymm8
-vmovdqa %ymm5,%ymm7
-vmovdqa %ymm4,%ymm6
+vmovdqa		%ymm9,%ymm12
+vmovdqa		%ymm8,%ymm11
+vmovdqa		%ymm7,%ymm10
+vmovdqa		%ymm6,%ymm9
+vmovdqa		%ymm5,%ymm8
+vmovdqa		%ymm4,%ymm7
 
 #shuffle
-vperm2i128	$0x20,%ymm7,%ymm6,%ymm4
-vperm2i128	$0x31,%ymm7,%ymm6,%ymm6
-vperm2i128	$0x20,%ymm9,%ymm8,%ymm5
-vperm2i128	$0x31,%ymm9,%ymm8,%ymm7
+vpunpcklqdq	%ymm8,%ymm7,%ymm4
+vpunpcklqdq	%ymm10,%ymm9,%ymm5
+vpunpcklqdq	%ymm12,%ymm11,%ymm6
+vpunpckhqdq	%ymm8,%ymm7,%ymm7
+vpunpckhqdq	%ymm10,%ymm9,%ymm8
+vpunpckhqdq	%ymm12,%ymm11,%ymm9
+
+vmovdqa		%ymm9,%ymm12
+vmovdqa		%ymm8,%ymm11
+vmovdqa		%ymm7,%ymm10
+vmovdqa		%ymm6,%ymm9
+vmovdqa		%ymm5,%ymm8
+vmovdqa		%ymm4,%ymm7
+
+#shuffle
+vperm2i128	$0x20,%ymm8,%ymm7,%ymm4
+vperm2i128	$0x20,%ymm10,%ymm9,%ymm5
+vperm2i128	$0x20,%ymm12,%ymm11,%ymm6
+vperm2i128	$0x31,%ymm8,%ymm7,%ymm7
+vperm2i128	$0x31,%ymm10,%ymm9,%ymm8
+vperm2i128	$0x31,%ymm12,%ymm11,%ymm9
 
 #store
 vmovdqa		%ymm4,(%rdi)
 vmovdqa		%ymm5,32(%rdi)
 vmovdqa		%ymm6,64(%rdi)
 vmovdqa		%ymm7,96(%rdi)
+vmovdqa		%ymm8,128(%rdi)
+vmovdqa		%ymm9,160(%rdi)
 
-add		$128,%rsi
-add		$128,%rdi
-add		$64,%rax
-cmp		$576,%rax
+add		$192,%rdi
+add		$192,%rsi
+add		$192,%rax
+cmp		$1152,%rax
 jb		_looptop_poly_ntt_pack
 
 ret

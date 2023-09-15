@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdint.h>
 #include "api.h"
-#include "rng.h"
+#include "randombytes.h"
 #include "cpucycles.h"
 
 #define TEST_LOOP 100000
@@ -62,9 +62,9 @@ static void TEST_CCA_KEM_CLOCK()
 	kcycles=0;
 	for (int i = 0; i < TEST_LOOP; i++)
 	{
-		cycles1 = cpucycles1();
+		cycles1 = cpucycles();
 		crypto_kem_keypair(pk, sk);
-        cycles2 = cpucycles2();
+        cycles2 = cpucycles();
         kcycles += cycles2-cycles1;
 	}
     printf("  KEYGEN runs in ................. %8lld cycles", kcycles/TEST_LOOP);
@@ -74,14 +74,14 @@ static void TEST_CCA_KEM_CLOCK()
 	dcycles=0;
 	for (int i = 0; i < TEST_LOOP; i++)
 	{
-		cycles1 = cpucycles1();
+		cycles1 = cpucycles();
 		crypto_kem_enc(ct, ss, pk);
-        cycles2 = cpucycles2();
+        cycles2 = cpucycles();
         ecycles += cycles2-cycles1;
 
-		cycles1 = cpucycles1(); 
+		cycles1 = cpucycles(); 
 		crypto_kem_dec(dss, ct, sk);
-		cycles2 = cpucycles2();
+		cycles2 = cpucycles();
         dcycles += cycles2-cycles1;
 	}
 
@@ -102,6 +102,6 @@ int main(void)
 
 	TEST_CCA_KEM();
 	TEST_CCA_KEM_CLOCK();
-	
+
 	return 0;	
 }

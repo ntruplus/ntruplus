@@ -4,14 +4,33 @@
 
 static const unsigned char n[16] = {0};
 
-void hash_h(unsigned char *buf, const unsigned char *msg)
+void hash_f(uint8_t *buf, const uint8_t *msg)
 {
-	sha512(buf, msg, NTRUPLUS_N/8);
-  aes256ctr_prf(buf + 32, NTRUPLUS_N/4, buf + 32, n);
+	uint8_t data[1 + NTRUPLUS_PUBLICKEYBYTES] = {0x0};
+
+	for (int i = 0; i < NTRUPLUS_PUBLICKEYBYTES; i++)
+	{
+		data[i+1] = msg[i];
+	}
+	
+	sha256(buf, data, NTRUPLUS_PUBLICKEYBYTES + 1);
 }
 
-void hash_g(unsigned char *buf, const unsigned char *msg)
+void hash_g(uint8_t *buf, const uint8_t *msg)
 {
-	sha256(buf, msg, NTRUPLUS_POLYBYTES);
-  aes256ctr_prf(buf, NTRUPLUS_N/4, buf, n);
+	uint8_t data[1 + NTRUPLUS_POLYBYTES] = {0x1};
+
+	for (int i = 0; i < NTRUPLUS_POLYBYTES; i++)
+	{
+		data[i+1] = msg[i];
+	}
+	
+	sha256(buf, data, NTRUPLUS_POLYBYTES + 1);
+	aes256ctr_prf(buf, NTRUPLUS_N/4, buf, n);
+}
+
+void hash_h(uint8_t *buf, const uint8_t *msg)
+{
+	sha512(buf, msg, NTRUPLUS_N/8 + NTRUPLUS_SYMBYTES);
+	aes256ctr_prf(buf + NTRUPLUS_SSBYTES, NTRUPLUS_N/4, buf + NTRUPLUS_SSBYTES, n);
 }
