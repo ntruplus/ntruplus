@@ -10,7 +10,7 @@
  */
 typedef struct{
   int16_t coeffs[NTRUPLUS_N];
-} poly __attribute__((aligned(32)));
+} poly;
 
 void poly_tobytes(uint8_t r[NTRUPLUS_POLYBYTES], const poly *a);
 void poly_frombytes(poly *r, const uint8_t a[NTRUPLUS_POLYBYTES]);
