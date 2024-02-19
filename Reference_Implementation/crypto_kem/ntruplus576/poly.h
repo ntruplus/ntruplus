@@ -30,7 +30,7 @@ void poly_crepmod3(poly *b, const poly *a);
 void poly_reduce(poly *a);
 void poly_freeze(poly *a);
 
-void poly_cbd1(poly *a, const unsigned char *buf);
+void poly_cbd1(poly *r, const uint8_t buf[NTRUPLUS_N/4]);
 void poly_sotp(poly *e, const unsigned char *msg, const unsigned char *buf);
 int poly_sotp_inv(unsigned char *msg, const poly *e, const unsigned char *buf);
 

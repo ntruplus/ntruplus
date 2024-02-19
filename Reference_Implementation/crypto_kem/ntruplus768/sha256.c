@@ -226,12 +226,12 @@ static const uint8_t iv[32] = {
   0x5b,0xe0,0xcd,0x19,
 } ;
 
-void sha256(uint8_t *out,const uint8_t *in,size_t inlen)
+void sha256(uint8_t out[32],const uint8_t *in,size_t inlen)
 {
   uint8_t h[32];
   uint8_t padded[128];
   unsigned int i;
-  size_t bits = inlen << 3;
+  uint64_t bits = inlen << 3;
 
   for (i = 0;i < 32;++i) h[i] = iv[i];
 
