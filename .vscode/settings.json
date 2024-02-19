@@ -1,0 +1,11 @@
+{
+    "files.associations": {
+        "hash_map": "c",
+        "chrono": "c",
+        "algorithm": "c",
+        "string.h": "c",
+        "array": "c",
+        "string": "c",
+        "string_view": "c"
+    }
+}
