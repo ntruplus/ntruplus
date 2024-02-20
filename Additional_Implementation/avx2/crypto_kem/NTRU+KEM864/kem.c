@@ -96,7 +96,7 @@ int crypto_kem_enc(unsigned char *ct,
 
     randombytes(msg, NTRUPLUS_N/8);
     hash_f(msg + NTRUPLUS_N/8, pk);
-    hash_h(buf1, msg);
+    hash_h_kem(buf1, msg);
 
     poly_cbd1(&r, buf1 + NTRUPLUS_SYMBYTES);
     poly_ntt(&r,&r);
@@ -185,7 +185,7 @@ int crypto_kem_dec(unsigned char *ss,
         msg[i + NTRUPLUS_N/8] = sk[i + 2*NTRUPLUS_POLYBYTES]; 
     }
 
-    hash_h(buf3, msg);
+    hash_h_kem(buf3, msg);
 
     poly_cbd1(&r1,buf3 + NTRUPLUS_SSBYTES);
     poly_ntt(&r1,&r1);

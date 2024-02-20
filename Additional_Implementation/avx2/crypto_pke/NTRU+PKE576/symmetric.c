@@ -29,7 +29,7 @@ void hash_g(uint8_t *buf, const uint8_t *msg)
 
 void hash_h_pke(uint8_t *buf, const uint8_t *msg)
 {
-	uint8_t data[1 + NTRUPLUS_POLYBYTES] = {0x2};
+	uint8_t data[1 + NTRUPLUS_N/8 + NTRUPLUS_SYMBYTES] = {0x2};
 
 	for (int i = 0; i < NTRUPLUS_N/8 + NTRUPLUS_SYMBYTES; i++)
 	{

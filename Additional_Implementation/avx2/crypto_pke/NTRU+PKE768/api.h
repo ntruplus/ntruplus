@@ -8,17 +8,21 @@
 #define CRYPTO_CIPHERTEXTBYTES NTRUPLUS_CIPHERTEXTBYTES
 #define CRYPTO_BYTES           NTRUPLUS_SSBYTES
 
-#define CRYPTO_ALGNAME "NTRU+KEM768"
+#define CRYPTO_ALGNAME "NTRU+PKE768"
 
-int crypto_kem_keypair(unsigned char *pk,
-                       unsigned char *sk);
+int crypto_encrypt_keypair(unsigned char *pk,
+                           unsigned char *sk);
 
-int crypto_kem_enc(unsigned char *ct,
-                   unsigned char *ss,
+int crypto_encrypt(unsigned char *c,
+                   unsigned long long *clen,
+                   const unsigned char *m,
+                   unsigned long long mlen,
                    const unsigned char *pk);
 
-int crypto_kem_dec(unsigned char *ss,
-                   const unsigned char *ct,
-                   const unsigned char *sk);
+int crypto_encrypt_open(unsigned char *m,
+                        unsigned long long *mlen,
+                        const unsigned char *c,
+                        unsigned long long clen,
+                        const unsigned char *sk);
 
 #endif

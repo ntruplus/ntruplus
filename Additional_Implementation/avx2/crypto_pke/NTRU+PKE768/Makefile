@@ -1,4 +1,4 @@
-CC ?= gcc
+CC = gcc
 CFLAGS += -Wall -Wextra -Wpedantic -Wmissing-prototypes -Wredundant-decls \
   -Wshadow -Wpointer-arith -mavx2 -mbmi2 -mpopcnt -maes \
   -march=native -mtune=native -O3 -fomit-frame-pointer
@@ -8,8 +8,8 @@ RM = /bin/rm
 
 LDFLAGS=-lcrypto
 
-SOURCES= asm/add.s asm/baseinv.s asm/basemul.s asm/cbd.s asm/invntt.s asm/ntt.s asm/pack.s asm/reduce.s aes256ctr.c consts.c kem.c poly.c symmetric.c verify.c cpucycles.c
-HEADERS= params.h kem.h poly.h symmetric.h verify.h
+SOURCES= asm/add.s asm/baseinv.s asm/basemul.s asm/cbd.s asm/invntt.s asm/ntt.s asm/pack.s asm/reduce.s aes256ctr.c consts.c pke.c poly.c symmetric.c verify.c cpucycles.c
+HEADERS= params.h pke.h poly.h symmetric.h verify.h
 
 .PHONY: all PQCgenKAT_encrypt test clean
 

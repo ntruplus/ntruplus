@@ -27,8 +27,15 @@ void hash_g(uint8_t *buf, const uint8_t *msg)
 	aes256ctr_prf(buf, NTRUPLUS_N/4, buf, 0);
 }
 
-void hash_h_kem(uint8_t *buf, const uint8_t *msg)
+void hash_h_pke(uint8_t *buf, const uint8_t *msg)
 {
-	SHA512(msg, NTRUPLUS_N/8 + NTRUPLUS_SYMBYTES, buf);
-  	aes256ctr_prf(buf + NTRUPLUS_SSBYTES, NTRUPLUS_N/4, buf + NTRUPLUS_SSBYTES, 0);
+	uint8_t data[1 + NTRUPLUS_N/8 + NTRUPLUS_SYMBYTES] = {0x2};
+
+	for (int i = 0; i < NTRUPLUS_N/8 + NTRUPLUS_SYMBYTES; i++)
+	{
+		data[i+1] = msg[i];
+	}
+
+	SHA256(data, NTRUPLUS_N/8 + NTRUPLUS_SYMBYTES + 1, buf);
+	aes256ctr_prf(buf, NTRUPLUS_N/4, buf, 0);
 }
