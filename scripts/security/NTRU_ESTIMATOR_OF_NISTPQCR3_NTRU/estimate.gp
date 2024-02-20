@@ -45,6 +45,7 @@ SieveBGJ15(b) = { 0.311*b }
 SieveD18(b) = { (0.2075 + 0.142)*b }
 SieveBDGL16(b) = { b*log2(sqrt(3/2)); }
 QSieveLaa15(b) = { b*log2(sqrt(13/9)); }
+QSieveCL21(b) = { b*0.2570; } \\ [CL21] Lattice sieving via quantum random walks
 SieveSpace(b) = { b*log2(sqrt(4/3)); }
 CSWSpace(b,angle) = {
   csw = 1/2 * log2(2*Pi*b) + log2(cos(angle)) - (b-1)*log2(sin(angle));
@@ -59,16 +60,17 @@ JJPSpace(b,angle) = {
 
 /* Table indicating which cost functions will be used */
 COSTFNS =                                  /* enabled? */
-[["Quad Enum [CN11]",         QuadEnumCN11,     0],\
- ["Enum [CN11]",                  EnumCN11,     0],\
- ["Enum [CN11]",            EnumCN11Simple,     0],\
- ["Quantum CN11Enum",             QEnumCN11,    0],\
- ["SieveNV08",                     SieveNV08,   0],\
- ["SieveBGJ15",                   SieveBGJ15,   0],\
- ["SieveD18",                       SieveD18,   0],\
- ["SieveBDGL16",                  SieveBDGL16,  1],\
- ["Quantum LSF Sieve",            QSieveLaa15,  1],\
- ["Sieve vectors",                SieveSpace,   0]];
+[["Quad Enum [CN11]",         QuadEnumCN11, 0],\
+ ["Enum [CN11]",                  EnumCN11, 0],\
+ ["Enum [CN11]",            EnumCN11Simple, 0],\
+ ["Quantum CN11Enum",            QEnumCN11, 0],\
+ ["SieveNV08",                   SieveNV08, 0],\
+ ["SieveBGJ15",                 SieveBGJ15, 0],\
+ ["SieveD18",                     SieveD18, 0],\
+ ["SieveBDGL16",               SieveBDGL16, 1],\
+ ["Quantum LSF Sieve",         QSieveLaa15, 0],\
+ ["Quantum LSF Sieve2",         QSieveCL21, 1],\
+ ["Sieve vectors",              SieveSpace, 0]];
 
 ExpectedCoeffSize(coeffDist) = {
   my(len, low);

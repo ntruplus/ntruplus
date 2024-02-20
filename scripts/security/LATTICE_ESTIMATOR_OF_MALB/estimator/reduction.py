@@ -633,7 +633,8 @@ class ADPS16(ReductionCost):
 
         c = {
             "classical": 0.2920,
-            "quantum": 0.2650,  # paper writes 0.262 but this isn't right, see above
+            #"quantum": 0.2650,  # paper writes 0.262 but this isn't right, see above
+            "quantum": 0.2570,   # applied the result of [CL21] Lattice sieving via quantum random walks
             "paranoid": 0.2075,
         }
 
