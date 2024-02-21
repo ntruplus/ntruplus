@@ -138,9 +138,9 @@ int crypto_kem_enc(unsigned char *ct,
 *              - const unsigned char *sk: pointer to input private key
 *                (an already allocated array of CRYPTO_SECRETKEYBYTES bytes)
 *
-* Returns 0.
+* Returns 0 (success) or 1 (failure)
 *
-* On failure, ss will contain a pseudo-random value.
+* On failure, ss will contain zero values.
 **************************************************/
 int crypto_kem_dec(unsigned char *ss,
                    const unsigned char *ct,

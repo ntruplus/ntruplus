@@ -70,12 +70,15 @@ int crypto_encrypt_keypair(unsigned char *pk, unsigned char *sk)
 *
 * Description: Generates cipher text for given public key
 *
-* Arguments:   - unsigned char *c: pointer to output cipher text
+* Arguments:   - unsigned char *c: pointer to output ciphertext
 *                (an already allocated array of CRYPTO_CIPHERTEXTBYTES bytes)
+*              - unsigned long long *clen: pointer to byte length of output ciphertext
+*              - const unsigned char *m: pointer to input message
+*              - unsigned long long mlen: byte length of input message
 *              - const unsigned char *pk: pointer to input public key
 *                (an already allocated array of CRYPTO_PUBLICKEYBYTES bytes)
 *
-* Returns 0 (success)
+* Returns 0 (success) or 1 (failure)
 **************************************************/
 int crypto_encrypt(unsigned char *c,
                    unsigned long long *clen,
@@ -142,9 +145,9 @@ int crypto_encrypt(unsigned char *c,
 *              - const unsigned char *sk: pointer to input private key
 *                (an already allocated array of CRYPTO_SECRETKEYBYTES bytes)
 *
-* Returns 0.
+* Returns 0 (success) or 1 (failure)
 *
-* On failure, ss will contain a pseudo-random value.
+* On failure, ss will contain zeros.
 **************************************************/
 int crypto_encrypt_open(unsigned char *m,
                         unsigned long long *mlen,

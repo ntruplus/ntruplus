@@ -182,7 +182,7 @@ void poly_sotp(poly *r, const uint8_t *msg, const uint8_t *buf)
 *              - const poly *a: pointer to iput polynomial
 *              - const uint8_t *buf: pointer to input random
 *
-* Returns:     integer
+* Returns 0 (success) or 1 (failure)
 **************************************************/
 int poly_sotp_inv(uint8_t *msg, const poly *a, const uint8_t *buf)
 {
