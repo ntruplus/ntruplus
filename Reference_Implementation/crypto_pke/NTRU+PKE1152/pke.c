@@ -73,6 +73,7 @@ int crypto_encrypt_keypair(unsigned char *pk, unsigned char *sk)
 *                (an already allocated array of CRYPTO_CIPHERTEXTBYTES bytes)
 *              - unsigned long long *clen: pointer to byte length of output ciphertext
 *              - const unsigned char *m: pointer to input plaintext
+*                (an already allocated array of CRYPTO_MAXPLAINTEXT bytes)
 *              - unsigned long long mlen: byte length of input plaintext
 *              - const unsigned char *pk: pointer to input public key
 *                (an already allocated array of CRYPTO_PUBLICKEYBYTES bytes)
@@ -92,17 +93,24 @@ int crypto_encrypt(unsigned char *c,
     poly p_c, p_h, p_r, p_m;
 
     int8_t fail;
+    int32_t sub;    
+    int32_t sign1, sign2;
 
     //length check
-    fail = -((NTRUPLUS_N/8 - NTRUPLUS_RANDOMBYTES - 1 - mlen) >> 63);
-
-    msg[NTRUPLUS_N/8 - NTRUPLUS_RANDOMBYTES - mlen-1] = 0x01;
-
-    for (int i = 0; i < (int)mlen; i++)
+    fail = ((NTRUPLUS_MAXPLAINTEXT- mlen) >> 63);
+   
+    for(int i = 0; i < NTRUPLUS_MAXPLAINTEXT; i++)
     {
-        msg[i + NTRUPLUS_N/8 - NTRUPLUS_RANDOMBYTES - mlen] = m[i] & ~(-fail);
+        sub = i - mlen;
+        sign1 = sub >> 31;
+        sign2 = (-sub) >> 31;
+
+        msg[i] = ((m[i] & sign1) | ~(sign1 | sign2)) & ~(-fail);
     }
 
+    sub = mlen - NTRUPLUS_MAXPLAINTEXT;
+    sign1 = (sub | -sub) >> 31;
+    msg[NTRUPLUS_MAXPLAINTEXT] = ~sign1;
     randombytes(msg + NTRUPLUS_N/8 - NTRUPLUS_RANDOMBYTES, NTRUPLUS_RANDOMBYTES);
 
     hash_f(msg + NTRUPLUS_N/8, pk);
@@ -164,9 +172,16 @@ int crypto_encrypt_open(unsigned char *m,
     poly p_m1, p_m2;
     poly p_t1;
 
-    int i, j;
+    int32_t sub;    
+    int32_t sign;
 
-    if(clen != NTRUPLUS_CIPHERTEXTBYTES) return 1;
+    int32_t foundff = 0;
+    int32_t ff = 0;
+    int32_t zero = 0;
+
+    fail = (clen != NTRUPLUS_CIPHERTEXTBYTES);
+    *mlen = 0;
+
     poly_frombytes(&p_c, c);
     poly_frombytes(&p_f, sk);
     poly_frombytes(&p_hinv, sk + NTRUPLUS_POLYBYTES);
@@ -184,7 +199,7 @@ int crypto_encrypt_open(unsigned char *m,
     hash_g(buf2, buf1);
     fail = poly_sotp_inv(msg, &p_m1, buf2);
 
-    for (i = 0; i < NTRUPLUS_SYMBYTES; i++)
+    for(int i = 0; i < NTRUPLUS_SYMBYTES; i++)
     {
         msg[i + NTRUPLUS_N/8] = sk[i + 2*NTRUPLUS_POLYBYTES]; 
     }  
@@ -198,22 +213,22 @@ int crypto_encrypt_open(unsigned char *m,
    
     fail |= verify(buf1, buf2, NTRUPLUS_POLYBYTES); 
 
-    for (i = 0; i < NTRUPLUS_N/8 - NTRUPLUS_RANDOMBYTES; i++)
+    for(int i = NTRUPLUS_MAXPLAINTEXT; i >= 0; i--)
     {
-        if(msg[i] == 0x00) continue;
-        else if(msg[i] == 0x01)
-        {
-            *mlen = NTRUPLUS_N/8 - NTRUPLUS_RANDOMBYTES - i - 1;
-            j = i+1;
-            break;
-        }
+        ff = msg[i] == 0xff;
+        zero = msg[i] == 0x00;
+
+        fail |= (~foundff) & !(zero || ff);
+        *mlen |= (~foundff) & (-ff) & i;
+        foundff |= -ff;
     }
 
-    if(i == NTRUPLUS_N/8 - NTRUPLUS_RANDOMBYTES) return 1;
-
-    for (i = 0; i < (int)*mlen; i++)
+    for(int i = 0; i < NTRUPLUS_MAXPLAINTEXT; i++)
     {
-        m[i] = msg[i+j] & ~(-fail);
+        sub = i - *mlen;
+        sign = sub >> 31;
+
+        m[i] = (msg[i] & sign) & ~(-fail);
     }
 
     return fail;

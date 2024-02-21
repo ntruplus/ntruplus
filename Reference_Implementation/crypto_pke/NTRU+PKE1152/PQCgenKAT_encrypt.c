@@ -30,7 +30,7 @@ main()
     char                fn_req[32], fn_rsp[32];
     FILE                *fp_req, *fp_rsp;
     unsigned char       seed[48];
-    unsigned char       msg[3300];
+    unsigned char       msg[CRYPTO_MAXPLAINTEXT];
     unsigned char       entropy_input[48];
     unsigned char       *m, *c, *m1;
     unsigned long long  mlen, clen, mlen1;
@@ -105,9 +105,9 @@ main()
         }
         fprintf(fp_rsp, "mlen = %llu\n", mlen);
         
-        m = (unsigned char *)calloc(mlen, sizeof(unsigned char));
-        m1 = (unsigned char *)calloc(mlen+CRYPTO_BYTES, sizeof(unsigned char));
-        c = (unsigned char *)calloc(mlen+CRYPTO_CIPHERTEXTBYTES, sizeof(unsigned char));
+        m = (unsigned char *)calloc(CRYPTO_MAXPLAINTEXT, sizeof(unsigned char));
+        m1 = (unsigned char *)calloc(CRYPTO_MAXPLAINTEXT, sizeof(unsigned char));
+        c = (unsigned char *)calloc(CRYPTO_CIPHERTEXTBYTES, sizeof(unsigned char));
         
         if ( !ReadHex(fp_req, m, (int)mlen, "msg = ") ) {
             printf("ERROR: unable to read 'msg' from <%s>\n", fn_req);

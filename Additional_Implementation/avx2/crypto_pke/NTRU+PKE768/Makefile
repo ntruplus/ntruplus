@@ -24,5 +24,5 @@ test: $(HEADERS) randombytes.h $(SOURCES) randombytes.c test.c cpucycles.h
 	$(CC) $(CFLAGS) -o $@ randombytes.c test.c $(SOURCES) $(LDFLAGS)
 
 clean:
-	-$(RM) PQCgenKAT_kem
+	-$(RM) PQCgenKAT_encrypt
 	-$(RM) test

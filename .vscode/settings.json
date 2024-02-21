@@ -6,6 +6,10 @@
         "string.h": "c",
         "array": "c",
         "string": "c",
-        "string_view": "c"
+        "string_view": "c",
+        "api.h": "c",
+        "poly.h": "c",
+        "symmetric.h": "c",
+        "stdint.h": "c"
     }
 }
