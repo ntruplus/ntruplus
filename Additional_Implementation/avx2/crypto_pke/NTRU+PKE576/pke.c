@@ -9,10 +9,9 @@
 #include "randombytes.h"
 
 /*************************************************
-* Name:        crypto_pke_keypair
+* Name:        crypto_encrypt_keypair
 *
-* Description: Generates public and private key
-*              for CCA-secure NTRU+ key encapsulation mechanism
+* Description: Generates public and private key for NTRU+PKE
 *
 * Arguments:   - unsigned char *pk: pointer to output public key
 *                (an already allocated array of CRYPTO_PUBLICKEYBYTES bytes)
@@ -70,13 +69,13 @@ int crypto_encrypt_keypair(unsigned char *pk, unsigned char *sk)
 /*************************************************
 * Name:        crypto_encrypt
 *
-* Description: Generates cipher text for given public key
+* Description: Generates ciphertext for given plaintext and public key
 *
 * Arguments:   - unsigned char *c: pointer to output ciphertext
 *                (an already allocated array of CRYPTO_CIPHERTEXTBYTES bytes)
 *              - unsigned long long *clen: pointer to byte length of output ciphertext
-*              - const unsigned char *m: pointer to input message
-*              - unsigned long long mlen: byte length of input message
+*              - const unsigned char *m: pointer to input plaintext
+*              - unsigned long long mlen: byte length of input plaintext
 *              - const unsigned char *pk: pointer to input public key
 *                (an already allocated array of CRYPTO_PUBLICKEYBYTES bytes)
 *
@@ -134,25 +133,23 @@ int crypto_encrypt(unsigned char *c,
 
     return fail;
 }
-
 /*************************************************
 * Name:        crypto_encrypt_open
 *
-* Description: Generates shared secret for given
-*              cipher text and private key
+* Description: Decrypts given ciphertext and private key
 *
-* Arguments:   - unsigned char *m: pointer to output plain text
+* Arguments:   - unsigned char *m: pointer to output plaintext
+*                (an already allocated array of CRYPTO_MAXPLAINTEXT bytes)
+*              - unsigned long long *mlen: pointer to byte length of output plaintext
+*              - const unsigned char *c: pointer to input ciphertext
 *                (an already allocated array of CRYPTO_CIPHERTEXTBYTES bytes)
-               - unsigned char *ss: pointer to output shared secret
-*                (an already allocated array of CRYPTO_BYTES bytes)
-*              - const unsigned char *c: pointer to input cipher text
-*                (an already allocated array of CRYPTO_CIPHERTEXTBYTES bytes)
+*              - unsigned long long clen: byte length of input ciphertext
 *              - const unsigned char *sk: pointer to input private key
 *                (an already allocated array of CRYPTO_SECRETKEYBYTES bytes)
 *
-* Returns 1.
+* Returns 0 (success) or 1 (failure)
 *
-* On failure, ss will contain zeros.
+* On failure, m will contain zeros.
 **************************************************/
 int crypto_encrypt_open(unsigned char *m,
                         unsigned long long *mlen,

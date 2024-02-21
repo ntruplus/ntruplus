@@ -27,7 +27,7 @@ static void TEST_PKE()
 	crypto_encrypt_keypair(pk, sk);
 
 	//Encrypt and Decrypt message
-	for (int i = 1; i < 36; i++)
+	for (int i = 0; i < 36; i++)
 	{
 		for(int j = 0; j < TEST_LOOP1; j++)
 		{

@@ -14,8 +14,8 @@ static void TEST_PKE()
 	unsigned char pk[CRYPTO_PUBLICKEYBYTES];
 	unsigned char sk[CRYPTO_SECRETKEYBYTES];
 	unsigned char ct[CRYPTO_CIPHERTEXTBYTES];
-	unsigned char m[144];
-	unsigned char dm[144];
+	unsigned char m[CRYPTO_MAXPLAINTEXT];
+	unsigned char dm[CRYPTO_MAXPLAINTEXT];
 	unsigned long long mlen = 0;
 	unsigned long long dmlen = 0;
 	unsigned long long clen = 0;
@@ -27,7 +27,7 @@ static void TEST_PKE()
 	crypto_encrypt_keypair(pk, sk);
 
 	//Encrypt and Decrypt message
-	for (int i = 1; i < 68; i++)
+	for (int i = 0; i < 68; i++)
 	{
 		for(int j = 0; j < TEST_LOOP1; j++)
 		{
@@ -53,8 +53,8 @@ static void TEST_PKE_CLOCK()
 	unsigned char pk[CRYPTO_PUBLICKEYBYTES];
 	unsigned char sk[CRYPTO_SECRETKEYBYTES];
 	unsigned char ct[CRYPTO_CIPHERTEXTBYTES];
-	unsigned char m[144] = {0};
-	unsigned char dm[144];
+	unsigned char m[CRYPTO_MAXPLAINTEXT] = {0};
+	unsigned char dm[CRYPTO_MAXPLAINTEXT];
 	unsigned long long mlen = 0;
 	unsigned long long dmlen = 0;
 	unsigned long long clen = 0;
