@@ -1,3 +1,3 @@
 # NTRU+ (https://sites.google.com/view/ntruplus/)
 
-This repository contains the official reference implementation of the NTRU+ key encapsulation mechanism, and an optimized implementation for x86 CPUs supporting the AVX2 instruction set. NTRU+ is submitted to 'Korean Post-Quantum Cryptography Competition' (www.kpqc.or.kr).
+This website is the official repository of NTRU+ that advanced to the 2nd round of the 'Korean Post-Quantum Cryptography Competition' (www.kpqc.or.kr). NTRU+ consists of the key encapsulation mechanism NTRU+ KEM and the public key encryption NTRU+ PKE. 
