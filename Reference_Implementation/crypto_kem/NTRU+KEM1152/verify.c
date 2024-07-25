@@ -15,11 +15,11 @@
 **************************************************/
 int verify(const uint8_t *a, const uint8_t *b, size_t len)
 {
-  size_t i;
-  uint8_t r = 0;
-
-  for(i=0;i<len;i++)
-    r |= a[i] ^ b[i];
-
-  return (-(uint64_t)r) >> 63;
+	size_t i;
+	uint8_t r = 0;
+	
+	for(i=0;i<len;i++)
+		r |= a[i] ^ b[i];
+	
+	return (-(uint64_t)r) >> 63;
 }
