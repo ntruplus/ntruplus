@@ -87,12 +87,12 @@ void poly_frombytes(poly *r, const uint8_t a[NTRUPLUS_POLYBYTES])
 **************************************************/
 static uint32_t load32_littleendian(const uint8_t x[4])
 {
-  uint32_t r;
-  r  = (uint32_t)x[0];
-  r |= (uint32_t)x[1] << 8;
-  r |= (uint32_t)x[2] << 16;
-  r |= (uint32_t)x[3] << 24;
-  return r;
+	uint32_t r;
+	r  = (uint32_t)x[0];
+	r |= (uint32_t)x[1] << 8;
+	r |= (uint32_t)x[2] << 16;
+	r |= (uint32_t)x[3] << 24;
+	return r;
 }
 
 /*************************************************
@@ -410,6 +410,6 @@ static int16_t crepmod3(int16_t a)
 **************************************************/
 void poly_crepmod3(poly *r, const poly *a)
 {
-  for(int i = 0; i < NTRUPLUS_N; i++)
-    r->coeffs[i] = crepmod3(a->coeffs[i]);
+	for(int i = 0; i < NTRUPLUS_N; i++)
+		r->coeffs[i] = crepmod3(a->coeffs[i]);
 }
