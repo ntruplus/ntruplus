@@ -54,43 +54,43 @@ static void TEST_CCA_KEM_CLOCK()
 	unsigned char ss[CRYPTO_BYTES];
 	unsigned char dss[CRYPTO_BYTES];
 
-    unsigned long long kcycles, ecycles, dcycles;
-    unsigned long long cycles1, cycles2;
-
+	unsigned long long kcycles, ecycles, dcycles;
+	unsigned long long cycles1, cycles2;
+	
 	printf("========= CCA KEM ENCAP DECAP SPEED TEST =========\n");
-
+	
 	kcycles=0;
 	for (int i = 0; i < TEST_LOOP; i++)
 	{
 		cycles1 = cpucycles();
 		crypto_kem_keypair(pk, sk);
-        cycles2 = cpucycles();
-        kcycles += cycles2-cycles1;
+		cycles2 = cpucycles();
+		kcycles += cycles2-cycles1;
 	}
-    printf("  KEYGEN runs in ................. %8lld cycles", kcycles/TEST_LOOP);
-    printf("\n"); 
-
+	printf("  KEYGEN runs in ................. %8lld cycles", kcycles/TEST_LOOP);
+	printf("\n"); 
+	
 	ecycles=0;
 	dcycles=0;
 	for (int i = 0; i < TEST_LOOP; i++)
 	{
 		cycles1 = cpucycles();
 		crypto_kem_enc(ct, ss, pk);
-        cycles2 = cpucycles();
-        ecycles += cycles2-cycles1;
-
+		cycles2 = cpucycles();
+		ecycles += cycles2-cycles1;
+		
 		cycles1 = cpucycles(); 
 		crypto_kem_dec(dss, ct, sk);
 		cycles2 = cpucycles();
-        dcycles += cycles2-cycles1;
+		dcycles += cycles2-cycles1;
 	}
-
-    printf("  ENCAP  runs in ................. %8lld cycles", ecycles/TEST_LOOP);
-    printf("\n"); 
-
-    printf("  DECAP  runs in ................. %8lld cycles", dcycles/TEST_LOOP);
-    printf("\n"); 
-
+	
+	printf("  ENCAP  runs in ................. %8lld cycles", ecycles/TEST_LOOP);
+	printf("\n"); 
+	
+	printf("  DECAP  runs in ................. %8lld cycles", dcycles/TEST_LOOP);
+	printf("\n"); 
+	
 	printf("==================================================\n");
 }
 
