@@ -9,7 +9,7 @@
  * coeffs[0] + X*coeffs[1] + X^2*xoeffs[2] + ... + X^{n-1}*coeffs[n-1]
  */
 typedef struct{
-  int16_t coeffs[NTRUPLUS_N];
+	int16_t coeffs[NTRUPLUS_N];
 } poly __attribute__((aligned(32)));
 
 void poly_tobytes(uint8_t r[NTRUPLUS_POLYBYTES], const poly *a);
