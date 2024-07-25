@@ -58,46 +58,46 @@ static void TEST_PKE_CLOCK()
 	unsigned long long mlen = 0;
 	unsigned long long dmlen = 0;
 	unsigned long long clen = 0;
-
-    unsigned long long kcycles, ecycles, dcycles;
-    unsigned long long cycles1, cycles2;
-
+	
+	unsigned long long kcycles, ecycles, dcycles;
+	unsigned long long cycles1, cycles2;
+	
 	printf("=================== SPEED TEST ===================\n");
-
+	
 	kcycles=0;
 	for (int i = 0; i < TEST_LOOP2; i++)
 	{
 		cycles1 = cpucycles();
 		crypto_encrypt_keypair(pk, sk);
-        cycles2 = cpucycles();
-        kcycles += cycles2-cycles1;
+		cycles2 = cpucycles();
+		kcycles += cycles2-cycles1;
 	}
-    printf("  KEYGEN runs in ................. %8lld cycles", kcycles/TEST_LOOP2);
-    printf("\n"); 
-
+	printf("  KEYGEN runs in ................. %8lld cycles", kcycles/TEST_LOOP2);
+	printf("\n"); 
+	
 	ecycles=0;
 	dcycles=0;
-
+	
 	mlen = 32;
-
+	
 	for (int i = 0; i < TEST_LOOP2; i++)
 	{
 		cycles1 = cpucycles();
 		crypto_encrypt(ct, &clen, m, mlen, pk);
-        cycles2 = cpucycles();
-        ecycles += cycles2-cycles1;
-
+		cycles2 = cpucycles();
+		ecycles += cycles2-cycles1;
+		
 		cycles1 = cpucycles(); 
 		crypto_encrypt_open(dm, &dmlen, ct, clen, sk);
 		cycles2 = cpucycles();
-        dcycles += cycles2-cycles1;
+		dcycles += cycles2-cycles1;
 	}
-
-    printf("  ENC    runs in ................. %8lld cycles", ecycles/TEST_LOOP2);
-    printf("\n"); 
-
-    printf("  DEC    runs in ................. %8lld cycles", dcycles/TEST_LOOP2);
-    printf("\n\n"); 
+	
+	printf("  ENC    runs in ................. %8lld cycles", ecycles/TEST_LOOP2);
+	printf("\n"); 
+	
+	printf("  DEC    runs in ................. %8lld cycles", dcycles/TEST_LOOP2);
+	printf("\n\n"); 
 }
 
 int main(void)
