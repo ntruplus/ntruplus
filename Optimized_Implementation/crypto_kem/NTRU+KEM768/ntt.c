@@ -223,14 +223,9 @@ void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 **************************************************/
 void basemul(int16_t c[2], const int16_t a[2], const int16_t b[2], int16_t zeta)
 {
-	int16_t t1 = fqmul(a[0], b[0]);
-	int16_t t2 = fqmul(a[1], b[1]);
-	int16_t t3 = fqmul((a[0] + a[1]),(b[0] + b[1]));
-
-	c[1]  = barrett_reduce(t3 - t1 - t2);
-	c[0]  = fqmul(t2, zeta);
-	c[0] += t1;
-	c[0]  = barrett_reduce(c[0]);
+	c[0] = montgomery_reduce(a[1]*b[1]);
+	c[1] = montgomery_reduce(a[0]*b[1]+a[1]*b[0]);
+	c[0] = montgomery_reduce(c[0]*zeta+a[0]*b[0]);
 }
 
 /*************************************************
@@ -245,15 +240,13 @@ void basemul(int16_t c[2], const int16_t a[2], const int16_t b[2], int16_t zeta)
 **************************************************/
 int baseinv(int16_t b[2], const int16_t a[2], int16_t zeta)
 {
-	int16_t det, t;
+	int16_t det;
 	int r;
 
-	t     = fqmul(a[1], a[1]);
-	t     = fqmul(t, zeta);
-	det   = fqmul(a[0], a[0]);
-	det  -= t;
-
+	det   = montgomery_reduce(a[1]*a[1]);
+	det   = montgomery_reduce(a[0]*a[0]-det*zeta);
 	det   = fqinv(det);
+
 	b[0]  = fqmul( a[0], det);
 	b[1]  = fqmul(-a[1], det);
 
