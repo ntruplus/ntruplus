@@ -5,10 +5,9 @@
 #include "symmetric.h"
 #include "poly.h"
 #include "verify.h"
-#include "aes256ctr.h"
+#include "fips202.h"
 #include "randombytes.h"
 
-static const unsigned char n[16] = {0};
 /*************************************************
 * Name:        crypto_encrypt_keypair
 *
@@ -33,7 +32,7 @@ int crypto_encrypt_keypair(unsigned char *pk, unsigned char *sk)
 
     do {
         randombytes(buf, 32);
-        aes256ctr_prf(buf, NTRUPLUS_N/2, buf, n);
+        shake256(buf,NTRUPLUS_N/2,buf,32);
 
         poly_cbd1(&f, buf);
         poly_triple(&f);
