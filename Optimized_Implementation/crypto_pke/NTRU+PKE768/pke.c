@@ -30,23 +30,24 @@ int crypto_encrypt_keypair(unsigned char *pk, unsigned char *sk)
 
     int r;
 
-    do {
-        randombytes(buf, 32);
-        shake256(buf,NTRUPLUS_N/2,buf,32);
-
-        poly_cbd1(&f, buf);
-        poly_triple(&f);
-        f.coeffs[0] += 1;
-        poly_ntt(&f,&f);
-        r = poly_baseinv(&finv, &f);
-
-        poly_cbd1(&g, buf + NTRUPLUS_N/4); 
-        poly_triple(&g);
-        poly_ntt(&g,&g);
-
-        poly_basemul(&h,&g,&finv);
-        r |= poly_baseinv(&hinv,&h);
-    } while(r);
+	do {
+		randombytes(buf, 32);
+		shake256(buf,NTRUPLUS_N/2,buf,32);
+		
+		poly_cbd1(&f, buf);
+		poly_triple(&f);
+		f.coeffs[0] += 1;
+		poly_ntt(&f,&f);
+		r = poly_baseinv(&finv, &f);
+		if(r) continue;
+		
+		poly_cbd1(&g, buf + NTRUPLUS_N/4); 
+		poly_triple(&g);
+		poly_ntt(&g,&g);
+		
+		poly_basemul(&h,&g,&finv);
+		r = poly_baseinv(&hinv,&h);
+	} while(r);
 
     //pk
     poly_reduce(&h);
