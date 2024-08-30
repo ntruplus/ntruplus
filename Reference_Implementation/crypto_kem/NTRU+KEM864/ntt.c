@@ -66,15 +66,31 @@ static int16_t fqmul(int16_t a, int16_t b)
 **************************************************/
 static int16_t fqinv(int16_t a)
 {
-	int16_t t = a;
+	int16_t t1, t2;
 
-	for(int i = 1; i <= 11; i++)
-	{
-		t = fqmul(t, t);
-		if(i != 2 && i != 4) t = fqmul(t, a);
-	}
+	t1 = fqmul(a, a);     //10
+	t1 = fqmul(t1, t1);   //100
+	t2 = fqmul(t1, t1);   //1000
+	t2 = fqmul(t2, t2);   //10000
 
-	return t;
+	t1 = fqmul(t1, a);   //101
+	t1 = fqmul(t1, t1);  //1010
+
+	t2 = fqmul(t1, t2);  //11010
+	t2 = fqmul(t2, t2);  //110100
+	t2 = fqmul(t2, a);   //110101
+
+	t1 = fqmul(t1, t2);   //111111
+
+	t2 = fqmul(t2, t2);   //1101010
+	t2 = fqmul(t2, t2);   //11010100
+	t2 = fqmul(t2, t2);   //110101000
+	t2 = fqmul(t2, t2);   //1101010000
+	t2 = fqmul(t2, t2);   //11010100000
+	t2 = fqmul(t2, t2);   //110101000000
+	t2 = fqmul(t2, t1);   //110101111111
+
+	return t2;
 }
 
 /*************************************************
