@@ -64,7 +64,7 @@ const int16_t zetas[384] = {
 **************************************************/
 static int16_t fqmul(int16_t a, int16_t b)
 {
-  return montgomery_reduce((int32_t)a*b);
+	return montgomery_reduce((int32_t)a*b);
 }
 
 /*************************************************
