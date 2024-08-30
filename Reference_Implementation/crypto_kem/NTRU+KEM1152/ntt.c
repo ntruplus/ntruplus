@@ -78,6 +78,8 @@ static int16_t fqmul(int16_t a, int16_t b)
 **************************************************/
 static int16_t fqinv(int16_t a)
 {
+	int16_t t1, t2;
+	
 	t1 = fqmul(a, a);     //10
 	t1 = fqmul(t1, t1);   //100
 	t2 = fqmul(t1, t1);   //1000
