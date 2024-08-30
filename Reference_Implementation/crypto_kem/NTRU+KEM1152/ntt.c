@@ -85,17 +85,14 @@ static int16_t fqinv(int16_t a)
 	t2 = fqmul(t1, t1);   //1000
 	t2 = fqmul(t2, t2);   //10000
 
-
 	t1 = fqmul(t1, a);   //101
 	t1 = fqmul(t1, t1);  //1010
-
 
 	t2 = fqmul(t1, t2);  //11010
 	t2 = fqmul(t2, t2);  //110100
 	t2 = fqmul(t2, a);   //110101
 
 	t1 = fqmul(t1, t2);   //111111
-
 
 	t2 = fqmul(t2, t2);   //1101010
 	t2 = fqmul(t2, t2);   //11010100
