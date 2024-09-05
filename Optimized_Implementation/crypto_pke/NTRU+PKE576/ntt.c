@@ -26,7 +26,8 @@ const int16_t zetas[192] = {
      1063,  1022,  1188, -1053,   417, -1391,    27,  1626,
       251, -1401,  1409,  1501,  -230,   361,   582,  -673,
      1367,   124,  1531,  1550,  1681,  -940, -1458, -1379,
-      274,  -400,   -32, -1543, -1408,  1248,  -315, -1685};
+      274,  -400,   -32, -1543, -1408,  1248,  -315, -1685
+};
 
 /*************************************************
 * Name:        fqmul
@@ -113,7 +114,7 @@ void ntt(int16_t b[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 		{
 			t1 = fqmul(zeta1, b[i +  96]);
 			t2 = fqmul(zeta2, b[i + 192]);
-			t3 = fqmul(2571, t1 - t2);
+			t3 = fqmul(-886, t1 - t2);
 
 			b[i + 192] = b[i] - t1 - t3;
 			b[i +  96] = b[i] - t2 + t3;
@@ -181,7 +182,7 @@ void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 
 		for(int i = start; i < start + 96; i++)
 		{
-			t1 = fqmul(2571,  r[i +  96] - r[i]);
+			t1 = fqmul(-886,  r[i +  96] - r[i]);
 			t2 = fqmul(zeta1, r[i + 192] - r[i]      + t1);
 			t3 = fqmul(zeta2, r[i + 192] - r[i + 96] - t1);
 			
@@ -194,10 +195,10 @@ void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 	for(int i = 0; i < NTRUPLUS_N/2; i++)
 	{
 		t1 = r[i] + r[i + NTRUPLUS_N/2];
-		t2 = fqmul(1792, r[i] - r[i + NTRUPLUS_N/2]);
+		t2 = fqmul(-1665, r[i] - r[i + NTRUPLUS_N/2]);
 
 		r[i               ] = fqmul(1679, t1 - t2);
-		r[i + NTRUPLUS_N/2] = fqmul(3358, t2);			
+		r[i + NTRUPLUS_N/2] = fqmul(-99, t2);			
 	}
 }
 
