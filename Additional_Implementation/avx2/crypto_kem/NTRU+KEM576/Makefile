@@ -8,7 +8,7 @@ RM = /bin/rm
 
 LDFLAGS=-lcrypto
 
-SOURCES= asm/add.s asm/baseinv.s asm/basemul.s asm/cbd.s asm/invntt.s asm/ntt.s asm/pack.s asm/reduce.s consts.c kem.c poly.c symmetric.c verify.c cpucycles.c Keccak_avx2/fips202.c Keccak_avx2/KeccakP-1600-AVX2.s
+SOURCES= asm/add.s asm/baseinv.s asm/basemul.s asm/cbd.s asm/invntt.s asm/ntt.s asm/pack.s consts.c kem.c poly.c symmetric.c verify.c cpucycles.c Keccak_avx2/fips202.c Keccak_avx2/KeccakP-1600-AVX2.s
 HEADERS= params.h kem.h poly.h symmetric.h verify.h Keccak_avx2/fips202.h Keccak_avx2/KeccakP-1600-SnP.h
 
 .PHONY: all PQCgenKAT_kem test clean
