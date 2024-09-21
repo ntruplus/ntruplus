@@ -228,7 +228,7 @@ void basemul(int16_t c[4], const int16_t a[4], const int16_t b[4], int16_t zeta)
 /*************************************************
 * Name:        basemul
 *
-* Description: Inversion of polynomial in Zq[X]/(X^3-zeta)
+* Description: Inversion of polynomial in Zq[X]/(X^4-zeta)
 *              used for inversion of element in Rq in NTT domain
 *
 * Arguments:   - int16_t b[4]: pointer to the output polynomial
