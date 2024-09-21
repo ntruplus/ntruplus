@@ -248,11 +248,12 @@ int baseinv(int16_t b[4], const int16_t a[4], int16_t zeta)
 
 	t2 = montgomery_reduce(t1*t1);
 	t2 = montgomery_reduce(t0*t0 - t2*zeta);
+	
+	t2 = fqinv(t2);
 
 	r = (uint16_t)t2;
 	r = (uint32_t)(-r) >> 31;
-	
-	t2 = fqinv(t2);
+
 	t0 = fqmul(t0,t2);
 	t1 = fqmul(t1,t2);
 	t2 = fqmul(t1,zeta);
