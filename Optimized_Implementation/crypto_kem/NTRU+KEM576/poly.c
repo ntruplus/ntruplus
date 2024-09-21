@@ -22,13 +22,13 @@ void poly_tobytes(uint8_t r[NTRUPLUS_POLYBYTES], const poly *a)
 	{
 		for (int j = 0; j < 9; j++)
 		{
-			t[0] = a->coeffs[64*j + i];
+			t[0] = barrett_reduce(a->coeffs[64*j + i]);
 			t[0] += (t[0] >> 15) & NTRUPLUS_Q;
-			t[1] = a->coeffs[64*j + i + 16];
+			t[1] = barrett_reduce(a->coeffs[64*j + i + 16]);
 			t[1] += (t[1] >> 15) & NTRUPLUS_Q;
-			t[2] = a->coeffs[64*j + i + 32];
+			t[2] = barrett_reduce(a->coeffs[64*j + i + 32]);
 			t[2] += (t[2] >> 15) & NTRUPLUS_Q;			
-			t[3] = a->coeffs[64*j + i + 48];
+			t[3] = barrett_reduce(a->coeffs[64*j + i + 48]);
 			t[3] += (t[3] >> 15) & NTRUPLUS_Q;			
 
 			r[96*j + 2*i +  0] = t[0];
@@ -289,10 +289,10 @@ void poly_invntt(poly *r, const poly *a)
 **************************************************/
 void poly_basemul(poly *r, const poly *a, const poly *b)
 {
-	for(int i = 0; i < NTRUPLUS_N/6; i++)
+	for(int i = 0; i < NTRUPLUS_N/8; ++i)
 	{
-		basemul(r->coeffs + 6*i, a->coeffs + 6*i, b->coeffs + 6*i, zetas[96 + i]);
-		basemul(r->coeffs + 6*i + 3, a->coeffs + 6*i + 3, b->coeffs + 6*i + 3, -zetas[96 + i]);
+		basemul(r->coeffs + 8*i, a->coeffs + 8*i, b->coeffs + 8*i, zetas[72 + i]);
+		basemul(r->coeffs + 8*i + 4, a->coeffs + 8*i + 4, b->coeffs + 8*i + 4, -zetas[72 + i]);
 	}
 }
 
@@ -310,27 +310,13 @@ int poly_baseinv(poly *r, const poly *a)
 {
 	int result = 0;
 
-	for(int i = 0; i < NTRUPLUS_N/6; ++i)
+	for(int i = 0; i < NTRUPLUS_N/8; ++i)
 	{
-		result += baseinv(r->coeffs + 6*i, a->coeffs + 6*i, zetas[96 + i]);
-		result += baseinv(r->coeffs + 6*i + 3, a->coeffs + 6*i + 3, -zetas[96 + i]);
+		result += baseinv(r->coeffs + 8*i, a->coeffs + 8*i, zetas[72 + i]);
+		result += baseinv(r->coeffs + 8*i + 4, a->coeffs + 8*i + 4, -zetas[72 + i]);
 	 }
 
 	return result;
-}
-
-/*************************************************
-* Name:        poly_reduce
-*
-* Description: Applies Barrett reduction to all coefficients of a polynomial
-*              for details of the Barrett reduction see comments in reduce.c
-*
-* Arguments:   - poly *r: pointer to input/output polynomial
-**************************************************/
-void poly_reduce(poly *r)
-{
-	for(int i = 0; i < NTRUPLUS_N; i++)
-		r->coeffs[i] = barrett_reduce(r->coeffs[i]);
 }
 
 /*************************************************
@@ -368,12 +354,13 @@ void poly_sub(poly *r, const poly *a, const poly *b)
 *
 * Description: Multiply polynomial by 3; no modular reduction is performed
 *
-* Arguments: - poly *r: pointer to input/output polynomial
+* Arguments: - poly *r: pointer to output polynomial
+*            - const poly *a: pointer to input polynomial
 **************************************************/
-void poly_triple(poly *r) 
+void poly_triple(poly *r, const poly *a) 
 {
 	for(int i = 0; i < NTRUPLUS_N; ++i)
-		r->coeffs[i] = 3*r->coeffs[i];
+		r->coeffs[i] = 3*a->coeffs[i];
 }
 
 /*************************************************
