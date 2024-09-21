@@ -2,31 +2,25 @@
 #include "reduce.h"
 #include "ntt.h"
 
-const int16_t zetas[192] = {
-	 -147, -1033,  -682,  -248,  -708,   682,     1,  -722,
-	 -723,  -257, -1124,  -867,  -256,  1484,  1262, -1590,
-	 1611,   222,  1164, -1346,  1716, -1521,  -357,   395,
-	 -455,   639,   502,   655,  -699,   541,    95, -1577,
-	-1241,   550,   -44,    39,  -820,  -216,  -121,  -757,
-	 -348,   937,   893,   387,  -603,  1713, -1105,  1058,
-	 1449,   837,   901,  1637,  -569, -1617, -1530,  1199,
-	   50,  -830,  -625,     4,   176,  -156,  1257, -1507,
-	 -380,  -606,  1293,   661,  1428, -1580,  -565,  -992,
-	  548,  -800,    64,  -371,   961,   641,    87,   630,
-	  675,  -834,   205,    54, -1081,  1351,  1413, -1331,
-	-1673, -1267, -1558,   281, -1464,  -588,  1015,   436,
-	  223,  1138, -1059,  -397,  -183,  1655,   559, -1674,
-	  277,   933,  1723,   437, -1514,   242,  1640,   432,
-	-1583,   696,   774,  1671,   927,   514,   512,   489,
-	  297,   601,  1473,  1130,  1322,   871,   760,  1212,
-	 -312,  -352,   443,   943,     8,  1250,  -100,  1660,
-	  -31,  1206, -1341, -1247,   444,   235,  1364, -1209,
-	  361,   230,   673,   582,  1409,  1501,  1401,   251,
-	 1022, -1063,  1053,  1188,   417, -1391,   -27, -1626,
-	 1685,  -315,  1408, -1248,   400,   274, -1543,    32,
-	-1550,  1531, -1367,  -124,  1458,  1379,  -940, -1681,
-	   22,  1709,  -275,  1108,   354, -1728,  -968,   858,
-	 1221,  -218,   294,  -732, -1095,   892,  1588,  -779
+const int16_t zetas[144] = {
+	 -147, -1033, -1265,   708,   460,  1265,  -467,   727,
+	  556,  1307,  -773,  -161,  1200, -1612,   570,  1529,
+	 1135,  -556,  1120,   298,  -822, -1556,   -93,  1463,
+	  532,  -377,  -909,    58,  -392,  -450,  1722,  1236,
+	 -486,  -491, -1569, -1078,    36,  1289, -1443,  1628,
+	 1664,  -725,  -952,    99, -1020,   353,  -599,  1119,
+	  592,   839,  1622,   652,  1244,  -783, -1085,  -726,
+	  566,  -284, -1369, -1292,   268,  -391,   781,  -172,
+	   96, -1172,   211,   737,   473,  -445,  -234,   264,
+	-1536,  1467,  -676, -1542,  -170,   635,  -705, -1332,
+	 -658,   831, -1712,  1311,  1488,  -881,  1087, -1315,
+	 1245,   -75,   791,    -6,  -875,  -697,   -70, -1162,
+	  287,  -767,  -945,  1598,  -882,  1261,   206,   654,
+	-1421,   -81,   716, -1251,   838, -1300,  1035,  -104,
+	  966,  -558,   -61, -1704,   404,  -899,   862, -1593,
+	-1460,   -37,  1266,   965, -1584, -1404,  -265,  -942,
+	  905,  1195,  -619,   787,   118,   576,   286, -1475,
+	 -194,   928,  1229, -1032,  1608,  1111, -1669,   642
 };
 
 /*************************************************
@@ -57,10 +51,10 @@ static int16_t fqinv(int16_t a)
 {
 	int16_t t1,t2,t3;
 
-	t1 = fqmul(a, a);     //10
-	t2 = fqmul(t1, t1);   //100
-	t2 = fqmul(t2, t2);   //1000
-	t3 = fqmul(t2, t2);   //10000
+	t1 = fqmul(a, a);    //10
+	t2 = fqmul(t1, t1);  //100
+	t2 = fqmul(t2, t2);  //1000
+	t3 = fqmul(t2, t2);  //10000
 
 	t1 = fqmul(t1, t2);  //1010
 
@@ -68,15 +62,15 @@ static int16_t fqinv(int16_t a)
 	t2 = fqmul(t2, t2);  //110100
 	t2 = fqmul(t2, a);   //110101
 
-	t1 = fqmul(t1, t2);   //111111
+	t1 = fqmul(t1, t2);  //111111
 
-	t2 = fqmul(t2, t2);   //1101010
-	t2 = fqmul(t2, t2);   //11010100
-	t2 = fqmul(t2, t2);   //110101000
-	t2 = fqmul(t2, t2);   //1101010000
-	t2 = fqmul(t2, t2);   //11010100000
-	t2 = fqmul(t2, t2);   //110101000000
-	t2 = fqmul(t2, t1);   //110101111111
+	t2 = fqmul(t2, t2);  //1101010
+	t2 = fqmul(t2, t2);  //11010100
+	t2 = fqmul(t2, t2);  //110101000
+	t2 = fqmul(t2, t2);  //1101010000
+	t2 = fqmul(t2, t2);  //11010100000
+	t2 = fqmul(t2, t2);  //110101000000
+	t2 = fqmul(t2, t1);  //110101111111
 
 	return t2;
 }
@@ -105,24 +99,27 @@ void ntt(int16_t b[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 		b[i               ] = a[i]                       + t1;
 	}
 
-	for(int start = 0; start < NTRUPLUS_N; start += 384)
+	for(int step = NTRUPLUS_N/6; step >= 32; step = step/3)
 	{
-		zeta1 = zetas[k++];
-		zeta2 = zetas[k++];
-
-		for(int i = start; i < start + 128; i++)
+		for(int start = 0; start < NTRUPLUS_N; start += 3*step)
 		{
-			t1 = fqmul(zeta1, b[i + 128]);
-			t2 = fqmul(zeta2, b[i + 256]);
-			t3 = fqmul(-886, t1 - t2);
+			zeta1 = zetas[k++];
+			zeta2 = zetas[k++];
 
-			b[i + 256] = b[i] - t1 - t3;
-			b[i + 128] = b[i] - t2 + t3;
-			b[i      ] = b[i] + t1 + t2;
-		}		
+			for(int i = start; i < start + step; i++)
+			{
+				t1 = fqmul(zeta1, b[i +   step]);
+				t2 = fqmul(zeta2, b[i + 2*step]);
+				t3 = fqmul(-886, t1 - t2);
+
+				b[i + 2*step] = b[i] - t1 - t3;
+				b[i +   step] = b[i] - t2 + t3;
+				b[i         ] = b[i] + t1 + t2;
+			}		
+		}
 	}
 
-	for(int step = 64; step >= 4; step >>= 1)
+	for(int step = 16; step >= 4; step >>= 1)
 	{
 		for(int start = 0; start < NTRUPLUS_N; start += (step << 1))
 		{
@@ -150,16 +147,16 @@ void ntt(int16_t b[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 **************************************************/
 void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 {
-	int16_t t1,t2,t3;
-	int16_t zeta1,zeta2;
-	int k = 191;
+	int16_t t1, t2, t3;
+	int16_t zeta1, zeta2;
+	int k = 143;
 
 	for(int i = 0; i < NTRUPLUS_N; i++)
 	{
 		r[i] = a[i];
 	}
 
-	for(int step = 4; step <= 64; step <<= 1)
+	for(int step = 4; step <= 16; step <<= 1)
 	{
 		for(int start = 0; start < NTRUPLUS_N; start += (step << 1))
 		{
@@ -169,26 +166,29 @@ void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 			{
 				t1 = r[i + step];
 
-				r[i + step] = fqmul(zeta1, t1 - r[i]);
+				r[i + step] = fqmul(zeta1,  t1 - r[i]);
 				r[i       ] = barrett_reduce(r[i] + t1);
 			}
 		}
 	}
 
-	for(int start = 0; start < NTRUPLUS_N; start += 384)
+	for(int step = 32; step <= NTRUPLUS_N/6; step = 3*step)
 	{
-		zeta2 = zetas[k--];
-		zeta1 = zetas[k--];
-
-		for(int i = start; i < start + 128; i++)
+		for(int start = 0; start < NTRUPLUS_N; start += 3*step)
 		{
-			t1 = fqmul(-886,  r[i + 128] - r[i]);
-			t2 = fqmul(zeta1, r[i + 256] - r[i]       + t1);
-			t3 = fqmul(zeta2, r[i + 256] - r[i + 128] - t1);
-			
-			r[i      ] = r[i] + r[i + 128] + r[i + 256];
-			r[i + 128] = t2;			
-			r[i + 256] = t3;
+			zeta2 = zetas[k--];
+			zeta1 = zetas[k--];
+
+			for(int i = start; i < start + step; i++)
+			{
+				t1 = fqmul(-886,  r[i +   step] - r[i]);
+				t2 = fqmul(zeta1, r[i + 2*step] - r[i]        + t1);
+				t3 = fqmul(zeta2, r[i + 2*step] - r[i + step] - t1);
+
+				r[i         ] = r[i] + r[i + step] + r[i + 2*step];
+				r[i +   step] = t2;			
+				r[i + 2*step] = t3;
+			}
 		}
 	}
 
@@ -197,8 +197,8 @@ void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 		t1 = r[i] + r[i + NTRUPLUS_N/2];
 		t2 = fqmul(-1665, r[i] - r[i + NTRUPLUS_N/2]);
 
-		r[i               ] = fqmul(1679, t1 - t2);
-		r[i + NTRUPLUS_N/2] = fqmul(-99, t2);	
+		r[i               ] = fqmul(-66, t1 - t2);
+		r[i + NTRUPLUS_N/2] = fqmul(-132, t2);
 	}
 }
 
@@ -228,7 +228,7 @@ void basemul(int16_t c[4], const int16_t a[4], const int16_t b[4], int16_t zeta)
 /*************************************************
 * Name:        baseinv
 *
-* Description: Inversion of polynomial in Zq[X]/(X^4-zeta)
+* Description: Inversion of polynomial in Zq[X]/(X^3-zeta)
 *              used for inversion of element in Rq in NTT domain
 *
 * Arguments:   - int16_t b[4]: pointer to the output polynomial
@@ -241,18 +241,19 @@ int baseinv(int16_t b[4], const int16_t a[4], int16_t zeta)
 	int16_t t0, t1, t2;
 	int32_t T0, T1, T2, T3;
 
-	t1 = montgomery_reduce(a[3]*a[3]);
 	t0 = montgomery_reduce(a[2]*a[2] - (a[1]*a[3] << 1));
-	t1 = montgomery_reduce(((a[0]*a[2]) << 1) - a[1]*a[1] - t1*zeta);
+	t1 = montgomery_reduce(a[3]*a[3]);
 	t0 = montgomery_reduce(a[0]*a[0] + t0*zeta);
+	t1 = montgomery_reduce(((a[0]*a[2]) << 1) - a[1]*a[1] - t1*zeta);
 
 	t2 = montgomery_reduce(t1*t1);
 	t2 = montgomery_reduce(t0*t0 - t2*zeta);
 
+	t2 = fqinv(t2);
+
 	r = (uint16_t)t2;
 	r = (uint32_t)(-r) >> 31;
-	
-	t2 = fqinv(t2);
+
 	t0 = fqmul(t0,t2);
 	t1 = fqmul(t1,t2);
 	t2 = fqmul(t1,zeta);
