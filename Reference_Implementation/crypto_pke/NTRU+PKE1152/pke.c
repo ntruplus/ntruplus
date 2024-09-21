@@ -22,48 +22,40 @@
 **************************************************/
 int crypto_encrypt_keypair(unsigned char *pk, unsigned char *sk)
 {
-    uint8_t buf[NTRUPLUS_N/2];
- 
-    poly f, finv;
-    poly g;
-    poly h, hinv;
-
-    int r;
-
+	uint8_t buf[NTRUPLUS_N/2];
+	poly f, g, h, finv, hinv;
+	int r;
+	
 	do {
 		randombytes(buf, 32);
-		shake256(buf,NTRUPLUS_N/2,buf,32);
+		shake256(buf, NTRUPLUS_N/2, buf, 32);
 		
 		poly_cbd1(&f, buf);
-		poly_triple(&f);
+		poly_triple(&f, &f);
 		f.coeffs[0] += 1;
-		poly_ntt(&f,&f);
+		poly_ntt(&f, &f);
 		r = poly_baseinv(&finv, &f);
 		if(r) continue;
 		
-		poly_cbd1(&g, buf + NTRUPLUS_N/4); 
-		poly_triple(&g);
-		poly_ntt(&g,&g);
+		poly_cbd1(&g, buf + NTRUPLUS_N / 4); 
+		poly_triple(&g, &g);
+		poly_ntt(&g, &g);
 		
-		poly_basemul(&h,&g,&finv);
-		r = poly_baseinv(&hinv,&h);
+		poly_basemul(&h, &g, &finv);
+		r = poly_baseinv(&hinv, &h);
 	} while(r);
-
-    //pk
-    poly_reduce(&h);
-    poly_tobytes(pk, &h);
-
-    //sk
-    poly_reduce(&f);  
-    poly_tobytes(sk, &f);
-
-    poly_reduce(&hinv);
-    poly_tobytes(sk+NTRUPLUS_POLYBYTES, &hinv);
-
-    hash_f(sk + 2*NTRUPLUS_POLYBYTES, pk); 
-        
-    return 0;
+	
+	//pk
+	poly_tobytes(pk, &h);
+	
+	//sk
+	poly_tobytes(sk, &f);
+	poly_tobytes(sk + NTRUPLUS_POLYBYTES, &hinv);	
+	hash_f(sk + 2 * NTRUPLUS_POLYBYTES, pk); 
+	
+	return 0;
 }
+
 /*************************************************
 * Name:        crypto_encrypt
 *
@@ -111,6 +103,7 @@ int crypto_encrypt(unsigned char *c,
     sub = mlen - NTRUPLUS_MAXPLAINTEXT;
     sign1 = (sub | -sub) >> 31;
     msg[NTRUPLUS_MAXPLAINTEXT] = ~sign1;
+   
     randombytes(msg + NTRUPLUS_N/8 - NTRUPLUS_RANDOMBYTES, NTRUPLUS_RANDOMBYTES);
 
     hash_f(msg + NTRUPLUS_N/8, pk);
@@ -118,7 +111,6 @@ int crypto_encrypt(unsigned char *c,
 
     poly_cbd1(&p_r, buf1);
     poly_ntt(&p_r,&p_r);
-    poly_reduce(&p_r);
     
     poly_tobytes(buf2, &p_r);
     hash_g(buf2, buf2);
@@ -129,7 +121,6 @@ int crypto_encrypt(unsigned char *c,
     poly_frombytes(&p_h, pk);
     poly_basemul(&p_c, &p_h, &p_r);
     poly_add(&p_c, &p_c, &p_m);
-    poly_reduce(&p_c);
     poly_tobytes(c, &p_c);
 
     *clen = NTRUPLUS_CIPHERTEXTBYTES;
@@ -193,7 +184,6 @@ int crypto_encrypt_open(unsigned char *m,
     poly_ntt(&p_m2,&p_m1);
     poly_sub(&p_c,&p_c,&p_m2);
     poly_basemul(&p_r2, &p_c, &p_hinv);
-    poly_reduce(&p_r2);
     poly_tobytes(buf1, &p_r2);
 
     hash_g(buf2, buf1);
@@ -208,7 +198,6 @@ int crypto_encrypt_open(unsigned char *m,
 
     poly_cbd1(&p_r1,buf3);
     poly_ntt(&p_r1,&p_r1);
-    poly_reduce(&p_r1);
     poly_tobytes(buf2, &p_r1);
    
     fail |= verify(buf1, buf2, NTRUPLUS_POLYBYTES); 
