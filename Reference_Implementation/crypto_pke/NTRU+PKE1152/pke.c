@@ -22,13 +22,13 @@
 **************************************************/
 int crypto_encrypt_keypair(unsigned char *pk, unsigned char *sk)
 {
-	uint8_t buf[NTRUPLUS_N/2];
+	uint8_t buf[NTRUPLUS_N / 2];
 	poly f, g, h, finv, hinv;
 	int r;
 	
 	do {
 		randombytes(buf, 32);
-		shake256(buf, NTRUPLUS_N/2, buf, 32);
+		shake256(buf, NTRUPLUS_N / 2, buf, 32);
 		
 		poly_cbd1(&f, buf);
 		poly_triple(&f, &f);
@@ -79,7 +79,7 @@ int crypto_encrypt(unsigned char *c,
                    const unsigned char *pk)
 {
     uint8_t msg[NTRUPLUS_N/8 + NTRUPLUS_SYMBYTES] = {0};
-    uint8_t buf1[NTRUPLUS_SYMBYTES + NTRUPLUS_N/4];
+    uint8_t buf1[NTRUPLUS_SYMBYTES + NTRUPLUS_N / 4];
     uint8_t buf2[NTRUPLUS_POLYBYTES];
 
     poly p_c, p_h, p_r, p_m;
@@ -110,13 +110,13 @@ int crypto_encrypt(unsigned char *c,
     hash_h_pke(buf1, msg);
 
     poly_cbd1(&p_r, buf1);
-    poly_ntt(&p_r,&p_r);
+    poly_ntt(&p_r, &p_r);
     
     poly_tobytes(buf2, &p_r);
     hash_g(buf2, buf2);
 
     poly_sotp(&p_m, msg, buf2);  
-    poly_ntt(&p_m,&p_m);
+    poly_ntt(&p_m, &p_m);
 
     poly_frombytes(&p_h, pk);
     poly_basemul(&p_c, &p_h, &p_r);
@@ -154,7 +154,7 @@ int crypto_encrypt_open(unsigned char *m,
     uint8_t msg[NTRUPLUS_N/8 + NTRUPLUS_SYMBYTES];
     uint8_t buf1[NTRUPLUS_POLYBYTES];
     uint8_t buf2[NTRUPLUS_POLYBYTES];
-    uint8_t buf3[NTRUPLUS_POLYBYTES + NTRUPLUS_SYMBYTES]= {0};
+    uint8_t buf3[NTRUPLUS_POLYBYTES + NTRUPLUS_SYMBYTES] = {0};
 
     int8_t fail;
 
@@ -178,11 +178,11 @@ int crypto_encrypt_open(unsigned char *m,
     poly_frombytes(&p_hinv, sk + NTRUPLUS_POLYBYTES);
 
     poly_basemul(&p_t1, &p_c, &p_f);
-    poly_invntt(&p_t1,&p_t1);
+    poly_invntt(&p_t1, &p_t1);
     poly_crepmod3(&p_m1, &p_t1);
     
-    poly_ntt(&p_m2,&p_m1);
-    poly_sub(&p_c,&p_c,&p_m2);
+    poly_ntt(&p_m2, &p_m1);
+    poly_sub(&p_c, &p_c, &p_m2);
     poly_basemul(&p_r2, &p_c, &p_hinv);
     poly_tobytes(buf1, &p_r2);
 
@@ -191,13 +191,13 @@ int crypto_encrypt_open(unsigned char *m,
 
     for(int i = 0; i < NTRUPLUS_SYMBYTES; i++)
     {
-        msg[i + NTRUPLUS_N/8] = sk[i + 2*NTRUPLUS_POLYBYTES]; 
+        msg[i + NTRUPLUS_N/8] = sk[i + 2 * NTRUPLUS_POLYBYTES]; 
     }  
 
     hash_h_pke(buf3, msg);
 
-    poly_cbd1(&p_r1,buf3);
-    poly_ntt(&p_r1,&p_r1);
+    poly_cbd1(&p_r1, buf3);
+    poly_ntt(&p_r1, &p_r1);
     poly_tobytes(buf2, &p_r1);
    
     fail |= verify(buf1, buf2, NTRUPLUS_POLYBYTES); 
