@@ -57,10 +57,10 @@ static int16_t fqinv(int16_t a)
 {
 	int16_t t1,t2,t3;
 
-	t1 = fqmul(a, a);     //10
-	t2 = fqmul(t1, t1);   //100
-	t2 = fqmul(t2, t2);   //1000
-	t3 = fqmul(t2, t2);   //10000
+	t1 = fqmul(a, a);    //10
+	t2 = fqmul(t1, t1);  //100
+	t2 = fqmul(t2, t2);  //1000
+	t3 = fqmul(t2, t2);  //10000
 
 	t1 = fqmul(t1, t2);  //1010
 
@@ -68,15 +68,15 @@ static int16_t fqinv(int16_t a)
 	t2 = fqmul(t2, t2);  //110100
 	t2 = fqmul(t2, a);   //110101
 
-	t1 = fqmul(t1, t2);   //111111
+	t1 = fqmul(t1, t2);  //111111
 
-	t2 = fqmul(t2, t2);   //1101010
-	t2 = fqmul(t2, t2);   //11010100
-	t2 = fqmul(t2, t2);   //110101000
-	t2 = fqmul(t2, t2);   //1101010000
-	t2 = fqmul(t2, t2);   //11010100000
-	t2 = fqmul(t2, t2);   //110101000000
-	t2 = fqmul(t2, t1);   //110101111111
+	t2 = fqmul(t2, t2);  //1101010
+	t2 = fqmul(t2, t2);  //11010100
+	t2 = fqmul(t2, t2);  //110101000
+	t2 = fqmul(t2, t2);  //1101010000
+	t2 = fqmul(t2, t2);  //11010100000
+	t2 = fqmul(t2, t2);  //110101000000
+	t2 = fqmul(t2, t1);  //110101111111
 
 	return t2;
 }
