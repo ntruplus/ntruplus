@@ -100,7 +100,7 @@ int crypto_kem_enc(unsigned char *ct,
 	poly_ntt(&m, &m);
 	
 	poly_frombytes(&h, pk);
-	poly_basemul(&c,&h, &r);
+	poly_basemul(&c, &h, &r);
 	poly_add(&c, &c, &m);
 	poly_tobytes(ct, &c);
 	
