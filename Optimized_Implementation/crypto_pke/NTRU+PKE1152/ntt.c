@@ -69,10 +69,10 @@ static int16_t fqinv(int16_t a)
 {
 	int16_t t1,t2,t3;
 
-	t1 = fqmul(a, a);     //10
-	t2 = fqmul(t1, t1);   //100
-	t2 = fqmul(t2, t2);   //1000
-	t3 = fqmul(t2, t2);   //10000
+	t1 = fqmul(a, a);    //10
+	t2 = fqmul(t1, t1);  //100
+	t2 = fqmul(t2, t2);  //1000
+	t3 = fqmul(t2, t2);  //10000
 
 	t1 = fqmul(t1, t2);  //1010
 
@@ -80,15 +80,15 @@ static int16_t fqinv(int16_t a)
 	t2 = fqmul(t2, t2);  //110100
 	t2 = fqmul(t2, a);   //110101
 
-	t1 = fqmul(t1, t2);   //111111
+	t1 = fqmul(t1, t2);  //111111
 
-	t2 = fqmul(t2, t2);   //1101010
-	t2 = fqmul(t2, t2);   //11010100
-	t2 = fqmul(t2, t2);   //110101000
-	t2 = fqmul(t2, t2);   //1101010000
-	t2 = fqmul(t2, t2);   //11010100000
-	t2 = fqmul(t2, t2);   //110101000000
-	t2 = fqmul(t2, t1);   //110101111111
+	t2 = fqmul(t2, t2);  //1101010
+	t2 = fqmul(t2, t2);  //11010100
+	t2 = fqmul(t2, t2);  //110101000
+	t2 = fqmul(t2, t2);  //1101010000
+	t2 = fqmul(t2, t2);  //11010100000
+	t2 = fqmul(t2, t2);  //110101000000
+	t2 = fqmul(t2, t1);  //110101111111
 
 	return t2;
 }
@@ -223,12 +223,12 @@ void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 /*************************************************
 * Name:        basemul
 *
-* Description: Multiplication of polynomials in Zq[X]/(X^3-zeta)
+* Description: Multiplication of polynomials in Zq[X]/(X^4-zeta)
 *              used for multiplication of elements in Rq in NTT domain
 *
-* Arguments:   - int16_t c[3]: pointer to the output polynomial
-*              - const int16_t a[3]: pointer to the first factor
-*              - const int16_t b[3]: pointer to the second factor
+* Arguments:   - int16_t c[4]: pointer to the output polynomial
+*              - const int16_t a[4]: pointer to the first factor
+*              - const int16_t b[4]: pointer to the second factor
 *              - int16_t zeta: integer defining the reduction polynomial
 **************************************************/
 void basemul(int16_t c[4], const int16_t a[4], const int16_t b[4], int16_t zeta)
@@ -246,11 +246,11 @@ void basemul(int16_t c[4], const int16_t a[4], const int16_t b[4], int16_t zeta)
 /*************************************************
 * Name:        baseinv
 *
-* Description: Inversion of polynomial in Zq[X]/(X^3-zeta)
+* Description: Inversion of polynomial in Zq[X]/(X^4-zeta)
 *              used for inversion of element in Rq in NTT domain
 *
-* Arguments:   - int16_t b[3]: pointer to the output polynomial
-*              - const int16_t a[3]: pointer to the input polynomial
+* Arguments:   - int16_t b[4]: pointer to the output polynomial
+*              - const int16_t a[4]: pointer to the input polynomial
 *              - int16_t zeta: integer defining the reduction polynomial
 **************************************************/
 int baseinv(int16_t b[4], const int16_t a[4], int16_t zeta)
@@ -266,11 +266,12 @@ int baseinv(int16_t b[4], const int16_t a[4], int16_t zeta)
 
 	t2 = montgomery_reduce(t1*t1);
 	t2 = montgomery_reduce(t0*t0 - t2*zeta);
+	
+	t2 = fqinv(t2);
 
 	r = (uint16_t)t2;
 	r = (uint32_t)(-r) >> 31;
 	
-	t2 = fqinv(t2);
 	t0 = fqmul(t0,t2);
 	t1 = fqmul(t1,t2);
 	t2 = fqmul(t1,zeta);
