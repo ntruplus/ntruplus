@@ -27,7 +27,7 @@ int poly_baseinv(poly *r, const poly *a);
 
 void poly_add(poly *r, const poly *a, const poly *b);
 void poly_sub(poly *c, const poly *a, const poly *b);
-void poly_triple(poly *r);
+void poly_triple(poly *r, const poly *a);
 
 void poly_crepmod3(poly *b, const poly *a);
 
