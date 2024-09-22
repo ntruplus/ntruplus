@@ -239,16 +239,15 @@ int baseinv(int16_t b[4], const int16_t a[4], int16_t zeta)
 {
 	int r;
 	int16_t t0, t1, t2;
-	int32_t T0, T1, T2, T3;
-
-	t1 = montgomery_reduce(a[3]*a[3]);
+	
 	t0 = montgomery_reduce(a[2]*a[2] - (a[1]*a[3] << 1));
-	t1 = montgomery_reduce(((a[0]*a[2]) << 1) - a[1]*a[1] - t1*zeta);
+	t1 = montgomery_reduce(a[3]*a[3]);
 	t0 = montgomery_reduce(a[0]*a[0] + t0*zeta);
+	t1 = montgomery_reduce(((a[0]*a[2]) << 1) - a[1]*a[1] - t1*zeta);
 
 	t2 = montgomery_reduce(t1*t1);
 	t2 = montgomery_reduce(t0*t0 - t2*zeta);
-	
+
 	t2 = fqinv(t2);
 
 	r = (uint16_t)t2;
@@ -257,16 +256,11 @@ int baseinv(int16_t b[4], const int16_t a[4], int16_t zeta)
 	t0 = fqmul(t0,t2);
 	t1 = fqmul(t1,t2);
 	t2 = fqmul(t1,zeta);
-
-	T0 = a[0]*t0 - a[2]*t2;
-	T1 = a[1]*t0 - a[3]*t2;
-	T2 = a[2]*t0 - a[0]*t1;
-	T3 = a[3]*t0 - a[1]*t1;
 	
-	b[0] =  montgomery_reduce(T0);
-	b[1] = -montgomery_reduce(T1);
-	b[2] =  montgomery_reduce(T2);
-	b[3] = -montgomery_reduce(T3);
+	b[0] = montgomery_reduce(a[0]*t0 - a[2]*t2);
+	b[1] = montgomery_reduce(a[3]*t2 - a[1]*t0);
+	b[2] = montgomery_reduce(a[2]*t0 - a[0]*t1);
+	b[3] = montgomery_reduce(a[1]*t1 - a[3]*t0);
 
 	return r - 1;
 }
