@@ -33,7 +33,7 @@ int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
 	
 	do {
 		randombytes(buf, 32);
-		shake256(buf,NTRUPLUS_N/2, buf, 32);
+		shake256(buf, NTRUPLUS_N/2, buf, 32);
 		
 		poly_cbd1(&f, buf);
 		poly_triple(&f, &f);
