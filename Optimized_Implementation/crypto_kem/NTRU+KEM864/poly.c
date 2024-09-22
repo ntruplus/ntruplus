@@ -22,13 +22,13 @@ void poly_tobytes(uint8_t r[NTRUPLUS_POLYBYTES], const poly *a)
 	{
 		for (int j = 0; j < 13; j++)
 		{
-			t[0] = a->coeffs[64*j + i];
+			t[0] = barrett_reduce(a->coeffs[64*j + i]);
 			t[0] += (t[0] >> 15) & NTRUPLUS_Q;
-			t[1] = a->coeffs[64*j + i + 16];
+			t[1] = barrett_reduce(a->coeffs[64*j + i + 16]);
 			t[1] += (t[1] >> 15) & NTRUPLUS_Q;
-			t[2] = a->coeffs[64*j + i + 32];
+			t[2] = barrett_reduce(a->coeffs[64*j + i + 32]);
 			t[2] += (t[2] >> 15) & NTRUPLUS_Q;			
-			t[3] = a->coeffs[64*j + i + 48];
+			t[3] = barrett_reduce(a->coeffs[64*j + i + 48]);
 			t[3] += (t[3] >> 15) & NTRUPLUS_Q;	
 
 			r[96*j + 2*i +  0] = t[0];
@@ -389,20 +389,6 @@ int poly_baseinv(poly *r, const poly *a)
 	 }
 
 	return result;
-}
-
-/*************************************************
-* Name:        poly_reduce
-*
-* Description: Applies Barrett reduction to all coefficients of a polynomial
-*              for details of the Barrett reduction see comments in reduce.c
-*
-* Arguments:   - poly *r: pointer to input/output polynomial
-**************************************************/
-void poly_reduce(poly *r)
-{
-	for(int i = 0; i < NTRUPLUS_N; i++)
-		r->coeffs[i] = barrett_reduce(r->coeffs[i]);
 }
 
 /*************************************************
