@@ -23,7 +23,7 @@
 **************************************************/
 int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
 {
-	uint8_t buf[NTRUPLUS_N/2];
+	uint8_t buf[NTRUPLUS_N / 2];
 	
 	poly f, finv;
 	poly g;
@@ -33,7 +33,7 @@ int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
 	
 	do {
 		randombytes(buf, 32);
-		shake256(buf,NTRUPLUS_N/2,buf,32);
+		shake256(buf,NTRUPLUS_N/2, buf, 32);
 		
 		poly_cbd1(&f, buf);
 		poly_triple(&f, &f);
@@ -84,7 +84,7 @@ int crypto_kem_enc(unsigned char *ct,
 	uint8_t buf1[NTRUPLUS_SYMBYTES + NTRUPLUS_N / 4];
 	uint8_t buf2[NTRUPLUS_POLYBYTES];
 	
-	poly c,h,r,m;
+	poly c, h, r, m;
 	
 	randombytes(msg, NTRUPLUS_N / 8);
 	hash_f(msg + NTRUPLUS_N / 8, pk);
@@ -136,7 +136,7 @@ int crypto_kem_dec(unsigned char *ss,
 	uint8_t msg[NTRUPLUS_N / 8 + NTRUPLUS_SYMBYTES];
 	uint8_t buf1[NTRUPLUS_POLYBYTES];
 	uint8_t buf2[NTRUPLUS_POLYBYTES];
-	uint8_t buf3[NTRUPLUS_POLYBYTES+NTRUPLUS_SYMBYTES]= {0};
+	uint8_t buf3[NTRUPLUS_POLYBYTES+NTRUPLUS_SYMBYTES] = {0};
 	
 	int8_t fail;
 	
