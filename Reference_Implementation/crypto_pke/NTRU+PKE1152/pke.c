@@ -78,7 +78,7 @@ int crypto_encrypt(unsigned char *c,
                    unsigned long long mlen,
                    const unsigned char *pk)
 {
-    uint8_t msg[NTRUPLUS_N/8 + NTRUPLUS_SYMBYTES] = {0};
+    uint8_t msg[NTRUPLUS_N / 8 + NTRUPLUS_SYMBYTES] = {0};
     uint8_t buf1[NTRUPLUS_SYMBYTES + NTRUPLUS_N / 4];
     uint8_t buf2[NTRUPLUS_POLYBYTES];
 
