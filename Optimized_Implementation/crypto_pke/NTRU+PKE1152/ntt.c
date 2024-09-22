@@ -234,13 +234,13 @@ void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 void basemul(int16_t c[4], const int16_t a[4], const int16_t b[4], int16_t zeta)
 {
 	c[0] = montgomery_reduce(a[1]*b[3]+a[2]*b[2]+a[3]*b[1]);
-	c[0] = montgomery_reduce(c[0]*zeta+a[0]*b[0]);
 	c[1] = montgomery_reduce(a[2]*b[3]+a[3]*b[2]);
-	
-	c[1] = montgomery_reduce(c[1]*zeta+a[0]*b[1]+a[1]*b[0]);
 	c[2] = montgomery_reduce(a[3]*b[3]);
-	c[2] = montgomery_reduce(c[2]*zeta+a[0]*b[2]+a[1]*b[1]+a[2]*b[0]);
 	c[3] = montgomery_reduce(a[0]*b[3]+a[1]*b[2]+a[2]*b[1]+a[3]*b[0]);
+
+	c[0] = montgomery_reduce(c[0]*zeta+a[0]*b[0]);
+	c[1] = montgomery_reduce(c[1]*zeta+a[0]*b[1]+a[1]*b[0]);
+	c[2] = montgomery_reduce(c[2]*zeta+a[0]*b[2]+a[1]*b[1]+a[2]*b[0]);
 }
 
 /*************************************************
