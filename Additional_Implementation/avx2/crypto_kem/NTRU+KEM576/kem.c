@@ -21,10 +21,14 @@
 *
 * Returns 0 (success)
 **************************************************/
-int crypto_kem_keypair(unsigned char *pk,unsigned char *sk)
+int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
 {
-	uint8_t buf[NTRUPLUS_N/2];
-	poly f, g, h, finv, hinv;
+	uint8_t buf[NTRUPLUS_N / 2];
+	
+	poly f, finv;
+	poly g;
+	poly h, hinv;
+	
 	int r;
 	
 	do {
@@ -36,14 +40,13 @@ int crypto_kem_keypair(unsigned char *pk,unsigned char *sk)
 		f.coeffs[0] += 1;
 		poly_ntt(&f, &f);
 		r = poly_baseinv(&finv, &f);
-		if(r) continue;
 		
 		poly_cbd1(&g, buf + NTRUPLUS_N / 4); 
 		poly_triple(&g, &g);
 		poly_ntt(&g, &g);
 		
 		poly_basemul(&h, &g, &finv);
-		r = poly_baseinv(&hinv, &h);
+		r |= poly_baseinv(&hinv, &h);
 	} while(r);
 	
 	//pk
@@ -56,6 +59,7 @@ int crypto_kem_keypair(unsigned char *pk,unsigned char *sk)
 	
 	return 0;
 }
+
 /*************************************************
 * Name:        crypto_kem_enc
 *
@@ -79,7 +83,7 @@ int crypto_kem_enc(unsigned char *ct,
 	uint8_t buf1[NTRUPLUS_SYMBYTES + NTRUPLUS_N / 4];
 	uint8_t buf2[NTRUPLUS_POLYBYTES];
 	
-	poly c,h,r,m;
+	poly c, h, r, m;
 	
 	randombytes(msg, NTRUPLUS_N / 8);
 	hash_f(msg + NTRUPLUS_N / 8, pk);
@@ -95,7 +99,7 @@ int crypto_kem_enc(unsigned char *ct,
 	poly_ntt(&m, &m);
 	
 	poly_frombytes(&h, pk);
-	poly_basemul(&c,&h, &r);
+	poly_basemul(&c, &h, &r);
 	poly_add(&c, &c, &m);
 	poly_tobytes(ct, &c);
 	
@@ -122,7 +126,7 @@ int crypto_kem_enc(unsigned char *ct,
 *
 * Returns 0 (success) or 1 (failure)
 *
-* On failure,ss will contain zero values.
+* On failure, ss will contain zero values.
 **************************************************/
 int crypto_kem_dec(unsigned char *ss,
                    const unsigned char *ct,
@@ -131,7 +135,7 @@ int crypto_kem_dec(unsigned char *ss,
 	uint8_t msg[NTRUPLUS_N / 8 + NTRUPLUS_SYMBYTES];
 	uint8_t buf1[NTRUPLUS_POLYBYTES];
 	uint8_t buf2[NTRUPLUS_POLYBYTES];
-	uint8_t buf3[NTRUPLUS_POLYBYTES+NTRUPLUS_SYMBYTES]= {0};
+	uint8_t buf3[NTRUPLUS_POLYBYTES+NTRUPLUS_SYMBYTES] = {0};
 	
 	int8_t fail;
 	
