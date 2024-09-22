@@ -94,86 +94,14 @@ static void TEST_CCA_KEM_CLOCK()
 	printf("==================================================\n");
 }
 
-#include "poly.h"
-#include "ntt.h"
-
-void TEST_UNIT()
-{
-	unsigned long long kcycles, ecycles, dcycles;
-	unsigned long long cycles1, cycles2;
-	uint8_t buf[NTRUPLUS_N / 2] = {0};
-	poly a,b,c,d,e,f;
-
-	for (int i = 0; i < NTRUPLUS_N; i++)
-	{
-		a.coeffs[i] = i;
-	}
-
-	kcycles=0;
-	for (int i = 0; i < TEST_LOOP; i++)
-	{
-		cycles1 = cpucycles();
-		poly_ntt(&b, &a);
-		cycles2 = cpucycles();
-		kcycles += cycles2-cycles1;
-	}
-	printf("  poly_ntt runs in ................. %8lld cycles", kcycles/TEST_LOOP);
-	printf("\n");
-
-	kcycles=0;
-	for (int i = 0; i < TEST_LOOP; i++)
-	{
-		cycles1 = cpucycles();
-		poly_invntt(&b, &a);
-		cycles2 = cpucycles();
-		kcycles += cycles2-cycles1;
-	}
-	printf("  poly_invntt runs in ................. %8lld cycles", kcycles/TEST_LOOP);
-	printf("\n"); 	
-
-	kcycles=0;
-	for (int i = 0; i < TEST_LOOP; i++)
-	{
-		cycles1 = cpucycles();
-		poly_basemul(&c, &b, &a);
-		cycles2 = cpucycles();
-		kcycles += cycles2-cycles1;
-	}
-	printf("  poly_basemul runs in ................. %8lld cycles", kcycles/TEST_LOOP);
-	printf("\n");
-
-	kcycles=0;
-	for (int i = 0; i < TEST_LOOP; i++)
-	{
-		cycles1 = cpucycles();
-		poly_baseinv(&b, &a);
-		cycles2 = cpucycles();
-		kcycles += cycles2-cycles1;
-	}
-	printf("  poly_baseinv runs in ................. %8lld cycles", kcycles/TEST_LOOP);
-	printf("\n"); 	 		
-
-	kcycles=0;
-	for (int i = 0; i < TEST_LOOP; i++)
-	{
-		cycles1 = cpucycles();
-		poly_cbd1(&b, buf);
-		cycles2 = cpucycles();
-		kcycles += cycles2-cycles1;
-	}
-	printf("  poly_cbd1 runs in ................. %8lld cycles", kcycles/TEST_LOOP);
-	printf("\n"); 	 
-}
-
 int main(void)
 {
 	printf("PUBLICKEYBYTES : %d\n", CRYPTO_PUBLICKEYBYTES);
 	printf("SECRETKEYBYTES : %d\n", CRYPTO_SECRETKEYBYTES);
 	printf("CIPHERTEXTBYTES : %d\n", CRYPTO_CIPHERTEXTBYTES);
 
-	//TEST_CCA_KEM();
+	TEST_CCA_KEM();
 	TEST_CCA_KEM_CLOCK();
-	TEST_UNIT();
 
 	return 0;	
 }

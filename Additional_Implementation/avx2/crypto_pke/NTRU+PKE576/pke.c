@@ -34,15 +34,14 @@ int crypto_encrypt_keypair(unsigned char *pk, unsigned char *sk)
 		poly_triple(&f, &f);
 		f.coeffs[0] += 1;
 		poly_ntt(&f, &f);
-		r = poly_baseinv(&finv, &f);
-		if(r) continue;
+		r = poly_baseinv(&finv, &f);\
 		
 		poly_cbd1(&g, buf + NTRUPLUS_N / 4); 
 		poly_triple(&g, &g);
 		poly_ntt(&g, &g);
 		
 		poly_basemul(&h, &g, &finv);
-		r = poly_baseinv(&hinv, &h);
+		r |= poly_baseinv(&hinv, &h);
 	} while(r);
 	
 	//pk
