@@ -50,19 +50,11 @@ int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
 	} while(poly_baseinv(&hinv, &h));
 	
     //pk
-    poly_ntt_pack(&h,&h);
-    poly_freeze(&h);
     poly_tobytes(pk, &h);
 
     //sk
-    poly_ntt_pack(&f,&f);  
-    poly_freeze(&f);
     poly_tobytes(sk, &f);
-
-    poly_ntt_pack(&hinv,&hinv);
-    poly_freeze(&hinv);
     poly_tobytes(sk+NTRUPLUS_POLYBYTES, &hinv);
-
     hash_f(sk + 2*NTRUPLUS_POLYBYTES, pk);
 	
 	return 0;
