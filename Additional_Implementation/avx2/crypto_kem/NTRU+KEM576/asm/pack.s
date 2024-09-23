@@ -104,16 +104,16 @@ vperm2i128	$0x31,%ymm7,%ymm6,%ymm3
 
 vpsllw		$12,%ymm1,%ymm13
 vpxor		%ymm13,%ymm0,%ymm0
-vmovdqu		%ymm0,(%rdi)
 vpsllw		$8,%ymm2,%ymm13
 vpsrlw		$4,%ymm1,%ymm12
-vpxor		%ymm13,%ymm12,%ymm0
-vmovdqu		%ymm0,32(%rdi)
-
+vpxor		%ymm13,%ymm12,%ymm1
 vpsllw		$4,%ymm3,%ymm13
 vpsrlw		$8,%ymm2,%ymm12
-vpxor		%ymm13,%ymm12,%ymm0
-vmovdqu		%ymm0,64(%rdi)
+vpxor		%ymm13,%ymm12,%ymm2
+
+vmovdqu		%ymm0,(%rdi)
+vmovdqu		%ymm1,32(%rdi)
+vmovdqu		%ymm2,64(%rdi)
 
 add		$96,%rdi
 add		$128,%rsi

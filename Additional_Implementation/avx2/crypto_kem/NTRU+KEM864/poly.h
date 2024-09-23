@@ -24,9 +24,6 @@ void poly_invntt(poly *r, const poly *a);
 void poly_basemul(poly *r, const poly *a, const poly *b);
 int  poly_baseinv(poly *r, const poly *a);
 
-void poly_reduce(poly *a);
-void poly_freeze(poly *a);
-
 void poly_add(poly *r, const poly *a, const poly *b);
 void poly_sub(poly *c, const poly *a, const poly *b);
 void poly_triple(poly *r, const poly *a);
