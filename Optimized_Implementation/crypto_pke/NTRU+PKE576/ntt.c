@@ -129,8 +129,8 @@ void ntt(int16_t b[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 			{
 				t1 = fqmul(zeta1, b[i + step]);
 				
-				b[i + step] = barrett_reduce(b[i] - t1);
-				b[i       ] = barrett_reduce(b[i] + t1);
+				b[i + step] = b[i] - t1;
+				b[i       ] = b[i] + t1;
 			}
 		}
 	}
@@ -226,9 +226,9 @@ void basemul(int16_t c[4], const int16_t a[4], const int16_t b[4], int16_t zeta)
 }
 
 /*************************************************
-* Name:        basemul
+* Name:        baseinv
 *
-* Description: Inversion of polynomial in Zq[X]/(X^3-zeta)
+* Description: Inversion of polynomial in Zq[X]/(X^4-zeta)
 *              used for inversion of element in Rq in NTT domain
 *
 * Arguments:   - int16_t b[4]: pointer to the output polynomial

@@ -22,32 +22,32 @@
 **************************************************/
 int crypto_encrypt_keypair(unsigned char *pk, unsigned char *sk)
 {
-    uint8_t buf[NTRUPLUS_N/2];
- 
-    poly f, finv;
-    poly g;
-    poly h, hinv;
+	uint8_t buf[NTRUPLUS_N / 4];
+	
+	poly f, finv;
+	poly g;
+	poly h, hinv;
 
-    int r;
+	do {
+		randombytes(buf, NTRUPLUS_N / 4);
+		shake256(buf, NTRUPLUS_N / 4, buf, 32);
+		
+		poly_cbd1(&f, buf);
+		poly_triple(&f, &f);
+		f.coeffs[0] += 1;
+		poly_ntt(&f, &f);
+	} while(poly_baseinv(&finv, &f));
 
-    do {
-        randombytes(buf, 32);
-        shake256(buf,NTRUPLUS_N/2,buf,32);
+	do {
+		randombytes(buf, 32);
+		shake256(buf, NTRUPLUS_N / 4, buf, 32);
 
-        poly_cbd1(&f, buf);
-        poly_triple(&f,&f);
-        f.coeffs[0] += 1;
-        poly_ntt(&f,&f);
-        r = poly_baseinv(&finv, &f);
-
-        poly_cbd1(&g, buf + NTRUPLUS_N/4); 
-        poly_triple(&g,&g);
-        poly_ntt(&g,&g);
-
-        poly_basemul(&h,&g,&finv);
-        r |= poly_baseinv(&hinv,&h);
-    } while(r);
-
+		poly_cbd1(&g, buf); 
+		poly_triple(&g, &g);
+		poly_ntt(&g, &g);
+		poly_basemul(&h, &g, &finv);
+	} while(poly_baseinv(&hinv, &h));
+	
     //pk
     poly_ntt_pack(&h,&h);
     poly_freeze(&h);
@@ -63,9 +63,10 @@ int crypto_encrypt_keypair(unsigned char *pk, unsigned char *sk)
     poly_tobytes(sk+NTRUPLUS_POLYBYTES, &hinv);
 
     hash_f(sk + 2*NTRUPLUS_POLYBYTES, pk);
-
-    return 0;
+	
+	return 0;
 }
+
 /*************************************************
 * Name:        crypto_encrypt
 *

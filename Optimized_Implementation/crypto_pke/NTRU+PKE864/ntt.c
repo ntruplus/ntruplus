@@ -236,7 +236,7 @@ void basemul(int16_t c[3], const int16_t a[3], const int16_t b[3], int16_t zeta)
 	c[0] = montgomery_reduce(a[2]*b[1]+a[1]*b[2]);
 	c[1] = montgomery_reduce(a[2]*b[2]);
 	c[2] = montgomery_reduce(a[2]*b[0]+a[1]*b[1]+a[0]*b[2]);
-	
+
 	c[0] = montgomery_reduce(c[0]*zeta+a[0]*b[0]);
 	c[1] = montgomery_reduce(c[1]*zeta+a[0]*b[1]+a[1]*b[0]);
 }
