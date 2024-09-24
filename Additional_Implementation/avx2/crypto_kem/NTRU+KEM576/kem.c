@@ -30,7 +30,7 @@ int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
 	poly h, hinv;
 
 	do {
-		randombytes(buf, NTRUPLUS_N / 4);
+		randombytes(buf, 32);
 		shake256(buf, NTRUPLUS_N / 4, buf, 32);
 		
 		poly_cbd1(&f, buf);

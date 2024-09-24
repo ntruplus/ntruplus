@@ -23,39 +23,39 @@
 **************************************************/
 int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
 {
-	uint8_t buf[NTRUPLUS_N / 2];
+	uint8_t buf[NTRUPLUS_N / 4];
 	
 	poly f, finv;
 	poly g;
 	poly h, hinv;
-	
-	int r;
-	
+
 	do {
 		randombytes(buf, 32);
-		shake256(buf, NTRUPLUS_N/2, buf, 32);
+		shake256(buf, NTRUPLUS_N / 4, buf, 32);
 		
 		poly_cbd1(&f, buf);
 		poly_triple(&f, &f);
 		f.coeffs[0] += 1;
 		poly_ntt(&f, &f);
-		r = poly_baseinv(&finv, &f);
-		
-		poly_cbd1(&g, buf + NTRUPLUS_N / 4); 
+	} while(poly_baseinv(&finv, &f));
+
+	do {
+		randombytes(buf, 32);
+		shake256(buf, NTRUPLUS_N / 4, buf, 32);
+
+		poly_cbd1(&g, buf); 
 		poly_triple(&g, &g);
 		poly_ntt(&g, &g);
-		
 		poly_basemul(&h, &g, &finv);
-		r |= poly_baseinv(&hinv, &h);
-	} while(r);
+	} while(poly_baseinv(&hinv, &h));
 	
-	//pk
-	poly_tobytes(pk, &h);
-	
-	//sk
-	poly_tobytes(sk, &f);
-	poly_tobytes(sk + NTRUPLUS_POLYBYTES, &hinv);	
-	hash_f(sk + 2 * NTRUPLUS_POLYBYTES, pk); 
+    //pk
+    poly_tobytes(pk, &h);
+
+    //sk
+    poly_tobytes(sk, &f);
+    poly_tobytes(sk+NTRUPLUS_POLYBYTES, &hinv);
+    hash_f(sk + 2*NTRUPLUS_POLYBYTES, pk);
 	
 	return 0;
 }

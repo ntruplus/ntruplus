@@ -85,7 +85,7 @@ int crypto_kem_enc(unsigned char *ct,
 	
 	poly c, h, r, m;
 	
-	randombytes(msg, NTRUPLUS_N / 8);
+	randombytes(msg, 32);
 	hash_f(msg + NTRUPLUS_N / 8, pk);
 	hash_h_kem(buf1, msg);
 	
