@@ -116,7 +116,6 @@ int crypto_encrypt(unsigned char *c,
     msg[NTRUPLUS_MAXPLAINTEXT] = ~sign1;
 
     randombytes(msg + NTRUPLUS_N/8 - NTRUPLUS_RANDOMBYTES, NTRUPLUS_RANDOMBYTES);
-
     hash_f(msg + NTRUPLUS_N/8, pk);
     hash_h_pke(buf1, msg);
 
