@@ -286,35 +286,6 @@ vpsubw		%ymm12,%ymm8,%ymm12
 vpsubw		%ymm13,%ymm9,%ymm13
 vpsubw		%ymm14,%ymm10,%ymm14
 
-#reduce2
-vpsraw		$12,%ymm5,%ymm2
-vpsraw		$12,%ymm6,%ymm3
-vpsraw		$12,%ymm7,%ymm4
-vpand		%ymm1,%ymm5,%ymm5
-vpand		%ymm1,%ymm6,%ymm6
-vpand		%ymm1,%ymm7,%ymm7
-vpsubw		%ymm2,%ymm5,%ymm5
-vpsubw		%ymm3,%ymm6,%ymm6
-vpsubw		%ymm4,%ymm7,%ymm7
-vpsllw		$7,%ymm2,%ymm2
-vpsllw		$7,%ymm3,%ymm3
-vpsllw		$7,%ymm4,%ymm4
-vpsubw		%ymm2,%ymm5,%ymm5
-vpsubw		%ymm3,%ymm6,%ymm6
-vpsubw		%ymm4,%ymm7,%ymm7
-vpsllw		$1,%ymm2,%ymm2
-vpsllw		$1,%ymm3,%ymm3
-vpsllw		$1,%ymm4,%ymm4
-vpsubw		%ymm2,%ymm5,%ymm5
-vpsubw		%ymm3,%ymm6,%ymm6
-vpsubw		%ymm4,%ymm7,%ymm7
-vpsllw		$2,%ymm2,%ymm2
-vpsllw		$2,%ymm3,%ymm3
-vpsllw		$2,%ymm4,%ymm4
-vpaddw		%ymm2,%ymm5,%ymm5
-vpaddw		%ymm3,%ymm6,%ymm6
-vpaddw		%ymm4,%ymm7,%ymm7
-
 #update
 vpaddw		%ymm12,%ymm5,%ymm9
 vpaddw		%ymm13,%ymm6,%ymm10
@@ -401,35 +372,6 @@ vpsubw		%ymm12,%ymm8,%ymm12
 vpsubw		%ymm13,%ymm9,%ymm13
 vpsubw		%ymm14,%ymm10,%ymm14
 
-#reduce2
-vpsraw		$12,%ymm5,%ymm2
-vpsraw		$12,%ymm6,%ymm3
-vpsraw		$12,%ymm7,%ymm4
-vpand		%ymm1,%ymm5,%ymm5
-vpand		%ymm1,%ymm6,%ymm6
-vpand		%ymm1,%ymm7,%ymm7
-vpsubw		%ymm2,%ymm5,%ymm5
-vpsubw		%ymm3,%ymm6,%ymm6
-vpsubw		%ymm4,%ymm7,%ymm7
-vpsllw		$7,%ymm2,%ymm2
-vpsllw		$7,%ymm3,%ymm3
-vpsllw		$7,%ymm4,%ymm4
-vpsubw		%ymm2,%ymm5,%ymm5
-vpsubw		%ymm3,%ymm6,%ymm6
-vpsubw		%ymm4,%ymm7,%ymm7
-vpsllw		$1,%ymm2,%ymm2
-vpsllw		$1,%ymm3,%ymm3
-vpsllw		$1,%ymm4,%ymm4
-vpsubw		%ymm2,%ymm5,%ymm5
-vpsubw		%ymm3,%ymm6,%ymm6
-vpsubw		%ymm4,%ymm7,%ymm7
-vpsllw		$2,%ymm2,%ymm2
-vpsllw		$2,%ymm3,%ymm3
-vpsllw		$2,%ymm4,%ymm4
-vpaddw		%ymm2,%ymm5,%ymm5
-vpaddw		%ymm3,%ymm6,%ymm6
-vpaddw		%ymm4,%ymm7,%ymm7
-
 #update
 vpaddw		%ymm12,%ymm5,%ymm9
 vpaddw		%ymm13,%ymm6,%ymm10
@@ -437,6 +379,50 @@ vpaddw		%ymm14,%ymm7,%ymm11
 vpsubw		%ymm12,%ymm5,%ymm12
 vpsubw		%ymm13,%ymm6,%ymm13
 vpsubw		%ymm14,%ymm7,%ymm14
+
+#reduce2
+vpsraw		$12,%ymm9,%ymm3
+vpsraw		$12,%ymm10,%ymm4
+vpsraw		$12,%ymm11,%ymm5
+vpsraw		$12,%ymm12,%ymm6
+vpsraw		$12,%ymm13,%ymm7
+vpsraw		$12,%ymm14,%ymm8
+vpand		%ymm1,%ymm9,%ymm9
+vpand		%ymm1,%ymm10,%ymm10
+vpand		%ymm1,%ymm11,%ymm11
+vpand		%ymm1,%ymm12,%ymm12
+vpand		%ymm1,%ymm13,%ymm13
+vpand		%ymm1,%ymm14,%ymm14
+vpsubw		%ymm3,%ymm9,%ymm9
+vpsubw		%ymm4,%ymm10,%ymm10
+vpsubw		%ymm5,%ymm11,%ymm11
+vpsubw		%ymm6,%ymm12,%ymm12
+vpsubw		%ymm7,%ymm13,%ymm13
+vpsubw		%ymm8,%ymm14,%ymm14
+vpsllw		$7,%ymm3,%ymm3
+vpsllw		$7,%ymm4,%ymm4
+vpsllw		$7,%ymm5,%ymm5
+vpsllw		$7,%ymm6,%ymm6
+vpsllw		$7,%ymm7,%ymm7
+vpsllw		$7,%ymm8,%ymm8
+vpaddw		%ymm3,%ymm9,%ymm9
+vpaddw		%ymm4,%ymm10,%ymm10
+vpaddw		%ymm5,%ymm11,%ymm11
+vpaddw		%ymm6,%ymm12,%ymm12
+vpaddw		%ymm7,%ymm13,%ymm13
+vpaddw		%ymm8,%ymm14,%ymm14
+vpsllw		$2,%ymm3,%ymm3
+vpsllw		$2,%ymm4,%ymm4
+vpsllw		$2,%ymm5,%ymm5
+vpsllw		$2,%ymm6,%ymm6
+vpsllw		$2,%ymm7,%ymm7
+vpsllw		$2,%ymm8,%ymm8
+vpaddw		%ymm3,%ymm9,%ymm9
+vpaddw		%ymm4,%ymm10,%ymm10
+vpaddw		%ymm5,%ymm11,%ymm11
+vpaddw		%ymm6,%ymm12,%ymm12
+vpaddw		%ymm7,%ymm13,%ymm13
+vpaddw		%ymm8,%ymm14,%ymm14
 
 #store
 vmovdqa		%ymm9,(%rdi)
