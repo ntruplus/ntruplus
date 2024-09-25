@@ -61,18 +61,18 @@ static int16_t fqmul(int16_t a, int16_t b)
 *
 * Description: Inversion
 *
-* Arguments:   - int16_t a: first factor a = x * R^2 mod q
+* Arguments:   - int16_t a: first factor a = x mod q
 *
-* Returns 16-bit integer congruent to x^{-1} * R^4 mod q
+* Returns 16-bit integer congruent to x^{-1} * R^2 mod q
 **************************************************/
 static int16_t fqinv(int16_t a)
 {
 	int16_t t1,t2,t3;
 
-	t1 = fqmul(a, a);     //10
-	t2 = fqmul(t1, t1);   //100
-	t2 = fqmul(t2, t2);   //1000
-	t3 = fqmul(t2, t2);   //10000
+	t1 = fqmul(a, a);    //10
+	t2 = fqmul(t1, t1);  //100
+	t2 = fqmul(t2, t2);  //1000
+	t3 = fqmul(t2, t2);  //10000
 
 	t1 = fqmul(t1, t2);  //1010
 
@@ -80,15 +80,15 @@ static int16_t fqinv(int16_t a)
 	t2 = fqmul(t2, t2);  //110100
 	t2 = fqmul(t2, a);   //110101
 
-	t1 = fqmul(t1, t2);   //111111
+	t1 = fqmul(t1, t2);  //111111
 
-	t2 = fqmul(t2, t2);   //1101010
-	t2 = fqmul(t2, t2);   //11010100
-	t2 = fqmul(t2, t2);   //110101000
-	t2 = fqmul(t2, t2);   //1101010000
-	t2 = fqmul(t2, t2);   //11010100000
-	t2 = fqmul(t2, t2);   //110101000000
-	t2 = fqmul(t2, t1);   //110101111111
+	t2 = fqmul(t2, t2);  //1101010
+	t2 = fqmul(t2, t2);  //11010100
+	t2 = fqmul(t2, t2);  //110101000
+	t2 = fqmul(t2, t2);  //1101010000
+	t2 = fqmul(t2, t2);  //11010100000
+	t2 = fqmul(t2, t2);  //110101000000
+	t2 = fqmul(t2, t1);  //110101111111
 
 	return t2;
 }
@@ -98,10 +98,10 @@ static int16_t fqinv(int16_t a)
 *
 * Description: number-theoretic transform (NTT) in Rq.
 *
-* Arguments:   - int16_t b[NTRUPLUS_N]: pointer to output vector of elements of Zq
+* Arguments:   - int16_t r[NTRUPLUS_N]: pointer to output vector of elements of Zq
 *              - int16_t a[NTRUPLUS_N]: pointer to input vector of elements of Zq
 **************************************************/
-void ntt(int16_t b[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
+void ntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 {
 	int16_t t1,t2,t3;
 	int16_t zeta1,zeta2;
@@ -113,8 +113,8 @@ void ntt(int16_t b[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 	{
 		t1 = fqmul(zeta1, a[i + NTRUPLUS_N/2]);
 
-		b[i + NTRUPLUS_N/2] = a[i] + a[i + NTRUPLUS_N/2] - t1;
-		b[i               ] = a[i]                       + t1;
+		r[i + NTRUPLUS_N/2] = a[i] + a[i + NTRUPLUS_N/2] - t1;
+		r[i               ] = a[i]                       + t1;
 	}
 
 	for(int step = NTRUPLUS_N/6; step >= 48; step = step/3)
@@ -126,13 +126,13 @@ void ntt(int16_t b[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 
 			for(int i = start; i < start + step; i++)
 			{
-				t1 = fqmul(zeta1, b[i +   step]);
-				t2 = fqmul(zeta2, b[i + 2*step]);
+				t1 = fqmul(zeta1, r[i +   step]);
+				t2 = fqmul(zeta2, r[i + 2*step]);
 				t3 = fqmul(-886, t1 - t2);
 	
-				b[i + 2*step] = b[i] - t1 - t3;
-				b[i +   step] = b[i] - t2 + t3;
-				b[i         ] = b[i] + t1 + t2;
+				r[i + 2*step] = r[i] - t1 - t3;
+				r[i +   step] = r[i] - t2 + t3;
+				r[i         ] = r[i] + t1 + t2;
 			}
 		}
 	}
@@ -145,12 +145,17 @@ void ntt(int16_t b[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 
 			for(int i = start; i < start + step; i++)
 			{
-				t1 = fqmul(zeta1, b[i + step]);
+				t1 = fqmul(zeta1, r[i + step]);
 				
-				b[i + step] = b[i] - t1;
-				b[i       ] = b[i] + t1;
+				r[i + step] = r[i] - t1;
+				r[i       ] = r[i] + t1;
 			}
 		}
+	}
+
+	for (int i = 0; i < NTRUPLUS_N; i++)
+	{
+		r[i] = barrett_reduce(r[i]);
 	}
 }
 
@@ -160,7 +165,7 @@ void ntt(int16_t b[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 * Description: inverse number-theoretic transform in Rq and
 *              multiplication by Montgomery factor R = 2^16.
 *
-* Arguments:   - int16_t b[NTRUPLUS_N]: pointer to output vector of elements of Zq
+* Arguments:   - int16_t r[NTRUPLUS_N]: pointer to output vector of elements of Zq
 *              - int16_t a[NTRUPLUS_N]: pointer to input vector of elements of Zq
 **************************************************/
 void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
@@ -216,8 +221,45 @@ void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 		t2 = fqmul(-1665, r[i] - r[i + NTRUPLUS_N/2]);
 
 		r[i               ] = fqmul(-33, t1 - t2);
-		r[i + NTRUPLUS_N/2] = fqmul(-66, t2);	
+		r[i + NTRUPLUS_N/2] = fqmul(-66, t2);
 	}
+}
+
+/*************************************************
+* Name:        baseinv
+*
+* Description: Inversion of polynomial in Zq[X]/(X^3-zeta)
+*              used for inversion of element in Rq in NTT domain
+*
+* Arguments:   - int16_t r[3]: pointer to the output polynomial
+*              - const int16_t a[3]: pointer to the input polynomial
+*              - int16_t zeta: integer defining the reduction polynomial
+**************************************************/
+int baseinv(int16_t r[3], const int16_t a[3], int16_t zeta)
+{
+	int16_t det;
+	int result;
+
+	r[0]  = fqmul(a[1],a[2]);
+	r[1]  = fqmul(a[2],a[2]);
+	r[2]  = montgomery_reduce(a[1]*a[1]-a[0]*a[2]);
+
+	r[0]  = montgomery_reduce(a[0]*a[0]-r[0]*zeta);
+	r[1]  = montgomery_reduce(r[1]*zeta-a[0]*a[1]);
+
+	det   = montgomery_reduce(r[2]*a[1]+r[1]*a[2]);
+	det   = montgomery_reduce(det*zeta+r[0]*a[0]); 
+	det   = fqinv(det);
+
+	r[0]  = fqmul(r[0],det);
+	r[1]  = fqmul(r[1],det);
+	r[2]  = fqmul(r[2],det);
+
+	result = (uint16_t)det;
+	result = (uint32_t)(-result) >> 31;
+	result = result - 1;
+
+	return result;
 }
 
 /*************************************************
@@ -231,48 +273,33 @@ void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 *              - const int16_t b[3]: pointer to the second factor
 *              - int16_t zeta: integer defining the reduction polynomial
 **************************************************/
-void basemul(int16_t c[3], const int16_t a[3], const int16_t b[3], int16_t zeta)
+void basemul(int16_t r[3], const int16_t a[3], const int16_t b[3], int16_t zeta)
 {
-	c[0] = montgomery_reduce(a[2]*b[1]+a[1]*b[2]);
-	c[1] = montgomery_reduce(a[2]*b[2]);
-	c[2] = montgomery_reduce(a[2]*b[0]+a[1]*b[1]+a[0]*b[2]);
+	r[0] = montgomery_reduce(a[2]*b[1]+a[1]*b[2]);
+	r[1] = montgomery_reduce(a[2]*b[2]);
 
-	c[0] = montgomery_reduce(c[0]*zeta+a[0]*b[0]);
-	c[1] = montgomery_reduce(c[1]*zeta+a[0]*b[1]+a[1]*b[0]);
+	r[0] = montgomery_reduce(r[0]*zeta+a[0]*b[0]);
+	r[1] = montgomery_reduce(r[1]*zeta+a[0]*b[1]+a[1]*b[0]);
+	r[2] = montgomery_reduce(a[2]*b[0]+a[1]*b[1]+a[0]*b[2]);
 }
 
 /*************************************************
-* Name:        baseinv
+* Name:        basemul
 *
-* Description: Inversion of polynomial in Zq[X]/(X^3-zeta)
-*              used for inversion of element in Rq in NTT domain
+* Description: Multiplication of polynomials in Zq[X]/(X^3-zeta)
+*              used for multiplication of elements in Rq in NTT domain
 *
-* Arguments:   - int16_t b[3]: pointer to the output polynomial
-*              - const int16_t a[3]: pointer to the input polynomial
+* Arguments:   - int16_t c[3]: pointer to the output polynomial
+*              - const int16_t a[3]: pointer to the first factor
+*              - const int16_t b[3]: pointer to the second factor
 *              - int16_t zeta: integer defining the reduction polynomial
 **************************************************/
-int baseinv(int16_t b[3], const int16_t a[3], int16_t zeta)
+void basemul_add(int16_t r[3], const int16_t a[3], const int16_t b[3], const int16_t c[3], int16_t zeta)
 {
-	int16_t det;
-	int r;
+	r[0] = montgomery_reduce(a[2]*b[1]+a[1]*b[2]);
+	r[1] = montgomery_reduce(a[2]*b[2]);
 
-	b[0]  = fqmul(a[1],a[2]);
-	b[1]  = fqmul(a[2],a[2]);
-	b[2]  = montgomery_reduce(a[1]*a[1]-a[0]*a[2]);
-
-	b[0]  = montgomery_reduce(a[0]*a[0]-b[0]*zeta);
-	b[1]  = montgomery_reduce(b[1]*zeta-a[0]*a[1]);
-
-	det   = montgomery_reduce(b[2]*a[1]+b[1]*a[2]);
-	det   = montgomery_reduce(det*zeta+b[0]*a[0]); 
-	det   = fqinv(det);
-
-	b[0]  = fqmul(b[0],det);
-	b[1]  = fqmul(b[1],det);
-	b[2]  = fqmul(b[2],det);
-
-	r = (uint16_t)det;
-	r = (uint32_t)(-r) >> 31;
-
-	return r - 1;
+	r[0] = montgomery_reduce(c[0]*(-147)+r[0]*zeta+a[0]*b[0]);
+	r[1] = montgomery_reduce(c[1]*(-147)+r[1]*zeta+a[0]*b[1]+a[1]*b[0]);
+	r[2] = montgomery_reduce(c[2]*(-147)+a[2]*b[0]+a[1]*b[1]+a[0]*b[2]);
 }

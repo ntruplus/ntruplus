@@ -49,9 +49,9 @@ static int16_t fqmul(int16_t a, int16_t b)
 *
 * Description: Inversion
 *
-* Arguments:   - int16_t a: first factor a = x * R mod q
+* Arguments:   - int16_t a: first factor a = x mod q
 *
-* Returns 16-bit integer congruent to x^{-1} * R^3 mod q
+* Returns 16-bit integer congruent to x^{-1} * R^2 mod q
 **************************************************/
 static int16_t fqinv(int16_t a)
 {
@@ -86,10 +86,10 @@ static int16_t fqinv(int16_t a)
 *
 * Description: number-theoretic transform (NTT) in Rq.
 *
-* Arguments:   - int16_t b[NTRUPLUS_N]: pointer to output vector of elements of Zq
+* Arguments:   - int16_t r[NTRUPLUS_N]: pointer to output vector of elements of Zq
 *              - int16_t a[NTRUPLUS_N]: pointer to input vector of elements of Zq
 **************************************************/
-void ntt(int16_t b[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
+void ntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 {
 	int16_t t1,t2,t3;
 	int16_t zeta1,zeta2;
@@ -101,8 +101,8 @@ void ntt(int16_t b[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 	{
 		t1 = fqmul(zeta1, a[i + NTRUPLUS_N/2]);
 
-		b[i + NTRUPLUS_N/2] = a[i] + a[i + NTRUPLUS_N/2] - t1;
-		b[i               ] = a[i]                       + t1;
+		r[i + NTRUPLUS_N/2] = a[i] + a[i + NTRUPLUS_N/2] - t1;
+		r[i               ] = a[i]                       + t1;
 	}
 
 	for(int start = 0; start < NTRUPLUS_N; start += 384)
@@ -112,13 +112,13 @@ void ntt(int16_t b[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 
 		for(int i = start; i < start + 128; i++)
 		{
-			t1 = fqmul(zeta1, b[i + 128]);
-			t2 = fqmul(zeta2, b[i + 256]);
+			t1 = fqmul(zeta1, r[i + 128]);
+			t2 = fqmul(zeta2, r[i + 256]);
 			t3 = fqmul(-886, t1 - t2);
 
-			b[i + 256] = b[i] - t1 - t3;
-			b[i + 128] = b[i] - t2 + t3;
-			b[i      ] = b[i] + t1 + t2;
+			r[i + 256] = r[i] - t1 - t3;
+			r[i + 128] = r[i] - t2 + t3;
+			r[i      ] = r[i] + t1 + t2;
 		}		
 	}
 
@@ -130,12 +130,17 @@ void ntt(int16_t b[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 
 			for(int i = start; i < start + step; i++)
 			{
-				t1 = fqmul(zeta1, b[i + step]);
+				t1 = fqmul(zeta1, r[i + step]);
 				
-				b[i + step] = b[i] - t1;
-				b[i       ] = b[i] + t1;
+				r[i + step] = r[i] - t1;
+				r[i       ] = r[i] + t1;
 			}
 		}
+	}
+
+	for (int i = 0; i < NTRUPLUS_N; i++)
+	{
+		r[i] = barrett_reduce(r[i]);
 	}
 }
 
@@ -145,7 +150,7 @@ void ntt(int16_t b[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 * Description: inverse number-theoretic transform in Rq and
 *              multiplication by Montgomery factor R = 2^16.
 *
-* Arguments:   - int16_t b[NTRUPLUS_N]: pointer to output vector of elements of Zq
+* Arguments:   - int16_t r[NTRUPLUS_N]: pointer to output vector of elements of Zq
 *              - int16_t a[NTRUPLUS_N]: pointer to input vector of elements of Zq
 **************************************************/
 void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
@@ -203,42 +208,19 @@ void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 }
 
 /*************************************************
-* Name:        basemul
-*
-* Description: Multiplication of polynomials in Zq[X]/(X^4-zeta)
-*              used for multiplication of elements in Rq in NTT domain
-*
-* Arguments:   - int16_t c[4]: pointer to the output polynomial
-*              - const int16_t a[4]: pointer to the first factor
-*              - const int16_t b[4]: pointer to the second factor
-*              - int16_t zeta: integer defining the reduction polynomial
-**************************************************/
-void basemul(int16_t c[4], const int16_t a[4], const int16_t b[4], int16_t zeta)
-{
-	c[0] = montgomery_reduce(a[1]*b[3]+a[2]*b[2]+a[3]*b[1]);
-	c[1] = montgomery_reduce(a[2]*b[3]+a[3]*b[2]);
-	c[2] = montgomery_reduce(a[3]*b[3]);
-	c[3] = montgomery_reduce(a[0]*b[3]+a[1]*b[2]+a[2]*b[1]+a[3]*b[0]);
-
-	c[0] = montgomery_reduce(c[0]*zeta+a[0]*b[0]);
-	c[1] = montgomery_reduce(c[1]*zeta+a[0]*b[1]+a[1]*b[0]);
-	c[2] = montgomery_reduce(c[2]*zeta+a[0]*b[2]+a[1]*b[1]+a[2]*b[0]);
-}
-
-/*************************************************
 * Name:        baseinv
 *
 * Description: Inversion of polynomial in Zq[X]/(X^4-zeta)
 *              used for inversion of element in Rq in NTT domain
 *
-* Arguments:   - int16_t b[4]: pointer to the output polynomial
+* Arguments:   - int16_t r[4]: pointer to the output polynomial
 *              - const int16_t a[4]: pointer to the input polynomial
 *              - int16_t zeta: integer defining the reduction polynomial
 **************************************************/
-int baseinv(int16_t b[4], const int16_t a[4], int16_t zeta)
+int baseinv(int16_t r[4], const int16_t a[4], int16_t zeta)
 {
-	int r;
 	int16_t t0, t1, t2;
+	int result;
 	
 	t0 = montgomery_reduce(a[2]*a[2] - (a[1]*a[3] << 1));
 	t1 = montgomery_reduce(a[3]*a[3]);
@@ -250,17 +232,65 @@ int baseinv(int16_t b[4], const int16_t a[4], int16_t zeta)
 
 	t2 = fqinv(t2);
 
-	r = (uint16_t)t2;
-	r = (uint32_t)(-r) >> 31;
+	result = (uint16_t)t2;
+	result = (uint32_t)(-result) >> 31;
+	result = result - 1;
 
 	t0 = fqmul(t0,t2);
 	t1 = fqmul(t1,t2);
 	t2 = fqmul(t1,zeta);
 	
-	b[0] = montgomery_reduce(a[0]*t0 - a[2]*t2);
-	b[1] = montgomery_reduce(a[3]*t2 - a[1]*t0);
-	b[2] = montgomery_reduce(a[2]*t0 - a[0]*t1);
-	b[3] = montgomery_reduce(a[1]*t1 - a[3]*t0);
+	r[0] = montgomery_reduce(a[0]*t0 - a[2]*t2);
+	r[1] = montgomery_reduce(a[3]*t2 - a[1]*t0);
+	r[2] = montgomery_reduce(a[2]*t0 - a[0]*t1);
+	r[3] = montgomery_reduce(a[1]*t1 - a[3]*t0);
 
-	return r - 1;
+	return result;
+}
+
+/*************************************************
+* Name:        basemul
+*
+* Description: Multiplication of polynomials in Zq[X]/(X^4-zeta)
+*              used for multiplication of elements in Rq in NTT domain
+*
+* Arguments:   - int16_t r[4]: pointer to the output polynomial
+*              - const int16_t a[4]: pointer to the first factor
+*              - const int16_t b[4]: pointer to the second factor
+*              - int16_t zeta: integer defining the reduction polynomial
+**************************************************/
+void basemul(int16_t r[4], const int16_t a[4], const int16_t b[4], int16_t zeta)
+{
+	r[0] = montgomery_reduce(a[1]*b[3]+a[2]*b[2]+a[3]*b[1]);
+	r[1] = montgomery_reduce(a[2]*b[3]+a[3]*b[2]);
+	r[2] = montgomery_reduce(a[3]*b[3]);
+
+	r[0] = montgomery_reduce(r[0]*zeta+a[0]*b[0]);
+	r[1] = montgomery_reduce(r[1]*zeta+a[0]*b[1]+a[1]*b[0]);
+	r[2] = montgomery_reduce(r[2]*zeta+a[0]*b[2]+a[1]*b[1]+a[2]*b[0]);
+	r[3] = montgomery_reduce(a[0]*b[3]+a[1]*b[2]+a[2]*b[1]+a[3]*b[0]);
+}
+
+/*************************************************
+* Name:        basemul_add
+*
+* Description: Multiplication then addition of polynomials in Zq[X]/(X^4-zeta)
+*              used for multiplication of elements in Rq in NTT domain
+*
+* Arguments:   - int16_t c[4]: pointer to the output polynomial
+*              - const int16_t a[4]: pointer to the first factor
+*              - const int16_t b[4]: pointer to the second factor
+*              - const int16_t c[4]: pointer to the third factor
+*              - int16_t zeta: integer defining the reduction polynomial
+**************************************************/
+void basemul_add(int16_t r[4], const int16_t a[4], const int16_t b[4], const int16_t c[4], int16_t zeta)
+{
+	r[0] = montgomery_reduce(a[1]*b[3]+a[2]*b[2]+a[3]*b[1]);
+	r[1] = montgomery_reduce(a[2]*b[3]+a[3]*b[2]);
+	r[2] = montgomery_reduce(a[3]*b[3]);
+
+	r[0] = montgomery_reduce(c[0]*(-147)+r[0]*zeta+a[0]*b[0]);
+	r[1] = montgomery_reduce(c[1]*(-147)+r[1]*zeta+a[0]*b[1]+a[1]*b[0]);
+	r[2] = montgomery_reduce(c[2]*(-147)+r[2]*zeta+a[0]*b[2]+a[1]*b[1]+a[2]*b[0]);
+	r[3] = montgomery_reduce(c[3]*(-147)+a[0]*b[3]+a[1]*b[2]+a[2]*b[1]+a[3]*b[0]);
 }

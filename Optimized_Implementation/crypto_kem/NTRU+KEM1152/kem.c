@@ -30,7 +30,7 @@ int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
 	poly h, hinv;
 
 	do {
-		randombytes(buf, NTRUPLUS_N / 4);
+		randombytes(buf, 32);
 		shake256(buf, NTRUPLUS_N / 4, buf, 32);
 		
 		poly_cbd1(&f, buf);
@@ -85,7 +85,7 @@ int crypto_kem_enc(unsigned char *ct,
 	
 	poly c, h, r, m;
 	
-	randombytes(msg, 32);
+	randombytes(msg, NTRUPLUS_N / 8);
 	hash_f(msg + NTRUPLUS_N / 8, pk);
 	hash_h_kem(buf1, msg);
 	
@@ -94,13 +94,11 @@ int crypto_kem_enc(unsigned char *ct,
 	
 	poly_tobytes(buf2, &r);
 	hash_g(buf2, buf2);
-	
 	poly_sotp(&m, msg, buf2);  
 	poly_ntt(&m, &m);
 	
 	poly_frombytes(&h, pk);
-	poly_basemul(&c, &h, &r);
-	poly_add(&c, &c, &m);
+	poly_basemul_add(&c, &h, &r, &m);
 	poly_tobytes(ct, &c);
 	
 	for (int i = 0; i < NTRUPLUS_SSBYTES; i++)
@@ -154,8 +152,8 @@ int crypto_kem_dec(unsigned char *ss,
 	poly_ntt(&m2, &m1);
 	poly_sub(&c, &c, &m2);
 	poly_basemul(&r2, &c, &hinv);
+
 	poly_tobytes(buf1, &r2);
-	
 	hash_g(buf2, buf1);
 	fail = poly_sotp_inv(msg, &m1, buf2);
 	

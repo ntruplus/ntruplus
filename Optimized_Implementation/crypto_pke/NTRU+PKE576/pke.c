@@ -121,8 +121,7 @@ int crypto_encrypt(unsigned char *c,
     poly_ntt(&p_m, &p_m);
 
     poly_frombytes(&p_h, pk);
-    poly_basemul(&p_c, &p_h, &p_r);
-    poly_add(&p_c, &p_c, &p_m);
+	poly_basemul_add(&p_c, &p_h, &p_r, &p_m);
     poly_tobytes(c, &p_c);
 
     *clen = NTRUPLUS_CIPHERTEXTBYTES;
