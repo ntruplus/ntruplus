@@ -15,10 +15,10 @@ all: \
 	test \
 	PQCgenKAT_encrypt
 
-PQCgenKAT_encrypt: $(HEADERS) rng.h $(SOURCES) rng.c
+PQCgenKAT_encrypt: $(HEADERS) rng.h $(SOURCES) PQCgenKAT_encrypt.c rng.c 
 	$(CC) $(NISTFLAGS) -o $@ PQCgenKAT_encrypt.c rng.c $(SOURCES) $(LDFLAGS)
 
-test: $(HEADERS) randombytes.h $(SOURCES) randombytes.c test.c cpucycles.h
+test: $(HEADERS) randombytes.h $(SOURCES) randombytes.c test.c
 	$(CC) $(CFLAGS) -o $@ randombytes.c test.c $(SOURCES)
 
 clean:

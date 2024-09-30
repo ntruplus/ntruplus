@@ -3,9 +3,18 @@
 #include <stdint.h>
 #include "api.h"
 #include "randombytes.h"
-#include "cpucycles.h"
 
 #define TEST_LOOP 100000
+
+static inline uint64_t cpucycles(void) 
+{
+	uint64_t result;
+	
+	__asm__ volatile ("rdtsc; shlq $32,%%rdx; orq %%rdx,%%rax"
+	: "=a" (result) : : "%rdx");
+	
+	return result;
+}
 
 static void TEST_CCA_KEM()
 {

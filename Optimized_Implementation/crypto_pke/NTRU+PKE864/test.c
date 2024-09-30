@@ -3,11 +3,19 @@
 #include <stdint.h>
 #include "api.h"
 #include "randombytes.h"
-#include "cpucycles.h"
-
 
 #define TEST_LOOP1 10000
 #define TEST_LOOP2 100000
+
+static inline uint64_t cpucycles(void) 
+{
+	uint64_t result;
+	
+	__asm__ volatile ("rdtsc; shlq $32,%%rdx; orq %%rdx,%%rax"
+	: "=a" (result) : : "%rdx");
+	
+	return result;
+}
 
 static void TEST_PKE()
 {

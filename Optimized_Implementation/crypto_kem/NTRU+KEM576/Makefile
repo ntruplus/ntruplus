@@ -15,10 +15,10 @@ all: \
 	test \
 	PQCgenKAT_kem
 
-PQCgenKAT_kem: $(HEADERS) rng.h $(SOURCES) rng.c
+PQCgenKAT_kem: $(HEADERS) rng.h $(SOURCES) PQCgenKAT_kem.c rng.c
 	$(CC) $(NISTFLAGS) -o $@ PQCgenKAT_kem.c rng.c $(SOURCES) $(LDFLAGS)
 
-test: $(HEADERS) randombytes.h $(SOURCES) randombytes.c test.c cpucycles.h
+test: $(HEADERS) randombytes.h $(SOURCES) randombytes.c test.c 
 	$(CC) $(CFLAGS) -o $@ randombytes.c test.c $(SOURCES)
 
 clean:
