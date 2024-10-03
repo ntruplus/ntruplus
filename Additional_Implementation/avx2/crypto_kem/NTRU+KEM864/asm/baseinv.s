@@ -91,12 +91,11 @@ vpsubw		%ymm4,%ymm5,%ymm14
 
 #add
 vpaddw		%ymm12,%ymm13,%ymm12
-vpaddw		%ymm12,%ymm14,%ymm12
+vpaddw		%ymm12,%ymm14,%ymm8
 
 vmovdqa     %ymm11,%ymm2
 vmovdqa     %ymm6,%ymm3
 vmovdqa     %ymm10,%ymm4
-vmovdqa     %ymm12,%ymm8
 
 #t1 = fqmul(a, a);     //10   -7
 #premul
@@ -404,12 +403,11 @@ vpsubw		%ymm4,%ymm5,%ymm14
 
 #add
 vpaddw		%ymm12,%ymm13,%ymm12
-vpsubw		%ymm12,%ymm14,%ymm12
+vpsubw		%ymm12,%ymm14,%ymm8
 
 vmovdqa     %ymm11,%ymm2
 vmovdqa     %ymm6,%ymm3
 vmovdqa     %ymm10,%ymm4
-vmovdqa     %ymm12,%ymm8
 
 #t1 = fqmul(a, a);     //10   -7
 #premul
