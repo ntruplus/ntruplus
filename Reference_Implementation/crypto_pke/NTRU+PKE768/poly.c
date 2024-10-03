@@ -275,11 +275,13 @@ int poly_baseinv(poly *r, const poly *a)
 
 	for(int i = 0; i < NTRUPLUS_N/8; ++i)
 	{
-		result += baseinv(r->coeffs + 8*i, a->coeffs + 8*i, zetas[96 + i]);
-		result += baseinv(r->coeffs + 8*i + 4, a->coeffs + 8*i + 4, -zetas[96 + i]);
+		result = baseinv(r->coeffs + 8*i, a->coeffs + 8*i, zetas[96 + i]);
+		if(result) return 1;
+		result = baseinv(r->coeffs + 8*i + 4, a->coeffs + 8*i + 4, -zetas[96 + i]);
+		if(result) return 1;
 	 }
 
-	return result;
+	return 0;
 }
 
 /*************************************************
