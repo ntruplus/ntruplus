@@ -238,7 +238,6 @@ void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 int baseinv(int16_t r[3], const int16_t a[3], int16_t zeta)
 {
 	int16_t det;
-	int result;
 
 	r[0]  = fqmul(a[1],a[2]);
 	r[1]  = fqmul(a[2],a[2]);
@@ -249,17 +248,16 @@ int baseinv(int16_t r[3], const int16_t a[3], int16_t zeta)
 
 	det   = montgomery_reduce(r[2]*a[1]+r[1]*a[2]);
 	det   = montgomery_reduce(det*zeta+r[0]*a[0]); 
+
+	if(det == 0) return 1;
+
 	det   = fqinv(det);
 
 	r[0]  = fqmul(r[0],det);
 	r[1]  = fqmul(r[1],det);
 	r[2]  = fqmul(r[2],det);
 
-	result = (uint16_t)det;
-	result = (uint32_t)(-result) >> 31;
-	result = result - 1;
-
-	return result;
+	return 0;
 }
 
 /*************************************************
