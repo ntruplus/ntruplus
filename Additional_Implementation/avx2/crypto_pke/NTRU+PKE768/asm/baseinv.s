@@ -1,10 +1,5 @@
 .global poly_baseinv
 poly_baseinv:
-mov             %rsp,%r11
-and             $31,%r11
-add             $32,%r11
-sub             %r11,%rsp
-
 vmovdqa	 _16xqinv(%rip),%ymm15
 vmovdqa		_16xq(%rip),%ymm0
 lea         zetas(%rip),%rdx
@@ -192,6 +187,21 @@ vpmulhw		%ymm8,%ymm8,%ymm6
 #reduce
 vpmulhw		%ymm0,%ymm13,%ymm13
 vpsubw		%ymm13,%ymm6,%ymm6 # t1
+
+#check for invertibility
+vpxor		%ymm12,%ymm12,%ymm12
+vpcmpeqw	%ymm12,%ymm6,%ymm12
+vperm2i128	$0x01,%ymm12,%ymm12,%ymm7
+por		    %xmm7,%xmm12
+vpshufd		$0x0E,%xmm12,%xmm7
+por		    %xmm7,%xmm12
+
+vpsrlq		$32,%xmm12,%xmm11
+por         %xmm12,%xmm11
+movq        %xmm11,%r10
+
+test    %r10, %r10
+jnz     _loopend
 
 #t2 = fqmul(t1, t1);   //100  -15
 #premul
@@ -588,6 +598,21 @@ vpmulhw		%ymm8,%ymm8,%ymm6
 vpmulhw		%ymm0,%ymm13,%ymm13
 vpsubw		%ymm13,%ymm6,%ymm6 # t1
 
+#check for invertibility
+vpxor		%ymm12,%ymm12,%ymm12
+vpcmpeqw	%ymm12,%ymm6,%ymm12
+vperm2i128	$0x01,%ymm12,%ymm12,%ymm7
+por		    %xmm7,%xmm12
+vpshufd		$0x0E,%xmm12,%xmm7
+por		    %xmm7,%xmm12
+
+vpsrlq		$32,%xmm12,%xmm11
+por         %xmm12,%xmm11
+movq        %xmm11,%r10
+
+test    %r10, %r10
+jnz     _loopend
+
 #t2 = fqmul(t1, t1);   //100  -15
 #premul
 vpmullw		%ymm15,%ymm6,%ymm13 #t1qinv
@@ -788,19 +813,6 @@ vmovdqa		%ymm3,32(%rdi)
 vmovdqa		%ymm4,64(%rdi)
 vmovdqa		%ymm5,96(%rdi)
 
-#check for invertibility
-vpxor		%ymm14,%ymm14,%ymm14
-vpcmpeqw	%ymm14,%ymm8,%ymm14
-vperm2i128	$0x01,%ymm14,%ymm14,%ymm8
-por		    %xmm8,%xmm14
-vpshufd		$0x0E,%xmm14,%xmm8
-por		    %xmm8,%xmm14
-
-vpsrlq		$32,%xmm14,%xmm13
-por         %xmm14,%xmm13
-movq        %xmm13,%r10
-or		    %r10,%rcx
-
 add		$128,%rdi
 add		$128,%rsi
 add		$64,%rdx
@@ -808,7 +820,11 @@ add		$256,%rax
 cmp		$1536,%rax
 jb		_looptop
 
-add     %r11,%rsp
-mov		%rcx,%rax
+xor		%rax,%rax
+
+ret
+
+_loopend:
+mov		$1,%rax
 
 ret
