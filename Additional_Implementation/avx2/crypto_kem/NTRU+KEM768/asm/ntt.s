@@ -1,7 +1,7 @@
 .global poly_ntt
 poly_ntt:
 vmovdqa		_16xq(%rip),%ymm0
-vmovdqa	_low_mask(%rip),%ymm1
+vmovdqa		_16xv(%rip),%ymm1
 lea		    zetas(%rip),%rdx
 
 #level0
@@ -412,63 +412,39 @@ vpsubw		%ymm9,%ymm5,%ymm9
 vpsubw		%ymm10,%ymm6,%ymm10
 
 #reduce2
-vpsraw		$12,%ymm11,%ymm3
-vpsraw		$12,%ymm12,%ymm4
-vpsraw		$12,%ymm13,%ymm5
-vpsraw		$12,%ymm14,%ymm6
-vpand		%ymm1,%ymm11,%ymm11
-vpand		%ymm1,%ymm12,%ymm12
-vpand		%ymm1,%ymm13,%ymm13
-vpand		%ymm1,%ymm14,%ymm14
+vpmulhw		%ymm1,%ymm11,%ymm3
+vpmulhw		%ymm1,%ymm12,%ymm4
+vpmulhw		%ymm1,%ymm13,%ymm5
+vpmulhw		%ymm1,%ymm14,%ymm6
+vpsraw		$10,%ymm3,%ymm3
+vpsraw		$10,%ymm4,%ymm4
+vpsraw		$10,%ymm5,%ymm5
+vpsraw		$10,%ymm6,%ymm6
+vpmullw		%ymm0,%ymm3,%ymm3
+vpmullw		%ymm0,%ymm4,%ymm4
+vpmullw		%ymm0,%ymm5,%ymm5
+vpmullw		%ymm0,%ymm6,%ymm6
 vpsubw		%ymm3,%ymm11,%ymm11
 vpsubw		%ymm4,%ymm12,%ymm12
 vpsubw		%ymm5,%ymm13,%ymm13
 vpsubw		%ymm6,%ymm14,%ymm14
-vpsllw		$7,%ymm3,%ymm3
-vpsllw		$7,%ymm4,%ymm4
-vpsllw		$7,%ymm5,%ymm5
-vpsllw		$7,%ymm6,%ymm6
-vpaddw		%ymm3,%ymm11,%ymm11
-vpaddw		%ymm4,%ymm12,%ymm12
-vpaddw		%ymm5,%ymm13,%ymm13
-vpaddw		%ymm6,%ymm14,%ymm14
-vpsllw		$2,%ymm3,%ymm3
-vpsllw		$2,%ymm4,%ymm4
-vpsllw		$2,%ymm5,%ymm5
-vpsllw		$2,%ymm6,%ymm6
-vpaddw		%ymm3,%ymm11,%ymm11
-vpaddw		%ymm4,%ymm12,%ymm12
-vpaddw		%ymm5,%ymm13,%ymm13
-vpaddw		%ymm6,%ymm14,%ymm14
 
-vpsraw		$12,%ymm7,%ymm3
-vpsraw		$12,%ymm8,%ymm4
-vpsraw		$12,%ymm9,%ymm5
-vpsraw		$12,%ymm10,%ymm6
-vpand		%ymm1,%ymm7,%ymm7
-vpand		%ymm1,%ymm8,%ymm8
-vpand		%ymm1,%ymm9,%ymm9
-vpand		%ymm1,%ymm10,%ymm10
+vpmulhw		%ymm1,%ymm7,%ymm3
+vpmulhw		%ymm1,%ymm8,%ymm4
+vpmulhw		%ymm1,%ymm9,%ymm5
+vpmulhw		%ymm1,%ymm10,%ymm6
+vpsraw		$10,%ymm3,%ymm3
+vpsraw		$10,%ymm4,%ymm4
+vpsraw		$10,%ymm5,%ymm5
+vpsraw		$10,%ymm6,%ymm6
+vpmullw		%ymm0,%ymm3,%ymm3
+vpmullw		%ymm0,%ymm4,%ymm4
+vpmullw		%ymm0,%ymm5,%ymm5
+vpmullw		%ymm0,%ymm6,%ymm6
 vpsubw		%ymm3,%ymm7,%ymm7
 vpsubw		%ymm4,%ymm8,%ymm8
 vpsubw		%ymm5,%ymm9,%ymm9
 vpsubw		%ymm6,%ymm10,%ymm10
-vpsllw		$7,%ymm3,%ymm3
-vpsllw		$7,%ymm4,%ymm4
-vpsllw		$7,%ymm5,%ymm5
-vpsllw		$7,%ymm6,%ymm6
-vpaddw		%ymm3,%ymm7,%ymm7
-vpaddw		%ymm4,%ymm8,%ymm8
-vpaddw		%ymm5,%ymm9,%ymm9
-vpaddw		%ymm6,%ymm10,%ymm10
-vpsllw		$2,%ymm3,%ymm3
-vpsllw		$2,%ymm4,%ymm4
-vpsllw		$2,%ymm5,%ymm5
-vpsllw		$2,%ymm6,%ymm6
-vpaddw		%ymm3,%ymm7,%ymm7
-vpaddw		%ymm4,%ymm8,%ymm8
-vpaddw		%ymm5,%ymm9,%ymm9
-vpaddw		%ymm6,%ymm10,%ymm10
 
 #store
 vmovdqa		%ymm11,(%rdi)

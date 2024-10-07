@@ -1,6 +1,6 @@
 .global poly_tobytes
 poly_tobytes:
-vmovdqa		_low_mask(%rip),%ymm15
+vmovdqa		_16xv(%rip),%ymm15
 vmovdqa		_16xq(%rip),%ymm14
 
 xor		%rax,%rax
@@ -12,47 +12,23 @@ vmovdqa		32(%rsi),%ymm1
 vmovdqa		64(%rsi),%ymm2
 vmovdqa		96(%rsi),%ymm3
 
-vpsraw		$12,%ymm0,%ymm4
-vpsraw		$12,%ymm1,%ymm5
-vpsraw		$12,%ymm2,%ymm6
-vpsraw		$12,%ymm3,%ymm7
-vpand		%ymm15,%ymm0,%ymm0
-vpand		%ymm15,%ymm1,%ymm1
-vpand		%ymm15,%ymm2,%ymm2
-vpand		%ymm15,%ymm3,%ymm3
+vpmulhw		%ymm15,%ymm0,%ymm4
+vpmulhw		%ymm15,%ymm1,%ymm5
+vpmulhw		%ymm15,%ymm2,%ymm6
+vpmulhw		%ymm15,%ymm3,%ymm7
+vpsraw		$10,%ymm4,%ymm4
+vpsraw		$10,%ymm5,%ymm5
+vpsraw		$10,%ymm6,%ymm6
+vpsraw		$10,%ymm7,%ymm7
+vpmullw		%ymm14,%ymm4,%ymm4
+vpmullw		%ymm14,%ymm5,%ymm5
+vpmullw		%ymm14,%ymm6,%ymm6
+vpmullw		%ymm14,%ymm7,%ymm7
 vpsubw		%ymm4,%ymm0,%ymm0
 vpsubw		%ymm5,%ymm1,%ymm1
 vpsubw		%ymm6,%ymm2,%ymm2
 vpsubw		%ymm7,%ymm3,%ymm3
-vpsllw		$7,%ymm4,%ymm4
-vpsllw		$7,%ymm5,%ymm5
-vpsllw		$7,%ymm6,%ymm6
-vpsllw		$7,%ymm7,%ymm7
-vpaddw		%ymm4,%ymm0,%ymm0
-vpaddw		%ymm5,%ymm1,%ymm1
-vpaddw		%ymm6,%ymm2,%ymm2
-vpaddw		%ymm7,%ymm3,%ymm3
-vpsllw		$2,%ymm4,%ymm4
-vpsllw		$2,%ymm5,%ymm5
-vpsllw		$2,%ymm6,%ymm6
-vpsllw		$2,%ymm7,%ymm7
-vpaddw		%ymm4,%ymm0,%ymm0
-vpaddw		%ymm5,%ymm1,%ymm1
-vpaddw		%ymm6,%ymm2,%ymm2
-vpaddw		%ymm7,%ymm3,%ymm3
 
-vpsraw		$15,%ymm0,%ymm4
-vpsraw		$15,%ymm1,%ymm5
-vpsraw		$15,%ymm2,%ymm6
-vpsraw		$15,%ymm3,%ymm7
-vpand		%ymm14,%ymm4,%ymm4
-vpand		%ymm14,%ymm5,%ymm5
-vpand		%ymm14,%ymm6,%ymm6
-vpand		%ymm14,%ymm7,%ymm7
-vpaddw		%ymm4,%ymm0,%ymm0
-vpaddw		%ymm5,%ymm1,%ymm1
-vpaddw		%ymm6,%ymm2,%ymm2
-vpaddw		%ymm7,%ymm3,%ymm3
 vpsubw		%ymm14,%ymm0,%ymm0
 vpsubw		%ymm14,%ymm1,%ymm1
 vpsubw		%ymm14,%ymm2,%ymm2
@@ -104,16 +80,16 @@ vperm2i128	$0x31,%ymm7,%ymm6,%ymm3
 
 vpsllw		$12,%ymm1,%ymm13
 vpxor		%ymm13,%ymm0,%ymm0
-vmovdqu		%ymm0,(%rdi)
 vpsllw		$8,%ymm2,%ymm13
 vpsrlw		$4,%ymm1,%ymm12
-vpxor		%ymm13,%ymm12,%ymm0
-vmovdqu		%ymm0,32(%rdi)
-
+vpxor		%ymm13,%ymm12,%ymm1
 vpsllw		$4,%ymm3,%ymm13
 vpsrlw		$8,%ymm2,%ymm12
-vpxor		%ymm13,%ymm12,%ymm0
-vmovdqu		%ymm0,64(%rdi)
+vpxor		%ymm13,%ymm12,%ymm2
+
+vmovdqu		%ymm0,(%rdi)
+vmovdqu		%ymm1,32(%rdi)
+vmovdqu		%ymm2,64(%rdi)
 
 add		$96,%rdi
 add		$128,%rsi

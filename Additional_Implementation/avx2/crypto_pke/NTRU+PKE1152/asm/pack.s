@@ -1,7 +1,7 @@
 .global poly_tobytes
 poly_tobytes:
 vmovdqa		_16xq(%rip),%ymm0
-vmovdqa		_low_mask(%rip),%ymm1
+vmovdqa		_16xv(%rip),%ymm1
 
 xor		%rax,%rax
 .p2align 5
@@ -16,76 +16,41 @@ vmovdqa		160(%rsi),%ymm8
 vmovdqa		192(%rsi),%ymm9
 vmovdqa		224(%rsi),%ymm10
 
-vpsraw		$12,%ymm3,%ymm11
-vpsraw		$12,%ymm4,%ymm12
-vpsraw		$12,%ymm5,%ymm13
-vpsraw		$12,%ymm6,%ymm14
-vpand		%ymm1,%ymm3,%ymm3
-vpand		%ymm1,%ymm4,%ymm4
-vpand		%ymm1,%ymm5,%ymm5
-vpand		%ymm1,%ymm6,%ymm6
+#reduce2
+vpmulhw		%ymm1,%ymm3,%ymm11
+vpmulhw		%ymm1,%ymm4,%ymm12
+vpmulhw		%ymm1,%ymm5,%ymm13
+vpmulhw		%ymm1,%ymm6,%ymm14
+vpsraw		$10,%ymm11,%ymm11
+vpsraw		$10,%ymm12,%ymm12
+vpsraw		$10,%ymm13,%ymm13
+vpsraw		$10,%ymm14,%ymm14
+vpmullw		%ymm0,%ymm11,%ymm11
+vpmullw		%ymm0,%ymm12,%ymm12
+vpmullw		%ymm0,%ymm13,%ymm13
+vpmullw		%ymm0,%ymm14,%ymm14
 vpsubw		%ymm11,%ymm3,%ymm3
 vpsubw		%ymm12,%ymm4,%ymm4
 vpsubw		%ymm13,%ymm5,%ymm5
 vpsubw		%ymm14,%ymm6,%ymm6
-vpsllw		$7,%ymm11,%ymm11
-vpsllw		$7,%ymm12,%ymm12
-vpsllw		$7,%ymm13,%ymm13
-vpsllw		$7,%ymm14,%ymm14
-vpaddw		%ymm11,%ymm3,%ymm3
-vpaddw		%ymm12,%ymm4,%ymm4
-vpaddw		%ymm13,%ymm5,%ymm5
-vpaddw		%ymm14,%ymm6,%ymm6
-vpsllw		$2,%ymm11,%ymm11
-vpsllw		$2,%ymm12,%ymm12
-vpsllw		$2,%ymm13,%ymm13
-vpsllw		$2,%ymm14,%ymm14
-vpaddw		%ymm11,%ymm3,%ymm3
-vpaddw		%ymm12,%ymm4,%ymm4
-vpaddw		%ymm13,%ymm5,%ymm5
-vpaddw		%ymm14,%ymm6,%ymm6
 
-vpsraw		$12,%ymm7,%ymm11
-vpsraw		$12,%ymm8,%ymm12
-vpsraw		$12,%ymm9,%ymm13
-vpsraw		$12,%ymm10,%ymm14
-vpand		%ymm1,%ymm7,%ymm7
-vpand		%ymm1,%ymm8,%ymm8
-vpand		%ymm1,%ymm9,%ymm9
-vpand		%ymm1,%ymm10,%ymm10
+vpmulhw		%ymm1,%ymm7,%ymm11
+vpmulhw		%ymm1,%ymm8,%ymm12
+vpmulhw		%ymm1,%ymm9,%ymm13
+vpmulhw		%ymm1,%ymm10,%ymm14
+vpsraw		$10,%ymm11,%ymm11
+vpsraw		$10,%ymm12,%ymm12
+vpsraw		$10,%ymm13,%ymm13
+vpsraw		$10,%ymm14,%ymm14
+vpmullw		%ymm0,%ymm11,%ymm11
+vpmullw		%ymm0,%ymm12,%ymm12
+vpmullw		%ymm0,%ymm13,%ymm13
+vpmullw		%ymm0,%ymm14,%ymm14
 vpsubw		%ymm11,%ymm7,%ymm7
 vpsubw		%ymm12,%ymm8,%ymm8
 vpsubw		%ymm13,%ymm9,%ymm9
 vpsubw		%ymm14,%ymm10,%ymm10
-vpsllw		$7,%ymm11,%ymm11
-vpsllw		$7,%ymm12,%ymm12
-vpsllw		$7,%ymm13,%ymm13
-vpsllw		$7,%ymm14,%ymm14
-vpaddw		%ymm11,%ymm7,%ymm7
-vpaddw		%ymm12,%ymm8,%ymm8
-vpaddw		%ymm13,%ymm9,%ymm9
-vpaddw		%ymm14,%ymm10,%ymm10
-vpsllw		$2,%ymm11,%ymm11
-vpsllw		$2,%ymm12,%ymm12
-vpsllw		$2,%ymm13,%ymm13
-vpsllw		$2,%ymm14,%ymm14
-vpaddw		%ymm11,%ymm7,%ymm7
-vpaddw		%ymm12,%ymm8,%ymm8
-vpaddw		%ymm13,%ymm9,%ymm9
-vpaddw		%ymm14,%ymm10,%ymm10
 
-vpsraw		$15,%ymm3,%ymm11
-vpsraw		$15,%ymm4,%ymm12
-vpsraw		$15,%ymm5,%ymm13
-vpsraw		$15,%ymm6,%ymm14
-vpand		%ymm0,%ymm11,%ymm11
-vpand		%ymm0,%ymm12,%ymm12
-vpand		%ymm0,%ymm13,%ymm13
-vpand		%ymm0,%ymm14,%ymm14
-vpaddw		%ymm11,%ymm3,%ymm3
-vpaddw		%ymm12,%ymm4,%ymm4
-vpaddw		%ymm13,%ymm5,%ymm5
-vpaddw		%ymm14,%ymm6,%ymm6
 vpsubw		%ymm0,%ymm3,%ymm3
 vpsubw		%ymm0,%ymm4,%ymm4
 vpsubw		%ymm0,%ymm5,%ymm5
@@ -103,18 +68,6 @@ vpaddw		%ymm12,%ymm4,%ymm4
 vpaddw		%ymm13,%ymm5,%ymm5
 vpaddw		%ymm14,%ymm6,%ymm6
 
-vpsraw		$15,%ymm7,%ymm11
-vpsraw		$15,%ymm8,%ymm12
-vpsraw		$15,%ymm9,%ymm13
-vpsraw		$15,%ymm10,%ymm14
-vpand		%ymm0,%ymm11,%ymm11
-vpand		%ymm0,%ymm12,%ymm12
-vpand		%ymm0,%ymm13,%ymm13
-vpand		%ymm0,%ymm14,%ymm14
-vpaddw		%ymm11,%ymm7,%ymm7
-vpaddw		%ymm12,%ymm8,%ymm8
-vpaddw		%ymm13,%ymm9,%ymm9
-vpaddw		%ymm14,%ymm10,%ymm10
 vpsubw		%ymm0,%ymm7,%ymm7
 vpsubw		%ymm0,%ymm8,%ymm8
 vpsubw		%ymm0,%ymm9,%ymm9
@@ -222,7 +175,6 @@ ret
 
 .global poly_frombytes
 poly_frombytes:
-
 vmovdqa		_low_mask(%rip),%ymm15
 
 xor		%rax,%rax
