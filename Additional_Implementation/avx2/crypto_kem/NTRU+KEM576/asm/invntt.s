@@ -202,12 +202,6 @@ vpsubw		%ymm15,%ymm13,%ymm13 #alpha^-2(X-Z + w(Y-Z))
 vpaddw      %ymm9,%ymm8,%ymm11   #Y+Z
 vpaddw      %ymm10,%ymm11,%ymm11 #Y+Z
 
-#reduce2
-vpmulhw		%ymm1,%ymm11,%ymm10
-vpsraw		$10,%ymm10,%ymm10
-vpmullw		%ymm0,%ymm10,%ymm10
-vpsubw		%ymm10,%ymm11,%ymm11
-
 #store
 vmovdqa		%ymm11,(%rdi)
 vmovdqa		%ymm12,64(%rdi)
@@ -277,12 +271,6 @@ vpsubw		%ymm15,%ymm13,%ymm13 #alpha^-2(X-Z + w(Y-Z))
 #add
 vpaddw      %ymm9,%ymm8,%ymm11   #Y+Z
 vpaddw      %ymm10,%ymm11,%ymm11 #Y+Z
-
-#reduce2
-vpmulhw		%ymm1,%ymm11,%ymm10
-vpsraw		$10,%ymm10,%ymm10
-vpmullw		%ymm0,%ymm10,%ymm10
-vpsubw		%ymm10,%ymm11,%ymm11
 
 #store
 vmovdqa		%ymm11,(%rdi)
