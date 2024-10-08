@@ -2,9 +2,9 @@
 poly_basemul:
 vmovdqa      _16xqinv(%rip),%ymm15
 vmovdqa         _16xq(%rip),%ymm0
-lea     	zetas_mul(%rip),%rcx
+lea         zetas_mul(%rip),%rcx
 
-xor     %rax,%rax
+xor    %rax,%rax
 .p2align 5
 _looptop_basemul:
 #load
