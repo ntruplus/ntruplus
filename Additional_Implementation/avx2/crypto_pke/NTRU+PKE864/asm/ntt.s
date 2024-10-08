@@ -1,7 +1,7 @@
 .global poly_ntt
 poly_ntt:
-vmovdqa   _16xq(%rip),%ymm0
-vmovdqa   _16xv(%rip),%ymm1
+vmovdqa		_16xq(%rip),%ymm0
+vmovdqa		_16xv(%rip),%ymm1
 lea		    zetas(%rip),%rdx
 
 #level0
