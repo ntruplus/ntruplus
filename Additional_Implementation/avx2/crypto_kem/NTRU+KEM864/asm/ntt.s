@@ -66,9 +66,8 @@ sub		$864,%rdi
 
 #level 1
 #load
-vmovdqa	_low_mask(%rip),%ymm1
-vmovdqu	_16xwqinv(%rip),%ymm2 #winv
-vmovdqu	_16xw(%rip),%ymm3     #w
+vmovdqu         _16xwqinv(%rip),%ymm2 #winv
+vmovdqu             _16xw(%rip),%ymm3 #w
 
 xor         %rax,%rax
 .p2align 5
