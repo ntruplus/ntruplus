@@ -317,24 +317,6 @@ vpsubw		%ymm4,%ymm8,%ymm8
 vpsubw		%ymm5,%ymm9,%ymm9
 vpsubw		%ymm6,%ymm10,%ymm10
 
-#reduce2
-vpmulhw		%ymm1,%ymm11,%ymm3
-vpmulhw		%ymm1,%ymm12,%ymm4
-vpmulhw		%ymm1,%ymm13,%ymm5
-vpmulhw		%ymm1,%ymm14,%ymm6
-vpsraw		$10,%ymm3,%ymm3
-vpsraw		$10,%ymm4,%ymm4
-vpsraw		$10,%ymm5,%ymm5
-vpsraw		$10,%ymm6,%ymm6
-vpmullw		%ymm0,%ymm3,%ymm3
-vpmullw		%ymm0,%ymm4,%ymm4
-vpmullw		%ymm0,%ymm5,%ymm5
-vpmullw		%ymm0,%ymm6,%ymm6
-vpsubw		%ymm3,%ymm11,%ymm11
-vpsubw		%ymm4,%ymm12,%ymm12
-vpsubw		%ymm5,%ymm13,%ymm13
-vpsubw		%ymm6,%ymm14,%ymm14
-
 #store
 vmovdqa		%ymm11,(%rdi)
 vmovdqa		%ymm12,32(%rdi)
@@ -402,8 +384,14 @@ vpsubw		%ymm14,%ymm12,%ymm12 #alpha^-1(X-Y - w(Y-Z))
 vpsubw		%ymm15,%ymm13,%ymm13 #alpha^-2(X-Z + w(Y-Z))
 
 #add
-vpaddw      %ymm9,%ymm8,%ymm11   #Y+Z
-vpaddw      %ymm10,%ymm11,%ymm11 #Y+Z
+vpaddw      %ymm9,%ymm8,%ymm11   #X+Y
+vpaddw      %ymm10,%ymm11,%ymm11 #X+Y+Z
+
+#reduce2
+vpmulhw		%ymm1,%ymm11,%ymm14
+vpsraw		$10,%ymm14,%ymm14
+vpmullw		%ymm0,%ymm14,%ymm14
+vpsubw		%ymm14,%ymm11,%ymm11
 
 #store
 vmovdqa		%ymm11,(%rdi)
