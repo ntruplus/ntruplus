@@ -92,7 +92,6 @@ static int16_t fqinv(int16_t a)
 void ntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 {
 	int16_t t1,t2,t3;
-	int32_t T1,T2;	
 	int16_t zeta1,zeta2;
 	
 	int k = 1;
@@ -124,7 +123,7 @@ void ntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 		}		
 	}
 
-	for(int step = 64; step >= 8; step >>= 1)
+	for(int step = 64; step >= 4; step >>= 1)
 	{
 		for(int start = 0; start < NTRUPLUS_N; start += (step << 1))
 		{
@@ -134,23 +133,9 @@ void ntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 			{
 				t1 = fqmul(zeta1, r[i + step]);
 				
-				r[i + step] = r[i] - t1;
-				r[i       ] = r[i] + t1;
+				r[i + step] = montgomery_reduce(r[i] - t1);
+				r[i       ] = montgomery_reduce(r[i] + t1);
 			}
-		}
-	}
-
-	for(int start = 0; start < NTRUPLUS_N; start += 8)
-	{
-		zeta1 = zetas[k++];
-
-		for(int i = start; i < start + 4; i++)
-		{
-			T1 = r[i    ] * (-147);
-			T2 = r[i + 4] * zeta1;
-			
-			r[i + 4] = montgomery_reduce(T1 - T2);
-			r[i    ] = montgomery_reduce(T1 + T2);
 		}
 	}
 }
