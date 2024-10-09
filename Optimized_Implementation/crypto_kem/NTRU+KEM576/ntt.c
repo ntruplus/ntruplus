@@ -88,7 +88,7 @@ void ntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 	int16_t t1,t2,t3;
 	int32_t T1,T2;	
 	int16_t zeta1,zeta2;
-	
+
 	int k = 1;
 
 	zeta1 = zetas[k++];
@@ -167,44 +167,76 @@ void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 	int16_t zeta1, zeta2;
 	int k = 143;
 
-	for(int i = 0; i < NTRUPLUS_N; i++)
+	for(int start = 0; start < NTRUPLUS_N; start += 8)
 	{
-		r[i] = a[i];
-	}
+		zeta1 = zetas[k--];
 
-	for(int step = 4; step <= 16; step <<= 1)
-	{
-		for(int start = 0; start < NTRUPLUS_N; start += (step << 1))
+		for(int i = start; i < start + 4; i++)
 		{
-			zeta1 = zetas[k--];
+			t1 = r[i + 4];
 
-			for(int i = start; i < start + step; i++)
-			{
-				t1 = r[i + step];
+			r[i + 4] = fqmul(zeta1,  t1 - a[i]);
+			r[i    ] = a[i] + t1;
+		}
+	}
+	
+	for(int start = 0; start < NTRUPLUS_N; start += 16)
+	{
+		zeta1 = zetas[k--];
 
-				r[i + step] = fqmul(zeta1,  t1 - r[i]);
-				r[i       ] = barrett_reduce(r[i] + t1);
-			}
+		for(int i = start; i < start + 8; i++)
+		{
+			t1 = r[i + 8];
+
+			r[i + 8] = fqmul(zeta1,  t1 - r[i]);
+			r[i    ] = r[i] + t1;
 		}
 	}
 
-	for(int step = 32; step <= NTRUPLUS_N/6; step = 3*step)
+	for(int start = 0; start < NTRUPLUS_N; start += 32)
 	{
-		for(int start = 0; start < NTRUPLUS_N; start += 3*step)
+		zeta1 = zetas[k--];
+
+		for(int i = start; i < start + 16; i++)
 		{
-			zeta2 = zetas[k--];
-			zeta1 = zetas[k--];
+			t1 = r[i + 16];
 
-			for(int i = start; i < start + step; i++)
-			{
-				t1 = fqmul(-886,  r[i +   step] - r[i]);
-				t2 = fqmul(zeta1, r[i + 2*step] - r[i]        + t1);
-				t3 = fqmul(zeta2, r[i + 2*step] - r[i + step] - t1);
+			r[i + 16] = fqmul(zeta1,  t1 - r[i]);
+			r[i     ] = barrett_reduce(r[i] + t1);
+		}
+	}
 
-				r[i         ] = r[i] + r[i + step] + r[i + 2*step];
-				r[i +   step] = t2;			
-				r[i + 2*step] = t3;
-			}
+	for(int start = 0; start < NTRUPLUS_N; start += 96)
+	{
+		zeta2 = zetas[k--];
+		zeta1 = zetas[k--];
+
+		for(int i = start; i < start + 32; i++)
+		{
+			t1 = fqmul(-886,  r[i + 32] - r[i]);
+			t2 = fqmul(zeta1, r[i + 64] - r[i]      + t1);
+			t3 = fqmul(zeta2, r[i + 64] - r[i + 32] - t1);
+
+			r[i     ] = r[i] + r[i + 32] + r[i + 64];
+			r[i + 32] = t2;			
+			r[i + 64] = t3;
+		}
+	}
+
+	for(int start = 0; start < NTRUPLUS_N; start += 288)
+	{
+		zeta2 = zetas[k--];
+		zeta1 = zetas[k--];
+
+		for(int i = start; i < start + 96; i++)
+		{
+			t1 = fqmul(-886,  r[i +  96] - r[i]);
+			t2 = fqmul(zeta1, r[i + 192] - r[i]      + t1);
+			t3 = fqmul(zeta2, r[i + 192] - r[i + 96] - t1);
+
+			r[i      ] = barrett_reduce(r[i] + r[i + 96] + r[i + 192]);
+			r[i +  96] = t2;
+			r[i + 192] = t3;
 		}
 	}
 
