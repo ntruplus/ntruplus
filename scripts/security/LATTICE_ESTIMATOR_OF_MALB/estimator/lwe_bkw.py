@@ -2,7 +2,8 @@
 """
 See :ref:`Coded-BKW for LWE` for what is available.
 """
-from sage.all import ZZ, ceil, log, floor, sqrt, var, find_root, erf, oo, cached_function
+from sage.all import ZZ, ceil, log, floor, sqrt, find_root, erf, oo, cached_function, RR
+
 from .lwe_parameters import LWEParameters
 from .util import local_minimum
 from .cost import Cost
@@ -44,10 +45,13 @@ class CodedBKW:
             return 0
 
         # solve for ntest by aiming for ntop == 0
-        ntest = var("ntest")
-        sigma_set = sqrt(q ** (2 * (1 - ell / ntest)) / 12)
-        ncod = sum(CodedBKW.N(i, sigma_set, b, q) for i in range(1, t2 + 1))
-        ntop = n - ncod - ntest - t1 * b
+        def ntop(ntest):
+            # Patch so that `find_root` (which uses float) doesn't error
+            ntest = RR(ntest)
+            sigma_set = sqrt(q ** (2 * (1 - ell / ntest)) / 12)
+            ncod = sum(CodedBKW.N(i, sigma_set, b, q) for i in range(1, t2 + 1))
+            res = n - ncod - ntest - t1 * b
+            return res
 
         try:
             start = max(int(round(find_root(ntop, 2, n - t1 * b + 1, rtol=0.1))) - 1, 2)
@@ -55,7 +59,7 @@ class CodedBKW:
             start = 2
         ntest_min = 1
         for ntest in range(start, n - t1 * b + 1):
-            if abs(ntop(ntest=ntest).n()) >= abs(ntop(ntest=ntest_min).n()):
+            if abs(ntop(ntest).n()) >= abs(ntop(ntest_min).n()):
                 break
             ntest_min = ntest
         return int(ntest_min)
@@ -235,7 +239,7 @@ class CodedBKW:
         # the search cannot fail. It just outputs some X with X["oracle"]>m.
         if best["m"] > params.m:
             raise InsufficientSamplesError(
-                f"Got m≈2^{float(log(params.m, 2.0)):.1f} samples, but require ≈2^{float(log(best['m'],2.0)):.1f}.",
+                f"Got m≈2^{float(log(params.m, 2.0)):.1f} samples, but require ≈2^{float(log(best['m'], 2.0)):.1f}.",
                 best["m"],
             )
         return best

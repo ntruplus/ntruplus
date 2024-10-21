@@ -17,10 +17,15 @@ API Reference
    estimator.lwe_primal
    estimator.lwe_dual
    estimator.lwe
+   estimator.ntru_parameters
+   estimator.ntru_primal
+   estimator.ntru
+   estimator.sis_lattice
+   estimator.sis
    estimator.gb
    estimator.nd
    estimator.prob
-   estimator.reduction     
+   estimator.reduction
    estimator.simulator
    estimator.util
 

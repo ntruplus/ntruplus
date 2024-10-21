@@ -1,22 +1,19 @@
 # -*- coding: utf-8 -*-
 """
-High-level LWE interface
+High-level NTRU interface
 """
 
 from functools import partial
 from sage.all import oo
 
-from .lwe_primal import primal_usvp, primal_bdd, primal_hybrid
-from .lwe_bkw import coded_bkw
-from .lwe_guess import exhaustive_search, mitm, distinguish, guess_composition  # noqa
-from .lwe_dual import dual
-from .lwe_dual import matzov as dual_hybrid
+from .ntru_primal import primal_dsd, primal_usvp, primal_bdd, primal_hybrid
+from .lwe_bkw import coded_bkw # noqa
+from .lwe_guess import exhaustive_search, mitm, distinguish, guess_composition # noqa
+from .lwe_dual import dual, dual_hybrid # noqa
 from .gb import arora_gb  # noqa
-from .lwe_parameters import LWEParameters as Parameters  # noqa
-from .conf import (
-    red_cost_model as red_cost_model_default,
-    red_shape_model as red_shape_model_default,
-)
+from .ntru_parameters import NTRUParameters as Parameters  # noqa
+from .conf import (red_cost_model as red_cost_model_default,
+                   red_shape_model as red_shape_model_default)
 from .util import batch_estimate, f_name
 from .reduction import RC
 
@@ -28,7 +25,7 @@ class Estimate:
         This function makes the following (non-default) somewhat routine assumptions to evaluate the cost of lattice
         reduction, and to provide comparable numbers with most of the literature:
 
-        - The GSA holds.
+        - The ZGSA holds.
         - The Core-SVP model holds.
 
         Provided numbers are notably not directly comparable with the rest of our API, when using the default cost
@@ -38,41 +35,47 @@ class Estimate:
 
         - The primal hybrid attack only applies to sparse secrets.
         - The dual hybrid MITM attack only applies to sparse secrets.
-        - Arora-GB only applies to bounded noise with at least `n^2` samples.
-        - BKW is not competitive.
+        - The dense sublattice attack only applies to possibly overstretched parameters
 
-        :param params: LWE parameters.
+        :param params: NTRU parameters.
         :param jobs: Use multiple threads in parallel.
         :param catch_exceptions: When an estimate fails, just print a warning.
 
         EXAMPLE ::
 
             >>> from estimator import *
-            >>> _ = LWE.estimate.rough(schemes.Kyber512)
-            usvp                 :: rop: ≈2^118.6, red: ≈2^118.6, δ: 1.003941, β: 406, d: 998, tag: usvp
-            dual_hybrid          :: rop: ≈2^115.5, red: ≈2^115.3, guess: ≈2^112.3, β: 395, p: 5, ζ: 0, t: 40, β': 395...
+            >>> _ = NTRU.estimate.rough(schemes.NTRUHPS2048509Enc)
+            usvp                 :: rop: ≈2^109.2, red: ≈2^109.2, δ: 1.004171, β: 374, d: 643, tag: usvp
+            bdd_hybrid           :: rop: ≈2^108.6, red: ≈2^107.7, svp: ≈2^107.5, β: 369, η: 368, ζ: 0, |S|: 1, ...
 
         """
         params = params.normalize()
 
         algorithms = {}
 
-        algorithms["usvp"] = partial(primal_usvp, red_cost_model=RC.ADPS16, red_shape_model="gsa")
-        algorithms["dual_hybrid"] = partial(dual_hybrid, red_cost_model=RC.ADPS16)
+        # Only primal attacks apply to NTRU
+        algorithms["usvp"] = partial(primal_usvp, red_cost_model=RC.ADPS16, red_shape_model="zgsa")
 
-        if params.m > params.n**2 and params.Xe.is_bounded:
-            if params.Xs.is_sparse:
-                algorithms["arora-gb"] = guess_composition(arora_gb.cost_bounded)
-            else:
-                algorithms["arora-gb"] = arora_gb.cost_bounded
+        if params.possibly_overstretched:
+            algorithms["dsd"] = partial(
+                primal_dsd, red_cost_model=RC.ADPS16, red_shape_model="zgsa"
+            )
+
+        if params.Xs.is_sparse:
+            algorithms["bdd_hybrid"] = partial(
+                primal_hybrid,
+                mitm=False,
+                babai=False,
+                red_cost_model=RC.ADPS16,
+                red_shape_model="ZGSA",
+            )
 
         res_raw = batch_estimate(
             params, algorithms.values(), log_level=1, jobs=jobs, catch_exceptions=catch_exceptions
         )
         res_raw = res_raw[params]
         res = {
-            algorithm: v
-            for algorithm, attack in algorithms.items()
+            algorithm: v for algorithm, attack in algorithms.items()
             for k, v in res_raw.items()
             if f_name(attack) == k
         }
@@ -99,7 +102,7 @@ class Estimate:
         """
         Run all estimates, based on the default cost and shape models for lattice reduction.
 
-        :param params: LWE parameters.
+        :param params: NTRU parameters.
         :param red_cost_model: How to cost lattice reduction.
         :param red_shape_model: How to model the shape of a reduced basis (applies to primal attacks)
         :param deny_list: skip these algorithms
@@ -110,24 +113,31 @@ class Estimate:
         EXAMPLE ::
 
             >>> from estimator import *
-            >>> _ = LWE.estimate(schemes.Kyber512)
-            bkw                  :: rop: ≈2^178.8, m: ≈2^166.8, mem: ≈2^167.8, b: 14, t1: 0, t2: 16, ℓ: 13, #cod: 448...
-            usvp                 :: rop: ≈2^143.8, red: ≈2^143.8, δ: 1.003941, β: 406, d: 998, tag: usvp
-            bdd                  :: rop: ≈2^140.3, red: ≈2^139.7, svp: ≈2^138.8, β: 391, η: 421, d: 1013, tag: bdd
-            dual                 :: rop: ≈2^149.9, mem: ≈2^97.1, m: 512, β: 424, d: 1024, ↻: 1, tag: dual
-            dual_hybrid          :: rop: ≈2^139.7, red: ≈2^139.6, guess: ≈2^135.9, β: 387, p: 5, ζ: 0, t: 50, β': 391...
+            >>> _ = NTRU.estimate(schemes.NTRUHRSS701Enc)
+            usvp                 :: rop: ≈2^162.1, red: ≈2^162.1, δ: 1.003557, β: 470, d: 1317, tag: usvp
+            bdd                  :: rop: ≈2^158.7, red: ≈2^157.7, svp: ≈2^157.7, β: 454, η: 489, d: 1306, tag: bdd
+            bdd_hybrid           :: rop: ≈2^158.7, red: ≈2^157.7, svp: ≈2^157.7, β: 454, η: 489, ζ: 0, |S|: 1, d: ...
+            bdd_mitm_hybrid      :: rop: ≈2^235.7, red: ≈2^234.8, svp: ≈2^234.6, β: 469, η: 2, ζ: 178, |S|: ...
 
+            >>> params = NTRU.Parameters(n=113, q=512, Xs=ND.UniformMod(3), Xe=ND.UniformMod(3))
+            >>> _ = NTRU.estimate(params, catch_exceptions=False)
+            usvp                 :: rop: ≈2^46.0, red: ≈2^46.0, δ: 1.011516, β: 59, d: 221, tag: usvp
+            dsd                  :: rop: ≈2^37.9, red: ≈2^37.9, δ: 1.013310, β: 31, d: 226, tag: dsd
+            bdd                  :: rop: ≈2^42.4, red: ≈2^41.0, svp: ≈2^41.8, β: 41, η: 70, d: 225, tag: bdd
+            bdd_hybrid           :: rop: ≈2^42.4, red: ≈2^41.0, svp: ≈2^41.8, β: 41, η: 70, ζ: 0, |S|: 1, d: 226, ...
+            bdd_mitm_hybrid      :: rop: ≈2^55.8, red: ≈2^54.9, svp: ≈2^54.7, β: 41, η: 2, ζ: 32, |S|: ≈2^50.7, ...
         """
         params = params.normalize()
 
         algorithms = {}
 
-        algorithms["arora-gb"] = guess_composition(arora_gb)
-        algorithms["bkw"] = coded_bkw
-
         algorithms["usvp"] = partial(
             primal_usvp, red_cost_model=red_cost_model, red_shape_model=red_shape_model
         )
+        algorithms["dsd"] = partial(
+            primal_dsd, red_cost_model=red_cost_model, red_shape_model=red_shape_model
+        )
+
         algorithms["bdd"] = partial(
             primal_bdd, red_cost_model=red_cost_model, red_shape_model=red_shape_model
         )
@@ -146,8 +156,6 @@ class Estimate:
             red_cost_model=red_cost_model,
             red_shape_model=red_shape_model,
         )
-        algorithms["dual"] = partial(dual, red_cost_model=red_cost_model)
-        algorithms["dual_hybrid"] = partial(dual_hybrid, red_cost_model=red_cost_model)
 
         algorithms = {k: v for k, v in algorithms.items() if k not in deny_list}
         algorithms.update(add_list)
@@ -162,18 +170,15 @@ class Estimate:
             for k, v in res_raw.items()
             if f_name(attack) == k
         }
-
         for algorithm in algorithms:
             if algorithm not in res:
                 continue
             result = res[algorithm]
             if result["rop"] == oo:
                 continue
-            if algorithm == "bdd_hybrid" and res["bdd"]["rop"] <= result["rop"]:
+            if algorithm == "hybrid" and res["bdd"]["rop"] < result["rop"]:
                 continue
-            if algorithm == "bdd_mitm_hybrid" and res["bdd_hybrid"]["rop"] <= result["rop"]:
-                continue
-            if algorithm == "dual_mitm_hybrid" and res["dual_hybrid"]["rop"] < result["rop"]:
+            if algorithm == "dsd" and res["usvp"]["rop"] < result["rop"]:
                 continue
             print(f"{algorithm:20s} :: {result!r}")
 

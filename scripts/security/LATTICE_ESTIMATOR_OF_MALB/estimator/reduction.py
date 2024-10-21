@@ -262,7 +262,7 @@ class ReductionCost:
         :param B: Bit-size of entries.
         :param preprocess: Include the cost of preprocessing the basis with BKZ-β.
                If ``False`` we assume the basis is already BKZ-β reduced.
-        :returns: ``(ρ, c, N)``
+        :return: ``(ρ, c, N, β')``
 
         EXAMPLES::
 
@@ -313,7 +313,7 @@ class ReductionCost:
         :param N: Number of vectors requested.
         :param B: Bit-size of entries.
         :param preprocess: This option is ignore.
-        :returns: ``(ρ, c, N)``
+        :return: ``(ρ, c, N, β')``
 
         EXAMPLES::
 
@@ -356,7 +356,7 @@ class ReductionCost:
         :param preprocess: Include the cost of preprocessing the basis with BKZ-β.
                If ``False`` we assume the basis is already BKZ-β reduced.
         :param sieve_dim: Explicit sieving dimension.
-        :returns: ``(ρ, c, N)``
+        :return: ``(ρ, c, N, β')``
 
         EXAMPLES::
 
@@ -382,22 +382,33 @@ class ReductionCost:
         elif N is None:
             N = floor(2 ** (0.2075 * beta))  # pick something
 
-        c = N / floor(2 ** (0.2075 * beta))
+        c0 = RR(N)
+        c1 = RR(2 ** (RR(0.2075 * beta)))
+        c = c0 / c1
 
         rho = sqrt(4 / 3.0) * RR(
             self.delta(sieve_dim) ** (sieve_dim - 1) * self.delta(beta) ** (1 - sieve_dim)
         )
 
+        # arbitrary choice
+        if c > 2**1000:
+            # set c = oo
+            return (
+                rho,
+                oo,
+                oo,
+                sieve_dim,
+            )
+
         return (
             rho,
             ceil(c) * self(beta, d),
-            ceil(c) * floor(2 ** (0.2075 * beta)),
+            ceil(c) * floor(c1),
             sieve_dim,
         )
 
 
 class BDGL16(ReductionCost):
-
     __name__ = "BDGL16"
     short_vectors = ReductionCost._short_vectors_sieve
 
@@ -464,13 +475,12 @@ class BDGL16(ReductionCost):
 
 
 class LaaMosPol14(ReductionCost):
-
     __name__ = "LaaMosPol14"
     short_vectors = ReductionCost._short_vectors_sieve
 
     def __call__(self, beta, d, B=None):
         """
-        Runtime estimation for quantum sieving following [EPRINT:LaaMosPol14]_ and [PhD:Laarhoven15]_.
+        Runtime estimation for quantum sieving following [DCC:LaaMosPol15]_ and [PhD:Laarhoven15]_.
 
         :param beta: Block size ≥ 2.
         :param d: Lattice dimension.
@@ -490,7 +500,6 @@ class LaaMosPol14(ReductionCost):
 
 
 class CheNgu12(ReductionCost):
-
     __name__ = "CheNgu12"
 
     def __call__(self, beta, d, B=None):
@@ -506,8 +515,8 @@ class CheNgu12(ReductionCost):
 
             >>> from sage.all import var, find_fit
             >>> dim = [100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 210, 220, 230, 240, 250]
-            >>> nodes = [39.0, 44.0, 49.0, 54.0, 60.0, 66.0, 72.0, 78.0, 84.0, 96.0, \
-                         99.0, 105.0, 111.0, 120.0, 127.0, 134.0]
+            >>> nodes = [39.0, 44.0, 49.0, 54.0, 60.0, 66.0, 72.0, 78.0, 84.0, 96.0 ]
+            >>> nodes += [ 99.0, 105.0, 111.0, 120.0, 127.0, 134.0]  # couldn't use \\ breaks stuff
             >>> times = [c + log(200,2).n() for c in nodes]
             >>> T = list(zip(dim, nodes))
             >>> var("a,b,c,beta")
@@ -540,7 +549,6 @@ class CheNgu12(ReductionCost):
 
 
 class ABFKSW20(ReductionCost):
-
     __name__ = "ABFKSW20"
 
     def __call__(self, beta, d, B=None):
@@ -570,7 +578,6 @@ class ABFKSW20(ReductionCost):
 
 
 class ABLR21(ReductionCost):
-
     __name__ = "ABLR21"
 
     def __call__(self, beta, d, B=None):
@@ -600,7 +607,6 @@ class ABLR21(ReductionCost):
 
 
 class ADPS16(ReductionCost):
-
     __name__ = "ADPS16"
     short_vectors = ReductionCost._short_vectors_sieve
 
@@ -633,8 +639,7 @@ class ADPS16(ReductionCost):
 
         c = {
             "classical": 0.2920,
-            #"quantum": 0.2650,  # paper writes 0.262 but this isn't right, see above
-            "quantum": 0.2570,   # applied the result of [CL21] Lattice sieving via quantum random walks
+            "quantum": 0.2650,  # paper writes 0.262 but this isn't right, see above
             "paranoid": 0.2075,
         }
 
@@ -643,8 +648,25 @@ class ADPS16(ReductionCost):
         return ZZ(2) ** RR(c * beta)
 
 
-class Kyber(ReductionCost):
+class ChaLoy21(ReductionCost):
 
+    __name__ = "ChaLoy21"
+    short_vectors = ReductionCost._short_vectors_sieve
+
+    def __call__(self, beta, d, B=None):
+        """
+
+        See [AC:ChaLoy21]_.
+
+        :param beta: Block size ≥ 2.
+        :param d: Lattice dimension.
+        :param B: Bit-size of entries.
+        """
+
+        return ZZ(2) ** RR(0.2570 * beta)
+
+
+class Kyber(ReductionCost):
     __name__ = "Kyber"
 
     # These are not asymptotic expressions but compress the data in [AC:AGPS20]_ which covers up to
@@ -768,6 +790,7 @@ class Kyber(ReductionCost):
           vector expected from an SVP oracle by this factor.
         - `c` is the cost of outputting `N` vectors
         - `N` the number of vectors output, which may be larger than the value put in for `N`.
+        - `β'` the cost parameter associated with sampling
 
         This is using an observation insprired by [AC:GuoJoh21]_ that we can run a sieve on the
         first block of the basis with negligible overhead.
@@ -777,34 +800,34 @@ class Kyber(ReductionCost):
         :param N: Number of vectors requested.
         :param preprocess: Include the cost of preprocessing the basis with BKZ-β.
                If ``False`` we assume the basis is already BKZ-β reduced.
+        :return: ``(ρ, c, N, β')``
 
         EXAMPLES::
 
             >>> from estimator.reduction import RC
             >>> RC.Kyber.short_vectors(100, 500, 1)
-            (1.0, 2.7367476128136...19, 100)
+            (1.0, 2.7367476128136...19, 100, 1)
             >>> RC.Kyber.short_vectors(100, 500)
-            (1.1547, 2.7367476128136...19, 176584)
+            (1.1547, 2.7367476128136...19, 176584, 84)
             >>> RC.Kyber.short_vectors(100, 500, 1000)
-            (1.1547, 2.7367476128136...19, 176584)
+            (1.1547, 2.7367476128136...19, 176584, 84)
 
         """
         beta_ = beta - floor(self.d4f(beta))
 
         if N == 1:
             if preprocess:
-                return 1.0, self(beta, d, B=B), beta
+                return 1.0, self(beta, d, B=B), beta, 1
             else:
-                return 1.0, 1, beta
+                return 1.0, 1, beta, 1
         elif N is None:
             N = floor(2 ** (0.2075 * beta_))  # pick something
 
         c = N / floor(2 ** (0.2075 * beta_))
-        return 1.1547, ceil(c) * self(beta, d), ceil(c) * floor(2 ** (0.2075 * beta_))
+        return 1.1547, ceil(c) * self(beta, d), ceil(c) * floor(2 ** (0.2075 * beta_)), beta_
 
 
 class GJ21(Kyber):
-
     __name__ = "GJ21"
 
     def short_vectors(self, beta, d, N=None, preprocess=True, B=None, C=5.46, sieve_dim=None):
@@ -831,6 +854,7 @@ class GJ21(Kyber):
         :param B: Bit-size of entries.
         :param C: Progressive overhead lim_{β → ∞} ∑_{i ≤ β} 2^{0.292 i + o(i)}/2^{0.292 β + o(β)}.
         :param sieve_dim: Explicit sieving dimension.
+        :return: ``(ρ, c, N, β')``
 
         EXAMPLES::
 
@@ -847,13 +871,25 @@ class GJ21(Kyber):
         if sieve_dim is None:
             sieve_dim = beta_
             if beta < d:
-                # set beta_sieve such that complexity of 1 sieve in in dim sieve_dim is approx
+                # set beta_sieve such that complexity of 1 sieve in dim sieve_dim is approx
                 # the same as the BKZ call
                 sieve_dim = min(
                     d, floor(beta_ + log((d - beta) * C, 2) / self.NN_AGPS[self.nn]["a"])
                 )
 
-        # MATZOV, p.18
+        # MATZOV, p.18 (they call the slope δ_β, we call it α_β)
+        # gh(β) ≈ √(β/2πe)
+        # α_β ≈ (β/2πe)^(1/(β-1))
+        # λ_1' = gh(sieve_dim) ⋅ α_β^{(d-sieve_dim)/2} ⋅ vol(Λ)^{1/d}
+        #      = α_{sieve_dim}^((sieve_dim-1)/2)  ⋅ α_β^{(d-sieve_dim)/2} ⋅ vol(Λ)^{1/d}
+        # shortest vector in BKZ-β reduced basis
+        # λ_1 =  α_β^{(d-1)/2} ⋅ vol(Λ)^{1/d}
+        #      = α_β^((sieve_dim-1)/2)  ⋅ α_β^{(d-sieve_dim)/2} ⋅ vol(Λ)^{1/d}
+        # λ_1'/λ_1  = α_{sieve_dim}^((sieve_dim-1)/2)  ⋅ α_β^{(d-sieve_dim)/2} ⋅ vol(Λ)^{1/d}
+        #           / α_{β}^((sieve_dim-1)/2)          ⋅ α_β^{(d-sieve_dim)/2} ⋅ vol(Λ)^{1/d}
+        #           = α_{sieve_dim}^((sieve_dim-1)/2) / α_{β}^((sieve_dim-1)/2)
+        #           ≈ δ_{sieve_dim}^(sieve_dim-1) / δ_{β}^(sieve_dim-1)
+
         rho = sqrt(4 / 3.0) * RR(
             self.delta(sieve_dim) ** (sieve_dim - 1) * self.delta(beta) ** (1 - sieve_dim)
         )
@@ -866,12 +902,25 @@ class GJ21(Kyber):
         elif N is None:
             N = floor(2 ** (0.2075 * sieve_dim))  # pick something
 
-        c = N / floor(2 ** (0.2075 * sieve_dim))
-        sieve_cost = C * 2 ** (self.NN_AGPS[self.nn]["a"] * sieve_dim + self.NN_AGPS[self.nn]["b"])
+        c0 = RR(N)
+        c1 = RR(2 ** RR(0.2075 * sieve_dim))
+        c = c0 / floor(c1)
+        sieve_cost = C * 2 ** RR((self.NN_AGPS[self.nn]["a"] * sieve_dim + self.NN_AGPS[self.nn]["b"]))
+
+        # arbitrary choice
+        if c > 2**1000:
+            # set c = oo
+            return (
+                rho,
+                oo,
+                oo,
+                sieve_dim,
+            )
+
         return (
             rho,
             ceil(c) * (self(beta, d) + sieve_cost),
-            ceil(c) * floor(2 ** (0.2075 * sieve_dim)),
+            ceil(c) * floor(c1),
             sieve_dim,
         )
 
@@ -962,3 +1011,4 @@ class RC:
     MATZOV = MATZOV()
     GJ21 = GJ21()
     LaaMosPol14 = LaaMosPol14()
+    ChaLoy21 = ChaLoy21()
