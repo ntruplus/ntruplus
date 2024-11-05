@@ -35,9 +35,9 @@ int16_t montgomery_reduce(int32_t a)
 int16_t barrett_reduce(int16_t a)
 {
 	int16_t t;
-	const int16_t v = ((1<<26) + NTRUPLUS_Q/2)/NTRUPLUS_Q;
+	const uint16_t v = ((1<<27) + NTRUPLUS_Q/2)/NTRUPLUS_Q;
 	
-	t  = ((int32_t)v*a + (1<<25)) >> 26;
+	t  = ((int32_t)v*a + (1<<26)) >> 27;
 	t *= NTRUPLUS_Q;
 	return a - t;
 }
