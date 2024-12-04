@@ -88,20 +88,54 @@ void ntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 	int16_t t1,t2,t3;
 	int32_t T1,T2;	
 	int16_t zeta1,zeta2;
+	int16_t v[6];
+	
+	int k;
 
-	int k = 1;
-
-	zeta1 = zetas[k++];
-
-	for(int i = 0; i < NTRUPLUS_N/2; i++)
+	for (int i = 0; i < 96; i++)
 	{
-		t1 = fqmul(zeta1, a[i + NTRUPLUS_N/2]);
+		for (int j = 0; j < 6; j++)
+		{
+			v[j] = a[96*j+i];
+		}
 
-		r[i + NTRUPLUS_N/2] = a[i] + a[i + NTRUPLUS_N/2] - t1;
-		r[i               ] = a[i]                       + t1;
+		t1 = fqmul(zetas[1], v[3]);
+		v[3] = (v[0] + v[3] - t1);
+		v[0] = (v[0] + t1);
+
+		t1 = fqmul(zetas[1], v[4]);
+		v[4] = (v[1] + v[4] - t1);
+		v[1] = (v[1] + t1);
+
+		t1 = fqmul(zetas[1], v[5]);
+		v[5] = (v[2] + v[5] - t1);
+		v[2] = (v[2] + t1);
+
+		t1 = fqmul(zetas[2], v[1]);
+		t2 = fqmul(zetas[3], v[2]);
+		t3 = fqmul(-886, t1 - t2);
+
+		v[2] = v[0] - t1 - t3;
+		v[1] = v[0] - t2 + t3;
+		v[0] = v[0] + t1 + t2;
+
+		t1 = fqmul(zetas[4], v[4]);
+		t2 = fqmul(zetas[5], v[5]);
+		t3 = fqmul(-886, t1 - t2);
+
+		v[5] = v[3] - t1 - t3;
+		v[4] = v[3] - t2 + t3;
+		v[3] = v[3] + t1 + t2;
+
+		for (int j = 0; j < 6; j++)
+		{
+			r[96*j+i] = v[j];
+		}
 	}
 
-	for(int step = NTRUPLUS_N/6; step >= 32; step = step/3)
+	k = 6;
+
+	for(int step = NTRUPLUS_N/18; step >= 32; step = step/3)
 	{
 		for(int start = 0; start < NTRUPLUS_N; start += 3*step)
 		{
