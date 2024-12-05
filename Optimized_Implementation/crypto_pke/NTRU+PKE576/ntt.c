@@ -269,7 +269,7 @@ void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 		{
 			for (int k = 0; k < 8; k++)
 			{
-				v[k] = r[2*k+j+16*i];
+				v[k] = a[2*k+j+16*i];
 			}
 
 			t1 = v[2];
