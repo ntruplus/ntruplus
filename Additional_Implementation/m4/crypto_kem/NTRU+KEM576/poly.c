@@ -282,19 +282,6 @@ int poly_sotp_inv(uint8_t *msg, const poly *a, const uint8_t *buf)
 *
 * Description: Computes number-theoretic transform (NTT)
 *
-* Arguments:   - poly *r: pointer to output polynomial
-*              - poly *a: pointer to input polynomial
-**************************************************/
-void poly_ntt(poly *r, const poly *a)
-{
-	ntt(r->coeffs, a->coeffs);
-}
-
-/*************************************************
-* Name:        poly_ntt
-*
-* Description: Computes number-theoretic transform (NTT)
-*
 * Arguments:   - poly *r: pointer to input/output polynomial
 **************************************************/
 void poly_ntt(poly *r)
@@ -302,6 +289,18 @@ void poly_ntt(poly *r)
 	ntt(r->coeffs);
 }
 
+/*************************************************
+* Name:        poly_invntt
+*
+* Description: Computes inverse of number-theoretic transform (NTT)
+*
+* Arguments:   - poly *r: pointer to output polynomial
+*              - poly *a: pointer to input polynomial
+**************************************************/
+void poly_invntt(poly *r, const poly *a)
+{
+	invntt(r->coeffs, a->coeffs);
+}
 
 /*************************************************
 * Name:        poly_baseinv
