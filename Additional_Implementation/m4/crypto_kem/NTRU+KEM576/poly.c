@@ -291,17 +291,17 @@ void poly_ntt(poly *r, const poly *a)
 }
 
 /*************************************************
-* Name:        poly_invntt
+* Name:        poly_ntt
 *
-* Description: Computes inverse of number-theoretic transform (NTT)
+* Description: Computes number-theoretic transform (NTT)
 *
-* Arguments:   - poly *r: pointer to output polynomial
-*              - poly *a: pointer to input polynomial
+* Arguments:   - poly *r: pointer to input/output polynomial
 **************************************************/
-void poly_invntt(poly *r, const poly *a)
+void poly_ntt(poly *r)
 {
-	invntt(r->coeffs, a->coeffs);
+	ntt(r->coeffs);
 }
+
 
 /*************************************************
 * Name:        poly_baseinv
@@ -406,4 +406,13 @@ void poly_crepmod3(poly *r, const poly *a)
 {
   for(int i = 0; i < NTRUPLUS_N; i++)
     r->coeffs[i] = crepmod3(a->coeffs[i]);
+}
+
+void poly_copy(poly *r, const poly *a)
+{
+	for(int i = 0; i < NTRUPLUS_N; i++)
+	{
+		r->coeffs[i] = a->coeffs[i];
+	}
+
 }

@@ -36,7 +36,7 @@ int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
 		poly_cbd1(&f, buf);
 		poly_triple(&f, &f);
 		f.coeffs[0] += 1;
-		poly_ntt(&f, &f);
+		poly_ntt(&f);
 	} while(poly_baseinv(&finv, &f));
 
 	do {
@@ -45,7 +45,7 @@ int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
 
 		poly_cbd1(&g, buf); 
 		poly_triple(&g, &g);
-		poly_ntt(&g, &g);
+		poly_ntt(&g);
 		poly_basemul(&h, &g, &finv);
 	} while(poly_baseinv(&hinv, &h));
 	
@@ -90,12 +90,12 @@ int crypto_kem_enc(unsigned char *ct,
 	hash_h_kem(buf1, msg);
 	
 	poly_cbd1(&r, buf1 + NTRUPLUS_SYMBYTES);
-	poly_ntt(&r, &r);
+	poly_ntt(&r);
 	
 	poly_tobytes(buf2, &r);
 	hash_g(buf2, buf2);
 	poly_sotp(&m, msg, buf2);  
-	poly_ntt(&m, &m);
+	poly_ntt(&m);
 	
 	poly_frombytes(&h, pk);
 	poly_basemul_add(&c, &h, &r, &m);
@@ -149,7 +149,8 @@ int crypto_kem_dec(unsigned char *ss,
 	poly_invntt(&m1, &m1);
 	poly_crepmod3(&m1, &m1);
 	
-	poly_ntt(&m2, &m1);
+	poly_copy(&m2, &m1);
+	poly_ntt(&m2);
 	poly_sub(&c, &c, &m2);
 	poly_basemul(&r2, &c, &hinv);
 
@@ -165,7 +166,7 @@ int crypto_kem_dec(unsigned char *ss,
 	hash_h_kem(buf3, msg);
 	
 	poly_cbd1(&r1, buf3 + NTRUPLUS_SSBYTES);
-	poly_ntt(&r1, &r1);
+	poly_ntt(&r1);
 	poly_tobytes(buf2, &r1);
 	
 	fail |= verify(buf1, buf2, NTRUPLUS_POLYBYTES);
