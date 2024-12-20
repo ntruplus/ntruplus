@@ -56,12 +56,12 @@
 	mul_twiddle_plant \tmp, \omega, \tmp1, \q, \qa
 
 	usub16 \a2, \a0, \twiddle1
-	usub16 \a2, \a2, \tmp
 	usub16 \a1, \a0, \twiddle2
-	uadd16 \a1, \a1, \tmp
 	uadd16 \a0, \a0, \twiddle1
+	usub16 \a2, \a2, \tmp
+	uadd16 \a1, \a1, \tmp
 	uadd16 \a0, \a0, \twiddle2
-.endm
+ .endm
 
 .macro double_radix3_ntt_half poly, a0, xi0, xi1, mem0, mem1, mem2, twiddle1, twiddle2, tmp, tmp1, q, qa, omega
     vmov \twiddle1, \xi0
