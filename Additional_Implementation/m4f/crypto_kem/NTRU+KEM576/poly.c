@@ -294,12 +294,11 @@ void poly_ntt(poly *r)
 *
 * Description: Computes inverse of number-theoretic transform (NTT)
 *
-* Arguments:   - poly *r: pointer to output polynomial
-*              - poly *a: pointer to input polynomial
+* Arguments:   - poly *r: pointer to input/output polynomial
 **************************************************/
-void poly_invntt(poly *r, const poly *a)
+void poly_invntt(poly *r)
 {
-	invntt(r->coeffs, a->coeffs);
+	invntt(r->coeffs);
 }
 
 /*************************************************

@@ -21,7 +21,7 @@ int  poly_sotp_inv(unsigned char *msg, const poly *e, const unsigned char *buf);
 
 void poly_ntt(poly *r);
 void poly_copy(poly *r, const poly *a);
-void poly_invntt(poly *r, const poly *a);
+void poly_invntt(poly *r);
 int  poly_baseinv(poly *r, const poly *a);
 void poly_basemul(poly *r, const poly *a, const poly *b);
 void poly_basemul_add(poly *r, const poly *a, const poly *b, const poly *c);
