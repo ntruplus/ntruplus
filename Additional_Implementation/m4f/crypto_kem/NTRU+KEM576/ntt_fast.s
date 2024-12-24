@@ -15,6 +15,21 @@
 	ldr.w \a3, [\a, \mem3]
 .endm
 
+.macro doubleplant a, tmp, q, qa, plantconst
+	smulwb \tmp, \plantconst, \a
+	smulwt \a, \plantconst, \a
+	smlabt \tmp, \tmp, \q, \qa
+	smlabt \a, \a, \q, \qa
+	pkhtb \a, \a, \tmp, asr#16
+.endm
+
+.macro fullplant a0, a1, a2, a3, tmp, q, qa, plantconst
+	doubleplant \a0, \tmp, \q, \qa, \plantconst
+	doubleplant \a1, \tmp, \q, \qa, \plantconst
+	doubleplant \a2, \tmp, \q, \qa, \plantconst
+	doubleplant \a3, \tmp, \q, \qa, \plantconst
+.endm
+
 .macro mul_twiddle_plant a, twiddle, tmp, q, qa
 	smulwb \tmp, \twiddle, \a
 	smulwt \a,   \twiddle, \a
@@ -271,6 +286,11 @@ ntt_fast:
 			load4 poly, poly4, poly5, poly6, poly7, #32, #40, #48, #56
 
 			double_radix8_ntt poly0, poly1, poly2, poly3, poly4, poly5, poly6, poly7, s12, s13, s14, s15, s16, s17, s18, twiddle1, twiddle2, q, qa, tmp
+
+			movw twiddle1, #62750
+			movt twiddle1, #18
+			fullplant poly0, poly1, poly2, poly3, tmp, q, qa, twiddle1
+			fullplant poly4, poly5, poly6, poly7, tmp, q, qa, twiddle1
 
 			str.w poly7, [poly, #56]
 			str.w poly6, [poly, #48]
