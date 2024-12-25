@@ -219,29 +219,6 @@ int baseinv(int16_t r[4], const int16_t a[4], int16_t zeta)
 }
 
 /*************************************************
-* Name:        basemul
-*
-* Description: Multiplication of polynomials in Zq[X]/(X^4-zeta)
-*              used for multiplication of elements in Rq in NTT domain
-*
-* Arguments:   - int16_t r[4]: pointer to the output polynomial
-*              - const int16_t a[4]: pointer to the first factor
-*              - const int16_t b[4]: pointer to the second factor
-*              - int16_t zeta: integer defining the reduction polynomial
-**************************************************/
-void basemul(int16_t r[4], const int16_t a[4], const int16_t b[4], int16_t zeta)
-{
-	r[0] = montgomery_reduce(a[1]*b[3]+a[2]*b[2]+a[3]*b[1]);
-	r[1] = montgomery_reduce(a[2]*b[3]+a[3]*b[2]);
-	r[2] = montgomery_reduce(a[3]*b[3]);
-
-	r[0] = montgomery_reduce(r[0]*zeta+a[0]*b[0]);
-	r[1] = montgomery_reduce(r[1]*zeta+a[0]*b[1]+a[1]*b[0]);
-	r[2] = montgomery_reduce(r[2]*zeta+a[0]*b[2]+a[1]*b[1]+a[2]*b[0]);
-	r[3] = montgomery_reduce(a[0]*b[3]+a[1]*b[2]+a[2]*b[1]+a[3]*b[0]);
-}
-
-/*************************************************
 * Name:        basemul_add
 *
 * Description: Multiplication then addition of polynomials in Zq[X]/(X^4-zeta)

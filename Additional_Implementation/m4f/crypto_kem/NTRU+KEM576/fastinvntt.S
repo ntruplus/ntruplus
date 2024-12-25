@@ -1,27 +1,7 @@
+#include "macros.i"
 .syntax unified
 .cpu cortex-m4
 .thumb
-
-.macro load3 a, a0, a1, a2, mem0, mem1, mem2
-	ldr.w \a0, [\a, \mem0]
-	ldr.w \a1, [\a, \mem1]
-	ldr.w \a2, [\a, \mem2]
-.endm
-
-.macro load4 a, a0, a1, a2, a3, mem0, mem1, mem2, mem3
-	ldr.w \a0, [\a, \mem0]
-	ldr.w \a1, [\a, \mem1]
-	ldr.w \a2, [\a, \mem2]
-	ldr.w \a3, [\a, \mem3]
-.endm
-
-.macro mul_twiddle_plant a, twiddle, tmp, q, qa
-	smulwb \tmp, \twiddle, \a
-	smulwt \a,   \twiddle, \a
-	smlabt \tmp, \tmp, \q, \qa
-	smlabt \a, \a, \q, \qa
-	pkhtb \a, \a, \tmp, asr#16
-.endm
 
 .macro double_radix2_invntt a0, a1, twiddle, tmp, q, qa
 	usub16 \tmp, \a0, \a1
@@ -33,7 +13,6 @@
 	smlabt \tmp, \tmp, \q, \qa
 	pkhtb \a1, \tmp, \a1, asr#16
 .endm
-
 
 .macro double_radix2_invntt_last_layer a0, a1, twiddle1, twiddle2, twiddle3, tmp, q, qa
 	usub16 \tmp, \a0, \a1 //t2
@@ -66,22 +45,6 @@
 	mul_twiddle_plant \a2, \twiddle2, \tmp, \q, \qa
  .endm
 
-.macro doubleinvbutterfly_plant a0, a1, twiddle, tmp, q, qa
-	usub16 \tmp, \a0, \a1
-	uadd16 \a0, \a0, \a1
-
-	smulwb \a1, \twiddle, \tmp
-	smulwt \tmp, \twiddle, \tmp
-	smlabt \a1, \a1, \q, \qa
-	smlabt \tmp, \tmp, \q, \qa
-	pkhtb \a1, \tmp, \a1, asr#16
-.endm
-
-.macro two_doubleinvbutterfly_plant a0, a1, a2, a3, twiddle1, twiddle2, tmp, q, qa
-	doubleinvbutterfly_plant \a0, \a1, \twiddle1, \tmp, \q, \qa
-	doubleinvbutterfly_plant \a2, \a3, \twiddle2, \tmp, \q, \qa
-.endm
-
 .macro double_radix8_invntt c0, c1, c2, c3, c4, c5, c6, c7, xi0, xi1, xi2, xi3, xi4, xi5, xi6, twiddle1, twiddle2, q, qa, tmp
 	// layer 2
 	vmov \twiddle1, \xi0
@@ -108,21 +71,6 @@
 	double_radix2_invntt \c1, \c5, \twiddle1, \tmp, \q, \qa
 	double_radix2_invntt \c2, \c6, \twiddle1, \tmp, \q, \qa
 	double_radix2_invntt \c3, \c7, \twiddle1, \tmp, \q, \qa
-.endm
-
-.macro doubleplant a, tmp, q, qa, plantconst
-	smulwb \tmp, \plantconst, \a
-	smulwt \a, \plantconst, \a
-	smlabt \tmp, \tmp, \q, \qa
-	smlabt \a, \a, \q, \qa
-	pkhtb \a, \a, \tmp, asr#16
-.endm
-
-.macro fullplant a0, a1, a2, a3, tmp, q, qa, plantconst
-	doubleplant \a0, \tmp, \q, \qa, \plantconst
-	doubleplant \a1, \tmp, \q, \qa, \plantconst
-	doubleplant \a2, \tmp, \q, \qa, \plantconst
-	doubleplant \a3, \tmp, \q, \qa, \plantconst
 .endm
 
 .global invntt_fast
@@ -171,28 +119,7 @@ invntt_fast:
 			load4 poly, poly0, poly1, poly2, poly3, #0,  #8,  #16, #24
 			load4 poly, poly4, poly5, poly6, poly7, #32, #40, #48, #56
 
-			vmov twiddle1, s12
-			vmov twiddle2, s13
-			double_radix2_invntt poly0, poly1, twiddle1, tmp, q, qa
-			double_radix2_invntt poly2, poly3, twiddle2, tmp, q, qa
-
-			vmov twiddle1, s14
-			vmov twiddle2, s15
-			double_radix2_invntt poly4, poly5, twiddle1, tmp, q, qa
-			double_radix2_invntt poly6, poly7, twiddle2, tmp, q, qa
-
-			vmov twiddle1, s16
-			vmov twiddle2, s17
-			double_radix2_invntt poly0, poly2, twiddle1, tmp, q, qa
-			double_radix2_invntt poly1, poly3, twiddle1, tmp, q, qa
-			double_radix2_invntt poly4, poly6, twiddle2, tmp, q, qa
-			double_radix2_invntt poly5, poly7, twiddle2, tmp, q, qa
-
-			vmov twiddle1, s18
-			double_radix2_invntt poly0, poly4, twiddle1, tmp, q, qa
-			double_radix2_invntt poly1, poly5, twiddle1, tmp, q, qa
-			double_radix2_invntt poly2, poly6, twiddle1, tmp, q, qa
-			double_radix2_invntt poly3, poly7, twiddle1, tmp, q, qa
+			double_radix8_invntt poly0, poly1, poly2, poly3, poly4, poly5, poly6, poly7, s12, s13, s14, s15, s16, s17, s18, twiddle1, twiddle2, q, qa, tmp
 
 			movw twiddle1, #62750
 			movt twiddle1, #18
@@ -305,18 +232,18 @@ invntt_fast:
 
 	# LAYER 0
 	movw qa, #27656
+	movw twiddle1, #33972
+	movt twiddle1, #30976
+	movw twiddle2, #64285
+	movt twiddle2, #1345
+	movw tmp1, #63034
+	movt tmp1, #2691
+
 	add.w tmp, poly, #192
 	vmov s30, tmp
 	5:
 		load3 poly, poly0, poly1, poly2, #0,   #192, #384
 		load3 poly, poly3, poly4, poly5, #576, #768, #960
-
-		movw twiddle1, #33972
-		movt twiddle1, #30976
-		movw twiddle2, #64285
-		movt twiddle2, #1345
-		movw tmp1, #63034
-		movt tmp1, #2691
 
 		double_radix2_invntt_last_layer poly0, poly3, twiddle1, twiddle2, tmp1, tmp, q, qa
 		double_radix2_invntt_last_layer poly1, poly4, twiddle1, twiddle2, tmp1, tmp, q, qa

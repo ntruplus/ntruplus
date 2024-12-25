@@ -326,6 +326,7 @@ int poly_baseinv(poly *r, const poly *a)
 	return 0;
 }
 
+extern void poly_basemul_asm(poly *r, const poly *a, const poly *b, const int32_t *zeta);
 /*************************************************
 * Name:        poly_basemul
 *
@@ -337,11 +338,7 @@ int poly_baseinv(poly *r, const poly *a)
 **************************************************/
 void poly_basemul(poly *r, const poly *a, const poly *b)
 {
-	for(int i = 0; i < NTRUPLUS_N/8; ++i)
-	{
-		basemul(r->coeffs + 8*i, a->coeffs + 8*i, b->coeffs + 8*i, zetas[72 + i]);
-		basemul(r->coeffs + 8*i + 4, a->coeffs + 8*i + 4, b->coeffs + 8*i + 4, -zetas[72 + i]);
-	}
+	poly_basemul_asm(r, a, b, zetas+72);
 }
 
 /*************************************************
