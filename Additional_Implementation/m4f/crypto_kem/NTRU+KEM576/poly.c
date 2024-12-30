@@ -326,7 +326,7 @@ int poly_baseinv(poly *r, const poly *a)
 	return 0;
 }
 
-extern void poly_basemul_asm(poly *r, const poly *a, const poly *b, const int32_t *zeta);
+extern void poly_basemul_asm(poly *r, const poly *a, const poly *b, const int16_t *zeta);
 /*************************************************
 * Name:        poly_basemul
 *
@@ -341,21 +341,20 @@ void poly_basemul(poly *r, const poly *a, const poly *b)
 	poly_basemul_asm(r, a, b, zetas+72);
 }
 
+extern void poly_basemul_add_asm(poly *r, const poly *a, const poly *b, const int16_t *zeta);
 /*************************************************
-* Name:        poly_basemul_add
+* Name:        poly_basemul_add \\ r = ab + r
 *
 * Description: Multiplication then addition of three polynomials in NTT domain
 *
-* Arguments:   - poly *r:       pointer to output polynomial
+* Arguments:   - poly *r:       pointer to first input/output polynomial
 *              - const poly *a: pointer to first input polynomial
 *              - const poly *b: pointer to second input polynomial
-*              - const poly *c: pointer to third input polynomial
 **************************************************/
-void poly_basemul_add(poly *r, const poly *a, const poly *b, const poly *c)
+void poly_basemul_add(poly *r, const poly *a, const poly *b)
 {
-	poly_basemul_add_asm(r, a, b, c, zetas+72);
+	poly_basemul_add_asm(r, a, b, zetas+72);
 }
-
 /*************************************************
 * Name:        poly_sub
 *

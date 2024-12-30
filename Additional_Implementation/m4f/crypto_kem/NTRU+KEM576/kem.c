@@ -83,7 +83,7 @@ int crypto_kem_enc(unsigned char *ct,
 	uint8_t buf1[NTRUPLUS_SYMBYTES + NTRUPLUS_N / 4];
 	uint8_t buf2[NTRUPLUS_POLYBYTES];
 	
-	poly c, h, r, m;
+	poly c, h, r;
 	
 	randombytes(msg, NTRUPLUS_N / 8);
 	hash_f(msg + NTRUPLUS_N / 8, pk);
@@ -94,11 +94,11 @@ int crypto_kem_enc(unsigned char *ct,
 	
 	poly_tobytes(buf2, &r);
 	hash_g(buf2, buf2);
-	poly_sotp(&m, msg, buf2);  
-	poly_ntt(&m);
+	poly_sotp(&c, msg, buf2);
+	poly_ntt(&c);
 	
 	poly_frombytes(&h, pk);
-	poly_basemul_add(&c, &h, &r, &m);
+	poly_basemul_add(&c, &h, &r);
 	poly_tobytes(ct, &c);
 	
 	for (int i = 0; i < NTRUPLUS_SSBYTES; i++)
