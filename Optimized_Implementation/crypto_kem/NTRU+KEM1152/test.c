@@ -121,13 +121,13 @@ static void TEST_MODULE_CLOCK()
 		a.coeffs[i] = b.coeffs[i] = c.coeffs[i] = 0;
 	}
 	a.coeffs[0] = 1;
-	poly_ntt(&a,&a);
+	poly_ntt(&b,&a);
 	
 	kcycles=0;
 	for (int i = 0; i < TEST_LOOP; i++)
 	{
 		cycles1 = cpucycles();
-		poly_baseinv(&a, &a);
+		poly_baseinv(&a, &b);
 		cycles2 = cpucycles();
 		kcycles += cycles2-cycles1;
 	}
