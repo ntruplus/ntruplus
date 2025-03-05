@@ -403,19 +403,6 @@ vmovdqa		%ymm3,32(%rdi)
 vmovdqa		%ymm4,64(%rdi)
 vmovdqa		%ymm5,96(%rdi)
 
-#check for invertibility
-vpxor		%ymm14,%ymm14,%ymm14
-vpcmpeqw	%ymm14,%ymm8,%ymm14
-vperm2i128	$0x01,%ymm14,%ymm14,%ymm8
-por		    %xmm8,%xmm14
-vpshufd		$0x0E,%xmm14,%xmm8
-por		    %xmm8,%xmm14
-
-vpsrlq		$32,%xmm14,%xmm13
-por         %xmm14,%xmm13
-movq        %xmm13,%r10
-or		    %r10,%rcx
-
 add		$128,%rdi
 add		$128,%rsi
 

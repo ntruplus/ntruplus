@@ -1,7 +1,6 @@
 .global poly_add
 poly_add:
-
-xor		%rax,%rax
+lea 1728(%rsi), %rcx
 .p2align 5
 _looptop_add:
 vmovdqa		(%rsi),%ymm0
@@ -36,15 +35,14 @@ add		$192,%rsi
 add		$192,%rdx
 add		$192,%rdi
 add		$192,%rax
-cmp		$1728,%rax
+cmp     %rcx,%rsi
 jb		_looptop_add
 
 ret
 
 .global poly_sub
 poly_sub:
-
-xor		%rax,%rax
+lea 1728(%rsi), %rcx
 .p2align 5
 _looptop_sub:
 vmovdqa		(%rsi),%ymm0
@@ -79,15 +77,14 @@ add		$192,%rsi
 add		$192,%rdx
 add		$192,%rdi
 add		$192,%rax
-cmp		$1728,%rax
+cmp     %rcx,%rsi
 jb		_looptop_sub
 
 ret
 
 .global poly_triple
 poly_triple:
-
-xor		%rax,%rax
+lea 1728(%rsi), %rcx
 .p2align 5
 _looptop_triple:
 vmovdqa		(%rsi),%ymm0
@@ -121,7 +118,7 @@ vmovdqa		%ymm5,160(%rdi)
 add		$192,%rsi
 add		$192,%rdi
 add		$192,%rax
-cmp		$1728,%rax
+cmp     %rcx,%rsi
 jb		_looptop_triple
 
 ret
