@@ -8,12 +8,15 @@ from sage.all import oo
 
 from .lwe_primal import primal_usvp, primal_bdd, primal_hybrid
 from .lwe_bkw import coded_bkw
-from .lwe_guess import exhaustive_search, mitm, distinguish, guess_composition # noqa
-from .lwe_dual import dual, dual_hybrid
+from .lwe_guess import exhaustive_search, mitm, distinguish, guess_composition  # noqa
+from .lwe_dual import dual
+from .lwe_dual import matzov as dual_hybrid
 from .gb import arora_gb  # noqa
 from .lwe_parameters import LWEParameters as Parameters  # noqa
-from .conf import (red_cost_model as red_cost_model_default,
-                   red_shape_model as red_shape_model_default)
+from .conf import (
+    red_cost_model as red_cost_model_default,
+    red_shape_model as red_shape_model_default,
+)
 from .util import batch_estimate, f_name
 from .reduction import RC
 
@@ -22,10 +25,14 @@ class Estimate:
 
     def rough(self, params, jobs=1, catch_exceptions=True):
         """
-        This function makes the following somewhat routine assumptions:
+        This function makes the following (non-default) somewhat routine assumptions to evaluate the cost of lattice
+        reduction, and to provide comparable numbers with most of the literature:
 
         - The GSA holds.
         - The Core-SVP model holds.
+
+        Provided numbers are notably not directly comparable with the rest of our API, when using the default cost
+        models.
 
         This function furthermore assumes the following heuristics:
 
@@ -43,8 +50,7 @@ class Estimate:
             >>> from estimator import *
             >>> _ = LWE.estimate.rough(schemes.Kyber512)
             usvp                 :: rop: ≈2^118.6, red: ≈2^118.6, δ: 1.003941, β: 406, d: 998, tag: usvp
-            dual_hybrid          :: rop: ≈2^121.9, mem: ≈2^116.8, m: 512, β: 417, d: 1013, ↻: 1, ζ: 11...
-
+            dual_hybrid          :: rop: ≈2^115.5, red: ≈2^115.3, guess: ≈2^112.3, β: 395, p: 5, ζ: 0, t: 40, β': 395...
 
         """
         params = params.normalize()
@@ -52,18 +58,7 @@ class Estimate:
         algorithms = {}
 
         algorithms["usvp"] = partial(primal_usvp, red_cost_model=RC.ADPS16, red_shape_model="gsa")
-
-        if params.Xs.is_sparse:
-            algorithms["hybrid"] = partial(
-                primal_hybrid, red_cost_model=RC.ADPS16, red_shape_model="gsa"
-            )
-            algorithms["dual_mitm_hybrid"] = partial(
-                dual_hybrid, red_cost_model=RC.ADPS16, mitm_optimization=True
-            )
-        else:
-            algorithms["dual_hybrid"] = partial(
-                dual_hybrid, red_cost_model=RC.ADPS16, mitm_optimization=False
-            )
+        algorithms["dual_hybrid"] = partial(dual_hybrid, red_cost_model=RC.ADPS16)
 
         if params.m > params.n**2 and params.Xe.is_bounded:
             if params.Xs.is_sparse:
@@ -76,7 +71,8 @@ class Estimate:
         )
         res_raw = res_raw[params]
         res = {
-            algorithm: v for algorithm, attack in algorithms.items()
+            algorithm: v
+            for algorithm, attack in algorithms.items()
             for k, v in res_raw.items()
             if f_name(attack) == k
         }
@@ -101,7 +97,7 @@ class Estimate:
         catch_exceptions=True,
     ):
         """
-        Run all estimates.
+        Run all estimates, based on the default cost and shape models for lattice reduction.
 
         :param params: LWE parameters.
         :param red_cost_model: How to cost lattice reduction.
@@ -118,10 +114,8 @@ class Estimate:
             bkw                  :: rop: ≈2^178.8, m: ≈2^166.8, mem: ≈2^167.8, b: 14, t1: 0, t2: 16, ℓ: 13, #cod: 448...
             usvp                 :: rop: ≈2^143.8, red: ≈2^143.8, δ: 1.003941, β: 406, d: 998, tag: usvp
             bdd                  :: rop: ≈2^140.3, red: ≈2^139.7, svp: ≈2^138.8, β: 391, η: 421, d: 1013, tag: bdd
-            bdd_hybrid           :: rop: ≈2^140.3, red: ≈2^139.7, svp: ≈2^138.8, β: 391, η: 421, ζ: 0, |S|: 1, ...
-            bdd_mitm_hybrid      :: rop: ≈2^260.3, red: ≈2^259.4, svp: ≈2^259.3, β: 405, η: 2, ζ: 102, |S|: ≈2^247.2,...
-            dual                 :: rop: ≈2^149.9, mem: ≈2^88.0, m: 512, β: 424, d: 1024, ↻: 1, tag: dual
-            dual_hybrid          :: rop: ≈2^145.6, mem: ≈2^140.5, m: 512, β: 408, d: 1004, ↻: 1, ζ: 20, tag: dual_hybrid
+            dual                 :: rop: ≈2^149.9, mem: ≈2^97.1, m: 512, β: 424, d: 1024, ↻: 1, tag: dual
+            dual_hybrid          :: rop: ≈2^139.7, red: ≈2^139.6, guess: ≈2^135.9, β: 387, p: 5, ζ: 0, t: 50, β': 391...
 
         """
         params = params.normalize()
@@ -153,12 +147,7 @@ class Estimate:
             red_shape_model=red_shape_model,
         )
         algorithms["dual"] = partial(dual, red_cost_model=red_cost_model)
-        algorithms["dual_hybrid"] = partial(
-            dual_hybrid, red_cost_model=red_cost_model, mitm_optimization=False
-        )
-        algorithms["dual_mitm_hybrid"] = partial(
-            dual_hybrid, red_cost_model=red_cost_model, mitm_optimization=True
-        )
+        algorithms["dual_hybrid"] = partial(dual_hybrid, red_cost_model=red_cost_model)
 
         algorithms = {k: v for k, v in algorithms.items() if k not in deny_list}
         algorithms.update(add_list)
@@ -180,7 +169,9 @@ class Estimate:
             result = res[algorithm]
             if result["rop"] == oo:
                 continue
-            if algorithm == "hybrid" and res["bdd"]["rop"] < result["rop"]:
+            if algorithm == "bdd_hybrid" and res["bdd"]["rop"] <= result["rop"]:
+                continue
+            if algorithm == "bdd_mitm_hybrid" and res["bdd_hybrid"]["rop"] <= result["rop"]:
                 continue
             if algorithm == "dual_mitm_hybrid" and res["dual_hybrid"]["rop"] < result["rop"]:
                 continue

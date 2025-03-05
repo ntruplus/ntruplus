@@ -14,7 +14,22 @@ The main purpose of this estimator is to give designers an easy way to choose pa
 Quick Start
 -----------
 
-- Usage
+We currently provide evaluators for the security of the `LWE`, `NTRU`, and `SIS` problems.
+Our estimator integrates simulators for the best known attacks against these problems, and provides
+bit-security estimates relying on heuristics to predict the cost and shape of lattice reduction algorithms. The default
+models are configured in `conf.py <https://github.com/malb/lattice-estimator/blob/main/estimator/conf.py>`__.
+
+It is possible to evaluate attacks cost individually, or using the helper functions:
+
+- ``*.estimate.rough``: fast routine that evaluates the security of the problem only against the usually most efficient
+  attacks. Note that it uses a non-default cost model for lattice reduction, most often used in the literature for ease of
+  comparison, and will thus return different numbers than the rest of the API. Refer to 
+  `its documentation <https://lattice-estimator.readthedocs.io/en/latest/_apidoc/estimator.lwe/estimator.lwe.Estimate/estimator.lwe.Estimate.rough.html>`__
+  for details.
+- ``*.estimate``: extended routine that evaluates the security of the problem against all supported attacks. This uses the
+  default cost and shape model for lattice reduction.
+
+Usage examples:
 
   .. code-block:: python
     
@@ -27,16 +42,50 @@ Quick Start
     
     >>> r = LWE.estimate.rough(schemes.Kyber512)
     usvp                 :: rop: ≈2^118.6, red: ≈2^118.6, δ: 1.003941, β: 406, d: 998, tag: usvp
-    dual_hybrid          :: rop: ≈2^121.9, mem: ≈2^116.8, m: 512, β: 417, d: 1013, ↻: 1, ζ: 11, tag: dual_hybrid
+    dual_hybrid          :: rop: ≈2^115.5, red: ≈2^115.3, guess: ≈2^112.3, β: 395, p: 5, ζ: 0, t: 40, β': 395, N: ≈2^81.4, m: 512
 
     >>> r = LWE.estimate(schemes.Kyber512)
     bkw                  :: rop: ≈2^178.8, m: ≈2^166.8, mem: ≈2^167.8, b: 14, t1: 0, t2: 16, ℓ: 13, #cod: 448, #top: 0, #test: 64, tag: coded-bkw
     usvp                 :: rop: ≈2^143.8, red: ≈2^143.8, δ: 1.003941, β: 406, d: 998, tag: usvp
     bdd                  :: rop: ≈2^140.3, red: ≈2^139.7, svp: ≈2^138.8, β: 391, η: 421, d: 1013, tag: bdd
-    bdd_hybrid           :: rop: ≈2^140.3, red: ≈2^139.7, svp: ≈2^138.8, β: 391, η: 421, ζ: 0, |S|: 1, d: 1016, prob: 1, ↻: 1, tag: hybrid
-    bdd_mitm_hybrid      :: rop: ≈2^260.3, red: ≈2^259.4, svp: ≈2^259.3, β: 405, η: 2, ζ: 102, |S|: ≈2^247.2, d: 923, prob: ≈2^-113.8, ↻: ≈2^116.0, tag: hybrid
-    dual                 :: rop: ≈2^149.9, mem: ≈2^88.0, m: 512, β: 424, d: 1024, ↻: 1, tag: dual
-    dual_hybrid          :: rop: ≈2^145.6, mem: ≈2^140.5, m: 512, β: 408, d: 1004, ↻: 1, ζ: 20, tag: dual_hybrid
+    dual                 :: rop: ≈2^149.9, mem: ≈2^97.1, m: 512, β: 424, d: 1024, ↻: 1, tag: dual
+    dual_hybrid          :: rop: ≈2^139.7, red: ≈2^139.6, guess: ≈2^135.9, β: 387, p: 5, ζ: 0, t: 50, β': 391, N: ≈2^81.1, m: 512
+
+  .. code-block:: python
+
+    >>> from estimator import *
+    >>> schemes.Dilithium2_MSIS_WkUnf
+    SISParameters(n=1024, q=8380417, length_bound=350209, m=2304, norm=+Infinity, tag='Dilithium2_MSIS_WkUnf')
+
+    >>> r = SIS.estimate.rough(schemes.Dilithium2_MSIS_WkUnf)
+    lattice  :: rop: ≈2^123.5, red: ≈2^123.5, sieve: ≈2^-332.2, β: 423, η: 423, ζ: 1, d: 2303, prob: 1, ↻: 1, tag: infinity
+
+    >>> r = SIS.estimate(schemes.Dilithium2_MSIS_WkUnf)
+    lattice  :: rop: ≈2^152.2, red: ≈2^151.3, sieve: ≈2^151.1, β: 427, η: 433, ζ: 0, d: 2304, prob: 1, ↻: 1, tag: infinity
+
+  .. code-block:: python
+
+    >>> from estimator import *
+    >>> schemes.Falcon512_SKR
+    NTRUParameters(n=512, q=12289, Xs=D(σ=4.05), Xe=D(σ=4.05), m=512, tag='Falcon512_SKR', ntru_type='circulant')
+   
+    >>> r = NTRU.estimate.rough(schemes.Falcon512_SKR)
+    usvp                 :: rop: ≈2^140.5, red: ≈2^140.5, δ: 1.003499, β: 481, d: 544, tag: usvp
+   
+    >>> r = NTRU.estimate(schemes.Falcon512_SKR)
+    usvp                 :: rop: ≈2^165.1, red: ≈2^165.1, δ: 1.003489, β: 483, d: 1020, tag: usvp
+    bdd                  :: rop: ≈2^160.6, red: ≈2^159.6, svp: ≈2^159.6, β: 463, η: 496, d: 1022, tag: bdd
+    bdd_hybrid           :: rop: ≈2^160.6, red: ≈2^159.6, svp: ≈2^159.6, β: 463, η: 496, ζ: 0, |S|: 1, d: 1024, prob: 1, ↻: 1, tag: hybrid
+    bdd_mitm_hybrid      :: rop: ≈2^349.3, red: ≈2^349.3, svp: ≈2^204.8, β: 481, η: 2, ζ: 0, |S|: 1, d: 1024, prob: ≈2^-182.6, ↻: ≈2^184.8, tag: hybrid
+
+    >>> schemes.Falcon512_Unf
+    SISParameters(n=512, q=12289, length_bound=5833.9072, m=1024, norm=2, tag='Falcon512_Unf')
+   
+    >>> r = SIS.estimate.rough(schemes.Falcon512_Unf)
+    lattice  :: rop: ≈2^121.2, red: ≈2^121.2, δ: 1.003882, β: 415, d: 1024, tag: euclidean
+   
+    >>> r = SIS.estimate(schemes.Falcon512_Unf)
+    lattice  :: rop: ≈2^146.4, red: ≈2^146.4, δ: 1.003882, β: 415, d: 1024, tag: euclidean
 
 - `Try it in your browser <https://mybinder.org/v2/gh/malb/lattice-estimator/jupyter-notebooks?labpath=..%2F..%2Ftree%2Fprompt.ipynb>`__.
 - `Read the documentation <https://lattice-estimator.readthedocs.io/en/latest/>`__.
@@ -44,12 +93,13 @@ Quick Start
 Status
 ------
 
-We have feature parity with the `old estimator <https://bitbucket.org/malb/lwe-estimator/src/master/>`__:
+We cover:
 
 - ``[x]`` |lwe-primal-binder| :doc:`primal attacks on LWE <../algorithms/lwe-primal>` 
 - ``[X]`` |lwe-dual-binder| :doc:`dual attacks on LWE <../algorithms/lwe-dual>`
 - ``[x]`` |lwe-bkw-binder| :doc:`Coded-BKW attack on LWE <../algorithms/lwe-bkw>` 
 - ``[X]`` |gb-binder| :doc:`Arora-GB attack on LWE <../algorithms/gb>`
+- ``[x]`` |ntru-binder| :doc:`attacks on NTRU public keys (using overstretched parameters) <../algorithms/ntru>` 
 
 .. |lwe-primal-binder| image:: https://mybinder.org/badge_logo.svg
    :target: https://mybinder.org/v2/gh/malb/lattice-estimator/jupyter-notebooks?labpath=..%2F..%2Ftree%2Flwe-primal.ipynb
@@ -62,10 +112,12 @@ We have feature parity with the `old estimator <https://bitbucket.org/malb/lwe-e
 
 .. |gb-binder| image:: https://mybinder.org/badge_logo.svg
    :target: https://mybinder.org/v2/gh/malb/lattice-estimator/jupyter-notebooks?labpath=..%2F..%2Ftree%2Fgb.ipynb
-            
-but we are also planning:
 
-- ``[ ]`` attacks on `NTRU <https://en.wikipedia.org/wiki/NTRU>`__ public keys (using overstretched parameters)
+.. |ntru-binder| image:: https://mybinder.org/badge_logo.svg
+   :target: https://mybinder.org/v2/gh/malb/lattice-estimator/jupyter-notebooks?labpath=..%2F..%2Ftree%2Fntru.ipynb
+
+We are planning:
+
 - ``[ ]`` attack on `SIS <https://en.wikipedia.org/wiki/Short_integer_solution_problem>`__ instances
          
 Evolution
@@ -87,21 +139,24 @@ Contributions
 
 At present, this estimator is maintained by Martin Albrecht. Contributors are:
 
-- Benjamin Curtis
-- Cathie Yun
+- `Benjamin Curtis <https://github.com/bencrts>`__
+- `Cathie Yun <https://github.com/cathieyun>`__
 - Cedric Lefebvre
 - Fernando Virdia
 - Florian Göpfert
-- Hamish Hunt
+- `Hamish Hunt <https://github.com/hamishun>`__
+- `Hunter Kippen <https://github.com/hkippen-SBAQ>`__
 - James Owen
 - Léo Ducas
+- `Ludo Pulles <https://github.com/ludopulles>`__
 - Markus Schmidt
-- Martin Albrecht
+- `Martin Albrecht <https://github.com/malb>`__
 - Michael Walter
 - Rachel Player
 - Sam Scott
 
- See :doc:`Contributing <../contributing>` for details on how to contribute.
+See `Contributing <https://lattice-estimator.readthedocs.io/en/latest/contributing.html>`__ for details on how
+to contribute.
 
 Citing
 ------
@@ -134,5 +189,5 @@ Acknowledgements
 ----------------
 
 This project was supported through the European Union PROMETHEUS project (Horizon 2020 Research and
-Innovation Program, grant 780701), EPSRC grant EP/P009417/1 and EPSRC grant EP/S020330/1, and by 
-`Zama <https://zama.ai/>`__.
+Innovation Program, grant 780701), EPSRC grant EP/P009417/1 and EPSRC grant EP/S020330/1, by 
+`Zama <https://zama.ai/>`__ and by `SandboxAQ <https://sandboxaq.com>`__.

@@ -2,7 +2,6 @@
 #include "params.h"
 #include "poly.h"
 #include "ntt.h"
-#include "reduce.h"
 #include "symmetric.h"
 
 /*************************************************
@@ -271,14 +270,9 @@ void poly_invntt(poly *r, const poly *a)
 **************************************************/
 int poly_baseinv(poly *r, const poly *a)
 {
-	int result = 0;
-
 	for(int i = 0; i < NTRUPLUS_N/8; ++i)
 	{
-		result = baseinv(r->coeffs + 8*i, a->coeffs + 8*i, zetas[96 + i]);
-		if(result) return 1;
-		result = baseinv(r->coeffs + 8*i + 4, a->coeffs + 8*i + 4, -zetas[96 + i]);
-		if(result) return 1;
+		if(baseinv(r->coeffs + 8*i, a->coeffs + 8*i, zetas_plant[96 + i])) return 1;
 	 }
 
 	return 0;

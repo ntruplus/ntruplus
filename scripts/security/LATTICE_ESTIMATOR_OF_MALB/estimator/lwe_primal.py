@@ -46,9 +46,16 @@ class PrimalUSVP:
         # Find the smallest d ∈ [n,m] s.t. a*d^2 + b*d + c >= 0
         delta = deltaf(beta)
         a = -log(delta)
-        C = log(params.Xe.stddev**2 * (beta - 1) + tau**2) / 2.0
+
+        if not tau:
+            C = log(params.Xe.stddev**2 * (beta - 1)) / 2.0
+            c = params.n * log(xi) - (params.n + 1) * log(params.q)
+
+        else:
+            C = log(params.Xe.stddev**2 * (beta - 1) + tau**2) / 2.0
+            c = log(tau) + params.n * log(xi) - (params.n + 1) * log(params.q)
+
         b = log(delta) * (2 * beta - 1) + log(params.q) - C
-        c = log(tau) + params.n * log(xi) - (params.n + 1) * log(params.q)
         n = params.n
         if a * n * n + b * n + c >= 0:  # trivial case
             return n
@@ -85,20 +92,34 @@ class PrimalUSVP:
     ):
         delta = deltaf(beta)
         xi = PrimalUSVP._xi_factor(params.Xs, params.Xe)
-        m = min(2 * ceil(sqrt(params.n * log(params.q) / log(delta))), m)
+        m = min(ceil(sqrt(params.n * log(params.q) / log(delta))), m)
         tau = params.Xe.stddev if tau is None else tau
+        # Account for homogeneous instances
+        if params._homogeneous:
+            tau = False  # Tau false ==> instance is homogeneous
+
         d = PrimalUSVP._solve_for_d(params, m, beta, tau, xi) if d is None else d
+        if d < beta:
+            d = beta
         # if d == β we assume one SVP call, otherwise poly calls. This makes the cost curve jump, so
         # we avoid it here.
         if d == beta and d < m:
             d += 1
         assert d <= m + 1
 
-        lhs = log(sqrt(params.Xe.stddev**2 * (beta - 1) + tau**2))
-        rhs = RR(
-            log(delta) * (2 * beta - d - 1)
-            + (log(tau) + log(xi) * params.n + log(params.q) * (d - params.n - 1)) / d
-        )
+        if not tau:
+            lhs = log(sqrt(params.Xe.stddev**2 * (beta - 1)))
+            rhs = RR(
+                log(delta) * (2 * beta - d - 1)
+                + (log(xi) * params.n + log(params.q) * (d - params.n - 1)) / d
+            )
+
+        else:
+            lhs = log(sqrt(params.Xe.stddev**2 * (beta - 1) + tau**2))
+            rhs = RR(
+                log(delta) * (2 * beta - d - 1)
+                + (log(tau) + log(xi) * params.n + log(params.q) * (d - params.n - 1)) / d
+            )
 
         return costf(red_cost_model, beta, d, predicate=lhs <= rhs)
 
@@ -120,8 +141,18 @@ class PrimalUSVP:
         xi = PrimalUSVP._xi_factor(params.Xs, params.Xe)
         tau = params.Xe.stddev if tau is None else tau
 
+        if params._homogeneous:
+            tau = False
+            d -= 1  # Remove extra dimension in homogeneous instances
+
         r = simulator(d=d, n=params.n, q=params.q, beta=beta, xi=xi, tau=tau)
-        lhs = params.Xe.stddev**2 * (beta - 1) + tau**2
+
+        if not tau:
+            lhs = params.Xe.stddev**2 * (beta - 1)
+
+        else:
+            lhs = params.Xe.stddev**2 * (beta - 1) + tau**2
+
         predicate = r[d - beta] > lhs
 
         return costf(red_cost_model, beta, d, predicate=predicate)
@@ -168,16 +199,23 @@ class PrimalUSVP:
             >>> LWE.primal_usvp(params, red_shape_model=Simulator.CN11, optimize_d=False)
             rop: ≈2^87.6, red: ≈2^87.6, δ: 1.006114, β: 209, d: 400, tag: usvp
 
+            >>> params = LWE.Parameters(n=384, q=2**7, Xs=ND.Uniform(0, 1), Xe=ND.CenteredBinomial(8), m=2*384)
+            >>> LWE.primal_usvp(params, red_cost_model=RC.BDGL16)  # Issue #87
+            rop: ≈2^161.8, red: ≈2^161.8, δ: 1.003634, β: 456, d: 595, tag: usvp
+
+            >>> Xe=ND.DiscreteGaussian(stddev=3.19)
+            >>> params = LWE.Parameters(n=1030, m=2060, q=2**64, Xs=ND.Uniform(0, 1), Xe=Xe)
+            >>> LWE.primal_usvp(params, red_cost_model=RC.BDGL16)  # Issue 95
+            rop: ≈2^56.6, red: ≈2^56.6, δ: 1.009686, β: 91, d: 1618, tag: usvp
+
         The success condition was formulated in [USENIX:ADPS16]_ and studied/verified in
         [AC:AGVW17]_, [C:DDGR20]_, [PKC:PosVir21]_. The treatment of small secrets is from
         [ACISP:BaiGal14]_.
 
         """
         params = LWEParameters.normalize(params)
-
         # allow for a larger embedding lattice dimension: Bai and Galbraith
         m = params.m + params.n if params.Xs <= params.Xe else params.m
-
         if red_shape_model == "gsa":
             with local_minimum(40, max(2 * params.n, 41), precision=5) as it:
                 for beta in it:
@@ -273,10 +311,20 @@ class PrimalHybrid:
 
         d = len(r)
         r = [log(x) for x in r]
-        for i, _ in enumerate(r):
-            if gaussian_heuristic_log_input(r[i:]) < D.stddev**2 * (d - i):
-                return ZZ(d - (i - 1))
-        return ZZ(2)
+
+        if d > 4096:
+            for i, _ in enumerate(r):
+                # chosen since RC.ADPS16(1754, 1754).log(2.) = 512.168000000000
+                j = d - 1754 + i
+                if (j < d) and (gaussian_heuristic_log_input(r[j:]) < D.stddev**2 * (d - j)):
+                    return ZZ(d - (j - 1))
+            return ZZ(2)
+
+        else:
+            for i, _ in enumerate(r):
+                if gaussian_heuristic_log_input(r[i:]) < D.stddev**2 * (d - i):
+                    return ZZ(d - (i - 1))
+            return ZZ(2)
 
     @staticmethod
     @cached_function
@@ -311,12 +359,17 @@ class PrimalHybrid:
             delta = deltaf(beta)
             d = min(ceil(sqrt(params.n * log(params.q) / log(delta))), m) + 1
         d -= zeta
+
         xi = PrimalUSVP._xi_factor(params.Xs, params.Xe)
-
+        tau = 1
         # 1. Simulate BKZ-β
-        # TODO: pick τ
+        # TODO: pick τ as non default value
 
-        r = simulator(d, params.n - zeta, params.q, beta, xi=xi, dual=True)
+        if params._homogeneous:
+            tau = False
+            d -= 1
+
+        r = simulator(d, params.n - zeta, params.q, beta, xi=xi, tau=tau, dual=True)
 
         bkz_cost = costf(red_cost_model, beta, d)
 
@@ -327,6 +380,10 @@ class PrimalHybrid:
         else:
             # we scaled the lattice so that χ_e is what we want
             eta = PrimalHybrid.svp_dimension(r, params.Xe)
+            if eta > d:
+                # Lattice reduction was not strong enough to "reveal" the LWE solution.
+                # A larger `beta` should perhaps be attempted.
+                return Cost(rop=oo)
             svp_cost = costf(red_cost_model, eta, eta)
             # when η ≪ β, lifting may be a bigger cost
             svp_cost["rop"] += PrimalHybrid.babai_cost(d - eta)["rop"]
@@ -348,7 +405,7 @@ class PrimalHybrid:
 
         if zeta:
             # the number of non-zero entries
-            h = ceil(len(params.Xs) * params.Xs.density)
+            h = params.Xs.hamming_weight
             probability = RR(prob_drop(params.n, h, zeta))
             hw = 1
             while hw < min(h, zeta):
@@ -363,7 +420,7 @@ class PrimalHybrid:
 
         if mitm and zeta > 0:
             if babai:
-                probability *= mitm_babai_probability(r, params.Xe.stddev, params.q)
+                probability *= mitm_babai_probability(r, params.Xe.stddev)
             else:
                 # TODO: the probability in this case needs to be analysed
                 probability *= 1
@@ -511,17 +568,18 @@ class PrimalHybrid:
         EXAMPLES::
 
             >>> from estimator import *
-            >>> LWE.primal_hybrid(schemes.Kyber512.updated(Xs=ND.SparseTernary(512, 16)), mitm = False, babai = False)
-            rop: ≈2^91.5, red: ≈2^90.7, svp: ≈2^90.2, β: 178, η: 21, ζ: 256, |S|: ≈2^56.6, d: 531, ...
+            >>> params = schemes.Kyber512.updated(Xs=ND.SparseTernary(16))
+            >>> LWE.primal_hybrid(params, mitm=False, babai=False)
+            rop: ≈2^91.5, red: ≈2^90.7, svp: ≈2^90.2, β: 178, η: 21, ζ: 256, |S|: ≈2^56.6, d: 531, prob: 0.003, ↻: 1...
 
-            >>> LWE.primal_hybrid(schemes.Kyber512.updated(Xs=ND.SparseTernary(512, 16)), mitm = False, babai = True)
-            rop: ≈2^88.7, red: ≈2^88.0, svp: ≈2^87.2, β: 98, η: 2, ζ: 323, |S|: ≈2^39.7, d: 346, ...
+            >>> LWE.primal_hybrid(params, mitm=False, babai=True)
+            rop: ≈2^88.7, red: ≈2^88.0, svp: ≈2^87.2, β: 98, η: 2, ζ: 323, |S|: ≈2^39.7, d: 346, prob: ≈2^-28.4, ↻: ...
 
-            >>> LWE.primal_hybrid(schemes.Kyber512.updated(Xs=ND.SparseTernary(512, 16)), mitm = True, babai = False)
-            rop: ≈2^74.1, red: ≈2^73.7, svp: ≈2^71.9, β: 104, η: 16, ζ: 320, |S|: ≈2^77.1, d: 359, ...
+            >>> LWE.primal_hybrid(params, mitm=True, babai=False)
+            rop: ≈2^74.1, red: ≈2^73.7, svp: ≈2^71.9, β: 104, η: 16, ζ: 320, |S|: ≈2^77.1, d: 359, prob: ≈2^-12.3, ↻...
 
-            >>> LWE.primal_hybrid(schemes.Kyber512.updated(Xs=ND.SparseTernary(512, 16)), mitm = True, babai = True)
-            rop: ≈2^85.8, red: ≈2^84.8, svp: ≈2^84.8, β: 105, η: 2, ζ: 366, |S|: ≈2^85.1, d: 315, ...
+            >>> LWE.primal_hybrid(params, mitm=True, babai=True)
+            rop: ≈2^85.8, red: ≈2^84.8, svp: ≈2^84.8, β: 105, η: 2, ζ: 366, |S|: ≈2^85.1, d: 315, prob: ≈2^-23.4, ↻:...
 
         TESTS:
 
@@ -530,6 +588,15 @@ class PrimalHybrid:
             >>> params = LWE.Parameters(2**10, 2**100, ND.DiscreteGaussian(3.19), ND.DiscreteGaussian(3.19))
             >>> LWE.primal_bdd(params)
             rop: ≈2^43.7, red: ≈2^43.7, svp: ≈2^22.1, β: 40, η: 2, d: 1516, tag: bdd
+
+        We also test a LWE instance with a large error (coming from issue #106)::
+
+            >>> LWE.primal_bdd(LWE.Parameters(n=256, q=12289, Xs=ND.UniformMod(2), Xe=ND.UniformMod(1024)))
+            rop: ≈2^116.3, red: ≈2^41.4, svp: ≈2^116.3, β: 40, η: 340, d: 340, tag: bdd
+
+            >>> LWE.primal_bdd(LWE.Parameters(n=700, q=2**64, Xs=ND.UniformMod(2), Xe=ND.UniformMod(2**59)))
+            rop: ≈2^263.2, red: ≈2^42.8, svp: ≈2^263.2, β: 40, η: 867, d: 867, tag: bdd
+
 
         """
 
@@ -557,15 +624,17 @@ class PrimalHybrid:
         )
 
         if zeta is None:
-            with local_minimum(0, params.n, log_level=log_level) as it:
+            # Find the smallest value for zeta such that the square root of the search space for
+            # zeta is larger than the number of operations to solve uSVP on the whole LWE instance
+            # (without guessing).
+            usvp_cost = primal_usvp(params, red_cost_model=red_cost_model)["rop"]
+            zeta_max = params.n
+            while zeta_max < params.n and sqrt(params.Xs.resize(zeta_max).support_size()) < usvp_cost:
+                zeta_max += 1
+
+            with local_minimum(0, min(zeta_max, params.n), log_level=log_level) as it:
                 for zeta in it:
-                    it.update(
-                        f(
-                            zeta=zeta,
-                            optimize_d=False,
-                            **kwds,
-                        )
-                    )
+                    it.update(f(zeta=zeta, optimize_d=False, **kwds))
             # TODO: this should not be required
             cost = min(it.y, f(0, optimize_d=False, **kwds))
         else:

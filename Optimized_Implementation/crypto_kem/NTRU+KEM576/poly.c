@@ -2,7 +2,6 @@
 #include "params.h"
 #include "poly.h"
 #include "ntt.h"
-#include "reduce.h"
 #include "symmetric.h"
 
 /*************************************************
@@ -315,15 +314,10 @@ void poly_invntt(poly *r, const poly *a)
 **************************************************/
 int poly_baseinv(poly *r, const poly *a)
 {
-	int result = 0;
-
-	for(int i = 0; i < NTRUPLUS_N/8; ++i)
+	for(int i = 0; i < NTRUPLUS_N/8; i++)
 	{
-		result = baseinv(r->coeffs + 8*i, a->coeffs + 8*i, zetas[72 + i]);
-		if(result) return 1;
-		result = baseinv(r->coeffs + 8*i + 4, a->coeffs + 8*i + 4, -zetas[72 + i]);
-		if(result) return 1;
-	 }
+		if(baseinv(r->coeffs + 8*i, a->coeffs + 8*i, zetas_plant[72 + i])) return 1;
+	}
 
 	return 0;
 }
@@ -339,7 +333,7 @@ int poly_baseinv(poly *r, const poly *a)
 **************************************************/
 void poly_basemul(poly *r, const poly *a, const poly *b)
 {
-	for(int i = 0; i < NTRUPLUS_N/8; ++i)
+	for(int i = 0; i < NTRUPLUS_N/8; i++)
 	{
 		basemul(r->coeffs + 8*i, a->coeffs + 8*i, b->coeffs + 8*i, zetas[72 + i]);
 		basemul(r->coeffs + 8*i + 4, a->coeffs + 8*i + 4, b->coeffs + 8*i + 4, -zetas[72 + i]);
@@ -376,7 +370,7 @@ void poly_basemul_add(poly *r, const poly *a, const poly *b, const poly *c)
 **************************************************/
 void poly_sub(poly *r, const poly *a, const poly *b)
 {
-	for(int i = 0; i < NTRUPLUS_N; ++i)
+	for(int i = 0; i < NTRUPLUS_N; i++)
 		r->coeffs[i] = a->coeffs[i] - b->coeffs[i];
 }
 
@@ -390,7 +384,7 @@ void poly_sub(poly *r, const poly *a, const poly *b)
 **************************************************/
 void poly_triple(poly *r, const poly *a) 
 {
-	for(int i = 0; i < NTRUPLUS_N; ++i)
+	for(int i = 0; i < NTRUPLUS_N; i++)
 		r->coeffs[i] = 3*a->coeffs[i];
 }
 
