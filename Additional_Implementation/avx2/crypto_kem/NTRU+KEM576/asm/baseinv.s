@@ -4,7 +4,7 @@ vmovdqa      _16xqinv(%rip),%ymm15
 vmovdqa         _16xq(%rip),%ymm0
 lea         zetas_mul(%rip),%rdx
 
-lea              1152(%rsi), %rcx
+lea              1152(%rsi), %rax
 .p2align 5
 _looptop:
 #zeta
@@ -395,7 +395,7 @@ vmovdqa     %ymm5,96(%rdi)
 add     $128,%rdi
 add     $128,%rsi
 add     $64,%rdx
-cmp     %rcx,%rsi
+cmp     %rax,%rsi
 jb      _looptop
 
 xor     %rax,%rax

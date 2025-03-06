@@ -6,7 +6,7 @@ lea         zetas(%rip),%rcx
 
 add     $1864,%rcx
 
-xor		%rax,%rax
+lea 2304(%rsi), %rax
 .p2align 5
 _looptop_basemul:
 #load
@@ -369,8 +369,7 @@ add     $64,%rcx
 add		$128,%rsi
 add		$128,%rdx
 add		$128,%rdi
-add		$256,%rax
-cmp		$2304,%rax
+cmp     %rax,%rsi
 jb		_looptop_basemul
 
 ret

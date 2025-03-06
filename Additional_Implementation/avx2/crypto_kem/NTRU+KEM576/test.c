@@ -236,6 +236,17 @@ static void TEST_MODULE_CLOCK()
 	for (int i = 0; i < TEST_LOOP; i++)
 	{
 		cycles1 = cpucycles();
+		poly_add(&c, &a, &b);
+		cycles2 = cpucycles();
+		kcycles += cycles2-cycles1;
+	}
+	printf("  poly_add runs in ............... %8lld cycles", kcycles/TEST_LOOP);
+	printf("\n");
+		
+	kcycles=0;
+	for (int i = 0; i < TEST_LOOP; i++)
+	{
+		cycles1 = cpucycles();
 		poly_triple(&a, &a);
 		cycles2 = cpucycles();
 		kcycles += cycles2-cycles1;

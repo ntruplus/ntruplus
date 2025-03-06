@@ -2,7 +2,7 @@
 poly_cbd1:
 
 vmovdqa		_16x1(%rip),%ymm0
-xor		    %rax,%rax
+lea 1024(%rdi), %rax
 .p2align 5
 _looptop_poly_cbd1_1:
 vmovdqu  	(%rsi),%ymm2
@@ -29,8 +29,7 @@ jb          _looptop_poly_cbd1_1_1
 
 add		$32,%rsi
 add		$512,%rdi
-add		$512,%rax
-cmp		$1024,%rax
+cmp       %rax, %rdi
 jb		_looptop_poly_cbd1_1
 
 movq         (%rsi),%mm2
@@ -65,7 +64,7 @@ ret
 poly_sotp:
 
 vmovdqa		_16x1(%rip),%ymm0
-xor		    %rax,%rax
+lea 1024(%rdi), %rax
 .p2align 5
 _looptop_poly_sotp_1:
 vmovdqu  	  (%rsi),%ymm1
@@ -94,11 +93,10 @@ add         $32,%r8
 cmp         $512,%r8
 jb          _looptop_poly_sotp_1_1
 
+add		$512,%rdi
 add		$32,%rsi
 add		$32,%rdx
-add		$512,%rdi
-add		$512,%rax
-cmp		$1024,%rax
+cmp       %rax, %rdi
 jb		_looptop_poly_sotp_1
 
 movq         (%rsi),%mm1
@@ -139,7 +137,7 @@ vmovdqa		_16x1(%rip),%ymm0
 vmovdqa		_8x1(%rip),%ymm4
 vmovdqa		_8x1(%rip),%ymm5
 
-xor		    %rax,%rax
+lea 1024(%rsi), %rax
 vpxor       %ymm8,%ymm8,%ymm8
 
 .p2align 5
@@ -173,11 +171,10 @@ jb          _looptop_poly_sotp_inv_1_1
 vpxor       %ymm7,%ymm2,%ymm2
 vmovdqu     %ymm2,(%rdi)
 
+add		$512,%rsi
 add		$32,%rdi
 add		$32,%rdx
-add		$512,%rsi
-add		$512,%rax
-cmp		$1024,%rax
+cmp      %rax, %rsi
 jb		_looptop_poly_sotp_inv_1
 
 vperm2i128	$0x01,%ymm8,%ymm8,%ymm9

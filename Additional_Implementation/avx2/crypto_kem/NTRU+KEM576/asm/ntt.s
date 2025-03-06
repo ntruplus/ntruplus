@@ -9,7 +9,8 @@ lea		    zetas(%rip),%rdx
 vpbroadcastd	(%rdx),%ymm15
 vpbroadcastd	4(%rdx),%ymm2
 
-xor		%rax,%rax
+lea 576(%rsi), %rax
+
 .p2align 5
 _looptop_j_0:
 #load
@@ -57,8 +58,7 @@ vmovdqa		%ymm14,640(%rdi)
 
 add		$96,%rsi
 add		$96,%rdi
-add		$96,%rax
-cmp		$576,%rax
+cmp       %rax, %rsi
 jb		_looptop_j_0
 
 add		$8,%rdx
@@ -69,7 +69,7 @@ sub		$576,%rdi
 vmovdqu	_16xwqinv(%rip),%ymm2 #winv
 vmovdqu	_16xw(%rip),%ymm3     #w
 
-xor         %rax,%rax
+lea 1152(%rdi), %rax
 .p2align 5
 _looptop_start_1:
 #zetas
@@ -127,16 +127,15 @@ add		$32,%rcx
 cmp		$192,%rcx
 jb		_looptop_j_1
 
-add		$16,%rdx
 add		$384,%rdi
-add		$576,%rax
-cmp		$1152,%rax
+add		$16,%rdx
+cmp      %rax, %rdi
 jb		_looptop_start_1
 
 sub		$1152,%rdi
 
 #level 2
-xor         %rax,%rax
+    lea 1152(%rdi), %rax
 .p2align 5
 _looptop_start_2:
 #zetas
@@ -196,13 +195,13 @@ jb		_looptop_j_2
 
 add		$16,%rdx
 add		$128,%rdi
-add		$192,%rax
-cmp		$1152,%rax
+cmp      %rax, %rdi
 jb		_looptop_start_2
 
 sub		$1152,%rdi
 
-xor		%rax,%rax
+lea 1152(%rdi), %rax
+
 .p2align 5
 _looptop_start_345:
 #level3
@@ -336,10 +335,9 @@ vmovdqa		%ymm4,32(%rdi)
 vmovdqa		%ymm7,64(%rdi)
 vmovdqa		%ymm8,96(%rdi)
 
-add     $64,%rdx
 add		$128,%rdi
-add		$128,%rax
-cmp		$1152,%rax
+add     $64,%rdx
+cmp     %rax, %rdi
 
 jb		_looptop_start_345
 

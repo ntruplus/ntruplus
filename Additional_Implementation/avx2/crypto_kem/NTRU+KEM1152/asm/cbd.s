@@ -2,7 +2,7 @@
 poly_cbd1:
 
 vmovdqa		_16x1(%rip),%ymm0
-xor		    %rax,%rax
+lea 2048(%rdi), %rax
 .p2align 5
 _looptop_poly_cbd1_1:
 vmovdqu  	(%rsi),%ymm2
@@ -29,8 +29,7 @@ jb          _looptop_poly_cbd1_1_1
 
 add		$32,%rsi
 add		$512,%rdi
-add		$512,%rax
-cmp		$2048,%rax
+cmp     %rax,%rdi
 jb		_looptop_poly_cbd1_1
 
 vmovdqa		_8x1_16(%rip),%ymm0

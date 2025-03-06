@@ -1,32 +1,31 @@
 .global poly_invntt
 poly_invntt:
-vmovdqa		_16xq(%rip),%ymm0
-vmovdqa		_16xv(%rip),%ymm1
-lea		zetas_inv(%rip),%rdx
+    vmovdqa     _16xq(%rip), %ymm0
+    vmovdqa     _16xv(%rip), %ymm1
+    lea         zetas_inv(%rip), %rdx
+    
+    lea         1152(%rsi), %rax
 
-xor		%rax,%rax
 .p2align 5
 _looptop_start_543:
-#level5
-#load
-vmovdqa		(%rsi),%ymm11
-vmovdqa		32(%rsi),%ymm12
-vmovdqa		64(%rsi),%ymm7
-vmovdqa		96(%rsi),%ymm8
+    vmovdqa     (%rsi), %ymm11
+    vmovdqa     32(%rsi), %ymm12
+    vmovdqa     64(%rsi), %ymm7
+    vmovdqa     96(%rsi), %ymm8
 
-#shuffle
-vpslld		$16,%ymm12,%ymm3
-vpslld		$16,%ymm8,%ymm4
-vpblendw	$0xAA,%ymm3,%ymm11,%ymm3
-vpblendw	$0xAA,%ymm4,%ymm7,%ymm4
-vpsrld		$16,%ymm7,%ymm7
-vpsrld		$16,%ymm11,%ymm11
-vpblendw	$0xAA,%ymm8,%ymm7,%ymm8
-vpblendw	$0xAA,%ymm12,%ymm11,%ymm7
+    #shuffle
+    vpslld      $16,   %ymm12, %ymm3
+    vpslld      $16,   %ymm8,  %ymm4
+    vpblendw    $0xAA, %ymm3,  %ymm11, %ymm3
+    vpblendw    $0xAA, %ymm4,  %ymm7,  %ymm4
+    vpsrld      $16,   %ymm7,  %ymm7
+    vpsrld      $16,   %ymm11, %ymm11
+    vpblendw    $0xAA, %ymm8,  %ymm7,  %ymm8
+    vpblendw    $0xAA, %ymm12, %ymm11, %ymm7
 
-#zetas
-vmovdqa		  (%rdx),%ymm15
-vmovdqa		32(%rdx),%ymm2
+    #zetas
+    vmovdqa     (%rdx), %ymm15
+    vmovdqa     32(%rdx), %ymm2
 
 #update
 vpaddw		%ymm7,%ymm3,%ymm11
@@ -143,8 +142,7 @@ vmovdqa		%ymm8,96(%rdi)
 add		$128,%rsi
 add		$128,%rdi
 add		$64,%rdx
-add		$128,%rax
-cmp		$1152,%rax
+cmp       %rax, %rsi
 jb		_looptop_start_543
 
 sub		$1152,%rdi
@@ -154,7 +152,8 @@ add     $1152,%rdx
 vmovdqu	_16xwqinv(%rip),%ymm2 #winv
 vmovdqu	_16xw(%rip),%ymm3     #w
 
-xor		%rax,%rax
+    lea 1152(%rdi), %rax
+
 .p2align 5
 _looptop_start_2:
 #load
@@ -212,10 +211,9 @@ add		$32,%rcx
 cmp		$64,%rcx
 jb		_looptop_j_2
 
+add		$128, %rdi
 add		$16,%rdx
-add		$128,%rdi
-add     $192,%rax
-cmp		$1152,%rax
+cmp     %rax, %rdi
 jb		_looptop_start_2
 
 sub		$1152,%rdi
@@ -224,7 +222,7 @@ sub		$1152,%rdi
 vmovdqu	_16xwqinv(%rip),%ymm2 #winv
 vmovdqu	_16xw(%rip),%ymm3 #w
 
-xor		%rax,%rax
+lea 1152(%rdi), %rax
 .p2align 5
 _looptop_start_1:
 #load
@@ -290,8 +288,7 @@ jb		_looptop_j_1
 
 add     $16,%rdx
 add		$384,%rdi
-add     $576,%rax
-cmp		$1152,%rax
+cmp     %rax, %rdi
 jb		_looptop_start_1
 
 sub		$1152,%rdi
@@ -307,7 +304,7 @@ vpbroadcastd    12(%rdx),%ymm14
 vpsllw			$1,%ymm13,%ymm15
 vpsllw			$1,%ymm14,%ymm1
 
-xor			%rax,%rax
+lea 576(%rdi), %rax
 .p2align 5
 _looptop_start_0:
 #load
@@ -388,8 +385,7 @@ vmovdqa		%ymm8,608(%rdi)
 vmovdqa		%ymm9,640(%rdi)
 
 add		$96,%rdi
-add		$96,%rax
-cmp		$576,%rax
+cmp       %rax, %rdi
 jb		_looptop_start_0
 
 ret

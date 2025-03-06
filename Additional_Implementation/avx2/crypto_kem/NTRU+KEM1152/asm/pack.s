@@ -3,7 +3,7 @@ poly_tobytes:
 vmovdqa		_16xq(%rip),%ymm0
 vmovdqa		_16xv(%rip),%ymm1
 
-xor		%rax,%rax
+lea 2304(%rsi), %rcx
 .p2align 5
 _looptop_poly_tobytes:
 #load
@@ -167,8 +167,7 @@ vmovdqu		%ymm9,160(%rdi)
 
 add     $192,%rdi
 add     $256,%rsi
-add		$256,%rax
-cmp		$2304,%rax
+cmp     %rcx,%rsi
 jb		_looptop_poly_tobytes
 
 ret
@@ -177,7 +176,7 @@ ret
 poly_frombytes:
 vmovdqa		_low_mask(%rip),%ymm15
 
-xor		%rax,%rax
+lea 1728(%rsi), %rcx
 .p2align 5
 _looptop_poly_frombytes:
 #load
@@ -276,10 +275,9 @@ vmovdqa		%ymm8,160(%rdi)
 vmovdqa		%ymm9,192(%rdi)
 vmovdqa		%ymm10,224(%rdi)
 
-add     $256,%rdi
 add     $192,%rsi
-add		$256,%rax
-cmp		$2304,%rax
+add     $256,%rdi
+cmp     %rcx,%rsi
 jb		_looptop_poly_frombytes
 
 ret
