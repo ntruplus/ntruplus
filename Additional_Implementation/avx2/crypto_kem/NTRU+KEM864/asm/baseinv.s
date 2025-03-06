@@ -109,19 +109,10 @@ vpmulhw		%ymm0,%ymm13,%ymm13
 vpsubw		%ymm13,%ymm6,%ymm6 # t1
 
 #check for invertibility
-vpxor		%ymm12,%ymm12,%ymm12
-vpcmpeqw	%ymm12,%ymm6,%ymm12
-vperm2i128	$0x01,%ymm12,%ymm12,%ymm7
-por		    %xmm7,%xmm12
-vpshufd		$0x0E,%xmm12,%xmm7
-por		    %xmm7,%xmm12
-
-vpsrlq		$32,%xmm12,%xmm11
-por         %xmm12,%xmm11
-movq        %xmm11,%r10
-
-test    %r10, %r10
-jnz     _loopend
+vpxor    %ymm12, %ymm12, %ymm12
+vpcmpeqw %ymm12, %ymm6, %ymm12
+vptest   %ymm12, %ymm12
+jnz      _loopend
 
 #t2 = fqmul(t1, t1);   //100  -15
 #premul
@@ -421,19 +412,10 @@ vpmulhw		%ymm0,%ymm13,%ymm13
 vpsubw		%ymm13,%ymm6,%ymm6 # t1
 
 #check for invertibility
-vpxor		%ymm12,%ymm12,%ymm12
-vpcmpeqw	%ymm12,%ymm6,%ymm12
-vperm2i128	$0x01,%ymm12,%ymm12,%ymm7
-por		    %xmm7,%xmm12
-vpshufd		$0x0E,%xmm12,%xmm7
-por		    %xmm7,%xmm12
-
-vpsrlq		$32,%xmm12,%xmm11
-por         %xmm12,%xmm11
-movq        %xmm11,%r10
-
-test    %r10, %r10
-jnz     _loopend
+vpxor    %ymm12, %ymm12, %ymm12
+vpcmpeqw %ymm12, %ymm6, %ymm12
+vptest   %ymm12, %ymm12
+jnz      _loopend
 
 #t2 = fqmul(t1, t1);   //100  -15
 #premul
