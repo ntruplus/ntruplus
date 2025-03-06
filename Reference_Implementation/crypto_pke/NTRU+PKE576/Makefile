@@ -7,7 +7,7 @@ RM = /bin/rm
 LDFLAGS=-lcrypto
 
 SOURCES= pke.c poly.c ntt.c sha2.c symmetric.c reduce.c verify.c fips202.c
-HEADERS= params.h pke.h poly.h ntt.h sha2.h symmetric.h reduce.h verify.h fips202.h
+HEADERS= api.h params.h poly.h ntt.h sha2.h symmetric.h reduce.h verify.h fips202.h
 
 .PHONY: all PQCgenKAT_encrypt test clean
 

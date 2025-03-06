@@ -7,7 +7,7 @@ RM = /bin/rm
 LDFLAGS=-lcrypto
 
 SOURCES= kem.c poly.c ntt.c sha2.c symmetric.c fips202.c
-HEADERS= params.h kem.h poly.h ntt.h sha2.h symmetric.h fips202.h
+HEADERS= api.h params.h poly.h ntt.h sha2.h symmetric.h fips202.h
 
 .PHONY: all PQCgenKAT_kem test clean
 

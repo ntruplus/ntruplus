@@ -3,6 +3,8 @@
 #include <stdint.h>
 #include "api.h"
 #include "randombytes.h"
+#include "poly.h"
+#include "symmetric.h"
 
 #define TEST_LOOP 100000
 
@@ -100,11 +102,8 @@ static void TEST_CCA_KEM_CLOCK()
 	printf("  DECAP  runs in ................. %8lld cycles", dcycles/TEST_LOOP);
 	printf("\n"); 
 	
-	printf("==================================================\n");
+	printf("==================================================\n\n");
 }
-
-#include "poly.h"
-#include "symmetric.h"
 
 static void TEST_MODULE_CLOCK()
 {
@@ -308,7 +307,6 @@ int main(void)
 
 	TEST_CCA_KEM();
 	TEST_CCA_KEM_CLOCK();
-
 	TEST_MODULE_CLOCK();
 
 	return 0;	

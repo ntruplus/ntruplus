@@ -1,6 +1,6 @@
 #include <stddef.h>
 #include <stdint.h>
-#include "pke.h"
+#include "api.h"
 #include "params.h"
 #include "symmetric.h"
 #include "poly.h"
@@ -50,16 +50,13 @@ int crypto_encrypt_keypair(unsigned char *pk, unsigned char *sk)
 	
     //pk
     poly_ntt_pack(&h,&h);
-    poly_freeze(&h);
     poly_tobytes(pk, &h);
 
     //sk
-    poly_ntt_pack(&f,&f);  
-    poly_freeze(&f);
+    poly_ntt_pack(&f,&f); 
     poly_tobytes(sk, &f);
 
     poly_ntt_pack(&hinv,&hinv);
-    poly_freeze(&hinv);
     poly_tobytes(sk+NTRUPLUS_POLYBYTES, &hinv);
 
     hash_f(sk + 2*NTRUPLUS_POLYBYTES, pk);
@@ -121,7 +118,6 @@ int crypto_encrypt(unsigned char *c,
 
     poly_cbd1(&p_r, buf1);
     poly_ntt(&p_r,&p_r);
-    poly_freeze(&p_r);
     poly_ntt_pack(&p_r2,&p_r);
     
     poly_tobytes(buf2, &p_r2);
@@ -134,7 +130,6 @@ int crypto_encrypt(unsigned char *c,
     poly_ntt_unpack(&p_h,&p_h);
     poly_basemul(&p_c, &p_h, &p_r);
     poly_add(&p_c, &p_c, &p_m);
-    poly_freeze(&p_c);
     poly_ntt_pack(&p_c,&p_c);
     poly_tobytes(c, &p_c);
 
@@ -204,7 +199,6 @@ int crypto_encrypt_open(unsigned char *m,
     poly_sub(&p_c,&p_c,&p_m2);
     poly_basemul(&p_r2, &p_c, &p_hinv);
     poly_ntt_pack(&p_r2,&p_r2);
-    poly_freeze(&p_r2);
     poly_tobytes(buf1, &p_r2);
 
     hash_g(buf2, buf1);
@@ -220,7 +214,6 @@ int crypto_encrypt_open(unsigned char *m,
     poly_cbd1(&p_r1,buf3);
     poly_ntt(&p_r1,&p_r1);
     poly_ntt_pack(&p_r1,&p_r1);
-    poly_freeze(&p_r1);
     poly_tobytes(buf2, &p_r1);
    
     fail |= verify(buf1, buf2, NTRUPLUS_POLYBYTES); 

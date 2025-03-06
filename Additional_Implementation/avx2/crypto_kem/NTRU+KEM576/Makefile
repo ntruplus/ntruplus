@@ -8,8 +8,8 @@ RM = /bin/rm
 
 LDFLAGS=-lcrypto
 
-SOURCES= asm/add.s asm/baseinv.s asm/basemul.s asm/cbd.s asm/invntt.s asm/ntt.s asm/pack.s consts.c kem.c poly.c symmetric.c verify.c cpucycles.c Keccak_avx2/fips202.c Keccak_avx2/KeccakP-1600-AVX2.s
-HEADERS= params.h kem.h poly.h symmetric.h verify.h Keccak_avx2/fips202.h Keccak_avx2/KeccakP-1600-SnP.h
+SOURCES= asm/add.s asm/baseinv.s asm/basemul.s asm/cbd.s asm/invntt.s asm/ntt.s asm/pack.s consts.c kem.c poly.c symmetric.c verify.c Keccak_avx2/fips202.c Keccak_avx2/KeccakP-1600-AVX2.s
+HEADERS= params.h api.h poly.h symmetric.h verify.h Keccak_avx2/fips202.h Keccak_avx2/KeccakP-1600-SnP.h
 
 .PHONY: all PQCgenKAT_kem test clean
 
@@ -20,7 +20,7 @@ all: \
 PQCgenKAT_kem: $(HEADERS) rng.h $(SOURCES) rng.c
 	$(CC) $(NISTFLAGS) -o $@ PQCgenKAT_kem.c rng.c $(SOURCES) $(LDFLAGS)
 
-test: $(HEADERS) randombytes.h $(SOURCES) randombytes.c test.c cpucycles.h
+test: $(HEADERS) randombytes.h $(SOURCES) randombytes.c test.c
 	$(CC) $(CFLAGS) -o $@ randombytes.c test.c $(SOURCES) $(LDFLAGS)
 
 clean:

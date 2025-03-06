@@ -1,6 +1,6 @@
 #include <stddef.h>
 #include <stdint.h>
-#include "pke.h"
+#include "api.h"
 #include "params.h"
 #include "symmetric.h"
 #include "poly.h"
