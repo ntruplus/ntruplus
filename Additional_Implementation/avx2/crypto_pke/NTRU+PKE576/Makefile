@@ -8,7 +8,7 @@ RM = /bin/rm
 
 LDFLAGS=-lcrypto
 
-SOURCES= asm/add.s asm/baseinv.s asm/basemul.s asm/cbd.s asm/invntt.s asm/ntt.s asm/pack.s consts.c pke.c poly.c symmetric.c verify.c Keccak_avx2/fips202.c Keccak_avx2/KeccakP-1600-AVX2.s
+SOURCES= asm/add.s asm/baseinv.s asm/basemul.s asm/cbd.s asm/invntt.s asm/ntt.s asm/pack.s asm/crepmod3.s consts.c pke.c symmetric.c verify.c Keccak_avx2/fips202.c Keccak_avx2/KeccakP-1600-AVX2.s
 HEADERS= params.h api.h poly.h symmetric.h verify.h Keccak_avx2/fips202.h 
 
 .PHONY: all PQCgenKAT_encrypt test clean
