@@ -2,8 +2,8 @@
 poly_cbd1:
     vmovdqa _16x1(%rip), %ymm0
 
-    vmovdqu  56(%rsi), %xmm2 
-    vmovdqu 128(%rsi), %xmm3    
+    vmovdqu  56(%rsi), %xmm2
+    vmovdqu 128(%rsi), %xmm3
 
     vpsrld $15, %xmm2, %xmm4
     vpsrld $15, %xmm3, %xmm5
@@ -263,11 +263,11 @@ poly_sotp:
     vmovdqa _16x1(%rip), %ymm0
 
     vmovdqu  56(%rsi), %xmm1
-    vmovdqu  56(%rdx), %xmm2 
-    vmovdqu 128(%rdx), %xmm3 
+    vmovdqu  56(%rdx), %xmm2
+    vmovdqu 128(%rdx), %xmm3
 
     vpxor %xmm1, %xmm2, %xmm2
-   
+
     vpsrld $15, %xmm2, %xmm4
     vpsrld $15, %xmm3, %xmm5
     vpsrld $14, %xmm2, %xmm6
@@ -527,9 +527,9 @@ _looptop_poly_sotp:
 
 .global poly_sotp_inv
 poly_sotp_inv:
-    vmovdqa		_16x1(%rip), %ymm0
-    vpxor      %ymm1, %ymm1, %ymm1
-    vpxor      %ymm2, %ymm2, %ymm2
+    vmovdqa _16x1(%rip), %ymm0
+    vpxor         %ymm1, %ymm1, %ymm1
+    vpxor         %ymm2, %ymm2, %ymm2
 
     vmovdqu  56(%rdx), %xmm3
     vmovdqu 128(%rdx), %xmm4
