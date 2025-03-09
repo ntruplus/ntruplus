@@ -340,14 +340,14 @@ _looptop_start_3456:
     vpmulhw %ymm2,  %ymm10, %ymm10
 
     #reduce
-    vpmulhw %ymm0, %ymm11, %ymm11
-    vpmulhw %ymm0, %ymm12, %ymm12
-    vpmulhw %ymm0, %ymm13, %ymm13
-    vpmulhw %ymm0, %ymm14, %ymm14
-    vpsubw %ymm11, %ymm7,  %ymm7
-    vpsubw %ymm12, %ymm8,  %ymm8
-    vpsubw %ymm13, %ymm9,  %ymm9
-    vpsubw %ymm14, %ymm10, %ymm10
+    vpmulhw %ymm0,  %ymm11, %ymm11
+    vpmulhw %ymm0,  %ymm12, %ymm12
+    vpmulhw %ymm0,  %ymm13, %ymm13
+    vpmulhw %ymm0,  %ymm14, %ymm14
+    vpsubw  %ymm11, %ymm7,  %ymm7
+    vpsubw  %ymm12, %ymm8,  %ymm8
+    vpsubw  %ymm13, %ymm9,  %ymm9
+    vpsubw  %ymm14, %ymm10, %ymm10
 
     #update
     vpaddw %ymm7,  %ymm3, %ymm11
