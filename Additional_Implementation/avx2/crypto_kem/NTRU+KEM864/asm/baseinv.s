@@ -4,7 +4,7 @@ vmovdqa		_16xq(%rip),%ymm0
 vmovdqa		_16xqinv(%rip),%ymm1
 
 lea		zetas(%rip),%rdx
-add		$1864,%rdx
+add		$1888,%rdx
 lea     1728(%rsi), %rcx
 .p2align 5
 _looptop:
@@ -13,8 +13,8 @@ _looptop:
 vmovdqa		(%rsi),%ymm3
 vmovdqa		32(%rsi),%ymm5
 vmovdqa		64(%rsi),%ymm7
-vmovdqu		(%rdx),%ymm14
-vmovdqu		32(%rdx),%ymm15
+vmovdqa		(%rdx),%ymm14
+vmovdqa		32(%rdx),%ymm15
 
 #premul
 vpmullw		%ymm1,%ymm3,%ymm2
@@ -317,8 +317,8 @@ add		$96,%rdi
 vmovdqa		(%rsi),%ymm3
 vmovdqa		32(%rsi),%ymm5
 vmovdqa		64(%rsi),%ymm7
-vmovdqu		(%rdx),%ymm14
-vmovdqu		32(%rdx),%ymm15
+vmovdqa		(%rdx),%ymm14
+vmovdqa		32(%rdx),%ymm15
 
 #premul
 vpmullw		%ymm1,%ymm3,%ymm2

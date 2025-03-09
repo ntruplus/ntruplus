@@ -66,8 +66,8 @@ sub		$864,%rdi
 
 #level 1
 #load
-vmovdqu         _16xwqinv(%rip),%ymm2 #winv
-vmovdqu             _16xw(%rip),%ymm3 #w
+vmovdqa         _16xwqinv(%rip),%ymm2 #winv
+vmovdqa             _16xw(%rip),%ymm3 #w
 
 xor         %rax,%rax
 .p2align 5
@@ -207,7 +207,7 @@ cmp		$1728,%rax
 jb		_looptop_start_2
 
 sub		$1728,%rdi
-
+add     $24, %rdx
 xor		%rax,%rax
 .p2align 5
 _looptop_start_3456:
@@ -229,8 +229,8 @@ vperm2i128	$0x31,%ymm13,%ymm10,%ymm10
 
 #level3
 #zetas
-vmovdqu    (%rdx,%rax),%ymm15 #zetaqinv
-vmovdqu    32(%rdx,%rax),%ymm2 #zeta
+vmovdqa    (%rdx,%rax),%ymm15 #zetaqinv
+vmovdqa    32(%rdx,%rax),%ymm2 #zeta
 
 #mul
 vpmullw		%ymm15,%ymm8,%ymm12
@@ -266,8 +266,8 @@ vpunpckhqdq	%ymm14,%ymm11,%ymm10
 
 #level4
 #zetas
-vmovdqu    576(%rdx,%rax),%ymm15 #zetaqinv
-vmovdqu    608(%rdx,%rax),%ymm2 #zeta
+vmovdqa    576(%rdx,%rax),%ymm15 #zetaqinv
+vmovdqa    608(%rdx,%rax),%ymm2 #zeta
 
 #mul
 vpmullw		%ymm15,%ymm8,%ymm12
@@ -309,8 +309,8 @@ vpblendd	$0xAA,%ymm14,%ymm11,%ymm10
 
 #level5
 #zetas
-vmovdqu    1152(%rdx,%rax),%ymm15 #ainv
-vmovdqu    1184(%rdx,%rax),%ymm2 #ainv
+vmovdqa    1152(%rdx,%rax),%ymm15 #ainv
+vmovdqa    1184(%rdx,%rax),%ymm2 #ainv
 
 #mul
 vpmullw		%ymm15,%ymm8,%ymm12
@@ -352,8 +352,8 @@ vpblendw	$0xAA,%ymm14,%ymm11,%ymm10
 
 #level6
 #zetas
-vmovdqu    1728(%rdx,%rax),%ymm15 #ainv
-vmovdqu    1760(%rdx,%rax),%ymm2 #ainv
+vmovdqa    1728(%rdx,%rax),%ymm15 #ainv
+vmovdqa    1760(%rdx,%rax),%ymm2 #ainv
 
 #mul
 vpmullw		%ymm15,%ymm8,%ymm12

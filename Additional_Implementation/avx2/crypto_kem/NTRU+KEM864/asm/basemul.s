@@ -3,7 +3,7 @@ poly_basemul:
 vmovdqa		_16xq(%rip),%ymm0
 
 lea		zetas(%rip),%rcx
-add		$1864,%rcx
+add		$1888,%rcx
 xor		%rax,%rax
 .p2align 5
 _looptop:
@@ -67,8 +67,8 @@ vpsubw		%ymm14,%ymm15,%ymm14
 vpaddw		%ymm12,%ymm14,%ymm11
 
 #load zeta
-vmovdqu		(%rcx),%ymm1
-vmovdqu		32(%rcx),%ymm2
+vmovdqa		(%rcx),%ymm1
+vmovdqa		32(%rcx),%ymm2
 
 #mul
 vpmullw		%ymm6,%ymm8,%ymm12
@@ -173,8 +173,8 @@ vpsubw		%ymm14,%ymm15,%ymm14
 vpaddw		%ymm12,%ymm14,%ymm11
 
 #load zeta
-vmovdqu		(%rcx),%ymm1
-vmovdqu		32(%rcx),%ymm2
+vmovdqa		(%rcx),%ymm1
+vmovdqa		32(%rcx),%ymm2
 
 #mul
 vpmullw		%ymm6,%ymm8,%ymm12
