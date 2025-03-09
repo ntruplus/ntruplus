@@ -1,8 +1,8 @@
 .global poly_baseinv
 poly_baseinv:
-    vmovdqa _16xqinv(%rip), %ymm15
-    vmovdqa    _16xq(%rip), %ymm0
-    lea    zetas_mul(%rip), %rdx
+    vmovdqa  _16xqinv(%rip), %ymm15
+    vmovdqa     _16xq(%rip), %ymm0
+    lea     zetas_mul(%rip), %rdx
 
     lea 1152(%rsi), %r8
 
@@ -190,7 +190,7 @@ _loop_inner:
     add $128, %rdi
     add $128, %rsi
     cmp %r9,  %rdx
-    jb _loop_inner
+    jb  _loop_inner
 
     sub $384, %rdi
 
@@ -648,7 +648,7 @@ _loop_inner:
 
     add $384, %rdi
     cmp %r8,  %rsi
-    jb _looptop
+    jb  _looptop
 
     xor %rax, %rax
 

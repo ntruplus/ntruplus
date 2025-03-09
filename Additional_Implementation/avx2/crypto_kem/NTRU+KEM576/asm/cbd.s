@@ -251,7 +251,7 @@ _looptop_poly_cbd1_1:
     vmovdqa   %ymm5, 480(%rdi)
 
     add  $32, %rsi
-    add $512, %rdi
+    add  $512, %rdi
     cmp  %r8, %rsi
     jb  _looptop_poly_cbd1_1
 
@@ -518,7 +518,7 @@ _looptop_poly_sotp:
 
     add  $32, %rdx
     add  $32, %rsi
-    add $512, %rdi
+    add  $512, %rdi
     cmp  %r8, %rdx
     jb  _looptop_poly_sotp
 

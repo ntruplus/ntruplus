@@ -1,8 +1,8 @@
 .global poly_basemul
 poly_basemul:
-    vmovdqa _16xqinv(%rip), %ymm15
-    vmovdqa    _16xq(%rip), %ymm0
-    lea    zetas_mul(%rip), %rcx
+    vmovdqa     _16xq(%rip), %ymm0
+    vmovdqa  _16xqinv(%rip), %ymm15
+    lea     zetas_mul(%rip), %rcx
 
     lea 1152(%rsi), %r8
 
@@ -184,10 +184,10 @@ _looptop_basemul:
     #store
     vmovdqa %ymm1, 96(%rdi) # c[3]
 
-    add $64,  %rcx
     add $128, %rsi
     add $128, %rdx
     add $128, %rdi
+    add $64,  %rcx
     cmp %r8,  %rsi
     jb _looptop_basemul
 
