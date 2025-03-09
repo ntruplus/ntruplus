@@ -6,7 +6,7 @@ poly_ntt:
 
     #level0
     #zetas
-    vpbroadcastd (%rdx), %ymm15
+    vpbroadcastd  (%rdx), %ymm15
     vpbroadcastd 4(%rdx), %ymm2
 
     lea 768(%rsi), %r8
@@ -61,23 +61,22 @@ _looptop_j_0:
     cmp %r8, %rsi
     jb  _looptop_j_0
 
-    add $8, %rdx
     sub $768, %rdi
 
     #level 1
     #load
-    vmovdqu _16xwqinv(%rip), %ymm2 #winv
-    vmovdqu     _16xw(%rip), %ymm3 #w
+    vmovdqa _16xwqinv(%rip), %ymm2 #winv
+    vmovdqa     _16xw(%rip), %ymm3 #w
 
     lea 1536(%rdi), %r8
 
 .p2align 5
 _looptop_start_1:
     #zetas
-    vpbroadcastd   (%rdx), %ymm4 #ainv
-    vpbroadcastd  8(%rdx), %ymm5 #a^2inv
-    vpbroadcastd  4(%rdx), %ymm6 #a
-    vpbroadcastd 12(%rdx), %ymm7 #a^2
+    vpbroadcastd  8(%rdx), %ymm4 #ainv
+    vpbroadcastd 16(%rdx), %ymm5 #a^2inv
+    vpbroadcastd 12(%rdx), %ymm6 #a
+    vpbroadcastd 20(%rdx), %ymm7 #a^2
 
     xor %r9, %r9
 
@@ -152,8 +151,8 @@ _looptop_start_2:
     vmovdqa 224(%rdi), %ymm10
 
     #zetas
-    vpbroadcastd  (%rdx), %ymm15 #zetaqinv
-    vpbroadcastd 4(%rdx), %ymm2  #zeta
+    vpbroadcastd  8(%rdx), %ymm15 #zetaqinv
+    vpbroadcastd 12(%rdx), %ymm2  #zeta
 
     #mul
     vpmullw %ymm15, %ymm7,  %ymm11
@@ -228,8 +227,8 @@ _looptop_start_3456:
     vperm2i128 $0x31, %ymm10, %ymm14, %ymm10
 
     #zetas
-    vmovdqu   (%rdx), %ymm15 #zetaqinv
-    vmovdqu 32(%rdx), %ymm2  #zeta
+    vmovdqa 16(%rdx), %ymm15 #zetaqinv
+    vmovdqa 48(%rdx), %ymm2  #zeta
 
     #mul
     vpmullw %ymm15, %ymm7,  %ymm11
@@ -273,8 +272,8 @@ _looptop_start_3456:
     vpunpckhqdq %ymm10, %ymm14, %ymm10
 
     #zetas
-    vmovdqu 384(%rdx), %ymm15 #zetaqinv
-    vmovdqu 416(%rdx), %ymm2  #zeta
+    vmovdqa 400(%rdx), %ymm15 #zetaqinv
+    vmovdqa 432(%rdx), %ymm2  #zeta
 
     #mul
     vpmullw %ymm15, %ymm7,  %ymm11
@@ -326,8 +325,8 @@ _looptop_start_3456:
     vpblendd $0xAA, %ymm10, %ymm12, %ymm10
 
     #zetas
-    vmovdqu 768(%rdx), %ymm15 #zetaqinv
-    vmovdqu 800(%rdx), %ymm2  #zeta
+    vmovdqa 784(%rdx), %ymm15 #zetaqinv
+    vmovdqa 816(%rdx), %ymm2  #zeta
 
     #mul
     vpmullw %ymm15, %ymm7,  %ymm11
@@ -379,8 +378,8 @@ _looptop_start_3456:
     vpblendw $0xAA, %ymm10, %ymm12, %ymm10
 
     #zetas
-    vmovdqu 1152(%rdx), %ymm15 #zetaqinv
-    vmovdqu 1184(%rdx), %ymm2  #zeta
+    vmovdqa 1168(%rdx), %ymm15 #zetaqinv
+    vmovdqa 1200(%rdx), %ymm2  #zeta
 
     #mul
     vpmullw %ymm15, %ymm7,  %ymm11

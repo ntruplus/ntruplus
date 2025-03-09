@@ -3,7 +3,7 @@ poly_basemul:
     vmovdqa    _16xq(%rip), %ymm0
     vmovdqa _16xqinv(%rip), %ymm15
     lea        zetas(%rip), %rcx
-    add              $1864, %rcx
+    add              $1888, %rcx
 
     lea 2304(%rsi), %r8
 
@@ -66,8 +66,8 @@ _looptop_basemul:
     vpaddw %ymm13, %ymm12, %ymm9 # c[1]
 
     #load zeta
-    vmovdqu   (%rcx), %ymm13
-    vmovdqu 32(%rcx), %ymm1
+    vmovdqa   (%rcx), %ymm13
+    vmovdqa 32(%rcx), %ymm1
 
     #mul
     vpmullw %ymm13, %ymm8,  %ymm5
@@ -246,8 +246,8 @@ _looptop_basemul:
     vpaddw %ymm13, %ymm12, %ymm9 # c[1]
     
     #load zeta
-    vmovdqu   (%rcx), %ymm13
-    vmovdqu 32(%rcx), %ymm1
+    vmovdqa   (%rcx), %ymm13
+    vmovdqa 32(%rcx), %ymm1
 
     #mul
     vpmullw %ymm13, %ymm8,  %ymm5
@@ -365,9 +365,9 @@ _looptop_basemul:
     #store
     vmovdqa %ymm1, 96(%rdi) # c[3]
 
-    add	$128, %rsi
-    add	$128, %rdx
-    add	$128, %rdi
+    add $128, %rsi
+    add $128, %rdx
+    add $128, %rdi
     add $64,  %rcx
     cmp %r8,  %rsi
     jb  _looptop_basemul

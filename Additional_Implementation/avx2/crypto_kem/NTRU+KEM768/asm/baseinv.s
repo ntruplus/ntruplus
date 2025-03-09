@@ -3,15 +3,15 @@ poly_baseinv:
     vmovdqa _16xqinv(%rip), %ymm15
     vmovdqa    _16xq(%rip), %ymm0
     lea        zetas(%rip), %rdx
-    add              $1240, %rdx
+    add              $1248, %rdx
     
     lea 1536(%rsi), %r8
 
 .p2align 5
 _looptop:
     #zeta
-    vmovdqu   (%rdx), %ymm14 #zeta*qinv
-    vmovdqu 32(%rdx), %ymm1  #zeta
+    vmovdqa   (%rdx), %ymm14 #zeta*qinv
+    vmovdqa 32(%rdx), %ymm1  #zeta
 
     #load
     vmovdqa   (%rsi), %ymm2 # a[0]
@@ -185,8 +185,8 @@ _looptop:
     vmovdqu %ymm8, (%rsp)
 
     #zeta
-    vmovdqu   (%rdx), %ymm14 #zeta*qinv
-    vmovdqu 32(%rdx), %ymm1  #zeta
+    vmovdqa   (%rdx), %ymm14 #zeta*qinv
+    vmovdqa 32(%rdx), %ymm1  #zeta
 
     #load
     vmovdqa 128(%rsi), %ymm2 # a[0]
@@ -468,7 +468,7 @@ _looptop:
     vpmullw %ymm6,  %ymm6,  %ymm10
     vpmulhw %ymm5,  %ymm5,  %ymm5
     vpmulhw %ymm6,  %ymm6,  %ymm6
-    vpmullw %ymm15, %ymm9, %ymm9
+    vpmullw %ymm15, %ymm9,  %ymm9
     vpmullw %ymm15, %ymm10, %ymm10
 
     #reduce
