@@ -413,9 +413,8 @@ _looptop_j_1:
 
     #level 0
     #zetas
-    vpbroadcastd  (%rdx), %ymm2 #(z-z^5)^-1
-    vpbroadcastd 4(%rdx), %ymm3 #(z-z^5)^-1
-
+    vpbroadcastd   (%rdx), %ymm2  #(z-z^5)^-1
+    vpbroadcastd  4(%rdx), %ymm3  #(z-z^5)^-1
     vpbroadcastd  8(%rdx), %ymm13
     vpbroadcastd 12(%rdx), %ymm14
 

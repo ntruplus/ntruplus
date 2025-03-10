@@ -354,7 +354,7 @@ cmp $288, %rcx
 jb _looptop_j_1
 
 add $576, %rdi
-add     $16, %rax
+add $16, %rax
 cmp $32, %rax
 jb _looptop_start_1
 
@@ -364,96 +364,95 @@ sub $1728, %rdi
 #zetas
 vpbroadcastd	2432(%rdx), %ymm2  #(z-z^5)^-1
 vpbroadcastd	2436(%rdx), %ymm3  #(z-z^5)^-1
-
 vpbroadcastd	2440(%rdx), %ymm13 
 vpbroadcastd	2444(%rdx), %ymm14
 
 vpsllw 	$1, %ymm13, %ymm15
 vpsllw 	$1, %ymm14, %ymm1
 
-xor 	%rax, %rax
+lea 864(%rdi), %r8
+
 .p2align 5
 _looptop_start_0:
-#load
-vmovdqa (%rdi), %ymm4
-vmovdqa 32(%rdi), %ymm5
-vmovdqa 64(%rdi), %ymm6
-vmovdqa 864(%rdi), %ymm7
-vmovdqa 896(%rdi), %ymm8
-vmovdqa 928(%rdi), %ymm9
+    #load
+    vmovdqa    (%rdi), %ymm4
+    vmovdqa  32(%rdi), %ymm5
+    vmovdqa  64(%rdi), %ymm6
+    vmovdqa 864(%rdi), %ymm7
+    vmovdqa 896(%rdi), %ymm8
+    vmovdqa 928(%rdi), %ymm9
 
-#update
-vpsubw %ymm7, %ymm4, %ymm10
-vpsubw %ymm8, %ymm5, %ymm11
-vpsubw %ymm9, %ymm6, %ymm12
-vpaddw %ymm7, %ymm4, %ymm4
-vpaddw %ymm8, %ymm5, %ymm5
-vpaddw %ymm9, %ymm6, %ymm6
+    #update
+    vpsubw %ymm7, %ymm4, %ymm10
+    vpsubw %ymm8, %ymm5, %ymm11
+    vpsubw %ymm9, %ymm6, %ymm12
+    vpaddw %ymm7, %ymm4, %ymm4
+    vpaddw %ymm8, %ymm5, %ymm5
+    vpaddw %ymm9, %ymm6, %ymm6
 
-#mul
-vpmullw %ymm2, %ymm10, %ymm7
-vpmullw %ymm2, %ymm11, %ymm8
-vpmullw %ymm2, %ymm12, %ymm9
-vpmulhw %ymm3, %ymm10, %ymm10
-vpmulhw %ymm3, %ymm11, %ymm11
-vpmulhw %ymm3, %ymm12, %ymm12
+    #mul
+    vpmullw %ymm2, %ymm10, %ymm7
+    vpmullw %ymm2, %ymm11, %ymm8
+    vpmullw %ymm2, %ymm12, %ymm9
+    vpmulhw %ymm3, %ymm10, %ymm10
+    vpmulhw %ymm3, %ymm11, %ymm11
+    vpmulhw %ymm3, %ymm12, %ymm12
 
-#reduce
-vpmulhw %ymm0, %ymm7, %ymm7
-vpmulhw %ymm0, %ymm8, %ymm8
-vpmulhw %ymm0, %ymm9, %ymm9
-vpsubw %ymm7, %ymm10, %ymm7
-vpsubw %ymm8, %ymm11, %ymm8
-vpsubw %ymm9, %ymm12, %ymm9
+    #reduce
+    vpmulhw %ymm0, %ymm7,  %ymm7
+    vpmulhw %ymm0, %ymm8,  %ymm8
+    vpmulhw %ymm0, %ymm9,  %ymm9
+    vpsubw  %ymm7, %ymm10, %ymm7
+    vpsubw  %ymm8, %ymm11, %ymm8
+    vpsubw  %ymm9, %ymm12, %ymm9
 
-#update
-vpsubw %ymm7, %ymm4, %ymm4
-vpsubw %ymm8, %ymm5, %ymm5
-vpsubw %ymm9, %ymm6, %ymm6
+    #update
+    vpsubw %ymm7, %ymm4, %ymm4
+    vpsubw %ymm8, %ymm5, %ymm5
+    vpsubw %ymm9, %ymm6, %ymm6
 
-#mul
-vpmullw %ymm13, %ymm4, %ymm10
-vpmullw %ymm13, %ymm5, %ymm11
-vpmullw %ymm13, %ymm6, %ymm12
-vpmulhw %ymm14, %ymm4, %ymm4
-vpmulhw %ymm14, %ymm5, %ymm5
-vpmulhw %ymm14, %ymm6, %ymm6
+    #mul
+    vpmullw %ymm13, %ymm4, %ymm10
+    vpmullw %ymm13, %ymm5, %ymm11
+    vpmullw %ymm13, %ymm6, %ymm12
+    vpmulhw %ymm14, %ymm4, %ymm4
+    vpmulhw %ymm14, %ymm5, %ymm5
+    vpmulhw %ymm14, %ymm6, %ymm6
 
-#reduce
-vpmulhw %ymm0, %ymm10, %ymm10
-vpmulhw %ymm0, %ymm11, %ymm11
-vpmulhw %ymm0, %ymm12, %ymm12
-vpsubw %ymm10, %ymm4, %ymm4
-vpsubw %ymm11, %ymm5, %ymm5
-vpsubw %ymm12, %ymm6, %ymm6
+    #reduce
+    vpmulhw %ymm0,  %ymm10, %ymm10
+    vpmulhw %ymm0,  %ymm11, %ymm11
+    vpmulhw %ymm0,  %ymm12, %ymm12
+    vpsubw  %ymm10, %ymm4,  %ymm4
+    vpsubw  %ymm11, %ymm5,  %ymm5
+    vpsubw  %ymm12, %ymm6,  %ymm6
 
-#mul
-vpmullw %ymm15, %ymm7, %ymm10
-vpmullw %ymm15, %ymm8, %ymm11
-vpmullw %ymm15, %ymm9, %ymm12
-vpmulhw %ymm1, %ymm7, %ymm7
-vpmulhw %ymm1, %ymm8, %ymm8
-vpmulhw %ymm1, %ymm9, %ymm9
+    #mul
+    vpmullw %ymm15, %ymm7, %ymm10
+    vpmullw %ymm15, %ymm8, %ymm11
+    vpmullw %ymm15, %ymm9, %ymm12
+    vpmulhw %ymm1,  %ymm7, %ymm7
+    vpmulhw %ymm1,  %ymm8, %ymm8
+    vpmulhw %ymm1,  %ymm9, %ymm9
 
-#reduce
-vpmulhw %ymm0, %ymm10, %ymm10
-vpmulhw %ymm0, %ymm11, %ymm11
-vpmulhw %ymm0, %ymm12, %ymm12
-vpsubw %ymm10, %ymm7, %ymm7
-vpsubw %ymm11, %ymm8, %ymm8
-vpsubw %ymm12, %ymm9, %ymm9
+    #reduce
+    vpmulhw %ymm0,  %ymm10, %ymm10
+    vpmulhw %ymm0,  %ymm11, %ymm11
+    vpmulhw %ymm0,  %ymm12, %ymm12
+    vpsubw  %ymm10, %ymm7,  %ymm7
+    vpsubw  %ymm11, %ymm8,  %ymm8
+    vpsubw  %ymm12, %ymm9,  %ymm9
 
-#store
-vmovdqa %ymm4,(%rdi)
-vmovdqa %ymm5,32(%rdi)
-vmovdqa %ymm6,64(%rdi)
-vmovdqa %ymm7,864(%rdi)
-vmovdqa %ymm8,896(%rdi)
-vmovdqa %ymm9,928(%rdi)
+    #store
+    vmovdqa %ymm4,    (%rdi)
+    vmovdqa %ymm5,  32(%rdi)
+    vmovdqa %ymm6,  64(%rdi)
+    vmovdqa %ymm7, 864(%rdi)
+    vmovdqa %ymm8, 896(%rdi)
+    vmovdqa %ymm9, 928(%rdi)
 
-add $96, %rdi
-add $96, %rax
-cmp $864, %rax
-jb _looptop_start_0
+    add $96, %rdi
+    cmp %r8, %rdi
+    jb  _looptop_start_0
 
-ret
+    ret
