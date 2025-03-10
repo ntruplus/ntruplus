@@ -23,10 +23,10 @@ _looptop_poly_tobytes:
     vmovdqu %ymm1, 32(%rdi)
     vmovdqu %ymm2, 64(%rdi)
 
-    add   $96, %rdi
-    add   $128, %rsi
+    add $96, %rdi
+    add $128, %rsi
     cmp %r8,  %rsi
-    jb _looptop_poly_tobytes
+    jb  _looptop_poly_tobytes
 
     #load
     vmovdqa   (%rsi), %xmm0
