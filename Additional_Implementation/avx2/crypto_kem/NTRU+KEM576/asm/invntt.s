@@ -42,8 +42,8 @@ _looptop_start_543:
     #reduce
     vpmulhw %ymm0, %ymm3, %ymm3
     vpmulhw %ymm0, %ymm4, %ymm4
-    vpsubw %ymm3,  %ymm7, %ymm7
-    vpsubw %ymm4,  %ymm8, %ymm8
+    vpsubw  %ymm3, %ymm7, %ymm7
+    vpsubw  %ymm4, %ymm8, %ymm8
 
     #reduce2
     vpmulhw %ymm1, %ymm11, %ymm3
@@ -143,7 +143,7 @@ _looptop_start_543:
     add $128, %rdi
     add $64,  %rdx
     cmp %r8,  %rsi
-    jb _looptop_start_543
+    jb  _looptop_start_543
 
     sub $1152, %rdi
     add $1152, %rdx
@@ -209,12 +209,12 @@ _looptop_j_2:
 
     add $32, %rdi
     cmp %r9, %rdi
-    jb _looptop_j_2
+    jb  _looptop_j_2
 
     add $128, %rdi
     add $16,  %rdx
     cmp %r8,  %rdi
-    jb _looptop_start_2
+    jb  _looptop_start_2
 
     sub $1152, %rdi
 

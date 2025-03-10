@@ -108,8 +108,8 @@ _looptop_j_1:
     vpmulhw %ymm3, %ymm11, %ymm11
 
     #reduce
-    vpmulhw %ymm0, %ymm12, %ymm12
-    vpsubw %ymm12, %ymm11, %ymm11
+    vpmulhw %ymm0,  %ymm12, %ymm12
+    vpsubw  %ymm12, %ymm11, %ymm11
 
     #update
     vpaddw %ymm9,  %ymm8,  %ymm12 #A + Ba

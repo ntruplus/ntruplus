@@ -20,8 +20,8 @@ poly_cbd1:
     vpsrld $12, %xmm2, %xmm10
     vpsrld $12, %xmm3, %xmm11
 
-    vpand %xmm0, %xmm8, %xmm8
-    vpand %xmm0, %xmm9, %xmm9
+    vpand %xmm0, %xmm8,  %xmm8
+    vpand %xmm0, %xmm9,  %xmm9
     vpand %xmm0, %xmm10, %xmm10
     vpand %xmm0, %xmm11, %xmm11
 
@@ -58,8 +58,8 @@ poly_cbd1:
     vpsubw %xmm9,  %xmm8,  %xmm8
     vpsubw %xmm11, %xmm10, %xmm10
 
-    vpunpckhqdq   %xmm4, %xmm6,  %xmm13
-    vpunpckhqdq   %xmm8, %xmm10, %xmm12
+    vpunpckhqdq %xmm4, %xmm6,  %xmm13
+    vpunpckhqdq %xmm8, %xmm10, %xmm12
 
     vmovdqa %xmm15, 1136(%rdi)
     vmovdqa %xmm14, 1120(%rdi)
@@ -81,8 +81,8 @@ poly_cbd1:
     vpsrld $4, %xmm2, %xmm10
     vpsrld $4, %xmm3, %xmm11
 
-    vpand %xmm0, %xmm8, %xmm8
-    vpand %xmm0, %xmm9, %xmm9
+    vpand %xmm0, %xmm8,  %xmm8
+    vpand %xmm0, %xmm9,  %xmm9
     vpand %xmm0, %xmm10, %xmm10
     vpand %xmm0, %xmm11, %xmm11
 
@@ -91,8 +91,8 @@ poly_cbd1:
     vpsubw %xmm9,  %xmm8,  %xmm8
     vpsubw %xmm11, %xmm10, %xmm10
 
-    vpunpckhqdq   %xmm4, %xmm6,  %xmm15
-    vpunpckhqdq   %xmm8, %xmm10, %xmm14
+    vpunpckhqdq %xmm4, %xmm6,  %xmm15
+    vpunpckhqdq %xmm8, %xmm10, %xmm14
 
     vpsrld $3, %xmm2, %xmm4
     vpsrld $3, %xmm3, %xmm5
@@ -120,10 +120,10 @@ poly_cbd1:
     vpunpckhqdq %xmm4, %xmm6,  %xmm13
     vpunpckhqdq %xmm8, %xmm10, %xmm12
 
-    vmovdqa %xmm15,  1072(%rdi)
-    vmovdqa %xmm14,  1056(%rdi)
-    vmovdqa %xmm13,  1040(%rdi)
-    vmovdqa %xmm12,  1024(%rdi)
+    vmovdqa %xmm15, 1072(%rdi)
+    vmovdqa %xmm14, 1056(%rdi)
+    vmovdqa %xmm13, 1040(%rdi)
+    vmovdqa %xmm12, 1024(%rdi)
 
     lea 64(%rsi), %r8
 
@@ -192,8 +192,8 @@ _looptop_poly_cbd1_1:
     vmovdqa %ymm6, 224(%rdi)
     vmovdqa %ymm7, 256(%rdi)
 
-    vpsrld $9, %ymm2, %ymm4
-    vpsrld $9, %ymm3, %ymm5
+    vpsrld $9,  %ymm2, %ymm4
+    vpsrld $9,  %ymm3, %ymm5
     vpsrld $10, %ymm2, %ymm6
     vpsrld $10, %ymm3, %ymm7
 
@@ -245,14 +245,14 @@ _looptop_poly_cbd1_1:
     vpsubw %ymm7, %ymm6, %ymm4
     vpsubw %ymm9, %ymm8, %ymm5
 
-    vmovdqa   %ymm2,   0(%rdi)
-    vmovdqa   %ymm3, 416(%rdi)
-    vmovdqa   %ymm4, 448(%rdi)
-    vmovdqa   %ymm5, 480(%rdi)
+    vmovdqa %ymm2,   0(%rdi)
+    vmovdqa %ymm3, 416(%rdi)
+    vmovdqa %ymm4, 448(%rdi)
+    vmovdqa %ymm5, 480(%rdi)
 
-    add  $32, %rsi
-    add  $512, %rdi
-    cmp  %r8, %rsi
+    add $32,  %rsi
+    add $512, %rdi
+    cmp %r8,  %rsi
     jb  _looptop_poly_cbd1_1
 
     ret
@@ -283,8 +283,8 @@ poly_sotp:
     vpsrld $12, %xmm2, %xmm10
     vpsrld $12, %xmm3, %xmm11
 
-    vpand %xmm0, %xmm8, %xmm8
-    vpand %xmm0, %xmm9, %xmm9
+    vpand %xmm0, %xmm8,  %xmm8
+    vpand %xmm0, %xmm9,  %xmm9
     vpand %xmm0, %xmm10, %xmm10
     vpand %xmm0, %xmm11, %xmm11
 
@@ -321,8 +321,8 @@ poly_sotp:
     vpsubw %xmm9,  %xmm8,  %xmm8
     vpsubw %xmm11, %xmm10, %xmm10
 
-    vpunpckhqdq   %xmm4, %xmm6,  %xmm13
-    vpunpckhqdq   %xmm8, %xmm10, %xmm12
+    vpunpckhqdq %xmm4, %xmm6,  %xmm13
+    vpunpckhqdq %xmm8, %xmm10, %xmm12
 
     vmovdqa %xmm15, 1136(%rdi)
     vmovdqa %xmm14, 1120(%rdi)
@@ -354,8 +354,8 @@ poly_sotp:
     vpsubw %xmm9,  %xmm8,  %xmm8
     vpsubw %xmm11, %xmm10, %xmm10
 
-    vpunpckhqdq   %xmm4, %xmm6,  %xmm15
-    vpunpckhqdq   %xmm8, %xmm10, %xmm14
+    vpunpckhqdq %xmm4, %xmm6,  %xmm15
+    vpunpckhqdq %xmm8, %xmm10, %xmm14
 
     vpsrld $3, %xmm2, %xmm4
     vpsrld $3, %xmm3, %xmm5
@@ -383,10 +383,10 @@ poly_sotp:
     vpunpckhqdq %xmm4, %xmm6,  %xmm13
     vpunpckhqdq %xmm8, %xmm10, %xmm12
 
-    vmovdqa %xmm15,  1072(%rdi)
-    vmovdqa %xmm14,  1056(%rdi)
-    vmovdqa %xmm13,  1040(%rdi)
-    vmovdqa %xmm12,  1024(%rdi)
+    vmovdqa %xmm15, 1072(%rdi)
+    vmovdqa %xmm14, 1056(%rdi)
+    vmovdqa %xmm13, 1040(%rdi)
+    vmovdqa %xmm12, 1024(%rdi)
 
     lea 64(%rdx), %r8
 
@@ -501,25 +501,25 @@ _looptop_poly_sotp:
     vpsrld $15, %ymm2, %ymm8
     vpsrld $15, %ymm3, %ymm9
 
-    vpand  %ymm0, %ymm2, %ymm2
-    vpand  %ymm0, %ymm3, %ymm3
-    vpand  %ymm0, %ymm8, %ymm8
-    vpand  %ymm0, %ymm9, %ymm9
+    vpand %ymm0, %ymm2, %ymm2
+    vpand %ymm0, %ymm3, %ymm3
+    vpand %ymm0, %ymm8, %ymm8
+    vpand %ymm0, %ymm9, %ymm9
 
     vpsubw %ymm3, %ymm2, %ymm2
     vpsubw %ymm5, %ymm4, %ymm3
     vpsubw %ymm7, %ymm6, %ymm4
     vpsubw %ymm9, %ymm8, %ymm5
 
-    vmovdqa   %ymm2,   0(%rdi)
-    vmovdqa   %ymm3, 416(%rdi)
-    vmovdqa   %ymm4, 448(%rdi)
-    vmovdqa   %ymm5, 480(%rdi)
+    vmovdqa %ymm2,    (%rdi)
+    vmovdqa %ymm3, 416(%rdi)
+    vmovdqa %ymm4, 448(%rdi)
+    vmovdqa %ymm5, 480(%rdi)
 
-    add  $32, %rdx
-    add  $32, %rsi
-    add  $512, %rdi
-    cmp  %r8, %rdx
+    add $32,  %rdx
+    add $32,  %rsi
+    add $512, %rdi
+    cmp %r8,  %rdx
     jb  _looptop_poly_sotp
 
     ret
@@ -573,10 +573,10 @@ poly_sotp_inv:
     vmovdqu 1064(%rsi), %xmm7
     vmovdqu 1072(%rsi), %xmm8
 
-    vpsrld  $4, %xmm4, %xmm9
-    vpsrld  $5, %xmm4, %xmm10
-    vpsrld  $6, %xmm4, %xmm11
-    vpsrld  $7, %xmm4, %xmm12
+    vpsrld $4, %xmm4, %xmm9
+    vpsrld $5, %xmm4, %xmm10
+    vpsrld $6, %xmm4, %xmm11
+    vpsrld $7, %xmm4, %xmm12
 
     vpand %xmm0, %xmm9,  %xmm9
     vpand %xmm0, %xmm10, %xmm10
@@ -608,10 +608,10 @@ poly_sotp_inv:
     vmovdqu 1096(%rsi), %xmm7
     vmovdqu 1104(%rsi), %xmm8
 
-    vpsrld  $8, %xmm4, %xmm9
-    vpsrld  $9, %xmm4, %xmm10
-    vpsrld  $10, %xmm4, %xmm11
-    vpsrld  $11, %xmm4, %xmm12
+    vpsrld $8, %xmm4, %xmm9
+    vpsrld $9, %xmm4, %xmm10
+    vpsrld $10, %xmm4, %xmm11
+    vpsrld $11, %xmm4, %xmm12
 
     vpand %xmm0, %xmm9,  %xmm9
     vpand %xmm0, %xmm10, %xmm10
@@ -643,10 +643,10 @@ poly_sotp_inv:
     vmovdqu 1128(%rsi), %xmm7
     vmovdqu 1136(%rsi), %xmm8
 
-    vpsrld  $12, %xmm4, %xmm9
-    vpsrld  $13, %xmm4, %xmm10
-    vpsrld  $14, %xmm4, %xmm11
-    vpsrld  $15, %xmm4, %xmm12
+    vpsrld $12, %xmm4, %xmm9
+    vpsrld $13, %xmm4, %xmm10
+    vpsrld $14, %xmm4, %xmm11
+    vpsrld $15, %xmm4, %xmm12
 
     vpand %xmm0, %xmm9,  %xmm9
     vpand %xmm0, %xmm10, %xmm10
@@ -725,10 +725,10 @@ _looptop_poly_sotp_inv_1:
     vmovdqa 192(%rsi), %ymm7
     vmovdqa 224(%rsi), %ymm8
 
-    vpsrld  $4, %ymm4, %ymm9
-    vpsrld  $5, %ymm4, %ymm10
-    vpsrld  $6, %ymm4, %ymm11
-    vpsrld  $7, %ymm4, %ymm12
+    vpsrld $4, %ymm4, %ymm9
+    vpsrld $5, %ymm4, %ymm10
+    vpsrld $6, %ymm4, %ymm11
+    vpsrld $7, %ymm4, %ymm12
 
     vpand %ymm0, %ymm9,  %ymm9
     vpand %ymm0, %ymm10, %ymm10
@@ -760,10 +760,10 @@ _looptop_poly_sotp_inv_1:
     vmovdqa 320(%rsi), %ymm7
     vmovdqa 352(%rsi), %ymm8
 
-    vpsrld  $8,  %ymm4, %ymm9
-    vpsrld  $9,  %ymm4, %ymm10
-    vpsrld  $10, %ymm4, %ymm11
-    vpsrld  $11, %ymm4, %ymm12
+    vpsrld $8,  %ymm4, %ymm9
+    vpsrld $9,  %ymm4, %ymm10
+    vpsrld $10, %ymm4, %ymm11
+    vpsrld $11, %ymm4, %ymm12
 
     vpand %ymm0, %ymm9,  %ymm9
     vpand %ymm0, %ymm10, %ymm10
@@ -832,7 +832,7 @@ _looptop_poly_sotp_inv_1:
     add $32,  %rdi
     add $32,  %rdx
     cmp %r8,  %rsi
-    jb _looptop_poly_sotp_inv_1
+    jb  _looptop_poly_sotp_inv_1
 
     vpsrlw $1,    %ymm1, %ymm1
     xor    %rax,  %rax

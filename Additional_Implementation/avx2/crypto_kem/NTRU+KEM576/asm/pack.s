@@ -98,7 +98,7 @@ _looptop_poly_tobytes:
     add $128, %rsi
     add $96,  %rdi
     cmp %r8,  %rsi
-    jb _looptop_poly_tobytes
+    jb  _looptop_poly_tobytes
 
     ret
 
@@ -163,7 +163,7 @@ _looptop_poly_frombytes:
 
     add $96,  %rsi
     add $128, %rdi
-    cmp %r8, %rsi
-    jb _looptop_poly_frombytes
+    cmp %r8,  %rsi
+    jb  _looptop_poly_frombytes
 
     ret

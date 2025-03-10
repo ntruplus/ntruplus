@@ -28,7 +28,7 @@ _looptop_add:
     add $192, %rsi
     add $192, %rdx
     add $192, %rdi
-    cmp  %r8, %rsi
+    cmp %r8,  %rsi
     jb  _looptop_add
 
     ret
@@ -64,7 +64,7 @@ _looptop_sub:
     add $192, %rsi
     add $192, %rdx
     add $192, %rdi
-    cmp  %r8, %rsi
+    cmp %r8,  %rsi
     jb  _looptop_sub
 
     ret
@@ -106,7 +106,7 @@ _looptop_triple:
 
     add $192, %rsi
     add $192, %rdi
-    cmp  %r8, %rsi
+    cmp %r8,  %rsi
     jb  _looptop_triple
 
     ret

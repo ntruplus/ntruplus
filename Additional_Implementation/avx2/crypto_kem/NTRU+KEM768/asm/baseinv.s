@@ -14,19 +14,19 @@ _looptop:
     vmovdqa 32(%rdx), %ymm1  #zeta
 
     #load
-    vmovdqa   (%rsi), %ymm2 # a[0]
-    vmovdqa 32(%rsi), %ymm3 # a[1]
-    vmovdqa 64(%rsi), %ymm4 # a[2]
-    vmovdqa 96(%rsi), %ymm5 # a[3]
+    vmovdqa   (%rsi), %ymm2 #a[0]
+    vmovdqa 32(%rsi), %ymm3 #a[1]
+    vmovdqa 64(%rsi), %ymm4 #a[2]
+    vmovdqa 96(%rsi), %ymm5 #a[3]
 
     #premul
-    vpmullw %ymm15, %ymm2, %ymm12 # a[0]
-    vpmullw %ymm15, %ymm3, %ymm13 # a[1]
+    vpmullw %ymm15, %ymm2, %ymm12 #a[0]
+    vpmullw %ymm15, %ymm3, %ymm13 #a[1]
 
     #mul
-    vpmullw %ymm12, %ymm2, %ymm11 # a[0]*a[0]
-    vpmullw %ymm12, %ymm4, %ymm12 # a[0]*a[2]
-    vpmullw %ymm13, %ymm3, %ymm13 # a[1]*a[1]
+    vpmullw %ymm12, %ymm2, %ymm11 #a[0]*a[0]
+    vpmullw %ymm12, %ymm4, %ymm12 #a[0]*a[2]
+    vpmullw %ymm13, %ymm3, %ymm13 #a[1]*a[1]
     vpmulhw %ymm2,  %ymm2, %ymm6
     vpmulhw %ymm2,  %ymm4, %ymm7
     vpmulhw %ymm3,  %ymm3, %ymm8
@@ -35,22 +35,22 @@ _looptop:
     vpmulhw %ymm0,  %ymm11, %ymm11
     vpmulhw %ymm0,  %ymm12, %ymm12
     vpmulhw %ymm0,  %ymm13, %ymm13
-    vpsubw  %ymm11, %ymm6,  %ymm6 # a[0]*a[0]
-    vpsubw  %ymm12, %ymm7,  %ymm7 # a[0]*a[2]
-    vpsubw  %ymm13, %ymm8,  %ymm8 # a[1]*a[1]
+    vpsubw  %ymm11, %ymm6,  %ymm6 #a[0]*a[0]
+    vpsubw  %ymm12, %ymm7,  %ymm7 #a[0]*a[2]
+    vpsubw  %ymm13, %ymm8,  %ymm8 #a[1]*a[1]
 
     #add
     vpsllw $1,    %ymm7, %ymm7
     vpsubw %ymm8, %ymm7, %ymm7
 
     #premul
-    vpmullw %ymm15, %ymm4, %ymm12 # a[2]
-    vpmullw %ymm15, %ymm5, %ymm13 # a[3]
+    vpmullw %ymm15, %ymm4, %ymm12 #a[2]
+    vpmullw %ymm15, %ymm5, %ymm13 #a[3]
 
     #mul
-    vpmullw %ymm12, %ymm4, %ymm11 # a[2]*a[2]
-    vpmullw %ymm13, %ymm5, %ymm12 # a[3]*a[3]
-    vpmullw %ymm13, %ymm3, %ymm13 # a[3]*a[1]
+    vpmullw %ymm12, %ymm4, %ymm11 #a[2]*a[2]
+    vpmullw %ymm13, %ymm5, %ymm12 #a[3]*a[3]
+    vpmullw %ymm13, %ymm3, %ymm13 #a[3]*a[1]
     vpmulhw %ymm4,  %ymm4, %ymm8
     vpmulhw %ymm5,  %ymm5, %ymm9
     vpmulhw %ymm5,  %ymm3, %ymm10
@@ -59,9 +59,9 @@ _looptop:
     vpmulhw %ymm0,  %ymm11, %ymm11
     vpmulhw %ymm0,  %ymm12, %ymm12
     vpmulhw %ymm0,  %ymm13, %ymm13
-    vpsubw  %ymm11, %ymm8,  %ymm8  # a[2]*a[2]
-    vpsubw  %ymm12, %ymm9,  %ymm9  # a[3]*a[3]
-    vpsubw  %ymm13, %ymm10, %ymm10 # a[3]*a[1]
+    vpsubw  %ymm11, %ymm8,  %ymm8  #a[2]*a[2]
+    vpsubw  %ymm12, %ymm9,  %ymm9  #a[3]*a[3]
+    vpsubw  %ymm13, %ymm10, %ymm10 #a[3]*a[1]
 
     #add
     vpsllw $1,     %ymm10, %ymm10
@@ -119,8 +119,8 @@ _looptop:
     #reduce
     vpmulhw %ymm0,  %ymm11, %ymm11
     vpmulhw %ymm0,  %ymm14, %ymm14
-    vpsubw  %ymm11, %ymm9,  %ymm9 # a[2]*zeta
-    vpsubw  %ymm14, %ymm1,  %ymm1 # a[3]*zeta
+    vpsubw  %ymm11, %ymm9,  %ymm9 #a[2]*zeta
+    vpsubw  %ymm14, %ymm1,  %ymm1 #a[3]*zeta
 
     #mul
     vpmullw %ymm13, %ymm9, %ymm11
@@ -131,8 +131,8 @@ _looptop:
     #reduce
     vpmulhw %ymm0,  %ymm11, %ymm11
     vpmulhw %ymm0,  %ymm14, %ymm14
-    vpsubw  %ymm11, %ymm9,  %ymm9 # a[2]*t1*zeta
-    vpsubw  %ymm14, %ymm1,  %ymm1 # a[3]*t1*zeta
+    vpsubw  %ymm11, %ymm9,  %ymm9 #a[2]*t1*zeta
+    vpsubw  %ymm14, %ymm1,  %ymm1 #a[3]*t1*zeta
 
     #mul
     vpmullw %ymm13, %ymm2, %ymm14
@@ -143,8 +143,8 @@ _looptop:
     #reduce
     vpmulhw %ymm0,  %ymm14, %ymm14
     vpmulhw %ymm0,  %ymm13, %ymm13
-    vpsubw  %ymm14, %ymm11, %ymm11 # a[0]*t1
-    vpsubw  %ymm13, %ymm7,  %ymm7  # a[1]*t1
+    vpsubw  %ymm14, %ymm11, %ymm11 #a[0]*t1
+    vpsubw  %ymm13, %ymm7,  %ymm7  #a[1]*t1
 
     #mul
     vpmullw %ymm12, %ymm2, %ymm14
@@ -155,8 +155,8 @@ _looptop:
     #reduce
     vpmulhw %ymm0,  %ymm14, %ymm14
     vpmulhw %ymm0,  %ymm13, %ymm13
-    vpsubw  %ymm14, %ymm2,  %ymm2 # a[0]*t0
-    vpsubw  %ymm13, %ymm3,  %ymm3 # a[1]*t0
+    vpsubw  %ymm14, %ymm2,  %ymm2 #a[0]*t0
+    vpsubw  %ymm13, %ymm3,  %ymm3 #a[1]*t0
 
     #mul
     vpmullw %ymm12, %ymm4, %ymm13
@@ -167,8 +167,8 @@ _looptop:
     #reduce
     vpmulhw %ymm0,  %ymm13, %ymm13
     vpmulhw %ymm0,  %ymm14, %ymm14
-    vpsubw  %ymm13, %ymm4,  %ymm4 # a[2]*t0
-    vpsubw  %ymm14, %ymm5,  %ymm5 # a[3]*t0
+    vpsubw  %ymm13, %ymm4,  %ymm4 #a[2]*t0
+    vpsubw  %ymm14, %ymm5,  %ymm5 #a[3]*t0
   
     #add
     vpsubw  %ymm9,  %ymm2, %ymm2
@@ -189,19 +189,19 @@ _looptop:
     vmovdqa 32(%rdx), %ymm1  #zeta
 
     #load
-    vmovdqa 128(%rsi), %ymm2 # a[0]
-    vmovdqa 160(%rsi), %ymm3 # a[1]
-    vmovdqa 192(%rsi), %ymm4 # a[2]
-    vmovdqa 224(%rsi), %ymm5 # a[3]
+    vmovdqa 128(%rsi), %ymm2 #a[0]
+    vmovdqa 160(%rsi), %ymm3 #a[1]
+    vmovdqa 192(%rsi), %ymm4 #a[2]
+    vmovdqa 224(%rsi), %ymm5 #a[3]
 
     #premul
-    vpmullw %ymm15, %ymm2, %ymm12 # a[0]
-    vpmullw %ymm15, %ymm3, %ymm13 # a[1]
+    vpmullw %ymm15, %ymm2, %ymm12 #a[0]
+    vpmullw %ymm15, %ymm3, %ymm13 #a[1]
 
     #mul
-    vpmullw %ymm12, %ymm2, %ymm11 # a[0]*a[0]
-    vpmullw %ymm12, %ymm4, %ymm12 # a[0]*a[2]
-    vpmullw %ymm13, %ymm3, %ymm13 # a[1]*a[1]
+    vpmullw %ymm12, %ymm2, %ymm11 #a[0]*a[0]
+    vpmullw %ymm12, %ymm4, %ymm12 #a[0]*a[2]
+    vpmullw %ymm13, %ymm3, %ymm13 #a[1]*a[1]
     vpmulhw %ymm2,  %ymm2, %ymm6
     vpmulhw %ymm2,  %ymm4, %ymm7
     vpmulhw %ymm3,  %ymm3, %ymm8
@@ -210,22 +210,22 @@ _looptop:
     vpmulhw %ymm0,  %ymm11, %ymm11
     vpmulhw %ymm0,  %ymm12, %ymm12
     vpmulhw %ymm0,  %ymm13, %ymm13
-    vpsubw  %ymm11, %ymm6,  %ymm6 # a[0]*a[0]
-    vpsubw  %ymm12, %ymm7,  %ymm7 # a[0]*a[2]
-    vpsubw  %ymm13, %ymm8,  %ymm8 # a[1]*a[1]
+    vpsubw  %ymm11, %ymm6,  %ymm6 #a[0]*a[0]
+    vpsubw  %ymm12, %ymm7,  %ymm7 #a[0]*a[2]
+    vpsubw  %ymm13, %ymm8,  %ymm8 #a[1]*a[1]
 
     #add
     vpsllw $1,    %ymm7, %ymm7
     vpsubw %ymm8, %ymm7, %ymm7
 
     #premul
-    vpmullw %ymm15, %ymm4, %ymm12 # a[2]
-    vpmullw %ymm15, %ymm5, %ymm13 # a[3]
+    vpmullw %ymm15, %ymm4, %ymm12 #a[2]
+    vpmullw %ymm15, %ymm5, %ymm13 #a[3]
 
     #mul
-    vpmullw %ymm12, %ymm4, %ymm11 # a[2]*a[2]
-    vpmullw %ymm13, %ymm5, %ymm12 # a[3]*a[3]
-    vpmullw %ymm13, %ymm3, %ymm13 # a[3]*a[1]
+    vpmullw %ymm12, %ymm4, %ymm11 #a[2]*a[2]
+    vpmullw %ymm13, %ymm5, %ymm12 #a[3]*a[3]
+    vpmullw %ymm13, %ymm3, %ymm13 #a[3]*a[1]
     vpmulhw %ymm4,  %ymm4, %ymm8
     vpmulhw %ymm5,  %ymm5, %ymm9
     vpmulhw %ymm5,  %ymm3, %ymm10
@@ -234,9 +234,9 @@ _looptop:
     vpmulhw %ymm0,  %ymm11, %ymm11
     vpmulhw %ymm0,  %ymm12, %ymm12
     vpmulhw %ymm0,  %ymm13, %ymm13
-    vpsubw  %ymm11, %ymm8,  %ymm8  # a[2]*a[2]
-    vpsubw  %ymm12, %ymm9,  %ymm9  # a[3]*a[3]
-    vpsubw  %ymm13, %ymm10, %ymm10 # a[3]*a[1]
+    vpsubw  %ymm11, %ymm8,  %ymm8  #a[2]*a[2]
+    vpsubw  %ymm12, %ymm9,  %ymm9  #a[3]*a[3]
+    vpsubw  %ymm13, %ymm10, %ymm10 #a[3]*a[1]
 
     #add
     vpsllw $1,     %ymm10, %ymm10
@@ -294,8 +294,8 @@ _looptop:
     #reduce
     vpmulhw %ymm0,  %ymm11, %ymm11
     vpmulhw %ymm0,  %ymm14, %ymm14
-    vpsubw  %ymm11, %ymm9,  %ymm9 # a[2]*zeta
-    vpsubw  %ymm14, %ymm1,  %ymm1 # a[3]*zeta
+    vpsubw  %ymm11, %ymm9,  %ymm9 #a[2]*zeta
+    vpsubw  %ymm14, %ymm1,  %ymm1 #a[3]*zeta
 
     #mul
     vpmullw %ymm13, %ymm9, %ymm11
@@ -306,8 +306,8 @@ _looptop:
     #reduce
     vpmulhw %ymm0,  %ymm11, %ymm11
     vpmulhw %ymm0,  %ymm14, %ymm14
-    vpsubw  %ymm11, %ymm9,  %ymm9 # a[2]*t1*zeta
-    vpsubw  %ymm14, %ymm1,  %ymm1 # a[3]*t1*zeta
+    vpsubw  %ymm11, %ymm9,  %ymm9 #a[2]*t1*zeta
+    vpsubw  %ymm14, %ymm1,  %ymm1 #a[3]*t1*zeta
 
     #mul
     vpmullw %ymm13, %ymm2, %ymm14
@@ -318,8 +318,8 @@ _looptop:
     #reduce
     vpmulhw %ymm0,  %ymm14, %ymm14
     vpmulhw %ymm0,  %ymm13, %ymm13
-    vpsubw  %ymm14, %ymm11, %ymm11 # a[0]*t1
-    vpsubw  %ymm13, %ymm7,  %ymm7  # a[1]*t1
+    vpsubw  %ymm14, %ymm11, %ymm11 #a[0]*t1
+    vpsubw  %ymm13, %ymm7,  %ymm7  #a[1]*t1
 
     #mul
     vpmullw %ymm12, %ymm2, %ymm14
@@ -330,8 +330,8 @@ _looptop:
     #reduce
     vpmulhw %ymm0,  %ymm14, %ymm14
     vpmulhw %ymm0,  %ymm13, %ymm13
-    vpsubw  %ymm14, %ymm2,  %ymm2 # a[0]*t0
-    vpsubw  %ymm13, %ymm3,  %ymm3 # a[1]*t0
+    vpsubw  %ymm14, %ymm2,  %ymm2 #a[0]*t0
+    vpsubw  %ymm13, %ymm3,  %ymm3 #a[1]*t0
 
     #mul
     vpmullw %ymm12, %ymm4, %ymm13
@@ -342,8 +342,8 @@ _looptop:
     #reduce
     vpmulhw %ymm0,  %ymm13, %ymm13
     vpmulhw %ymm0,  %ymm14, %ymm14
-    vpsubw  %ymm13, %ymm4,  %ymm4 # a[2]*t0
-    vpsubw  %ymm14, %ymm5,  %ymm5 # a[3]*t0
+    vpsubw  %ymm13, %ymm4,  %ymm4 #a[2]*t0
+    vpsubw  %ymm14, %ymm5,  %ymm5 #a[3]*t0
   
     #add
     vpaddw %ymm9,  %ymm2, %ymm2
@@ -383,7 +383,7 @@ _looptop:
     vpcmpeqw %ymm10, %ymm4,  %ymm6
     vpor     %ymm5,  %ymm6,  %ymm5
     vptest   %ymm5,  %ymm5
-    jnz _loopend
+    jnz      _loopend
 
     #t2 = fqmul(t1, t1); //100
     #premul
@@ -680,13 +680,13 @@ _looptop:
     add $256, %rdi
     add $64,  %rdx
     cmp %r8,  %rsi
-    jb _looptop
+    jb  _looptop
 
     xor %rax, %rax
 
     ret
 
-    _loopend:
+_loopend:
     mov $1, %rax
 
     ret

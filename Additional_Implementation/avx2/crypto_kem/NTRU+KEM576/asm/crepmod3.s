@@ -8,7 +8,7 @@ poly_crepmod3:
     vmovdqa       _16x3(%rip), %ymm5
     vmovdqa       _16x1(%rip), %ymm6
 
-    lea 1152(%rsi), %rax
+    lea 1152(%rsi), %r8
 
 .p2align 5
 _loop_poly_crepmod3:
@@ -149,7 +149,7 @@ _loop_poly_crepmod3:
 
     add $128, %rsi
     add $128, %rdi
-    cmp %rax, %rsi
+    cmp %r8,  %rsi
     jb  _loop_poly_crepmod3
 
     ret

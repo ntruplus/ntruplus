@@ -123,14 +123,14 @@ _looptop_j_1:
     vmovdqa %ymm13,384(%rdi)
     vmovdqa %ymm14,768(%rdi)
 
-    add $32, %rdi
-    add $32, %r9
+    add $32,  %rdi
+    add $32,  %r9
     cmp $384, %r9
     jb  _looptop_j_1
 
-    add $16, %rdx
+    add $16,  %rdx
     add $768, %rdi
-    cmp %r8, %rdi
+    cmp %r8,  %rdi
     jb  _looptop_start_1
 
     sub $2304, %rdi

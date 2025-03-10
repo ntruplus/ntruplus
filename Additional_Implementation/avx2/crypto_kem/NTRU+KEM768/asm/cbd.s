@@ -127,9 +127,9 @@ _looptop_poly_cbd1_1:
     vmovdqa   %ymm4, 448(%rdi)
     vmovdqa   %ymm5, 480(%rdi)
 
-    add  $32, %rsi
-    add  $512, %rdi
-    cmp  %r8, %rsi
+    add $32,  %rsi
+    add $512, %rdi
+    cmp %r8,  %rsi
     jb  _looptop_poly_cbd1_1
 
     ret
@@ -267,10 +267,10 @@ _looptop_poly_sotp:
     vmovdqa   %ymm4, 448(%rdi)
     vmovdqa   %ymm5, 480(%rdi)
 
-    add  $32, %rdx
-    add  $32, %rsi
-    add  $512, %rdi
-    cmp  %r8, %rdx
+    add $32,  %rdx
+    add $32,  %rsi
+    add $512, %rdi
+    cmp %r8,  %rdx
     jb  _looptop_poly_sotp
 
     ret
@@ -436,7 +436,7 @@ _looptop_poly_sotp_inv_1:
     add $32,  %rdi
     add $32,  %rdx
     cmp %r8,  %rsi
-    jb _looptop_poly_sotp_inv_1
+    jb  _looptop_poly_sotp_inv_1
 
     vpsrlw $1,    %ymm1, %ymm1
     xor    %rax,  %rax

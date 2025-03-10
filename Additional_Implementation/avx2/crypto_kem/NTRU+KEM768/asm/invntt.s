@@ -227,10 +227,10 @@ _looptop_start_6543:
     vpmulhw %ymm1, %ymm12, %ymm4
     vpmulhw %ymm1, %ymm13, %ymm5
     vpmulhw %ymm1, %ymm14, %ymm6
-    vpsraw $10,    %ymm3,  %ymm3
-    vpsraw $10,    %ymm4,  %ymm4
-    vpsraw $10,    %ymm5,  %ymm5
-    vpsraw $10,    %ymm6,  %ymm6
+    vpsraw  $10,   %ymm3,  %ymm3
+    vpsraw  $10,   %ymm4,  %ymm4
+    vpsraw  $10,   %ymm5,  %ymm5
+    vpsraw  $10,   %ymm6,  %ymm6
     vpmullw %ymm0, %ymm3,  %ymm3
     vpmullw %ymm0, %ymm4,  %ymm4
     vpmullw %ymm0, %ymm5,  %ymm5
