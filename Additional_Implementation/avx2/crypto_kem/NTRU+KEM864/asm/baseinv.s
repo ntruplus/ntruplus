@@ -34,14 +34,14 @@ _looptop:
     vpmulhw %ymm5, %ymm5,  %ymm15
 
     #reduce
-    vpmulhw %ymm0, %ymm8, %ymm8
-    vpmulhw %ymm0, %ymm10, %ymm10
-    vpmulhw %ymm0, %ymm12, %ymm12
-    vpmulhw %ymm0, %ymm14, %ymm14
-    vpsubw %ymm8, %ymm9, %ymm8
-    vpsubw %ymm10, %ymm11, %ymm9
-    vpsubw %ymm12, %ymm13, %ymm10
-    vpsubw %ymm14, %ymm15, %ymm11
+    vpmulhw %ymm0,  %ymm8,  %ymm8
+    vpmulhw %ymm0,  %ymm10, %ymm10
+    vpmulhw %ymm0,  %ymm12, %ymm12
+    vpmulhw %ymm0,  %ymm14, %ymm14
+    vpsubw  %ymm8,  %ymm9,  %ymm8
+    vpsubw  %ymm10, %ymm11, %ymm9
+    vpsubw  %ymm12, %ymm13, %ymm10
+    vpsubw  %ymm14, %ymm15, %ymm11
 
     #add
     vpsubw %ymm10, %ymm11, %ymm10 # r[2] = a[1] a[1] - a[0] a[2]
@@ -57,18 +57,18 @@ _looptop:
     vpmulhw %ymm5, %ymm3, %ymm5
 
     #reduce
-    vpmulhw %ymm0, %ymm11, %ymm11 # a[0] a[0]
-    vpmulhw %ymm0, %ymm13, %ymm13 # zeta a[2] a[1]
-    vpmulhw %ymm0, %ymm6,  %ymm6  # zeta a[2] a[2]
-    vpmulhw %ymm0, %ymm4,  %ymm4  # a[1] a[0]
-    vpsubw %ymm11, %ymm12, %ymm11 # a[0] a[0]
-    vpsubw %ymm13, %ymm14, %ymm12 # zeta a[2] a[1]
-    vpsubw %ymm6,  %ymm7,  %ymm6  # zeta a[2] a[2]
-    vpsubw %ymm4,  %ymm5,  %ymm7  # a[1] a[0]
+    vpmulhw %ymm0,  %ymm11, %ymm11 # a[0] a[0]
+    vpmulhw %ymm0,  %ymm13, %ymm13 # zeta a[2] a[1]
+    vpmulhw %ymm0,  %ymm6,  %ymm6  # zeta a[2] a[2]
+    vpmulhw %ymm0,  %ymm4,  %ymm4  # a[1] a[0]
+    vpsubw  %ymm11, %ymm12, %ymm11 # a[0] a[0]
+    vpsubw  %ymm13, %ymm14, %ymm12 # zeta a[2] a[1]
+    vpsubw  %ymm6,  %ymm7,  %ymm6  # zeta a[2] a[2]
+    vpsubw  %ymm4,  %ymm5,  %ymm7  # a[1] a[0]
 
     #add
     vpsubw %ymm12, %ymm11, %ymm11 # r[0] = a[0] a[0] - zeta a[2] a[1]
-    vpsubw %ymm7, %ymm6, %ymm6 # r[1] = zeta a[2] a[2] - a[1] a[0]
+    vpsubw %ymm7,  %ymm6,  %ymm6 # r[1] = zeta a[2] a[2] - a[1] a[0]
 
     #premul
     vpmullw %ymm1, %ymm8, %ymm15 # premul a[1] zeta 
@@ -76,19 +76,19 @@ _looptop:
 
     #mul 3
     vpmullw %ymm10, %ymm15, %ymm12 # r[2] * a[1] zeta 
-    vpmullw %ymm6, %ymm13, %ymm14 # r[1] * a[2] zeta 
-    vpmullw %ymm11, %ymm2, %ymm4 # r[0] * a[0]
-    vpmulhw %ymm10, %ymm8, %ymm13
-    vpmulhw %ymm6, %ymm9, %ymm15
-    vpmulhw %ymm11, %ymm3, %ymm5
+    vpmullw %ymm6,  %ymm13, %ymm14 # r[1] * a[2] zeta 
+    vpmullw %ymm11, %ymm2,  %ymm4 # r[0] * a[0]
+    vpmulhw %ymm10, %ymm8,  %ymm13
+    vpmulhw %ymm6,  %ymm9,  %ymm15
+    vpmulhw %ymm11, %ymm3,  %ymm5
 
     #reduce
-    vpmulhw %ymm0, %ymm12, %ymm12
-    vpmulhw %ymm0, %ymm14, %ymm14
-    vpmulhw %ymm0, %ymm4, %ymm4
-    vpsubw %ymm12, %ymm13, %ymm12
-    vpsubw %ymm14, %ymm15, %ymm13
-    vpsubw %ymm4, %ymm5, %ymm14
+    vpmulhw %ymm0,  %ymm12, %ymm12
+    vpmulhw %ymm0,  %ymm14, %ymm14
+    vpmulhw %ymm0,  %ymm4,  %ymm4
+    vpsubw  %ymm12, %ymm13, %ymm12
+    vpsubw  %ymm14, %ymm15, %ymm13
+    vpsubw  %ymm4,  %ymm5,  %ymm14
 
     #add
     vpaddw %ymm12, %ymm13, %ymm12

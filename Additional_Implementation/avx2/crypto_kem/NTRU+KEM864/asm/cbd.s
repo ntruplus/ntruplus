@@ -326,8 +326,8 @@ jb		_looptop_poly_cbd1_1
 movq         (%rsi),%mm2
 movq       108(%rsi),%mm3
 
-movq    _4x1(%rip),%mm4
-movq    _4x1(%rip),%mm5
+movq    _16x1(%rip),%mm4
+movq    _16x1(%rip),%mm5
 pand        %mm2,%mm4
 pand        %mm3,%mm5
 psubw       %mm5,%mm4
@@ -339,8 +339,8 @@ _looptop_poly_cbd1_2:
 psrlw 		$1,%mm2
 psrlw		$1,%mm3
 
-movq    _4x1(%rip),%mm4
-movq    _4x1(%rip),%mm5
+movq    _16x1(%rip),%mm4
+movq    _16x1(%rip),%mm5
 pand        %mm2,%mm4
 pand        %mm3,%mm5
 psubw       %mm5,%mm4
@@ -425,7 +425,7 @@ movq       108(%rdx),%mm3
 #msg xor g1
 pxor        %mm1,%mm2
 
-movq        _4x1(%rip),%mm4
+movq        _16x1(%rip),%mm4
 movq        %mm4,%mm5
 pand        %mm2,%mm4
 pand        %mm3,%mm5
@@ -438,7 +438,7 @@ _looptop_poly_sotp_2:
 psrlw 		$1,%mm2
 psrlw		$1,%mm3
 
-movq        _4x1(%rip),%mm4
+movq        _16x1(%rip),%mm4
 movq        %mm4,%mm5
 pand        %mm2,%mm4
 pand        %mm3,%mm5
@@ -541,7 +541,7 @@ pxor        %mm5,%mm5
 movq        (%rsi),%mm1
 movq        108(%rdx),%mm3
 
-movq        _4x1(%rip),%mm7
+movq        _16x1(%rip),%mm7
 pand        %mm3,%mm7
 paddw	    %mm1,%mm7
 por         %mm7,%mm5
@@ -554,7 +554,7 @@ movq        _4x01(%rip),%mm4
 _looptop_poly_sotp_inv_2:
 movq        (%rsi,%r8),%mm1
 psrlw 		$1,%mm3
-movq        _4x1(%rip),%mm6
+movq        _16x1(%rip),%mm6
 pand        %mm3,%mm6
 paddw	    %mm1,%mm6
 por         %mm6,%mm5
