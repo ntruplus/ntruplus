@@ -102,7 +102,7 @@ static void TEST_CCA_KEM_CLOCK()
 	printf("  DECAP  runs in ................. %8lld cycles", dcycles/TEST_LOOP);
 	printf("\n"); 
 	
-	printf("==================================================\n");
+	printf("==================================================\n\n");
 }
 
 static void TEST_MODULE_CLOCK()
