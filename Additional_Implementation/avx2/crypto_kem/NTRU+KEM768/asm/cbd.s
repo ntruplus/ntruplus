@@ -122,10 +122,10 @@ vpsubw %ymm5, %ymm4, %ymm3
 vpsubw %ymm7, %ymm6, %ymm4
 vpsubw %ymm9, %ymm8, %ymm5
 
-vmovdqa   %ymm2,   0(%rdi)
-vmovdqa   %ymm3, 416(%rdi)
-vmovdqa   %ymm4, 448(%rdi)
-vmovdqa   %ymm5, 480(%rdi)
+vmovdqa %ymm2,    (%rdi)
+vmovdqa %ymm3, 416(%rdi)
+vmovdqa %ymm4, 448(%rdi)
+vmovdqa %ymm5, 480(%rdi)
 
 add $32,  %rsi
 add $512, %rdi
@@ -252,20 +252,20 @@ vpand %ymm0, %ymm7, %ymm7
 vpsrld $15, %ymm2, %ymm8
 vpsrld $15, %ymm3, %ymm9
 
-vpand  %ymm0, %ymm2, %ymm2
-vpand  %ymm0, %ymm3, %ymm3
-vpand  %ymm0, %ymm8, %ymm8
-vpand  %ymm0, %ymm9, %ymm9
+vpand %ymm0, %ymm2, %ymm2
+vpand %ymm0, %ymm3, %ymm3
+vpand %ymm0, %ymm8, %ymm8
+vpand %ymm0, %ymm9, %ymm9
 
 vpsubw %ymm3, %ymm2, %ymm2
 vpsubw %ymm5, %ymm4, %ymm3
 vpsubw %ymm7, %ymm6, %ymm4
 vpsubw %ymm9, %ymm8, %ymm5
 
-vmovdqa   %ymm2,   0(%rdi)
-vmovdqa   %ymm3, 416(%rdi)
-vmovdqa   %ymm4, 448(%rdi)
-vmovdqa   %ymm5, 480(%rdi)
+vmovdqa %ymm2,    (%rdi)
+vmovdqa %ymm3, 416(%rdi)
+vmovdqa %ymm4, 448(%rdi)
+vmovdqa %ymm5, 480(%rdi)
 
 add $32,  %rdx
 add $32,  %rsi

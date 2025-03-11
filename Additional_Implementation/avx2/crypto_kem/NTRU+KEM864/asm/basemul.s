@@ -163,12 +163,12 @@ _looptop:
     vpmulhw %ymm3, %ymm7, %ymm15
 
     #reduce
-    vpmulhw %ymm0, %ymm10, %ymm10
-    vpmulhw %ymm0, %ymm12, %ymm12
-    vpmulhw %ymm0, %ymm14, %ymm14
-    vpsubw %ymm10, %ymm11, %ymm10
-    vpsubw %ymm12, %ymm13, %ymm12
-    vpsubw %ymm14, %ymm15, %ymm14
+    vpmulhw %ymm0,  %ymm10, %ymm10
+    vpmulhw %ymm0,  %ymm12, %ymm12
+    vpmulhw %ymm0,  %ymm14, %ymm14
+    vpsubw  %ymm10, %ymm11, %ymm10
+    vpsubw  %ymm12, %ymm13, %ymm12
+    vpsubw  %ymm14, %ymm15, %ymm14
 
     #add
     vpaddw %ymm12, %ymm14, %ymm11
@@ -186,12 +186,12 @@ _looptop:
     vpmulhw %ymm5, %ymm9, %ymm8
 
     #reduce
-    vpmulhw %ymm0, %ymm12, %ymm12
-    vpmulhw %ymm0, %ymm14, %ymm14
-    vpmulhw %ymm0, %ymm7,  %ymm7
-    vpsubw %ymm12, %ymm13, %ymm12
-    vpsubw %ymm14, %ymm15, %ymm14
-    vpsubw %ymm7,  %ymm8,  %ymm7
+    vpmulhw %ymm0,  %ymm12, %ymm12
+    vpmulhw %ymm0,  %ymm14, %ymm14
+    vpmulhw %ymm0,  %ymm7,  %ymm7
+    vpsubw  %ymm12, %ymm13, %ymm12
+    vpsubw  %ymm14, %ymm15, %ymm14
+    vpsubw  %ymm7,  %ymm8,  %ymm7
 
     #add
     vpaddw %ymm12, %ymm14, %ymm12

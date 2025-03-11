@@ -30,8 +30,8 @@ vpsubw %xmm7,  %xmm6,  %xmm6
 vpsubw %xmm9,  %xmm8,  %xmm8
 vpsubw %xmm11, %xmm10, %xmm10
 
-vpunpckhqdq   %xmm4, %xmm6,  %xmm15
-vpunpckhqdq   %xmm8, %xmm10, %xmm14
+vpunpckhqdq %xmm4, %xmm6,  %xmm15
+vpunpckhqdq %xmm8, %xmm10, %xmm14
 
 vpsrld $11, %xmm2, %xmm4
 vpsrld $11, %xmm3, %xmm5
@@ -235,17 +235,17 @@ vpand %ymm0, %ymm7, %ymm7
 vpsrld $15, %ymm2, %ymm8
 vpsrld $15, %ymm3, %ymm9
 
-vpand  %ymm0, %ymm2, %ymm2
-vpand  %ymm0, %ymm3, %ymm3
-vpand  %ymm0, %ymm8, %ymm8
-vpand  %ymm0, %ymm9, %ymm9
+vpand %ymm0, %ymm2, %ymm2
+vpand %ymm0, %ymm3, %ymm3
+vpand %ymm0, %ymm8, %ymm8
+vpand %ymm0, %ymm9, %ymm9
 
 vpsubw %ymm3, %ymm2, %ymm2
 vpsubw %ymm5, %ymm4, %ymm3
 vpsubw %ymm7, %ymm6, %ymm4
 vpsubw %ymm9, %ymm8, %ymm5
 
-vmovdqa %ymm2,   0(%rdi)
+vmovdqa %ymm2,    (%rdi)
 vmovdqa %ymm3, 416(%rdi)
 vmovdqa %ymm4, 448(%rdi)
 vmovdqa %ymm5, 480(%rdi)

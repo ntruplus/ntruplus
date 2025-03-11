@@ -325,15 +325,12 @@ const int16_t zetas_inv[1224] __attribute__((aligned(32))) = {
 #define Qp1div2 1729
 
 const uint16_t _low_mask[16] __attribute__((aligned(32))) = {LOW, LOW, LOW, LOW, LOW, LOW, LOW, LOW, LOW, LOW, LOW, LOW, LOW, LOW, LOW, LOW};
-const uint16_t _4x1[4] __attribute__((aligned(32))) = {1, 1, 1, 1};
-const uint16_t _4x01[4] __attribute__((aligned(32))) = {1, 0, 0, 0};
-const uint32_t _8x1[8] __attribute__((aligned(32))) = {1, 1, 1, 1, 1, 1, 1, 1};
-
 const uint16_t _16xv[16] __attribute__((aligned(32))) = {V, V, V, V, V, V, V, V, V, V, V, V, V, V, V, V};
 const uint16_t _16x1[16] __attribute__((aligned(32))) = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
 const uint16_t _16x3[36] __attribute__((aligned(32))) = {3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3};
 const uint16_t _16x15[36] __attribute__((aligned(32))) = {15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15};
 const uint16_t _16x255[36] __attribute__((aligned(32))) = {255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255};
+
 const uint16_t _16xq[16]  __attribute__((aligned(32))) = {NTRUPLUS_Q, NTRUPLUS_Q, NTRUPLUS_Q, NTRUPLUS_Q, NTRUPLUS_Q, NTRUPLUS_Q, NTRUPLUS_Q, NTRUPLUS_Q, NTRUPLUS_Q, NTRUPLUS_Q, NTRUPLUS_Q, NTRUPLUS_Q, NTRUPLUS_Q, NTRUPLUS_Q, NTRUPLUS_Q, NTRUPLUS_Q};
 const uint16_t _16xqm1div2[16]  __attribute__((aligned(32))) = {Qm1div2, Qm1div2, Qm1div2, Qm1div2, Qm1div2, Qm1div2, Qm1div2, Qm1div2, Qm1div2, Qm1div2, Qm1div2, Qm1div2, Qm1div2, Qm1div2, Qm1div2, Qm1div2};
 const uint16_t _16xqp1div2[16]  __attribute__((aligned(32))) = {Qp1div2, Qp1div2, Qp1div2, Qp1div2, Qp1div2, Qp1div2, Qp1div2, Qp1div2, Qp1div2, Qp1div2, Qp1div2, Qp1div2, Qp1div2, Qp1div2, Qp1div2, Qp1div2};
@@ -347,3 +344,5 @@ const uint16_t _16xwqinv[16] __attribute__((aligned(32))) = {WQINV, WQINV, WQINV
 #undef V
 #undef WQINV
 #undef W
+#undef Qm1div2
+#undef Qp1div2

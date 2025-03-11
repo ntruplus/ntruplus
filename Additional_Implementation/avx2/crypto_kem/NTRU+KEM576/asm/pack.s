@@ -17,20 +17,20 @@ vpmulhw %ymm15, %ymm1, %ymm5
 vpmulhw %ymm15, %ymm2, %ymm6
 vpmulhw %ymm15, %ymm3, %ymm7
 
-vpsraw  $10, %ymm4, %ymm4
-vpsraw  $10, %ymm5, %ymm5
-vpsraw  $10, %ymm6, %ymm6
-vpsraw  $10, %ymm7, %ymm7
+vpsraw $10, %ymm4, %ymm4
+vpsraw $10, %ymm5, %ymm5
+vpsraw $10, %ymm6, %ymm6
+vpsraw $10, %ymm7, %ymm7
 
 vpmullw %ymm14, %ymm4, %ymm4
 vpmullw %ymm14, %ymm5, %ymm5
 vpmullw %ymm14, %ymm6, %ymm6
 vpmullw %ymm14, %ymm7, %ymm7
 
-vpsubw  %ymm4, %ymm0, %ymm0
-vpsubw  %ymm5, %ymm1, %ymm1
-vpsubw  %ymm6, %ymm2, %ymm2
-vpsubw  %ymm7, %ymm3, %ymm3
+vpsubw %ymm4, %ymm0, %ymm0
+vpsubw %ymm5, %ymm1, %ymm1
+vpsubw %ymm6, %ymm2, %ymm2
+vpsubw %ymm7, %ymm3, %ymm3
 
 vpsubw %ymm14, %ymm0, %ymm0
 vpsubw %ymm14, %ymm1, %ymm1
@@ -62,10 +62,10 @@ vpblendw $0xAA, %ymm11, %ymm2,  %ymm5
 vpblendw $0xAA, %ymm1,  %ymm12, %ymm6
 vpblendw $0xAA, %ymm3,  %ymm13, %ymm7
 
-vpsllq   $32,   %ymm5,  %ymm10
-vpsllq   $32,   %ymm7,  %ymm11
-vpsrlq   $32,   %ymm4,  %ymm12
-vpsrlq   $32,   %ymm6,  %ymm13
+vpsllq $32, %ymm5, %ymm10
+vpsllq $32, %ymm7, %ymm11
+vpsrlq $32, %ymm4, %ymm12
+vpsrlq $32, %ymm6, %ymm13
 
 vpblendd $0xAA, %ymm10, %ymm4,  %ymm0
 vpblendd $0xAA, %ymm11, %ymm6,  %ymm1

@@ -436,14 +436,14 @@ vpsubw  %ymm10, %ymm8,  %ymm8 #t3
 #mul
 vpmullw %ymm11, %ymm5, %ymm9
 vpmullw %ymm12, %ymm6, %ymm10
-vpmulhw %ymm3, %ymm5, %ymm3
-vpmulhw %ymm4, %ymm6, %ymm4
+vpmulhw %ymm3,  %ymm5, %ymm3
+vpmulhw %ymm4,  %ymm6, %ymm4
 
 #reduce
-vpmulhw %ymm0, %ymm9, %ymm9
-vpmulhw %ymm0, %ymm10, %ymm10
-vpsubw %ymm9, %ymm3, %ymm3 #t1
-vpsubw %ymm10, %ymm4, %ymm4 #t1
+vpmulhw %ymm0,  %ymm9,  %ymm9
+vpmulhw %ymm0,  %ymm10, %ymm10
+vpsubw  %ymm9,  %ymm3,  %ymm3  #t1
+vpsubw  %ymm10, %ymm4,  %ymm4  #t1
 
 #t2 = fqmul(t1, t3); //11010
 #premul
@@ -459,8 +459,8 @@ vpmulhw %ymm4, %ymm8, %ymm6
 #reduce
 vpmulhw %ymm0, %ymm9, %ymm9
 vpmulhw %ymm0, %ymm10, %ymm10
-vpsubw  %ymm9, %ymm5, %ymm5  #t2
-vpsubw  %ymm10, %ymm6, %ymm6 #t2
+vpsubw  %ymm9, %ymm5, %ymm5   #t2
+vpsubw  %ymm10, %ymm6, %ymm6  #t2
 
 #t2 = fqmul(t2, t2); //110100
 #mul
@@ -488,7 +488,7 @@ vpmulhw %ymm2,  %ymm6,  %ymm6
 vpmulhw %ymm0,  %ymm9,  %ymm9
 vpmulhw %ymm0,  %ymm10, %ymm10
 vpsubw  %ymm9,  %ymm5,  %ymm5 #t2
-vpsubw  %ymm10, %ymm6,  %ymm6 #t2    
+vpsubw  %ymm10, %ymm6,  %ymm6 #t2
 
 #t1 = fqmul(t1, t2); //111111
 #mul
@@ -530,8 +530,8 @@ vpmullw %ymm15, %ymm10, %ymm10
 #reduce
 vpmulhw %ymm0,  %ymm9,  %ymm9
 vpmulhw %ymm0,  %ymm10, %ymm10
-vpsubw  %ymm9,  %ymm5,  %ymm5 #t2
-vpsubw  %ymm10, %ymm6,  %ymm6 #t2
+vpsubw  %ymm9,  %ymm5,  %ymm5  #t2
+vpsubw  %ymm10, %ymm6,  %ymm6  #t2
 
 #t2 = fqmul(t2, t2); //110101000
 #mul
@@ -629,11 +629,11 @@ vpmulhw %ymm1,  %ymm5, %ymm5
 vpmulhw %ymm1,  %ymm6, %ymm6
 
 #reduce
-vpmulhw %ymm0,  %ymm9, %ymm9
+vpmulhw %ymm0,  %ymm9,  %ymm9
 vpmulhw %ymm0,  %ymm10, %ymm10
 vpmulhw %ymm0,  %ymm11, %ymm11
 vpmulhw %ymm0,  %ymm12, %ymm12
-vpsubw  %ymm9, %ymm3,  %ymm3
+vpsubw  %ymm9,  %ymm3,  %ymm3
 vpsubw  %ymm4,  %ymm10, %ymm4
 vpsubw  %ymm11, %ymm5,  %ymm5
 vpsubw  %ymm6,  %ymm12, %ymm6

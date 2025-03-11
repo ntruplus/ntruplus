@@ -31,9 +31,9 @@ vpmulhw %ymm1,  %ymm3, %ymm10 #a[3]*b[3]
 vpmulhw %ymm0, %ymm5,  %ymm5
 vpmulhw %ymm0, %ymm6,  %ymm6
 vpmulhw %ymm0, %ymm7,  %ymm7
-vpsubw %ymm5,  %ymm8,  %ymm8  #a[1]*b[3]
-vpsubw %ymm6,  %ymm9,  %ymm9  #a[3]*b[1]
-vpsubw %ymm7,  %ymm10, %ymm10 #a[3]*b[3]
+vpsubw  %ymm5, %ymm8,  %ymm8  #a[1]*b[3]
+vpsubw  %ymm6, %ymm9,  %ymm9  #a[3]*b[1]
+vpsubw  %ymm7, %ymm10, %ymm10 #a[3]*b[3]
 
 #add
 vpaddw %ymm9, %ymm8, %ymm8 #c[0] = a[1]*b[3]+a[3]*b[1]
@@ -211,9 +211,9 @@ vpmulhw %ymm1,  %ymm3, %ymm10 #a[3]*b[3]
 vpmulhw %ymm0, %ymm5,  %ymm5
 vpmulhw %ymm0, %ymm6,  %ymm6
 vpmulhw %ymm0, %ymm7,  %ymm7
-vpsubw %ymm5,  %ymm8,  %ymm8  #a[1]*b[3]
-vpsubw %ymm6,  %ymm9,  %ymm9  #a[3]*b[1]
-vpsubw %ymm7,  %ymm10, %ymm10 #a[3]*b[3]
+vpsubw  %ymm5, %ymm8,  %ymm8  #a[1]*b[3]
+vpsubw  %ymm6, %ymm9,  %ymm9  #a[3]*b[1]
+vpsubw  %ymm7, %ymm10, %ymm10 #a[3]*b[3]
 
 #add
 vpaddw %ymm9, %ymm8, %ymm8 #c[0] = a[1]*b[3]+a[3]*b[1]
