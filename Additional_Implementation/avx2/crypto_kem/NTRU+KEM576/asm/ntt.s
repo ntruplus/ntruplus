@@ -308,9 +308,9 @@ vpmulhw %ymm1, %ymm4, %ymm8
 vpmulhw %ymm1, %ymm5, %ymm9
 vpmulhw %ymm1, %ymm6, %ymm10
 
-vpsraw $10, %ymm7, %ymm7
-vpsraw $10, %ymm8, %ymm8
-vpsraw $10, %ymm9, %ymm9
+vpsraw $10, %ymm7,  %ymm7
+vpsraw $10, %ymm8,  %ymm8
+vpsraw $10, %ymm9,  %ymm9
 vpsraw $10, %ymm10, %ymm10
 
 vpmullw %ymm0, %ymm7,  %ymm7
