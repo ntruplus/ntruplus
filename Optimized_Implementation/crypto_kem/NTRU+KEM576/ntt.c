@@ -2,7 +2,7 @@
 #include "ntt.h"
 
 #define QINV 12929 // q^(-1) mod 2^16
-#define QINV_PLANT 1951806081u // q^(-1) mod 2^32
+#define QINV_PLANT ((int32_t)1951806081LL) // q^(-1) mod 2^32
 
 const int16_t zetas[144] = {
 	 -147, -1033, -1265,   708,   460,  1265,  -467,   727,
@@ -412,70 +412,61 @@ int baseinv(int16_t r[8], const int16_t a[8], int32_t zeta)
 {
 	int16_t t0, t1, t2;
 	int16_t s0, s1, s2;
-	int32_t A0, A1, A2, A3, T;
-	int32_t B0, B1, B2, B3, S;	
+	int32_t A0, A1, A2, A3;
+	int32_t B0, B1, B2, B3;
+	int32_t det0, det1;
+	int32_t zeta1, zeta2;
+
+	zeta1 = zeta;
+	zeta2 = -zeta;
 
 	A0 = a[0]*QINV_PLANT;
 	A1 = a[1]*QINV_PLANT;
 	A2 = a[2]*QINV_PLANT;
 	A3 = a[3]*QINV_PLANT;
-
-	t0 = plantard_reduce_acc(a[2]*A2 - (a[1]*A3 << 1));
-	t1 = plantard_reduce_acc(a[3]*A3);
-	t0 = plantard_reduce_acc(a[0]*A0 + t0*zeta);
-	t1 = plantard_reduce_acc(((a[0]*A2) << 1) - a[1]*A1 - t1*zeta);
-
-	t2 = plantard_reduce(t1*t1);
-	
-	T = t0*QINV_PLANT; 
-	
-	t2 = plantard_reduce_acc(t0*T - t2*zeta);
-	
-	if(t2 == 0) return 1;
-
 	B0 = a[4]*QINV_PLANT;
 	B1 = a[5]*QINV_PLANT;
 	B2 = a[6]*QINV_PLANT;
 	B3 = a[7]*QINV_PLANT;
 
+	t0 = plantard_reduce_acc(a[2]*A2 - (a[1]*A3 << 1));
 	s0 = plantard_reduce_acc(a[6]*B2 - (a[5]*B3 << 1));
+	t1 = plantard_reduce_acc(a[3]*A3);
 	s1 = plantard_reduce_acc(a[7]*B3);
-	s0 = plantard_reduce_acc(a[4]*B0 - s0*zeta);
-	s1 = plantard_reduce_acc(((a[4]*B2) << 1) - a[5]*B1 + s1*zeta);
-
-	s2 = plantard_reduce(s1*s1);
+	t0 = plantard_reduce_acc(a[0]*A0 + t0*zeta1);
+	s0 = plantard_reduce_acc(a[4]*B0 + s0*zeta2);
+	t1 = plantard_reduce_acc(a[1]*A1 + t1*zeta1 - ((a[0]*A2) << 1));
+	s1 = plantard_reduce_acc(a[5]*B1 + s1*zeta2 - ((a[4]*B2) << 1));
+	t2 = plantard_reduce_acc(t1*zeta1);
+	s2 = plantard_reduce_acc(s1*zeta2);
 	
-	S = s0*QINV_PLANT; 
+	det0 = plantard_reduce(t0*t0 - t1*t2);
+	det1 = plantard_reduce(s0*s0 - s1*s2);
 	
-	s2 = plantard_reduce_acc(s0*S + s2*zeta);
-	
-	if(s2 == 0) return 1;
+	r[0] = plantard_reduce_acc(A0*t0 + A2*t2);
+	r[1] = plantard_reduce_acc(A3*t2 + A1*t0);
+	r[2] = plantard_reduce_acc(A2*t0 + A0*t1);
+	r[3] = plantard_reduce_acc(A1*t1 + A3*t0);
+	r[4] = plantard_reduce_acc(B0*s0 + B2*s2);
+	r[5] = plantard_reduce_acc(B3*s2 + B1*s0);
+	r[6] = plantard_reduce_acc(B2*s0 + B0*s1);
+	r[7] = plantard_reduce_acc(B1*s1 + B3*s0);
 
-	t2 = fqinv(t2);
-	s2 = fqinv(s2);
+	if(!(det0 && det1)) return 1;
 
-	t2 = plantard_reduce(t2);
-	s2 = plantard_reduce(s2);
+	det0 = fqinv(det0);
+	det1 = fqinv(det1);
+	det0 = plantard_reduce(det0);
+	det1 = plantard_reduce(det1);
 
-	T = t2*QINV_PLANT;
-	S = s2*QINV_PLANT;
-
-	t0 = plantard_reduce_acc(t0*T);
-	s0 = plantard_reduce_acc(s0*S);
-	t1 = plantard_reduce_acc(t1*T); 
-	s1 = plantard_reduce_acc(s1*S); 
-	t2 = plantard_mul(t1, zeta);
-	s2 = plantard_mul(s1, -zeta);
-
-	r[0] = plantard_reduce_acc(A2*t2 - A0*t0);
-	r[1] = plantard_reduce_acc(A1*t0 - A3*t2);
-	r[2] = plantard_reduce_acc(A0*t1 - A2*t0);
-	r[3] = plantard_reduce_acc(A3*t0 - A1*t1);
-
-	r[4] = plantard_reduce_acc(B2*s2 - B0*s0);
-	r[5] = plantard_reduce_acc(B1*s0 - B3*s2);
-	r[6] = plantard_reduce_acc(B0*s1 - B2*s0);
-	r[7] = plantard_reduce_acc(B3*s0 - B1*s1);
+	r[0] = -plantard_reduce(r[0]*det0);
+	r[1] =  plantard_reduce(r[1]*det0);
+	r[2] = -plantard_reduce(r[2]*det0);
+	r[3] =  plantard_reduce(r[3]*det0);
+	r[4] = -plantard_reduce(r[4]*det1);
+	r[5] =  plantard_reduce(r[5]*det1);
+	r[6] = -plantard_reduce(r[6]*det1);
+	r[7] =  plantard_reduce(r[7]*det1);
 
 	return 0;
 }
