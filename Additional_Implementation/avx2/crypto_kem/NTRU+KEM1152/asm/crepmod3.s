@@ -1,8 +1,8 @@
 .global poly_crepmod3
 poly_crepmod3:
 vmovdqa       _16xq(%rip), %ymm0
-vmovdqa _16xqm1div2(%rip), %ymm1
-vmovdqa _16xqp1div2(%rip), %ymm2
+vmovdqa _16xqp1div2(%rip), %ymm1
+vmovdqa _16xqm1div2(%rip), %ymm2
 vmovdqa     _16x255(%rip), %ymm3
 vmovdqa      _16x15(%rip), %ymm4
 vmovdqa       _16x3(%rip), %ymm5
