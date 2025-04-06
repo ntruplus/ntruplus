@@ -26,18 +26,18 @@ int16_t montgomery_reduce(int32_t a)
 * Name:        barrett_reduce
 *
 * Description: Barrett reduction; given a 16-bit integer a, computes
-*              centered representative congruent to a mod q in {-(q-1)/2,...,(q-1)/2}
+*              centered representative congruent to a mod q in {-(q+1)/2,...,(q+1)/2}
 *
 * Arguments:   - int16_t a: input integer to be reduced
 *
-* Returns:     integer in {-(q-1)/2,...,(q-1)/2} congruent to a modulo q.
+* Returns:     integer in {-(q+1)/2,...,(q+1)/2} congruent to a modulo q.
 **************************************************/
 int16_t barrett_reduce(int16_t a)
 {
 	int16_t t;
-	const uint16_t v = ((1<<27) + NTRUPLUS_Q/2)/NTRUPLUS_Q;
+	const int16_t v = ((1<<26) + NTRUPLUS_Q/2)/NTRUPLUS_Q;
 	
-	t  = ((int32_t)v*a + (1<<26)) >> 27;
+	t  = ((int32_t)v*a + (1<<25)) >> 26;
 	t *= NTRUPLUS_Q;
 	return a - t;
 }
