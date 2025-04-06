@@ -506,11 +506,28 @@ cmp %r8,  %rsi
 jb  _looptop
 
 xor %rax, %rax
+vpxor %ymm0, %ymm0, %ymm0
+
+sub $96,  %rsp
+
+vmovdqu %ymm0, 64(%rsp)
+vmovdqu %ymm0, 32(%rsp)
+vmovdqu %ymm0,   (%rsp)
+
+add $96, %rsp
 
 ret
 
 _loopend:
-
 mov $1, %rax
+vpxor %ymm0, %ymm0, %ymm0
+
+sub $96,  %rsp
+
+vmovdqu %ymm0, 64(%rsp)
+vmovdqu %ymm0, 32(%rsp)
+vmovdqu %ymm0,   (%rsp)
+
+add $96, %rsp
 
 ret
