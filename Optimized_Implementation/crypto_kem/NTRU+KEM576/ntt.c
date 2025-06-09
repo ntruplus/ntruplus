@@ -59,16 +59,19 @@ const int32_t zetas_plant[144] = {
 **************************************************/
 static inline int16_t montgomery_reduce(int32_t a)
 {
-	int16_t t = (int16_t)a*QINV;
+	int16_t t;
+	
+	t = (int16_t)a*QINV;
 	t = (a - (int32_t)t*NTRUPLUS_Q) >> 16;
+	
 	return t;
 }
 
 static inline int16_t plantard_reduce(int32_t a)
 {
-  a = ((int32_t)(a * QINV_PLANT)) >> 16;
-  a=((a+8) * NTRUPLUS_Q) >> 16;
-  return a;
+	a = ((int32_t)(a * QINV_PLANT)) >> 16;
+	a=((a+8) * NTRUPLUS_Q) >> 16;
+	return a;
 }
 
 static inline int16_t plantard_reduce_acc(int32_t a)
