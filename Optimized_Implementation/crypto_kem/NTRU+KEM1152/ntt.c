@@ -183,7 +183,7 @@ void ntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 {
 	int16_t t1,t2,t3;
 	int32_t T1,T2;
-	int32_t zeta[5];
+	int32_t zeta[7];
 	int16_t v[8];
 
 	int index = 1;
