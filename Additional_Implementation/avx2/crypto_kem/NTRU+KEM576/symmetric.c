@@ -2,7 +2,6 @@
 #include "Keccak_avx2/fips202.h"
 #include <string.h>
 
-// 어셈블리에서 정의된 외부 함수 (Intel 최적화)
 extern void sha256_transform_rorx(void *input_data, uint32_t digest[8], uint64_t num_blks);
 
 #define SHA256_DIGEST_LENGTH 32
