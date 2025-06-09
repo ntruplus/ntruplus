@@ -1,3 +1,0 @@
-This code compiles and executes correctly with GCC 11, but fails to produce the expected output with GCC 12.
-
-We’re trying to figure out why this happens.

@@ -78,9 +78,9 @@ static inline int16_t montgomery_reduce(int32_t a)
 
 static inline int16_t plantard_reduce(int32_t a)
 {
-	a = (a*QINV_PLANT) >> 16;
-	a = ((a+8)*NTRUPLUS_Q) >> 16;
-	return a;
+  a = ((int32_t)(a * QINV_PLANT)) >> 16;
+  a=((a+8) * NTRUPLUS_Q) >> 16;
+  return a;
 }
 
 static inline int16_t plantard_reduce_acc(int32_t a)
@@ -92,7 +92,7 @@ static inline int16_t plantard_reduce_acc(int32_t a)
 
 static inline int16_t plantard_mul(int32_t a, int32_t b)
 {
-	int32_t t = a*b >> 16;
+	int32_t t = ((int32_t)(a*b)) >> 16;
 	t = ((t+8)*NTRUPLUS_Q) >> 16;
 	return t;
 }
