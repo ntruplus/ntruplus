@@ -841,6 +841,7 @@ cmp %r8,  %rdi
 jb  _looptop
 
 xor %rax, %rax
+vpxor %ymm0, %ymm0, %ymm0
 
 vmovdqu %ymm0,    (%rsp)
 vmovdqu %ymm0,  32(%rsp)
@@ -855,6 +856,7 @@ ret
 
 _loopend:
 mov $1, %rax
+vpxor %ymm0, %ymm0, %ymm0
 
 vmovdqu %ymm0,    (%rsp)
 vmovdqu %ymm0,  32(%rsp)
