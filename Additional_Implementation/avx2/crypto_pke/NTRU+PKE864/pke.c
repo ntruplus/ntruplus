@@ -4,9 +4,30 @@
 #include "params.h"
 #include "symmetric.h"
 #include "poly.h"
-#include "verify.h"
 #include "Keccak_avx2/fips202.h"
 #include "randombytes.h"
+
+/*************************************************
+* Name:        verify
+*
+* Description: Compare two arrays for equality in constant time.
+*
+* Arguments:   const uint8_t *a: pointer to first byte array
+*              const uint8_t *b: pointer to second byte array
+*              size_t len:       length of the byte arrays
+*
+* Returns 0 if the byte arrays are equal, 1 otherwise
+**************************************************/
+static inline int verify(const uint8_t *a, const uint8_t *b, size_t len)
+{
+	size_t i;
+	uint8_t r = 0;
+	
+	for(i=0;i<len;i++)
+		r |= a[i] ^ b[i];
+	
+	return (-(uint64_t)r) >> 63;
+}
 
 /*************************************************
 * Name:        crypto_encrypt_keypair
