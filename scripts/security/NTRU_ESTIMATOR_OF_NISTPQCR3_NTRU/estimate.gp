@@ -69,7 +69,7 @@ COSTFNS =                                  /* enabled? */
  ["SieveD18",                     SieveD18, 0],\
  ["SieveBDGL16",               SieveBDGL16, 1],\
  ["Quantum LSF Sieve",         QSieveLaa15, 0],\
- ["Quantum LSF Sieve2",         QSieveCL21, 1],\
+ ["Quantum Sieve [CL21]",       QSieveCL21, 1],\
  ["Sieve vectors",              SieveSpace, 0]];
 
 ExpectedCoeffSize(coeffDist) = {
@@ -293,4 +293,3 @@ RunHybrid(n,maxm,q,coeffDist,costFn) = {
   k = HybridTradeoff(costFn,n,maxm,q,coeffDist);
   HybridCostEstimate(costFn,n,maxm,q,coeffDist,k,summarize=0)
 }
-

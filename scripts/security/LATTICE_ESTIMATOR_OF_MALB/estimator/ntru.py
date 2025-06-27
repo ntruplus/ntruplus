@@ -7,20 +7,23 @@ from functools import partial
 from sage.all import oo
 
 from .ntru_primal import primal_dsd, primal_usvp, primal_bdd, primal_hybrid
-from .lwe_bkw import coded_bkw # noqa
-from .lwe_guess import exhaustive_search, mitm, distinguish, guess_composition # noqa
-from .lwe_dual import dual, dual_hybrid # noqa
+from .lwe_bkw import coded_bkw  # noqa
+from .lwe_guess import exhaustive_search, mitm, distinguish, guess_composition  # noqa
+from .lwe_dual import dual, dual_hybrid  # noqa
 from .gb import arora_gb  # noqa
 from .ntru_parameters import NTRUParameters as Parameters  # noqa
-from .conf import (red_cost_model as red_cost_model_default,
-                   red_shape_model as red_shape_model_default)
+from .conf import (
+    red_cost_model as red_cost_model_default,
+    red_shape_model as red_shape_model_default,
+)
 from .util import batch_estimate, f_name
 from .reduction import RC
+from .io import Logging
 
 
 class Estimate:
 
-    def rough(self, params, jobs=1, catch_exceptions=True):
+    def rough(self, params, jobs=1, catch_exceptions=True, quiet=False):
         """
         This function makes the following (non-default) somewhat routine assumptions to evaluate the cost of lattice
         reduction, and to provide comparable numbers with most of the literature:
@@ -40,6 +43,7 @@ class Estimate:
         :param params: NTRU parameters.
         :param jobs: Use multiple threads in parallel.
         :param catch_exceptions: When an estimate fails, just print a warning.
+        :param quiet: suppress printing
 
         EXAMPLE ::
 
@@ -47,6 +51,8 @@ class Estimate:
             >>> _ = NTRU.estimate.rough(schemes.NTRUHPS2048509Enc)
             usvp                 :: rop: ≈2^109.2, red: ≈2^109.2, δ: 1.004171, β: 374, d: 643, tag: usvp
             bdd_hybrid           :: rop: ≈2^108.6, red: ≈2^107.7, svp: ≈2^107.5, β: 369, η: 368, ζ: 0, |S|: 1, ...
+
+            >>> _ = NTRU.estimate.rough(schemes.NTRUHPS2048509Enc, quiet=True)
 
         """
         params = params.normalize()
@@ -75,7 +81,8 @@ class Estimate:
         )
         res_raw = res_raw[params]
         res = {
-            algorithm: v for algorithm, attack in algorithms.items()
+            algorithm: v
+            for algorithm, attack in algorithms.items()
             for k, v in res_raw.items()
             if f_name(attack) == k
         }
@@ -85,7 +92,7 @@ class Estimate:
                 continue
             result = res[algorithm]
             if result["rop"] != oo:
-                print(f"{algorithm:20s} :: {result!r}")
+                Logging.print("estimator", int(quiet), f"{algorithm:20s} :: {result!r}")
 
         return res
 
@@ -98,6 +105,7 @@ class Estimate:
         add_list=tuple(),
         jobs=1,
         catch_exceptions=True,
+        quiet=False,
     ):
         """
         Run all estimates, based on the default cost and shape models for lattice reduction.
@@ -109,23 +117,27 @@ class Estimate:
         :param add_list: add these ``(name, function)`` pairs to the list of algorithms to estimate.a
         :param jobs: Use multiple threads in parallel.
         :param catch_exceptions: When an estimate fails, just print a warning.
+        :param quiet: suppress printing
 
         EXAMPLE ::
 
             >>> from estimator import *
             >>> _ = NTRU.estimate(schemes.NTRUHRSS701Enc)
             usvp                 :: rop: ≈2^162.1, red: ≈2^162.1, δ: 1.003557, β: 470, d: 1317, tag: usvp
-            bdd                  :: rop: ≈2^158.7, red: ≈2^157.7, svp: ≈2^157.7, β: 454, η: 489, d: 1306, tag: bdd
-            bdd_hybrid           :: rop: ≈2^158.7, red: ≈2^157.7, svp: ≈2^157.7, β: 454, η: 489, ζ: 0, |S|: 1, d: ...
-            bdd_mitm_hybrid      :: rop: ≈2^235.7, red: ≈2^234.8, svp: ≈2^234.6, β: 469, η: 2, ζ: 178, |S|: ...
+            bdd                  :: rop: ≈2^158.6, red: ≈2^157.6, svp: ≈2^157.6, β: 454, η: 489, d: 1306, tag: bdd
+            bdd_hybrid           :: rop: ≈2^158.6, red: ≈2^157.7, svp: ≈2^157.6, β: 454, η: 489, ζ: 0, |S|: 1, d: ...
+            bdd_mitm_hybrid      :: rop: ≈2^235.7, red: ≈2^234.7, svp: ≈2^234.6, β: 469, η: 2, ζ: 178, |S|: ...
 
             >>> params = NTRU.Parameters(n=113, q=512, Xs=ND.UniformMod(3), Xe=ND.UniformMod(3))
             >>> _ = NTRU.estimate(params, catch_exceptions=False)
             usvp                 :: rop: ≈2^46.0, red: ≈2^46.0, δ: 1.011516, β: 59, d: 221, tag: usvp
-            dsd                  :: rop: ≈2^37.9, red: ≈2^37.9, δ: 1.013310, β: 31, d: 226, tag: dsd
-            bdd                  :: rop: ≈2^42.4, red: ≈2^41.0, svp: ≈2^41.8, β: 41, η: 70, d: 225, tag: bdd
-            bdd_hybrid           :: rop: ≈2^42.4, red: ≈2^41.0, svp: ≈2^41.8, β: 41, η: 70, ζ: 0, |S|: 1, d: 226, ...
-            bdd_mitm_hybrid      :: rop: ≈2^55.8, red: ≈2^54.9, svp: ≈2^54.7, β: 41, η: 2, ζ: 32, |S|: ≈2^50.7, ...
+            dsd                  :: rop: ≈2^37.8, red: ≈2^37.8, δ: 1.013310, β: 31, d: 226, tag: dsd
+            bdd                  :: rop: ≈2^42.4, red: ≈2^40.9, svp: ≈2^41.7, β: 41, η: 70, d: 225, tag: bdd
+            bdd_hybrid           :: rop: ≈2^42.4, red: ≈2^40.9, svp: ≈2^41.7, β: 41, η: 70, ζ: 0, |S|: 1, d: 226, ...
+            bdd_mitm_hybrid      :: rop: ≈2^55.8, red: ≈2^54.8, svp: ≈2^54.7, β: 41, η: 2, ζ: 32, |S|: ≈2^50.7, ...
+
+            >>> _ = NTRU.estimate(params, quiet=True)
+
         """
         params = params.normalize()
 
@@ -180,7 +192,7 @@ class Estimate:
                 continue
             if algorithm == "dsd" and res["usvp"]["rop"] < result["rop"]:
                 continue
-            print(f"{algorithm:20s} :: {result!r}")
+            Logging.print("estimator", int(quiet), f"{algorithm:20s} :: {result!r}")
 
         return res
 

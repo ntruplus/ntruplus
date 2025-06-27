@@ -1,3 +1,5 @@
 # NTRU+ (https://sites.google.com/view/ntruplus/)
 
-This website is the official repository of NTRU+ that advanced to the 2nd round of the 'Korean Post-Quantum Cryptography Competition' (www.kpqc.or.kr). NTRU+ consists of the key encapsulation mechanism NTRU+ KEM and the public key encryption NTRU+ PKE. 
+This website serves as the official repository for **NTRU+**, a public key encryption and key encapsulation mechanism (**PKE/KEM**) algorithm that was selected as one of the **final algorithms** in Round 2 of the [Korean Post-Quantum Cryptography Competition (KpqC)](https://www.kpqc.or.kr).
+
+NTRU+ includes a key encapsulation mechanism (NTRU+KEM) and a public key encryption scheme (NTRU+PKE).

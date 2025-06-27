@@ -36,6 +36,8 @@ def qary_simulator(f, d, n, q, beta, xi=1, tau=1, dual=False, ignore_qary=False)
 
     """
 
+    assert 2 <= beta <= d
+
     if not tau:
         r = [q**2] * (d - n) + [xi**2] * n
     else:
@@ -75,6 +77,8 @@ def CN11(d, n, q, beta, xi=1, tau=1, dual=False, ignore_qary=False):
     from fpylll import BKZ
     from fpylll.tools.bkz_simulator import simulate
 
+    assert 2 <= beta <= d
+
     def f(r, beta):
         return simulate(r, BKZ.EasyParam(beta))[0]
 
@@ -101,13 +105,16 @@ def GSA(d, n, q, beta, xi=1, tau=1, dual=False):
     """
     from .reduction import delta as deltaf
 
+    assert 2 <= beta <= d
+
     if not tau:
         log_vol = RR(log(q, 2) * (d - n) + log(xi, 2) * n)
     else:
         log_vol = RR(log(q, 2) * (d - n - 1) + log(xi, 2) * n + log(tau, 2))
 
     delta = deltaf(beta)
-    r_log = [(d - 1 - 2 * i) * RR(log(delta, 2)) + log_vol / d for i in range(d)]
+    log_delta = RR(log(delta, 2))
+    r_log = [(d - 1 - 2 * i) * log_delta + log_vol / d for i in range(d)]
     r = [2 ** (2 * r_) for r_ in r_log]
     return r
 
@@ -171,6 +178,8 @@ def ZGSA(d, n, q, beta, xi=1, tau=1, dual=False):
         >>> sum([log(x) for x in cn11_profile])
         1473.630905870442
     """
+
+    assert 2 <= beta <= d
 
     @cached_function
     def ball_log_vol(n):
@@ -283,6 +292,8 @@ def LGSA(d, n, q, beta, xi=1, tau=1, dual=False):
         >>> zgsa_profile = ZGSA(d, n, q, beta, xi, tau)
     """
     from .reduction import delta as deltaf
+
+    assert 2 <= beta <= d
 
     if not tau:
         log_vol = RR((d - n)*log(q, 2) + n*log(xi, 2))
