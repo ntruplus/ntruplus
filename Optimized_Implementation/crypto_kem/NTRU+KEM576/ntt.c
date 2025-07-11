@@ -2,7 +2,7 @@
 #include "ntt.h"
 
 #define QINV 12929 // q^(-1) mod 2^16
-#define QINV_PLANT ((int32_t)1951806081LL) // q^(-1) mod 2^32
+#define QINV_PLANT 1951806081u // q^(-1) mod 2^32
 
 const int16_t zetas[144] = {
 	 -147, -1033, -1265,   708,   460,  1265,  -467,   727,
