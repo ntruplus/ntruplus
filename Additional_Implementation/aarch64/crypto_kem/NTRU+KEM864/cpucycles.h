@@ -1,1 +1,1 @@
-../NTRU+KEM576/cpucycles.h
+../../../../Reference_Implementation/crypto_kem/NTRU+KEM576/cpucycles.h

@@ -311,9 +311,9 @@ int main(void)
 
 	setup_rdtsc();
 
+	TEST_CCA_KEM();
 	TEST_CCA_KEM_CLOCK();
 	TEST_MODULE_CLOCK();
-	TEST_CCA_KEM();
 
 	return 0;	
 }

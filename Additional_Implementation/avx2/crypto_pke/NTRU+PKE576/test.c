@@ -5,22 +5,13 @@
 #include "randombytes.h"
 #include "poly.h"
 #include "symmetric.h"
+#include "cpucycles.h"
 
 #define TEST_LOOP 100000
 #define TEST_LOOP1 10000
 #define TEST_LOOP2 100000
 
-static inline uint64_t cpucycles(void) 
-{
-	uint64_t result;
-	
-	__asm__ volatile ("rdtsc; shlq $32,%%rdx; orq %%rdx,%%rax"
-	: "=a" (result) : : "%rdx");
-	
-	return result;
-}
-
-static void TEST_PKE()
+static void TEST_PKE(void)
 {
 	unsigned char pk[CRYPTO_PUBLICKEYBYTES];
 	unsigned char sk[CRYPTO_SECRETKEYBYTES];
@@ -59,7 +50,7 @@ static void TEST_PKE()
 	printf("count: %d\n\n", cnt);
 }
 
-static void TEST_PKE_CLOCK()
+static void TEST_PKE_CLOCK(void)
 {
 	unsigned char pk[CRYPTO_PUBLICKEYBYTES];
 	unsigned char sk[CRYPTO_SECRETKEYBYTES];
@@ -111,7 +102,7 @@ static void TEST_PKE_CLOCK()
 	printf("\n\n"); 
 }
 
-static void TEST_MODULE_CLOCK()
+static void TEST_MODULE_CLOCK(void)
 {
 	unsigned char buf[10000] = {0};
 
@@ -313,6 +304,8 @@ int main(void)
 	printf("SECRETKEYBYTES  : %d\n", CRYPTO_SECRETKEYBYTES);
 	printf("CIPHERTEXTBYTES : %d\n", CRYPTO_CIPHERTEXTBYTES);
 	printf("\n");
+
+	setup_rdtsc();
 
 	TEST_PKE();
 	TEST_PKE_CLOCK();

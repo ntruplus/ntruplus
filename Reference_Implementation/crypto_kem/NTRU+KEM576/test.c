@@ -5,20 +5,11 @@
 #include "randombytes.h"
 #include "poly.h"
 #include "symmetric.h"
+#include "cpucycles.h"
 
 #define TEST_LOOP 100000
 
-static inline uint64_t cpucycles(void) 
-{
-	uint64_t result;
-	
-	__asm__ volatile ("rdtsc; shlq $32,%%rdx; orq %%rdx,%%rax"
-	: "=a" (result) : : "%rdx");
-	
-	return result;
-}
-
-static void TEST_CCA_KEM()
+static void TEST_CCA_KEM(void)
 {
 	unsigned char pk[CRYPTO_PUBLICKEYBYTES];
 	unsigned char sk[CRYPTO_SECRETKEYBYTES];
@@ -57,7 +48,7 @@ static void TEST_CCA_KEM()
 
 }
 
-static void TEST_CCA_KEM_CLOCK()
+static void TEST_CCA_KEM_CLOCK(void)
 {
 	unsigned char pk[CRYPTO_PUBLICKEYBYTES];
 	unsigned char sk[CRYPTO_SECRETKEYBYTES];
@@ -105,7 +96,7 @@ static void TEST_CCA_KEM_CLOCK()
 	printf("==================================================\n\n");
 }
 
-static void TEST_MODULE_CLOCK()
+static void TEST_MODULE_CLOCK(void)
 {
 	unsigned char buf[10000] = {0};
 
@@ -315,6 +306,8 @@ int main(void)
 	printf("PUBLICKEYBYTES : %d\n", CRYPTO_PUBLICKEYBYTES);
 	printf("SECRETKEYBYTES : %d\n", CRYPTO_SECRETKEYBYTES);
 	printf("CIPHERTEXTBYTES : %d\n", CRYPTO_CIPHERTEXTBYTES);
+
+	setup_rdtsc();
 
 	TEST_CCA_KEM();
 	TEST_CCA_KEM_CLOCK();
