@@ -282,3 +282,5 @@ cmp %r8,  %rsi
 jb  _looptop_poly_frombytes
 
 ret
+
+.section .note.GNU-stack,"",@progbits

@@ -458,3 +458,5 @@ _looptop_start_0:
  jb  _looptop_start_0
 
  ret
+
+.section .note.GNU-stack,"",@progbits

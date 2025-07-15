@@ -224,3 +224,5 @@ _looptop:
     jb  _looptop
 
     ret
+
+.section .note.GNU-stack,"",@progbits

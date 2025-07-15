@@ -510,3 +510,5 @@ cmp %r8, %rdi
 jb  _looptop_start_0
 
 ret
+
+.section .note.GNU-stack,"",@progbits

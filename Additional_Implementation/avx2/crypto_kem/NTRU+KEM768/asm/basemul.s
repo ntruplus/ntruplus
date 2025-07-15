@@ -373,3 +373,5 @@ cmp %r8,  %rsi
 jb  _looptop_basemul
 
 ret
+
+.section .note.GNU-stack,"",@progbits

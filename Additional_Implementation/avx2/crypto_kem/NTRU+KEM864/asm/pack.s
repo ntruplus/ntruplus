@@ -308,3 +308,5 @@ cmp %r8,  %rsi
 jb  _looptop_poly_ntt_pack
 
 ret
+
+.section .note.GNU-stack,"",@progbits

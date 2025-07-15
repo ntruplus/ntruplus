@@ -840,3 +840,5 @@ vptest %ymm1, %ymm1
 setnz  %al
 
 ret
+
+.section .note.GNU-stack,"",@progbits

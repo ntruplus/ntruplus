@@ -82,3 +82,5 @@ cmp %r8,  %rsi
 jb  _loop_poly_crepmod3
 
 ret
+
+.section .note.GNU-stack,"",@progbits

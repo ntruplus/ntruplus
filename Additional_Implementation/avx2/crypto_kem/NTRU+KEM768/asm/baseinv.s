@@ -868,3 +868,6 @@ vmovdqu %ymm0, 160(%rsp)
 add $192, %rsp
 
 ret
+
+.section .note.GNU-stack,"",@progbits
+

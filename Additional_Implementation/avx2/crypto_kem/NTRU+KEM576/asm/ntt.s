@@ -345,3 +345,5 @@ cmp %r8,  %rdi
 jb _looptop_start_345
 
 ret
+
+.section .note.GNU-stack,"",@progbits

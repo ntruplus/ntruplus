@@ -110,3 +110,5 @@ cmp %r8,  %rsi
 jb  _looptop_triple
 
 ret
+
+.section .note.GNU-stack,"",@progbits
