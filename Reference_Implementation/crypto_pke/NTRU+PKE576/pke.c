@@ -22,7 +22,7 @@
 **************************************************/
 int crypto_encrypt_keypair(unsigned char *pk, unsigned char *sk)
 {
-	uint8_t buf[NTRUPLUS_N / 4];
+	uint8_t buf[NTRUPLUS_N / 4] = {0};
 	
 	poly f, finv;
 	poly g;
@@ -82,8 +82,8 @@ int crypto_encrypt(unsigned char *c,
                    const unsigned char *pk)
 {
     uint8_t msg[NTRUPLUS_N / 8 + NTRUPLUS_SYMBYTES] = {0};
-    uint8_t buf1[NTRUPLUS_SYMBYTES + NTRUPLUS_N / 4];
-    uint8_t buf2[NTRUPLUS_POLYBYTES];
+    uint8_t buf1[NTRUPLUS_SYMBYTES + NTRUPLUS_N / 4] = {0};
+    uint8_t buf2[NTRUPLUS_POLYBYTES] = {0};
 
     poly p_c, p_h, p_r, p_m;
 
@@ -152,10 +152,10 @@ int crypto_encrypt_open(unsigned char *m,
                         unsigned long long clen,
                         const unsigned char *sk)
 {
-    uint8_t msg[NTRUPLUS_N/8 + NTRUPLUS_SYMBYTES];
-    uint8_t buf1[NTRUPLUS_POLYBYTES];
-    uint8_t buf2[NTRUPLUS_POLYBYTES];
-    uint8_t buf3[NTRUPLUS_POLYBYTES + NTRUPLUS_SYMBYTES] = {0};
+    uint8_t msg[NTRUPLUS_N/8 + NTRUPLUS_SYMBYTES] = {0};
+    uint8_t buf1[NTRUPLUS_POLYBYTES] = {0};
+    uint8_t buf2[NTRUPLUS_POLYBYTES] = {0};
+    uint8_t buf3[NTRUPLUS_POLYBYTES + NTRUPLUS_SYMBYTES]= {0};
 
     int8_t fail;
 

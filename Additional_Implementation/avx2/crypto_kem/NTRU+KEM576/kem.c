@@ -44,7 +44,7 @@ static inline int verify(const uint8_t *a, const uint8_t *b, size_t len)
 **************************************************/
 int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
 {
-	uint8_t buf[NTRUPLUS_N / 4];
+	uint8_t buf[NTRUPLUS_N / 4] = {0};
 	
 	poly f, finv;
 	poly g;
@@ -100,9 +100,9 @@ int crypto_kem_enc(unsigned char *ct,
                    unsigned char *ss,
                    const unsigned char *pk)
 {
-	uint8_t msg[NTRUPLUS_N / 8 + NTRUPLUS_SYMBYTES];
-	uint8_t buf1[NTRUPLUS_SYMBYTES + NTRUPLUS_N / 4];
-	uint8_t buf2[NTRUPLUS_POLYBYTES];
+    uint8_t msg[NTRUPLUS_N / 8 + NTRUPLUS_SYMBYTES] = {0};
+    uint8_t buf1[NTRUPLUS_SYMBYTES + NTRUPLUS_N / 4] = {0};
+    uint8_t buf2[NTRUPLUS_POLYBYTES] = {0};
 	
 	poly c, h, r, m;
 	
@@ -153,9 +153,9 @@ int crypto_kem_dec(unsigned char *ss,
                    const unsigned char *ct,
                    const unsigned char *sk)
 {
-	uint8_t msg[NTRUPLUS_N / 8 + NTRUPLUS_SYMBYTES];
-	uint8_t buf1[NTRUPLUS_POLYBYTES];
-	uint8_t buf2[NTRUPLUS_POLYBYTES];
+	uint8_t msg[NTRUPLUS_N / 8 + NTRUPLUS_SYMBYTES] = {0};
+	uint8_t buf1[NTRUPLUS_POLYBYTES] = {0};
+	uint8_t buf2[NTRUPLUS_POLYBYTES] = {0};
 	uint8_t buf3[NTRUPLUS_POLYBYTES+NTRUPLUS_SYMBYTES] = {0};
 	
 	int8_t fail;

@@ -13,11 +13,11 @@
 
 static void TEST_PKE(void)
 {
-	unsigned char pk[CRYPTO_PUBLICKEYBYTES];
-	unsigned char sk[CRYPTO_SECRETKEYBYTES];
-	unsigned char ct[CRYPTO_CIPHERTEXTBYTES];
-	unsigned char m[CRYPTO_MAXPLAINTEXT];
-	unsigned char dm[CRYPTO_MAXPLAINTEXT];
+	unsigned char pk[CRYPTO_PUBLICKEYBYTES] = {0};
+	unsigned char sk[CRYPTO_SECRETKEYBYTES] = {0};
+	unsigned char ct[CRYPTO_CIPHERTEXTBYTES] = {0};
+	unsigned char m[CRYPTO_MAXPLAINTEXT] = {0};
+	unsigned char dm[CRYPTO_MAXPLAINTEXT] = {0};
 	unsigned long long mlen = 0;
 	unsigned long long dmlen = 0;
 	unsigned long long clen = 0;
@@ -52,11 +52,11 @@ static void TEST_PKE(void)
 
 static void TEST_PKE_CLOCK(void)
 {
-	unsigned char pk[CRYPTO_PUBLICKEYBYTES];
-	unsigned char sk[CRYPTO_SECRETKEYBYTES];
-	unsigned char ct[CRYPTO_CIPHERTEXTBYTES];
+	unsigned char pk[CRYPTO_PUBLICKEYBYTES] = {0};
+	unsigned char sk[CRYPTO_SECRETKEYBYTES] = {0};
+	unsigned char ct[CRYPTO_CIPHERTEXTBYTES] = {0};
 	unsigned char m[CRYPTO_MAXPLAINTEXT] = {0};
-	unsigned char dm[CRYPTO_MAXPLAINTEXT];
+	unsigned char dm[CRYPTO_MAXPLAINTEXT] = {0};
 	unsigned long long mlen = 0;
 	unsigned long long dmlen = 0;
 	unsigned long long clen = 0;

@@ -13,11 +13,11 @@ unsigned long long cyclegap = 0;
 
 static void TEST_CCA_KEM(void)
 {
-	unsigned char pk[CRYPTO_PUBLICKEYBYTES];
-	unsigned char sk[CRYPTO_SECRETKEYBYTES];
-	unsigned char ct[CRYPTO_CIPHERTEXTBYTES];
-	unsigned char ss[CRYPTO_BYTES];
-	unsigned char dss[CRYPTO_BYTES];
+	unsigned char pk[CRYPTO_PUBLICKEYBYTES] = {0};
+	unsigned char sk[CRYPTO_SECRETKEYBYTES] = {0};
+	unsigned char ct[CRYPTO_CIPHERTEXTBYTES] = {0};
+	unsigned char ss[CRYPTO_BYTES] = {0};
+	unsigned char dss[CRYPTO_BYTES] = {0};
 
 	int cnt = 0;
 
@@ -52,11 +52,11 @@ static void TEST_CCA_KEM(void)
 
 static void TEST_CCA_KEM_CLOCK(void)
 {
-	unsigned char pk[CRYPTO_PUBLICKEYBYTES];
-	unsigned char sk[CRYPTO_SECRETKEYBYTES];
-	unsigned char ct[CRYPTO_CIPHERTEXTBYTES];
-	unsigned char ss[CRYPTO_BYTES];
-	unsigned char dss[CRYPTO_BYTES];
+	unsigned char pk[CRYPTO_PUBLICKEYBYTES] = {0};
+	unsigned char sk[CRYPTO_SECRETKEYBYTES] = {0};
+	unsigned char ct[CRYPTO_CIPHERTEXTBYTES] = {0};
+	unsigned char ss[CRYPTO_BYTES] = {0};
+	unsigned char dss[CRYPTO_BYTES] = {0};
 
 	unsigned long long kcycles, ecycles, dcycles;
 	unsigned long long cycles1, cycles2;
