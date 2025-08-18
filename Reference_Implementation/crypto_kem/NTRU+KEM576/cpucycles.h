@@ -1,6 +1,9 @@
 #ifndef CPUCYCLE_H
 #define CPUCYCLE_H
 
+unsigned long long cyclegap;
+#define TEST_LOOP_CPUCYCLE 100000
+
 #if __APPLE__
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,14 +15,14 @@
 #define lib_path_kperfdata                                                     \
   "/System/Library/PrivateFrameworks/kperfdata.framework/kperfdata"
 
-unsigned long long cyclegap;
+
 
 typedef uint8_t u8;  
 typedef int32_t i32;
 typedef uint32_t u32;
 typedef uint64_t u64;
 
-#define TEST_LOOP_CPUCYCLE 100000
+
 #define KPC_MAX_COUNTERS 32
 
 #define KPC_CLASS_CONFIGURABLE (1)
@@ -344,13 +347,6 @@ static int setup_rdtsc(void)
 
 #include <stdint.h>
 
-// Intel x86/x86_64 implementation using RDTSC
-static inline void setup_rdtsc(void)
-{
-    // No setup required for x86
-    (void)0;
-}
-
 static inline uint64_t cpucycles(void)
 {
     uint64_t result;
@@ -360,6 +356,22 @@ static inline uint64_t cpucycles(void)
                       : "%rdx");
     return result;
 }
+
+static inline void setup_rdtsc(void)
+{
+    cyclegap = 0;  
+    for (int i = 0; i < TEST_LOOP_CPUCYCLE; i++)
+    {
+      unsigned long long cycle1;
+      unsigned long long cycle2;
+  
+      cycle1 = cpucycles();
+      cycle2 = cpucycles();
+      cyclegap += cycle2 - cycle1;
+    }
+    cyclegap = cyclegap / TEST_LOOP_CPUCYCLE;
+}
+
 #else
 #include <stdint.h>
 static inline void setup_rdtsc(void)

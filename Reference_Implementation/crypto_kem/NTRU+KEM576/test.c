@@ -67,7 +67,7 @@ static void TEST_CCA_KEM_CLOCK(void)
 		cycles1 = cpucycles();
 		crypto_kem_keypair(pk, sk);
 		cycles2 = cpucycles();
-		kcycles += cycles2-cycles1;
+		kcycles += cycles2-cycles1-cyclegap;
 	}
 	printf("  KEYGEN runs in ................. %8lld cycles", kcycles/TEST_LOOP);
 	printf("\n"); 
@@ -79,12 +79,12 @@ static void TEST_CCA_KEM_CLOCK(void)
 		cycles1 = cpucycles();
 		crypto_kem_enc(ct, ss, pk);
 		cycles2 = cpucycles();
-		ecycles += cycles2-cycles1;
+		ecycles += cycles2-cycles1-cyclegap;
 		
 		cycles1 = cpucycles(); 
 		crypto_kem_dec(dss, ct, sk);
 		cycles2 = cpucycles();
-		dcycles += cycles2-cycles1;
+		dcycles += cycles2-cycles1-cyclegap;
 	}
 	
 	printf("  ENCAP  runs in ................. %8lld cycles", ecycles/TEST_LOOP);
@@ -119,7 +119,7 @@ static void TEST_MODULE_CLOCK(void)
 		cycles1 = cpucycles();
 		poly_baseinv(&a, &b);
 		cycles2 = cpucycles();
-		kcycles += cycles2-cycles1;
+		kcycles += cycles2-cycles1-cyclegap;
 	}
 	printf("  poly_baseinv runs in ........... %8lld cycles", kcycles/TEST_LOOP);
 	printf("\n");
@@ -130,7 +130,7 @@ static void TEST_MODULE_CLOCK(void)
 		cycles1 = cpucycles();
 		poly_invntt(&a, &a);
 		cycles2 = cpucycles();
-		kcycles += cycles2-cycles1;
+		kcycles += cycles2-cycles1-cyclegap;
 	}
 	printf("  poly_invntt runs in ............ %8lld cycles", kcycles/TEST_LOOP);
 	printf("\n"); 
@@ -141,7 +141,7 @@ static void TEST_MODULE_CLOCK(void)
 		cycles1 = cpucycles();
 		poly_basemul_add(&a, &a, &a, &a);
 		cycles2 = cpucycles();
-		kcycles += cycles2-cycles1;
+		kcycles += cycles2-cycles1-cyclegap;
 	}
 	printf("  poly_basemul_add runs in ....... %8lld cycles", kcycles/TEST_LOOP);
 	printf("\n");
@@ -152,7 +152,7 @@ static void TEST_MODULE_CLOCK(void)
 		cycles1 = cpucycles();
 		poly_basemul(&a, &a, &a);
 		cycles2 = cpucycles();
-		kcycles += cycles2-cycles1;
+		kcycles += cycles2-cycles1-cyclegap;
 	}
 	printf("  poly_basemul runs in ........... %8lld cycles", kcycles/TEST_LOOP);
 	printf("\n");
@@ -163,7 +163,7 @@ static void TEST_MODULE_CLOCK(void)
 		cycles1 = cpucycles();
 		poly_ntt(&a, &a);
 		cycles2 = cpucycles();
-		kcycles += cycles2-cycles1;
+		kcycles += cycles2-cycles1-cyclegap;
 	}
 	printf("  poly_ntt runs in ............... %8lld cycles", kcycles/TEST_LOOP);
 	printf("\n"); 
@@ -174,7 +174,7 @@ static void TEST_MODULE_CLOCK(void)
 		cycles1 = cpucycles();
 		poly_sotp_inv(buf, &a, buf);
 		cycles2 = cpucycles();
-		kcycles += cycles2-cycles1;
+		kcycles += cycles2-cycles1-cyclegap;
 	}
 	printf("  poly_sotp_inv runs in .......... %8lld cycles", kcycles/TEST_LOOP);
 	printf("\n");
@@ -185,7 +185,7 @@ static void TEST_MODULE_CLOCK(void)
 		cycles1 = cpucycles();
 		poly_tobytes(buf, &a);
 		cycles2 = cpucycles();
-		kcycles += cycles2-cycles1;
+		kcycles += cycles2-cycles1-cyclegap;
 	}
 	printf("  poly_tobytes runs in ........... %8lld cycles", kcycles/TEST_LOOP);
 	printf("\n");
@@ -196,7 +196,7 @@ static void TEST_MODULE_CLOCK(void)
 		cycles1 = cpucycles();
 		poly_sotp(&a, buf, buf);
 		cycles2 = cpucycles();
-		kcycles += cycles2-cycles1;
+		kcycles += cycles2-cycles1-cyclegap;
 	}
 	printf("  poly_sotp runs in .............. %8lld cycles", kcycles/TEST_LOOP);
 	printf("\n");
@@ -207,7 +207,7 @@ static void TEST_MODULE_CLOCK(void)
 		cycles1 = cpucycles();
 		poly_cbd1(&a, buf);
 		cycles2 = cpucycles();
-		kcycles += cycles2-cycles1;
+		kcycles += cycles2-cycles1-cyclegap;
 	}
 	printf("  poly_cbd1 runs in .............. %8lld cycles", kcycles/TEST_LOOP);
 	printf("\n");	
@@ -218,7 +218,7 @@ static void TEST_MODULE_CLOCK(void)
 		cycles1 = cpucycles();
 		poly_frombytes(&a, buf);
 		cycles2 = cpucycles();
-		kcycles += cycles2-cycles1;
+		kcycles += cycles2-cycles1-cyclegap;
 	}
 	printf("  poly_frombytes runs in ......... %8lld cycles", kcycles/TEST_LOOP);
 	printf("\n");
@@ -229,7 +229,7 @@ static void TEST_MODULE_CLOCK(void)
 		cycles1 = cpucycles();
 		poly_crepmod3(&a, &a);
 		cycles2 = cpucycles();
-		kcycles += cycles2-cycles1;
+		kcycles += cycles2-cycles1-cyclegap;
 	}
 	printf("  poly_crepmod3 runs in .......... %8lld cycles", kcycles/TEST_LOOP);
 	printf("\n");
@@ -240,7 +240,7 @@ static void TEST_MODULE_CLOCK(void)
 		cycles1 = cpucycles();
 		poly_triple(&a, &a);
 		cycles2 = cpucycles();
-		kcycles += cycles2-cycles1;
+		kcycles += cycles2-cycles1-cyclegap;
 	}
 	printf("  poly_triple runs in ............ %8lld cycles", kcycles/TEST_LOOP);
 	printf("\n");
@@ -251,7 +251,7 @@ static void TEST_MODULE_CLOCK(void)
 		cycles1 = cpucycles();
 		poly_sub(&a, &a, &a);
 		cycles2 = cpucycles();
-		kcycles += cycles2-cycles1;
+		kcycles += cycles2-cycles1-cyclegap;
 	}
 	printf("  poly_sub runs in ............... %8lld cycles", kcycles/TEST_LOOP);
 	printf("\n");
@@ -262,7 +262,7 @@ static void TEST_MODULE_CLOCK(void)
 		cycles1 = cpucycles();
 		hash_f(buf, buf);
 		cycles2 = cpucycles();
-		kcycles += cycles2-cycles1;
+		kcycles += cycles2-cycles1-cyclegap;
 	}
 	printf("  hash_f runs in ................. %8lld cycles", kcycles/TEST_LOOP);
 	printf("\n");
@@ -273,7 +273,7 @@ static void TEST_MODULE_CLOCK(void)
 		cycles1 = cpucycles();
 		hash_g(buf, buf);
 		cycles2 = cpucycles();
-		kcycles += cycles2-cycles1;
+		kcycles += cycles2-cycles1-cyclegap;
 	}
 	printf("  hash_g runs in ................. %8lld cycles", kcycles/TEST_LOOP);
 	printf("\n");
@@ -284,7 +284,7 @@ static void TEST_MODULE_CLOCK(void)
 		cycles1 = cpucycles();
 		hash_h_kem(buf, buf);
 		cycles2 = cpucycles();
-		kcycles += cycles2-cycles1;
+		kcycles += cycles2-cycles1-cyclegap;
 	}
 	printf("  hash_h_kem runs in ............. %8lld cycles", kcycles/TEST_LOOP);
 	printf("\n");
@@ -295,19 +295,26 @@ static void TEST_MODULE_CLOCK(void)
 		cycles1 = cpucycles();
 		randombytes(buf, NTRUPLUS_N / 8);
 		cycles2 = cpucycles();
-		kcycles += cycles2-cycles1;
+		kcycles += cycles2-cycles1-cyclegap;
 	}
 	printf("  randombytes runs in ............ %8lld cycles", kcycles/TEST_LOOP);
 	printf("\n");
+	printf("==================================================\n\n");
 }
 
 int main(void)
 {
+	printf("================= BENCHMARK INFO =================\n");
+	setup_rdtsc();
+	printf("cyclegap: %lld\n",cyclegap);
+	printf("==================================================\n\n");
+
+	printf("=================== PARAMETERS ===================\n");
+	printf("ALGORITHM_NAME  : %s\n", CRYPTO_ALGNAME);
 	printf("PUBLICKEYBYTES : %d\n", CRYPTO_PUBLICKEYBYTES);
 	printf("SECRETKEYBYTES : %d\n", CRYPTO_SECRETKEYBYTES);
 	printf("CIPHERTEXTBYTES : %d\n", CRYPTO_CIPHERTEXTBYTES);
-
-	setup_rdtsc();
+	printf("==================================================\n\n");
 
 	TEST_CCA_KEM();
 	TEST_CCA_KEM_CLOCK();
