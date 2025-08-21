@@ -217,10 +217,10 @@ int baseinv(int16_t r[4], const int16_t a[4], int16_t zeta)
 {
 	int16_t t0, t1, t2, t3;
 	
-	t0 = montgomery_reduce(a[2]*a[2] - (a[1]*a[3] << 1));
+	t0 = montgomery_reduce(a[2]*a[2] - 2*a[1]*a[3]);
 	t1 = montgomery_reduce(a[3]*a[3]);
 	t0 = montgomery_reduce(a[0]*a[0] + t0*zeta);
-	t1 = montgomery_reduce(a[1]*a[1] + t1*zeta - ((a[0]*a[2]) << 1));
+	t1 = montgomery_reduce(a[1]*a[1] + t1*zeta - 2*a[0]*a[2]);
 	t2 = montgomery_reduce(t1*zeta);
 	
 	t3 = montgomery_reduce(t0*t0 - t1*t2);
