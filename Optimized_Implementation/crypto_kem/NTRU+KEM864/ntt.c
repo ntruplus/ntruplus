@@ -43,7 +43,7 @@ const int16_t zetas[288] = {
 	-1586,   637,  -680,  -917,   644,  -372, -1193, -1136
 };
 
-const int32_t zetas_plant[288] = {
+const uint32_t zetas_plant[288] = {
 	    1242397,  -897010815, -1888443821,  1396454510,  1077158416,  1888443822,   559078763, -1817627177,
 	 1339304236,   660955338,  2139408066, -1021250540,  1129339101,    72059041, -1933170122,  1535603002,
 	  370234381, -1339304236,   195056368,   903222801,   708166433,  -132936506,  1490876701,  1623813207,
@@ -119,7 +119,7 @@ static inline int16_t plantard_reduce_acc(int32_t a)
 
 static inline int16_t plantard_mul(int32_t a, int32_t b)
 {
-	int32_t t = ((int32_t)(a*b)) >> 16;
+	int32_t t = (int32_t)((uint32_t)a*b) >> 16;
 	t = ((t+8)*NTRUPLUS_Q) >> 16;
 	return t;
 }
@@ -136,7 +136,7 @@ static inline int16_t plantard_mul(int32_t a, int32_t b)
 static inline int16_t fqinv(int16_t a) //-3 => 5
 {
 	int16_t t1,t2,t3;
-	int32_t A,T1;
+	uint32_t A,T1;
 
 	A = a*QINV_PLANT;
 	t1 = plantard_reduce_acc(a*A);    //10
@@ -176,8 +176,8 @@ static inline int16_t fqinv(int16_t a) //-3 => 5
 void ntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 {
 	int16_t t1,t2,t3;
-	int32_t T1,T2;
-	int32_t zeta[5];
+	uint32_t T1,T2;
+	uint32_t zeta[5];
 	int16_t v[8];
 
 	int index = 1;
@@ -340,7 +340,7 @@ void ntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 {
 	int16_t t1,t2,t3;
-	int32_t zeta[7];
+	uint32_t zeta[7];
 	int16_t v[8];
 
 	for (int i = 0; i < 36; i++)
@@ -545,11 +545,11 @@ void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 *              - const int16_t a[3]: pointer to the input polynomial
 *              - int32_t zeta: integer defining the reduction polynomial
 **************************************************/
-int baseinv(int16_t r[6], const int16_t a[6], int32_t zeta)
+int baseinv(int16_t r[6], const int16_t a[6], uint32_t zeta)
 {
 	int16_t t, s;
-	int32_t A0, A1, A2, T;
-	int32_t B0, B1, B2, S;
+	uint32_t A0, A1, A2, T;
+	uint32_t B0, B1, B2, S;
 
 	A0 = a[0]*QINV_PLANT;
 	A1 = a[1]*QINV_PLANT;

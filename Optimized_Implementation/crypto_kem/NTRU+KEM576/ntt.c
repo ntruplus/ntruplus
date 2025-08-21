@@ -25,7 +25,7 @@ const int16_t zetas[144] = {
 	 -194,   928,  1229, -1032,  1608,  1111, -1669,   642
 };
 
-const int32_t zetas_plant[144] = {
+const uint32_t zetas_plant[144] = {
     1242397,  -897010815, -1888443821,  1396454510,  1077158416,  1888443822,   559078763, -1817627177,
  1339304236,   660955338,  2139408066, -1021250540,  1129339101,    72059041, -1933170122,  1535603002,
   370234381, -1339304236,   195056368,   903222801,   708166433,  -132936506,  1490876701,  1623813207,
@@ -83,7 +83,7 @@ static inline int16_t plantard_reduce_acc(int32_t a)
 
 static inline int16_t plantard_mul(int32_t a, int32_t b)
 {
-	int32_t t = ((int32_t)(a*b)) >> 16;
+	int32_t t = (int32_t)((uint32_t)a*b) >> 16;
 	t = ((t+8)*NTRUPLUS_Q) >> 16;
 	return t;
 }
@@ -100,7 +100,7 @@ static inline int16_t plantard_mul(int32_t a, int32_t b)
 static inline int16_t fqinv(int16_t a) //-3 => 5
 {
 	int16_t t1,t2,t3;
-	int32_t A,T1;
+	uint32_t A,T1;
 
 	A = a*QINV_PLANT;
 	t1 = plantard_reduce_acc(a*A);    //10
@@ -140,8 +140,8 @@ static inline int16_t fqinv(int16_t a) //-3 => 5
 void ntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 {
 	int16_t t1,t2,t3;
-	int32_t T1,T2;
-	int32_t zeta[5];
+	uint32_t T1,T2;
+	uint32_t zeta[5];
 	int16_t v[8];
 
 	int index = 1;
@@ -411,15 +411,15 @@ void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 *              - const int16_t a[4]: pointer to the input polynomial
 *              - int16_t zeta: integer defining the reduction polynomial
 **************************************************/
-int baseinv(int16_t r[8], const int16_t a[8], int32_t zeta)
+int baseinv(int16_t r[8], const int16_t a[8], uint32_t zeta)
 {
 	int16_t t0, t1, t2;
 	int16_t s0, s1, s2;
-	int32_t A0, A1, A2, A3;
-	int32_t B0, B1, B2, B3;
+	uint32_t A0, A1, A2, A3;
+	uint32_t B0, B1, B2, B3;
 	int32_t det0, det1;
-	int32_t zeta1, zeta2;
-	int32_t T, S;
+	uint32_t zeta1, zeta2;
+	uint32_t T, S;
 
 	zeta1 = zeta;
 	zeta2 = -zeta;
@@ -433,14 +433,14 @@ int baseinv(int16_t r[8], const int16_t a[8], int32_t zeta)
 	B2 = a[6]*QINV_PLANT;
 	B3 = a[7]*QINV_PLANT;
 
-	t0 = plantard_reduce_acc(a[2]*A2 - (a[1]*A3 << 1));
-	s0 = plantard_reduce_acc(a[6]*B2 - (a[5]*B3 << 1));
+	t0 = plantard_reduce_acc(a[2]*A2 - 2*a[1]*A3);
+	s0 = plantard_reduce_acc(a[6]*B2 - 2*a[5]*B3);
 	t1 = plantard_reduce_acc(a[3]*A3);
 	s1 = plantard_reduce_acc(a[7]*B3);
 	t0 = plantard_reduce_acc(a[0]*A0 + t0*zeta1);
 	s0 = plantard_reduce_acc(a[4]*B0 + s0*zeta2);
-	t1 = plantard_reduce_acc(a[1]*A1 + t1*zeta1 - ((a[0]*A2) << 1));
-	s1 = plantard_reduce_acc(a[5]*B1 + s1*zeta2 - ((a[4]*B2) << 1));
+	t1 = plantard_reduce_acc(a[1]*A1 + t1*zeta1 - 2*a[0]*A2);
+	s1 = plantard_reduce_acc(a[5]*B1 + s1*zeta2 - 2*a[4]*B2);
 	t2 = plantard_reduce_acc(t1*zeta1);
 	s2 = plantard_reduce_acc(s1*zeta2);
 	
