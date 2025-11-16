@@ -17,18 +17,17 @@
 **************************************************/
 static int16_t crepmod3(int16_t a)
 {
+	int16_t t;
+	const int16_t v = ((1<<15) + 3/2)/3;
+
 	a += (a >> 15) & NTRUPLUS_Q;
 	a -= (NTRUPLUS_Q+1)/2;
 	a += (a >> 15) & NTRUPLUS_Q;
 	a -= (NTRUPLUS_Q-1)/2;
 
-	a  = (a >> 8) + (a & 255);
-	a  = (a >> 4) + (a & 15);
-	a  = (a >> 2) + (a & 3);
-	a  = (a >> 2) + (a & 3);
-	a -= 3;
-	a += ((a + 1) >> 15) & 3;
-	return a;
+	t  = ((int32_t)v*a + (1<<14)) >> 15;
+	t *= 3;
+	return a - t;
 }
 
 /*************************************************
@@ -107,7 +106,7 @@ void poly_cbd1(poly *r, const unsigned char buf[NTRUPLUS_N/4])
 }
 
 /*************************************************
-* Name:        poly_sotp
+* Name:        poly_sotp_encode
 *
 * Description: Encode a message deterministically using SOTP and a random,
 			   with output polynomial close to centered binomial distribution
@@ -116,7 +115,7 @@ void poly_cbd1(poly *r, const unsigned char buf[NTRUPLUS_N/4])
 *              - const uint8_t *msg: pointer to input message
 *              - const uint8_t *buf: pointer to input random
 **************************************************/
-void poly_sotp(poly *r, const uint8_t msg[NTRUPLUS_N/8], const uint8_t buf[NTRUPLUS_N/4])
+void poly_sotp_encode(poly *r, const uint8_t msg[NTRUPLUS_N/8], const uint8_t buf[NTRUPLUS_N/4])
 {
     uint8_t tmp[NTRUPLUS_N/4];
 
@@ -134,7 +133,7 @@ void poly_sotp(poly *r, const uint8_t msg[NTRUPLUS_N/8], const uint8_t buf[NTRUP
 }
 
 /*************************************************
-* Name:        poly_sotp_inv
+* Name:        poly_sotp_decode
 *
 * Description: Decode a message deterministically using SOTP_INV and a random
 *
@@ -144,7 +143,7 @@ void poly_sotp(poly *r, const uint8_t msg[NTRUPLUS_N/8], const uint8_t buf[NTRUP
 *
 * Returns 0 (success) or 1 (failure)
 **************************************************/
-int poly_sotp_inv(uint8_t msg[NTRUPLUS_N/8], const poly *a, const uint8_t buf[NTRUPLUS_N/4])
+int poly_sotp_decode(uint8_t msg[NTRUPLUS_N/8], const poly *a, const uint8_t buf[NTRUPLUS_N/4])
 {
 	uint8_t t1, t2, t3;
 	uint16_t t4;

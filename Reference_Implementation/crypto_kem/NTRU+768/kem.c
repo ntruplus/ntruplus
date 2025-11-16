@@ -100,7 +100,7 @@ int crypto_kem_enc(unsigned char *ct,
 	
 	poly_tobytes(buf2, &r);
 	hash_g(buf2, buf2);
-	poly_sotp(&m, msg, buf2);  
+	poly_sotp_encode(&m, msg, buf2);  
 	poly_ntt(&m, &m);
 	
 	poly_frombytes(&h, pk);
@@ -161,7 +161,7 @@ int crypto_kem_dec(unsigned char *ss,
 
 	poly_tobytes(buf1, &r2);
 	hash_g(buf2, buf1);
-	fail = poly_sotp_inv(msg, &m1, buf2);
+	fail = poly_sotp_decode(msg, &m1, buf2);
 	
 	for (int i = 0; i < NTRUPLUS_SYMBYTES + 1; i++)
 	{

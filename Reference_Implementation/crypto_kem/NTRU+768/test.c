@@ -128,6 +128,17 @@ static void TEST_MODULE_CLOCK(void)
 	for (int i = 0; i < TEST_LOOP; i++)
 	{
 		cycles1 = cpucycles();
+		poly_ntt(&a, &a);
+		cycles2 = cpucycles();
+		kcycles += cycles2-cycles1-cyclegap;
+	}
+	printf("  poly_ntt runs in ............... %8lld cycles", kcycles/TEST_LOOP);
+	printf("\n");
+
+	kcycles=0;
+	for (int i = 0; i < TEST_LOOP; i++)
+	{
+		cycles1 = cpucycles();
 		poly_invntt(&a, &a);
 		cycles2 = cpucycles();
 		kcycles += cycles2-cycles1-cyclegap;
@@ -161,44 +172,22 @@ static void TEST_MODULE_CLOCK(void)
 	for (int i = 0; i < TEST_LOOP; i++)
 	{
 		cycles1 = cpucycles();
-		poly_ntt(&a, &a);
+		poly_sotp_decode(buf, &a, buf);
 		cycles2 = cpucycles();
 		kcycles += cycles2-cycles1-cyclegap;
 	}
-	printf("  poly_ntt runs in ............... %8lld cycles", kcycles/TEST_LOOP);
-	printf("\n"); 
-
-	kcycles=0;
-	for (int i = 0; i < TEST_LOOP; i++)
-	{
-		cycles1 = cpucycles();
-		poly_sotp_inv(buf, &a, buf);
-		cycles2 = cpucycles();
-		kcycles += cycles2-cycles1-cyclegap;
-	}
-	printf("  poly_sotp_inv runs in .......... %8lld cycles", kcycles/TEST_LOOP);
-	printf("\n");
-
-	kcycles=0;
-	for (int i = 0; i < TEST_LOOP; i++)
-	{
-		cycles1 = cpucycles();
-		poly_tobytes(buf, &a);
-		cycles2 = cpucycles();
-		kcycles += cycles2-cycles1-cyclegap;
-	}
-	printf("  poly_tobytes runs in ........... %8lld cycles", kcycles/TEST_LOOP);
+	printf("  poly_sotp_decode runs in ....... %8lld cycles", kcycles/TEST_LOOP);
 	printf("\n");
 	
 	kcycles=0;
 	for (int i = 0; i < TEST_LOOP; i++)
 	{
 		cycles1 = cpucycles();
-		poly_sotp(&a, buf, buf);
+		poly_sotp_encode(&a, buf, buf);
 		cycles2 = cpucycles();
 		kcycles += cycles2-cycles1-cyclegap;
 	}
-	printf("  poly_sotp runs in .............. %8lld cycles", kcycles/TEST_LOOP);
+	printf("  poly_sotp_encode runs in ....... %8lld cycles", kcycles/TEST_LOOP);
 	printf("\n");
 
 	kcycles=0;
@@ -211,6 +200,17 @@ static void TEST_MODULE_CLOCK(void)
 	}
 	printf("  poly_cbd1 runs in .............. %8lld cycles", kcycles/TEST_LOOP);
 	printf("\n");	
+
+	kcycles=0;
+	for (int i = 0; i < TEST_LOOP; i++)
+	{
+		cycles1 = cpucycles();
+		poly_tobytes(buf, &a);
+		cycles2 = cpucycles();
+		kcycles += cycles2-cycles1-cyclegap;
+	}
+	printf("  poly_tobytes runs in ........... %8lld cycles", kcycles/TEST_LOOP);
+	printf("\n");
 
 	kcycles=0;
 	for (int i = 0; i < TEST_LOOP; i++)
