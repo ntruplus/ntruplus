@@ -11,7 +11,7 @@ void ntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N]);
 void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N]);
 
 int  baseinv(int16_t r[6], const int16_t a[6], uint32_t zeta);
-void basemul(int16_t r[3], const int16_t a[3], const int16_t b[3], int16_t zeta);
-void basemul_add(int16_t r[3], const int16_t a[3], const int16_t b[3], const int16_t c[3], int16_t zeta);
+void basemul(int16_t r[3], const int16_t a[3], const int16_t b[3], uint32_t zeta);
+void basemul_add(int16_t r[3], const int16_t a[3], const int16_t b[3], const int16_t c[3], uint32_t zeta);
 
 #endif
