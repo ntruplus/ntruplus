@@ -10,7 +10,7 @@ SOURCES= kem.c symmetric.c asm/add.s asm/ntt.s asm/base.s asm/crepmod3.s asm/pac
 HEADERS= api.h params.h poly.h symmetric.h
 
 
-HAS_SHAKE256_ASM := 0
+HAS_SHAKE256_ASM := 1
 
 ifeq ($(HAS_SHAKE256_ASM), 1)
 	SOURCES+=CE/SHAKE256/fips202.c CE/SHAKE256/f1600.S
