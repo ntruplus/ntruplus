@@ -4,34 +4,7 @@
 #define QINV 12929 // q^(-1) mod 2^16
 #define QINV_PLANT 1951806081u // q^(-1) mod 2^32
 
-const int16_t zetas[192] = {
-	 -147, -1033,  -682,  -248,  -708,   682,     1,  -722,
-	 -723,  -257, -1124,  -867,  -256,  1484,  1262, -1590,
-	 1611,   222,  1164, -1346,  1716, -1521,  -357,   395,
-	 -455,   639,   502,   655,  -699,   541,    95, -1577,
-	-1241,   550,   -44,    39,  -820,  -216,  -121,  -757,
-	 -348,   937,   893,   387,  -603,  1713, -1105,  1058,
-	 1449,   837,   901,  1637,  -569, -1617, -1530,  1199,
-	   50,  -830,  -625,     4,   176,  -156,  1257, -1507,
-	 -380,  -606,  1293,   661,  1428, -1580,  -565,  -992,
-	  548,  -800,    64,  -371,   961,   641,    87,   630,
-	  675,  -834,   205,    54, -1081,  1351,  1413, -1331,
-	-1673, -1267, -1558,   281, -1464,  -588,  1015,   436,
-	  223,  1138, -1059,  -397,  -183,  1655,   559, -1674,
-	  277,   933,  1723,   437, -1514,   242,  1640,   432,
-	-1583,   696,   774,  1671,   927,   514,   512,   489,
-	  297,   601,  1473,  1130,  1322,   871,   760,  1212,
-	 -312,  -352,   443,   943,     8,  1250,  -100,  1660,
-	  -31,  1206, -1341, -1247,   444,   235,  1364, -1209,
-	  361,   230,   673,   582,  1409,  1501,  1401,   251,
-	 1022, -1063,  1053,  1188,   417, -1391,   -27, -1626,
-	 1685,  -315,  1408, -1248,   400,   274, -1543,    32,
-	-1550,  1531, -1367,  -124,  1458,  1379,  -940, -1681,
-	   22,  1709,  -275,  1108,   354, -1728,  -968,   858,
-	 1221,  -218,   294,  -732, -1095,   892,  1588,  -779
-};
-
-const uint32_t zetas_plant[192] = {
+const uint32_t zetas[192] = {
 	    1242397,  -897010815, -1951806081,  -319296093, -1396454510,  1951806081,  -847314925,  1876019849,
 	-1571632522, -1283396360, -1100763964,   182632396, -2130711285,  1010068965,   135421300, -1389000126,
 	  775255884,   874647665,  1567905331, -1975411629,  2001501971,   275812190,  1843717520,   318053696,
@@ -137,7 +110,7 @@ void ntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 
 	int index = 1;
 
-	zeta[0] = zetas_plant[index++];
+	zeta[0] = zetas[index++];
 
 	for(int i = 0; i < NTRUPLUS_N/2; i++)
 	{
@@ -149,11 +122,11 @@ void ntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 
 	for(int i = 0; i < 2; i++)
 	{
-		zeta[0] = zetas_plant[2+2*i];
-		zeta[1] = zetas_plant[3+2*i];
-		zeta[2] = zetas_plant[6+3*i];
-		zeta[3] = zetas_plant[7+3*i];
-		zeta[4] = zetas_plant[8+3*i];
+		zeta[0] = zetas[2+2*i];
+		zeta[1] = zetas[3+2*i];
+		zeta[2] = zetas[6+3*i];
+		zeta[3] = zetas[7+3*i];
+		zeta[4] = zetas[8+3*i];
 
 		for(int j = 0; j < 64; j++)
 		{
@@ -199,9 +172,9 @@ void ntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 
 	for (int i = 0; i < 12; i++)
 	{
-		zeta[0] = zetas_plant[12+i];
-		zeta[1] = zetas_plant[24+2*i];
-		zeta[2] = zetas_plant[25+2*i];
+		zeta[0] = zetas[12+i];
+		zeta[1] = zetas[24+2*i];
+		zeta[2] = zetas[25+2*i];
 
 		for (int j = 0; j < 8; j++)
 		{
@@ -251,9 +224,9 @@ void ntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 
 	for (int i = 0; i < 48; i++)
 	{
-		zeta[0] = zetas_plant[48+i];
-		zeta[1] = zetas_plant[96+2*i];
-		zeta[2] = zetas_plant[97+2*i];
+		zeta[0] = zetas[48+i];
+		zeta[1] = zetas[96+2*i];
+		zeta[2] = zetas[97+2*i];
 
 		for (int j = 0; j < 2; j++)
 		{
@@ -278,22 +251,22 @@ void ntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 			v[7] = v[3] - t1;
 			v[3] = v[3] + t1;
 
-			T1 = v[0] * zetas_plant[0];
+			T1 = v[0] * zetas[0];
 			T2 = v[2] * zeta[1];
 			v[2] = plantard_reduce_acc(T1 - T2);
 			v[0] = plantard_reduce_acc(T1 + T2);
 
-			T1 = v[1] * zetas_plant[0];
+			T1 = v[1] * zetas[0];
 			T2 = v[3] * zeta[1];
 			v[3] = plantard_reduce_acc(T1 - T2);
 			v[1] = plantard_reduce_acc(T1 + T2);
 
-			T1 = v[4] * zetas_plant[0];
+			T1 = v[4] * zetas[0];
 			T2 = v[6] * zeta[2];
 			v[6] = plantard_reduce_acc(T1 - T2);
 			v[4] = plantard_reduce_acc(T1 + T2);
 
-			T1 = v[5] * zetas_plant[0];
+			T1 = v[5] * zetas[0];
 			T2 = v[7] * zeta[2];
 			v[7] = plantard_reduce_acc(T1 - T2);
 			v[5] = plantard_reduce_acc(T1 + T2);
@@ -323,9 +296,9 @@ void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 
 	for (int i = 0; i < 48; i++)
 	{
-		zeta[0] = zetas_plant[191-2*i];
-		zeta[1] = zetas_plant[190-2*i];
-		zeta[2] = zetas_plant[95-i];
+		zeta[0] = zetas[191-2*i];
+		zeta[1] = zetas[190-2*i];
+		zeta[2] = zetas[95-i];
 
 		for (int j = 0; j < 2; j++)
 		{
@@ -385,13 +358,13 @@ void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 	
 	for (int i = 0; i < 6; i++)
 	{
-		zeta[0] = zetas_plant[47-4*i];
-		zeta[1] = zetas_plant[46-4*i];
-		zeta[2] = zetas_plant[45-4*i];
-		zeta[3] = zetas_plant[44-4*i];
-		zeta[4] = zetas_plant[23-2*i];
-		zeta[5] = zetas_plant[22-2*i];
-		zeta[6] = zetas_plant[11-i];
+		zeta[0] = zetas[47-4*i];
+		zeta[1] = zetas[46-4*i];
+		zeta[2] = zetas[45-4*i];
+		zeta[3] = zetas[44-4*i];
+		zeta[4] = zetas[23-2*i];
+		zeta[5] = zetas[22-2*i];
+		zeta[6] = zetas[11-i];
 
 		for (int j = 0; j < 16; j++)
 		{
@@ -445,22 +418,22 @@ void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 			t1 = v[4];
 
 			v[4] = plantard_mul(zeta[6],  t1 - v[0]);
-			v[0] = plantard_mul(v[0] + t1, zetas_plant[0]);
+			v[0] = plantard_mul(v[0] + t1, zetas[0]);
 
 			t1 = v[5];
 
 			v[5] = plantard_mul(zeta[6],  t1 - v[1]);
-			v[1] = plantard_mul(v[1] + t1, zetas_plant[0]);
+			v[1] = plantard_mul(v[1] + t1, zetas[0]);
 
 			t1 = v[6];
 
 			v[6] = plantard_mul(zeta[6],  t1 - v[2]);
-			v[2] = plantard_mul(v[2] + t1, zetas_plant[0]);
+			v[2] = plantard_mul(v[2] + t1, zetas[0]);
 
 			t1 = v[7];
 
 			v[7] = plantard_mul(zeta[6],  t1 - v[3]);
-			v[3] = plantard_mul(v[3] + t1, zetas_plant[0]);		
+			v[3] = plantard_mul(v[3] + t1, zetas[0]);		
 				
 			for (int k = 0; k < 8; k++)
 			{
@@ -469,10 +442,10 @@ void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 		}
 	}
 
-	zeta[0] = zetas_plant[4];
-	zeta[1] = zetas_plant[5];
-	zeta[2] = zetas_plant[2];
-	zeta[3] = zetas_plant[3];
+	zeta[0] = zetas[4];
+	zeta[1] = zetas[5];
+	zeta[2] = zetas[2];
+	zeta[3] = zetas[3];
 
 	for (int i = 0; i < 128; i++)
 	{

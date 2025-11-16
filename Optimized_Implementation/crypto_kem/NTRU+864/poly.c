@@ -215,7 +215,7 @@ int poly_baseinv(poly *r, const poly *a)
 {
 	for(int i = 0; i < NTRUPLUS_N/6; ++i)
 	{
-		if(baseinv(r->coeffs+6*i, a->coeffs+6*i, zetas_plant[144+i])) return 1;
+		if(baseinv(r->coeffs+6*i, a->coeffs+6*i, zetas[144+i])) return 1;
 	 }
 
 	return 0;
@@ -234,8 +234,8 @@ void poly_basemul(poly *r, const poly *a, const poly *b)
 {
 	for(int i = 0; i < NTRUPLUS_N/6; i++)
 	{
-		basemul(r->coeffs+6*i,   a->coeffs+6*i,   b->coeffs+6*i,    zetas_plant[144+i]);
-		basemul(r->coeffs+6*i+3, a->coeffs+6*i+3, b->coeffs+6*i+3, -zetas_plant[144+i]);
+		basemul(r->coeffs+6*i,   a->coeffs+6*i,   b->coeffs+6*i,    zetas[144+i]);
+		basemul(r->coeffs+6*i+3, a->coeffs+6*i+3, b->coeffs+6*i+3, -zetas[144+i]);
 	}
 }
 
@@ -253,8 +253,8 @@ void poly_basemul_add(poly *r, const poly *a, const poly *b, const poly *c)
 {
 	for(int i = 0; i < NTRUPLUS_N/6; i++)
 	{
-		basemul_add(r->coeffs+6*i,   a->coeffs+6*i,   b->coeffs+6*i,   c->coeffs+6*i,    zetas_plant[144+i]);
-		basemul_add(r->coeffs+6*i+3, a->coeffs+6*i+3, b->coeffs+6*i+3, c->coeffs+6*i+3, -zetas_plant[144+i]);
+		basemul_add(r->coeffs+6*i,   a->coeffs+6*i,   b->coeffs+6*i,   c->coeffs+6*i,    zetas[144+i]);
+		basemul_add(r->coeffs+6*i+3, a->coeffs+6*i+3, b->coeffs+6*i+3, c->coeffs+6*i+3, -zetas[144+i]);
 	}
 }
 
