@@ -1,1 +1,0 @@
-../../crypto_kem/NTRU+KEM864/ntt.h

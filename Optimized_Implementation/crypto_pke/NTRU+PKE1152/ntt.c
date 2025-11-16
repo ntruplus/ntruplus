@@ -1,1 +1,0 @@
-../../crypto_kem/NTRU+KEM1152/ntt.c

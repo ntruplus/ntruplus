@@ -1,1 +1,0 @@
-../../../Reference_Implementation/crypto_kem/NTRU+KEM768/api.h

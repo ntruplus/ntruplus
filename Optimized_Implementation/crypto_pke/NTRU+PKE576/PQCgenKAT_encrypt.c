@@ -1,1 +1,0 @@
-../../../Reference_Implementation/crypto_pke/NTRU+PKE576/PQCgenKAT_encrypt.c

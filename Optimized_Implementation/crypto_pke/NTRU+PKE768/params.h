@@ -1,1 +1,0 @@
-../../../Reference_Implementation/crypto_pke/NTRU+PKE768/params.h

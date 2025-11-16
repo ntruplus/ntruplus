@@ -1,1 +1,0 @@
-../NTRU+PKE576/symmetric.c
