@@ -1,7 +1,11 @@
 #include "params.h"
 #include "ntt.h"
 
-#define QINV 1951806081u // q^(-1) mod 2^32
+#define NTRUPLUS_QINV  0x74563281u // q^(-1) mod 2^32
+#define NTRUPLUS_OMEGA 0xCA75BE64u
+#define NTRUPLUS_Rinv  0xECF7EDA3u
+#define NTRUPLUS_R     0x0012F51Eu
+#define NTRUPLUS_Rsq   0xBFCBDDF0u
 
 const uint32_t zetas[288] = {
     0x0012F51Du, 0xCA88B381u, 0x8F70A253u, 0x533C346Eu, 0x40342210u, 0x708F5DAEu, 0x2152DD6Bu, 0x93A935D7u,
@@ -42,13 +46,40 @@ const uint32_t zetas[288] = {
     0xE3318A8Du, 0x55032F2Cu, 0x26A7CDA5u, 0xE814BC18u, 0xF37C2FB1u, 0x6373E474u, 0x5B28A7A8u, 0x1C6FABE0u
 };
 
+/*************************************************
+* Name:        plantard_reduce
+*
+* Description: Plantard reduction; given a 32-bit integer a, computes
+*              a 16-bit integer congruent to a * R^-1 mod q,
+*              where R = -2^32.
+*
+* Arguments:   - int32_t a: input integer to be reduced;
+*                           must lie in {-q^2*64, ..., q^2*64}
+*
+* Returns:     an integer in {-(q+1)/2, ..., (q-1)/2} congruent to
+*              a * R^-1 mod q.
+**************************************************/
 static inline int16_t plantard_reduce(int32_t a)
 {
-	a = ((int32_t)(a * QINV)) >> 16;
-	a=((a+8) * NTRUPLUS_Q) >> 16;
+	a = ((int32_t)(a*NTRUPLUS_QINV)) >> 16;
+	a=((a+8)*NTRUPLUS_Q) >> 16;
 	return a;
 }
 
+/*************************************************
+* Name:        plantard_reduce_acc
+*
+* Description: Plantard reduction for accumulated values; given a
+*              32-bit integer a = x*qinv that is already multiplied by
+*              qinv, computes a 16-bit integer congruent to x * R^-1
+*              mod q, where R = -2^32. The value x must lie in the
+*              range {-q^2*64, ..., q^2*64}.
+*
+* Arguments:   - int32_t a: value x*qinv to be reduced
+*
+* Returns:     an integer in {-(q+1)/2, ..., (q-1)/2} congruent to
+*              x * R^-1 mod q.
+**************************************************/
 static inline int16_t plantard_reduce_acc(int32_t a)
 {
 	a = a >> 16;
@@ -56,6 +87,21 @@ static inline int16_t plantard_reduce_acc(int32_t a)
 	return a;
 }
 
+/*************************************************
+* Name:        plantard_mul
+*
+* Description: Plantard multiplication; given 32-bit integers a and b,
+*              where one operand is of the form x*qinv (precomputed)
+*              and the other is y, computes a 16-bit integer congruent
+*              to x * y * R^-1 mod q, where R = -2^32. The product x*y
+*              must lie in the range {-q^2*64, ..., q^2*64}.
+*
+* Arguments:   - uint32_t a: first operand (x*qinv or y)
+*              - uint32_t b: second operand (y or x*qinv)
+*
+* Returns:     an integer in {-(q+1)/2, ..., (q-1)/2} congruent to
+*              x * y * R^-1 mod q.
+**************************************************/
 static inline int16_t plantard_mul(uint32_t a, uint32_t b)
 {
 	int32_t t = (int32_t)((uint32_t)a*b) >> 16;
@@ -66,51 +112,64 @@ static inline int16_t plantard_mul(uint32_t a, uint32_t b)
 /*************************************************
 * Name:        fqinv
 *
-* Description: Inversion
+* Description: Computes the multiplicative inverse of a value in the
+*              finite field Z_q, using the Plantard reduction method.
 *
-* Arguments:   - int16_t a: first factor a = x mod q
+*              The input is an ordinary field element x (no scaling),
+*              and the function returns x^{-1} scaled by R^2 modulo q,
+*              where R = -2^32 is the Plantard radix.
 *
-* Returns 16-bit integer congruent to x^{-1} * R^2 mod q
+* Arguments:   - int16_t a: input value a = x mod q
+*
+* Returns:     16-bit integer congruent to x^{-1} * R^2 mod q.
 **************************************************/
-static inline int16_t fqinv(int16_t a) //-3 => 5
+static inline int16_t fqinv(int16_t a)
 {
-	int16_t t1,t2,t3;
-	uint32_t A,T1;
+    int16_t t1, t2, t3;
+    uint32_t A, T1;
 
-	A = a*QINV;
-	t1 = plantard_reduce_acc(a*A);    //10
+    A  = a*NTRUPLUS_QINV;
+    t1 = plantard_reduce_acc(a*A);   // 10
 
-	T1 = t1*QINV;
-	t2 = plantard_reduce_acc(t1*T1);  //100
-	t2 = plantard_reduce(t2*t2);      //1000
-	t3 = plantard_reduce(t2*t2);      //10000
-	t1 = plantard_reduce_acc(t2*T1);  //1010
+    T1 = t1*NTRUPLUS_QINV;
+    t2 = plantard_reduce_acc(t1*T1); // 100
+    t2 = plantard_reduce(t2*t2);     // 1000
+    t3 = plantard_reduce(t2*t2);     // 10000
+    t1 = plantard_reduce_acc(t2*T1); // 1010
 
-	T1 = t1*QINV;
-	t2 = plantard_reduce_acc(t3*T1);  //11010
-	t2 = plantard_reduce(t2*t2);      //110100
-	t2 = plantard_reduce_acc(t2*A);   //110101
+    T1 = t1*NTRUPLUS_QINV;
+    t2 = plantard_reduce_acc(t3*T1); // 11010
+    t2 = plantard_reduce(t2*t2);     // 110100
+    t2 = plantard_reduce_acc(t2*A);  // 110101
 
-	t1 = plantard_reduce_acc(t2*T1);  //111111
+    t1 = plantard_reduce_acc(t2*T1); // 111111
 
-	t2 = plantard_reduce(t2*t2);      //1101010
-	t2 = plantard_reduce(t2*t2);      //11010100
-	t2 = plantard_reduce(t2*t2);      //110101000
-	t2 = plantard_reduce(t2*t2);      //1101010000
-	t2 = plantard_reduce(t2*t2);      //11010100000
-	t2 = plantard_reduce(t2*t2);      //110101000000
-	t2 = plantard_reduce(t2*t1);      //110101111111
+    t2 = plantard_reduce(t2*t2);     // 1101010
+    t2 = plantard_reduce(t2*t2);     // 11010100
+    t2 = plantard_reduce(t2*t2);     // 110101000
+    t2 = plantard_reduce(t2*t2);     // 1101010000
+    t2 = plantard_reduce(t2*t2);     // 11010100000
+    t2 = plantard_reduce(t2*t2);     // 110101000000
+    t2 = plantard_reduce(t2*t1);     // 110101111111
 
-	return t2;
+    return t2;
 }
 
 /*************************************************
 * Name:        ntt
 *
-* Description: number-theoretic transform (NTT) in Rq.
+* Description: Number-theoretic transform (NTT) in R_q. Transforms the
+*              coefficient representation of a into a representation
+*              where each block of 4 coefficients corresponds to an
+*              element of Zq[X]/(X^4 - zeta_i).
 *
-* Arguments:   - int16_t r[NTRUPLUS_N]: pointer to output vector of elements of Zq
-*              - int16_t a[NTRUPLUS_N]: pointer to input vector of elements of Zq
+* Arguments:   - int16_t r[NTRUPLUS_N]: pointer to output vector; NTT
+*                                       representation of a in the
+*                                       product ring Zq[X]/(X^4 - zeta_i)
+*              - const int16_t a[NTRUPLUS_N]: pointer to input vector of
+*                                            coefficients of a in R_q
+*
+* Returns:     none.
 **************************************************/
 void ntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 {
@@ -140,7 +199,7 @@ void ntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 		{
 			t1 = plantard_mul(zeta[0], r[i + 144]);
 			t2 = plantard_mul(zeta[1], r[i + 288]);
-			t3 = plantard_mul(-898253212, t1 - t2);
+			t3 = plantard_mul(NTRUPLUS_OMEGA, t1 - t2);
 
 			r[i + 288] = r[i] - t1 - t3;
 			r[i + 144] = r[i] - t2 + t3;
@@ -165,7 +224,7 @@ void ntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 
 			t1 = plantard_mul(zeta[0], v[2]);
 			t2 = plantard_mul(zeta[1], v[4]);
-			t3 = plantard_mul(-898253212, t1 - t2);
+			t3 = plantard_mul(NTRUPLUS_OMEGA, t1 - t2);
 
 			v[4] = v[0] - t1 - t3;
 			v[2] = v[0] - t2 + t3;
@@ -173,7 +232,7 @@ void ntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 
 			t1 = plantard_mul(zeta[0], v[3]);
 			t2 = plantard_mul(zeta[1], v[5]);
-			t3 = plantard_mul(-898253212, t1 - t2);
+			t3 = plantard_mul(NTRUPLUS_OMEGA, t1 - t2);
 
 			v[5] = v[1] - t1 - t3;
 			v[3] = v[1] - t2 + t3;
@@ -270,11 +329,18 @@ void ntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 /*************************************************
 * Name:        invntt
 *
-* Description: inverse number-theoretic transform in Rq and
-*              multiplication by Montgomery factor R = 2^16.
+* Description: Inverse number-theoretic transform (NTT) in R_q. Transforms
+*              the NTT representation of a, where each block of 4
+*              coefficients corresponds to an element of Zq[X]/(X^4 - zeta_i),
+*              back to the coefficient representation in R_q.
 *
-* Arguments:   - int16_t r[NTRUPLUS_N]: pointer to output vector of elements of Zq
-*              - int16_t a[NTRUPLUS_N]: pointer to input vector of elements of Zq
+* Arguments:   - int16_t r[NTRUPLUS_N]: pointer to output vector; coefficient
+*                                       representation of a in R_q
+*              - const int16_t a[NTRUPLUS_N]: pointer to input vector in NTT
+*                                            representation in the product
+*                                            ring Zq[X]/(X^4 - zeta_i)
+*
+* Returns:     none.
 **************************************************/
 void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 {
@@ -398,7 +464,7 @@ void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 			v[5] = plantard_mul(zeta[2],  t1 - v[4]);
 			v[4] = v[4] + t1;			
 
-			t1 = plantard_mul(-898253212,    v[2] - v[0]);
+			t1 = plantard_mul(NTRUPLUS_OMEGA,    v[2] - v[0]);
 			t2 = plantard_mul(zeta[3], v[4] - v[0] + t1);
 			t3 = plantard_mul(zeta[4], v[4] - v[2] - t1);
 
@@ -406,7 +472,7 @@ void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 			v[2] = t2;
 			v[4] = t3;
 
-			t1 = plantard_mul(-898253212,    v[3] - v[1]);
+			t1 = plantard_mul(NTRUPLUS_OMEGA,    v[3] - v[1]);
 			t2 = plantard_mul(zeta[3], v[5] - v[1] + t1);
 			t3 = plantard_mul(zeta[4], v[5] - v[3] - t1);
 
@@ -433,7 +499,7 @@ void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 			v[j] = a[144*j+i];
 		}
 
-		t1 = plantard_mul(-898253212,    v[1] - v[0]);
+		t1 = plantard_mul(NTRUPLUS_OMEGA,    v[1] - v[0]);
 		t2 = plantard_mul(zeta[0], v[2] - v[0] + t1);
 		t3 = plantard_mul(zeta[1], v[2] - v[1] - t1);
 
@@ -441,7 +507,7 @@ void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 		v[1] = t2;
 		v[2] = t3;
 
-		t1 = plantard_mul(-898253212,    v[4] - v[3]);
+		t1 = plantard_mul(NTRUPLUS_OMEGA,    v[4] - v[3]);
 		t2 = plantard_mul(zeta[2], v[5] - v[3] + t1);
 		t3 = plantard_mul(zeta[3], v[5] - v[4] - t1);
 
@@ -477,12 +543,20 @@ void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 /*************************************************
 * Name:        baseinv
 *
-* Description: Inversion of polynomial in Zq[X]/(X^3-zeta)
-*              used for inversion of element in Rq in NTT domain
+* Description: Simultaneous inversion of polynomials in
+*              Z_q[X]/(X^3 - zeta) and Z_q[X]/(X^3 + zeta), used as
+*              a building block for inversion of elements in R_q in the
+*              NTT domain. The input array a encodes two degree-2
+*              polynomials:
+*                a[0..2] for X^3 - zeta,
+*                a[3..5] for X^3 + zeta.
+*              On success, r[0..2] and r[3..5] contain their inverses.
 *
-* Arguments:   - int16_t r[3]: pointer to the output polynomial
-*              - const int16_t a[3]: pointer to the input polynomial
-*              - int32_t zeta: integer defining the reduction polynomial
+* Arguments:   - int16_t r[6]:       pointer to the output polynomials
+*              - const int16_t a[6]: pointer to the input polynomials
+*              - uint32_t zeta:      parameter defining X^3 ± zeta
+*
+* Returns:     0 if both polynomials are invertible, 1 otherwise.
 **************************************************/
 int baseinv(int16_t r[6], const int16_t a[6], uint32_t zeta)
 {
@@ -490,9 +564,9 @@ int baseinv(int16_t r[6], const int16_t a[6], uint32_t zeta)
 	uint32_t A0, A1, A2, T;
 	uint32_t B0, B1, B2, S;
 
-	A0 = a[0]*QINV;
-	A1 = a[1]*QINV;
-	A2 = a[2]*QINV;
+	A0 = a[0]*NTRUPLUS_QINV;
+	A1 = a[1]*NTRUPLUS_QINV;
+	A2 = a[2]*NTRUPLUS_QINV;
 
 	r[0] = plantard_reduce_acc(a[1]*A2);
 	r[1] = plantard_reduce_acc(a[2]*A2);
@@ -506,9 +580,9 @@ int baseinv(int16_t r[6], const int16_t a[6], uint32_t zeta)
 
 	if(t == 0) return 1;
 
-	B0 = a[3]*QINV;
-	B1 = a[4]*QINV;
-	B2 = a[5]*QINV;
+	B0 = a[3]*NTRUPLUS_QINV;
+	B1 = a[4]*NTRUPLUS_QINV;
+	B2 = a[5]*NTRUPLUS_QINV;
 
 	r[3] = plantard_reduce_acc(a[4]*B2);
 	r[4] = plantard_reduce_acc(a[5]*B2);
@@ -524,11 +598,11 @@ int baseinv(int16_t r[6], const int16_t a[6], uint32_t zeta)
 
 	t = fqinv(t);
 	s = fqinv(s);
-	t = plantard_mul(t, 3975671203);
-	s = plantard_mul(s, 3975671203);
+	t = plantard_mul(NTRUPLUS_Rinv, t);
+	s = plantard_mul(NTRUPLUS_Rinv, s);
 	
-	T = t*QINV;
-	S = s*QINV;
+	T = t*NTRUPLUS_QINV;
+	S = s*NTRUPLUS_QINV;
 
 	r[0] = plantard_reduce_acc(r[0]*T);
 	r[1] = plantard_reduce_acc(r[1]*T);
@@ -555,9 +629,9 @@ void basemul(int16_t r[3], const int16_t a[3], const int16_t b[3], uint32_t zeta
 {
 	uint32_t A0, A1, A2;
 
-	A0 = a[0] * QINV;
-	A1 = a[1] * QINV;
-	A2 = a[2] * QINV;
+	A0 = a[0]*NTRUPLUS_QINV;
+	A1 = a[1]*NTRUPLUS_QINV;
+	A2 = a[2]*NTRUPLUS_QINV;
 
 	r[0] = plantard_reduce_acc(A2*b[1]+A1*b[2]);
 	r[1] = plantard_reduce_acc(A2*b[2]);
@@ -566,9 +640,9 @@ void basemul(int16_t r[3], const int16_t a[3], const int16_t b[3], uint32_t zeta
 	r[1] = plantard_reduce_acc(r[1]*zeta+A0*b[1]+A1*b[0]);
 	r[2] = plantard_reduce_acc(A2*b[0]+A1*b[1]+A0*b[2]);
 
-	r[0] = plantard_mul(r[0], 3217808880);
-	r[1] = plantard_mul(r[1], 3217808880);
-	r[2] = plantard_mul(r[2], 3217808880);
+	r[0] = plantard_mul(NTRUPLUS_Rsq, r[0]);
+	r[1] = plantard_mul(NTRUPLUS_Rsq, r[1]);
+	r[2] = plantard_mul(NTRUPLUS_Rsq, r[2]);
 }
 
 /*************************************************
@@ -586,9 +660,9 @@ void basemul_add(int16_t r[3], const int16_t a[3], const int16_t b[3], const int
 {
 	uint32_t A0, A1, A2;
 
-	A0 = a[0] * QINV;
-	A1 = a[1] * QINV;
-	A2 = a[2] * QINV;
+	A0 = a[0]*NTRUPLUS_QINV;
+	A1 = a[1]*NTRUPLUS_QINV;
+	A2 = a[2]*NTRUPLUS_QINV;
 
 	r[0] = plantard_reduce_acc(A2*b[1]+A1*b[2]);
 	r[1] = plantard_reduce_acc(A2*b[2]);
@@ -597,7 +671,7 @@ void basemul_add(int16_t r[3], const int16_t a[3], const int16_t b[3], const int
 	r[1] = plantard_reduce_acc(r[1]*zeta+A0*b[1]+A1*b[0]);
 	r[2] = plantard_reduce_acc(A2*b[0]+A1*b[1]+A0*b[2]);
 
-	r[0] = plantard_reduce_acc(c[0]*1242398 + r[0]*3217808880);
-	r[1] = plantard_reduce_acc(c[1]*1242398 + r[1]*3217808880);
-	r[2] = plantard_reduce_acc(c[2]*1242398 + r[2]*3217808880);
+	r[0] = plantard_reduce_acc(c[0]*NTRUPLUS_R + r[0]*NTRUPLUS_Rsq);
+	r[1] = plantard_reduce_acc(c[1]*NTRUPLUS_R + r[1]*NTRUPLUS_Rsq);
+	r[2] = plantard_reduce_acc(c[2]*NTRUPLUS_R + r[2]*NTRUPLUS_Rsq);
 }
