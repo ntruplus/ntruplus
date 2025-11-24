@@ -130,10 +130,10 @@ _loop_cbd:
     ret
 
 
-.global poly_sotp
-.global _poly_sotp
-poly_sotp:
-_poly_sotp:
+.global poly_sotp_encode
+.global _poly_sotp_encode
+poly_sotp_encode:
+_poly_sotp_encode:
     dst       .req x0
     src1      .req x1
     src2      .req x2 
@@ -145,7 +145,7 @@ _poly_sotp:
 
     mov counter, #2304
 
-_loop_sotp:
+_loop_sotp_encode:
     #load
     ldr q4, [src1, #0]
     ldr q5, [src2, #0]
@@ -259,7 +259,7 @@ _loop_sotp:
     st1 {v26.8h - v29.8h}, [dst], #64
 
     subs counter, counter, #256
-    b.ne _loop_sotp
+    b.ne _loop_sotp_encode
 
     .unreq    dst
     .unreq    src1
@@ -269,10 +269,10 @@ _loop_sotp:
     ret
 
 
-.global poly_sotp_inv
-.global _poly_sotp_inv
-poly_sotp_inv:
-_poly_sotp_inv:
+.global poly_sotp_decode
+.global _poly_sotp_decode
+poly_sotp_decode:
+_poly_sotp_decode:
     dst       .req x0
     src1      .req x1
     src2      .req x2
@@ -288,7 +288,7 @@ _poly_sotp_inv:
 
     mov counter, #2304
 
-_loop_sotp_inv:
+_loop_sotp_decode:
     #load
     ld1 { v5.8h -  v8.8h}, [src1], #64
     ld1 { v9.8h - v12.8h}, [src1], #64
@@ -407,7 +407,7 @@ _loop_sotp_inv:
     str q20, [dst], #16
 
     subs counter, counter, #256
-    b.ne _loop_sotp_inv
+    b.ne _loop_sotp_decode
 
     eor v3.16b, v3.16b, v2.16b
     and v3.16b, v3.16b, v0.16b
