@@ -1,1 +1,0 @@
-../NTRU+768/verify.c

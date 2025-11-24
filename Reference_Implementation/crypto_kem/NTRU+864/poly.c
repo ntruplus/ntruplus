@@ -3,7 +3,6 @@
 #include "params.h"
 #include "poly.h"
 #include "ntt.h"
-#include "reduce.h"
 #include "symmetric.h"
 
 /*************************************************

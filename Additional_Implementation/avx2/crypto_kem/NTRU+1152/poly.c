@@ -4,7 +4,7 @@
 #include "poly.h"
 
 /*************************************************
-* Name:        poly_sotp_inv
+* Name:        poly_sotp_decode
 *
 * Description: Decode a message deterministically using SOTP_INV and a random
 *
@@ -14,7 +14,7 @@
 *
 * Returns 0 (success) or 1 (failure)
 **************************************************/
-int poly_sotp_inv(uint8_t msg[NTRUPLUS_N/8], const poly *a, const uint8_t buf[NTRUPLUS_N/4])
+int poly_sotp_decode(uint8_t msg[NTRUPLUS_N/8], const poly *a, const uint8_t buf[NTRUPLUS_N/4])
 {
     const __m256i ymm0 = _mm256_set1_epi8((char)0x55);
     const __m256i ymm1 = _mm256_set1_epi8((char)0xff);

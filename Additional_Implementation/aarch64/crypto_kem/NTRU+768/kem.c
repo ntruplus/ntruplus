@@ -12,15 +12,25 @@
 #include "NO_CE/SHAKE256/fips202.h"
 #endif
 
+/*************************************************
+* Name:        verify
+*
+* Description: Compares two byte arrays for equality in constant time.
+*
+* Arguments:   - const uint8_t *a: first byte array
+*              - const uint8_t *b: second byte array
+*              - size_t len:      length of the arrays
+*
+* Returns 0 if the arrays are equal, 1 otherwise.
+**************************************************/
 static inline int verify(const uint8_t *a, const uint8_t *b, size_t len)
 {
-	size_t i;
-	uint8_t r = 0;
-	
-	for(i=0;i<len;i++)
-		r |= a[i] ^ b[i];
-	
-	return (-(uint64_t)r) >> 63;
+    uint8_t acc = 0;
+
+    for (size_t i = 0; i < len; i++)
+        acc |= (uint8_t)(a[i] ^ b[i]);
+
+    return (-(uint64_t)acc) >> 63;
 }
 
 /*************************************************

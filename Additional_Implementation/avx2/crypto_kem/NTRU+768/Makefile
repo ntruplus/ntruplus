@@ -4,7 +4,7 @@ CFLAGS += -Wall -Wextra -Wpedantic -Wmissing-prototypes -Wredundant-decls \
   -march=native -mtune=native -O3 -fomit-frame-pointer
 NISTFLAGS += -Wno-unused-result -mavx2 -mbmi2 -mpopcnt -maes \
   -march=native -mtune=native -O3 -fomit-frame-pointer
-RM = /bin/rm
+RM = /bin/rm -f
 
 LDFLAGS=-lcrypto
 
@@ -24,5 +24,6 @@ test: $(HEADERS) randombytes.h $(SOURCES) randombytes.c test.c
 	$(CC) $(CFLAGS) -o $@ randombytes.c test.c $(SOURCES)
 
 clean:
-	-$(RM) PQCgenKAT_kem
-	-$(RM) test
+	$(RM) PQCgenKAT_kem
+	$(RM) PQCkemKAT_*.req PQCkemKAT_*.rsp
+	$(RM) test

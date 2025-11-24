@@ -161,11 +161,11 @@ static void TEST_MODULE_CLOCK(void)
 	for (int i = 0; i < TEST_LOOP; i++)
 	{
 		cycles1 = cpucycles();
-		poly_sotp_inv(buf, &a, buf);
+		poly_sotp_decode(buf, &a, buf);
 		cycles2 = cpucycles();
 		kcycles += cycles2-cycles1-cyclegap;
 	}
-	printf("  poly_sotp_inv runs in .......... %8lld cycles", kcycles/TEST_LOOP);
+	printf("  poly_sotp_decode runs in ....... %8lld cycles", kcycles/TEST_LOOP);
 	printf("\n");
 
 	kcycles=0;
@@ -183,11 +183,11 @@ static void TEST_MODULE_CLOCK(void)
 	for (int i = 0; i < TEST_LOOP; i++)
 	{
 		cycles1 = cpucycles();
-		poly_sotp(&a, buf, buf);
+		poly_sotp_encode(&a, buf, buf);
 		cycles2 = cpucycles();
 		kcycles += cycles2-cycles1-cyclegap;
 	}
-	printf("  poly_sotp runs in .............. %8lld cycles", kcycles/TEST_LOOP);
+	printf("  poly_sotp_encode runs in ....... %8lld cycles", kcycles/TEST_LOOP);
 	printf("\n");
 
 	kcycles=0;
@@ -260,6 +260,17 @@ static void TEST_MODULE_CLOCK(void)
 	for (int i = 0; i < TEST_LOOP; i++)
 	{
 		cycles1 = cpucycles();
+		hash_f(buf, buf);
+		cycles2 = cpucycles();
+		kcycles += cycles2-cycles1-cyclegap;
+	}
+	printf("  hash_f runs in ................. %8lld cycles", kcycles/TEST_LOOP);
+	printf("\n");
+
+	kcycles=0;
+	for (int i = 0; i < TEST_LOOP; i++)
+	{
+		cycles1 = cpucycles();
 		hash_g(buf, buf);
 		cycles2 = cpucycles();
 		kcycles += cycles2-cycles1-cyclegap;
@@ -271,11 +282,11 @@ static void TEST_MODULE_CLOCK(void)
 	for (int i = 0; i < TEST_LOOP; i++)
 	{
 		cycles1 = cpucycles();
-		hash_h_kem(buf, buf);
+		hash_h(buf, buf);
 		cycles2 = cpucycles();
 		kcycles += cycles2-cycles1-cyclegap;
 	}
-	printf("  hash_h_kem runs in ............. %8lld cycles", kcycles/TEST_LOOP);
+	printf("  hash_h runs in ................. %8lld cycles", kcycles/TEST_LOOP);
 	printf("\n");
 		
 	kcycles=0;

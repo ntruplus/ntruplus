@@ -8,7 +8,7 @@
 #define CRYPTO_CIPHERTEXTBYTES NTRUPLUS_CIPHERTEXTBYTES
 #define CRYPTO_BYTES           NTRUPLUS_SSBYTES
 
-#define CRYPTO_ALGNAME "NTRU+768"
+#define CRYPTO_ALGNAME NTRUPLUS_ALGNAME
 
 int crypto_kem_keypair(unsigned char *pk,
                        unsigned char *sk);

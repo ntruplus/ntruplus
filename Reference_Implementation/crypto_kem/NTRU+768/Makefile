@@ -2,12 +2,12 @@ CC =gcc
 CFLAGS += -Wall -Wextra -Wpedantic -Wmissing-prototypes -Wredundant-decls \
   -Wshadow -Wpointer-arith -O3 -fomit-frame-pointer
 NISTFLAGS += -Wno-unused-result -O3 -fomit-frame-pointer
-RM = /bin/rm
+RM = /bin/rm -f
 
 LDFLAGS=-lcrypto
 
-SOURCES= kem.c poly.c ntt.c symmetric.c reduce.c verify.c fips202.c
-HEADERS= api.h params.h poly.h ntt.h symmetric.h reduce.h verify.h fips202.h
+SOURCES= kem.c poly.c ntt.c symmetric.c fips202.c
+HEADERS= api.h params.h poly.h ntt.h symmetric.h fips202.h
 
 .PHONY: all PQCgenKAT_kem test clean
 
@@ -22,5 +22,6 @@ test: $(HEADERS) randombytes.h $(SOURCES) randombytes.c test.c
 	$(CC) $(CFLAGS) -o $@ randombytes.c test.c $(SOURCES)
 
 clean:
-	-$(RM) PQCgenKAT_kem
-	-$(RM) test
+	$(RM) PQCgenKAT_kem
+	$(RM) PQCkemKAT_*.req PQCkemKAT_*.rsp
+	$(RM) test

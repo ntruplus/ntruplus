@@ -286,8 +286,8 @@ _looptop_poly_cbd1_1:
     ret
 
 
-.global poly_sotp
-poly_sotp:
+.global poly_sotp_encode
+poly_sotp_encode:
     vmovdqa _16x5555(%rip), %ymm0
     vmovdqa _16x0303(%rip), %ymm1
     vmovdqa _16x0101(%rip), %ymm2
