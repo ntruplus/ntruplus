@@ -147,14 +147,15 @@ int poly_sotp_decode(uint8_t msg[NTRUPLUS_N/8], const poly *a, const uint8_t buf
 	uint8_t t1, t2, t3;
 	uint16_t t4;
 	uint32_t r = 0;
+	uint8_t mask;
 
 	for(size_t i = 0; i < NTRUPLUS_N / 8; i++)
 	{
-		t1 = buf[i     ];
-		t2 = buf[i + 96];
+		t1 = buf[i                 ];
+		t2 = buf[i + NTRUPLUS_N / 8];
 		t3 = 0;
 
-		for(int j = 0; j < 8; j++)
+		for(size_t j = 0; j < 8; j++)
 		{
 			t4 = t2 & 0x1;
 			t4 += a->coeffs[8*i + j];
@@ -171,6 +172,11 @@ int poly_sotp_decode(uint8_t msg[NTRUPLUS_N/8], const poly *a, const uint8_t buf
 
 	r = r >> 1;
 	r = (-(uint32_t)r) >> 31;
+
+	mask = (uint8_t)(r - 1);
+
+	for (size_t i = 0; i < NTRUPLUS_N / 8; i++)
+		msg[i] &= mask;
 
 	return r;
 }
@@ -213,22 +219,20 @@ void poly_invntt(poly *r, const poly *a)
 **************************************************/
 int poly_baseinv(poly *r, const poly *a)
 {
-	int result = 0;
-
 	for(size_t i = 0; i < NTRUPLUS_N/8; ++i)
 	{
-		result = baseinv(r->coeffs + 8*i, a->coeffs + 8*i, zetas[96 + i]);
-		if(result)
+		if(baseinv(r->coeffs + 8*i, a->coeffs + 8*i, zetas[96 + i]))
 		{
-			memset(r->coeffs, 0, sizeof(int16_t) * NTRUPLUS_N);
+			for (size_t j = 0; j < NTRUPLUS_N; ++j)
+				r->coeffs[j] = 0;
 
 			return 1;
 		} 
 
-		result = baseinv(r->coeffs + 8*i + 4, a->coeffs + 8*i + 4, -zetas[96 + i]);
-		if(result)
+		if(baseinv(r->coeffs + 8*i + 4, a->coeffs + 8*i + 4, -zetas[96 + i]))
 		{
-			memset(r->coeffs, 0, sizeof(int16_t) * NTRUPLUS_N);
+			for (size_t j = 0; j < NTRUPLUS_N; ++j)
+				r->coeffs[j] = 0;
 
 			return 1;
 		} 

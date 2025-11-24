@@ -213,22 +213,20 @@ void poly_invntt(poly *r, const poly *a)
 **************************************************/
 int poly_baseinv(poly *r, const poly *a)
 {
-	int result = 0;
-
 	for(int i = 0; i < NTRUPLUS_N/6; ++i)
 	{
-		result = baseinv(r->coeffs+6*i, a->coeffs+6*i, zetas[144+i]);
-		if(result)
+		if(baseinv(r->coeffs+6*i, a->coeffs+6*i, zetas[144+i]))
 		{
-			memset(r->coeffs, 0, sizeof(int16_t) * NTRUPLUS_N);
+			for (size_t j = 0; j < NTRUPLUS_N; ++j)
+				r->coeffs[j] = 0;
 
 			return 1;
 		}
 
-		result = baseinv(r->coeffs+6*i+3, a->coeffs+6*i+3, -zetas[144+i]);
-		if(result)
+		if(baseinv(r->coeffs+6*i+3, a->coeffs+6*i+3, -zetas[144+i]))
 		{
-			memset(r->coeffs, 0, sizeof(int16_t) * NTRUPLUS_N);
+			for (size_t j = 0; j < NTRUPLUS_N; ++j)
+				r->coeffs[j] = 0;
 
 			return 1;
 		}
