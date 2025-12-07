@@ -10,7 +10,7 @@ void hash_f(uint8_t *buf, const uint8_t *msg)
 {
 	uint8_t data[1 + NTRUPLUS_POLYBYTES];
 	
-	data[0] = 'F';
+	data[0] = 0x00;
 
 	for (int i = 0; i < NTRUPLUS_POLYBYTES; i++)
 	{
@@ -24,7 +24,7 @@ void hash_g(uint8_t *buf, const uint8_t *msg)
 {
 	uint8_t data[1 + NTRUPLUS_POLYBYTES];
 
-	data[0] = 'G';
+	data[0] = 0x01;
 
 	for (int i = 0; i < NTRUPLUS_POLYBYTES; i++)
 	{
@@ -38,7 +38,7 @@ void hash_h(uint8_t *buf, const uint8_t *msg)
 {
 	uint8_t data[1 + NTRUPLUS_N/8 + NTRUPLUS_SYMBYTES];
 	
-	data[0] = 'H';
+	data[0] = 0x02;
 
 	for (int i = 0; i < NTRUPLUS_N/8 + NTRUPLUS_SYMBYTES; i++)
 	{
