@@ -566,14 +566,13 @@ void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 *
 * Returns:     0 if both polynomials are invertible, 1 otherwise.
 **************************************************/
-int baseinv(int16_t r[8], const int16_t a[8], uint32_t zeta)
+int baseinv_1(int16_t r[8], int16_t den[2], const int16_t a[8], uint32_t zeta)
 {
 	int16_t t0, t1, t2, t3;
 	int16_t s0, s1, s2, s3;
 	uint32_t A0, A1, A2, A3;
 	uint32_t B0, B1, B2, B3;
 	uint32_t zeta1, zeta2;
-	uint32_t T, S;
 
 	zeta1 = zeta;
 	zeta2 = -zeta;
@@ -612,10 +611,48 @@ int baseinv(int16_t r[8], const int16_t a[8], uint32_t zeta)
 	r[6] = plantard_reduce_acc(B2*s0 + B0*s1);
 	r[7] = plantard_reduce_acc(B1*s1 + B3*s0);
 
-	t3 = fqinv(t3);
-	s3 = fqinv(s3);
-	t3 = plantard_mul(NTRUPLUS_Rinv, t3);
-	s3 = plantard_mul(NTRUPLUS_Rinv, s3);
+	den[0] = t3; // R^-3
+	den[1] = s3; // R^-3
+
+	return 0;
+}
+
+void fqinv_batch(int16_t *r)
+{
+    int16_t  t[NTRUPLUS_N / 4];
+    uint32_t R[NTRUPLUS_N / 4];
+
+	int16_t inv;
+	uint32_t INV;
+
+    for (int i = 1; i < NTRUPLUS_N / 4; i++) {
+        R[i] = (uint32_t)r[i] * NTRUPLUS_QINV;
+    }
+
+    t[0] = r[0];
+    for (int i = 1; i < NTRUPLUS_N / 4; i++) {
+        t[i] = plantard_mul(t[i - 1], R[i]); // R^-767
+    }
+
+    inv  = fqinv(t[NTRUPLUS_N / 4 - 1]); // R^769
+
+    for (int i = NTRUPLUS_N / 4 - 1; i > 0; i--) {
+	    INV = (uint32_t)inv * NTRUPLUS_QINV;
+		r[i] = plantard_mul(t[i - 1], INV); // R^5
+        inv = plantard_mul(inv, R[i]);
+    }
+
+    r[0] = inv;
+}
+
+int baseinv_2(int16_t r[8], int16_t den[2])
+{
+	uint32_t T, S;
+	int16_t t3;
+	int16_t s3;
+
+	t3 = plantard_mul(NTRUPLUS_Rinv, den[0]);
+	s3 = plantard_mul(NTRUPLUS_Rinv, den[1]);
 
 	T = t3*NTRUPLUS_QINV;
 	S = s3*NTRUPLUS_QINV;
@@ -631,6 +668,7 @@ int baseinv(int16_t r[8], const int16_t a[8], uint32_t zeta)
 
 	return 0;
 }
+
 
 /*************************************************
 * Name:        basemul
