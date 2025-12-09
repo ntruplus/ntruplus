@@ -2,6 +2,450 @@
 
 #include "params.h"
 #include "poly.h"
+#include "consts.h"
+
+static inline void poly_baseinv_1(poly *r, __m256i den[18], const poly *a)
+{
+    __m256i ymm0, ymm1, ymm2, ymm3, ymm4, ymm5, ymm6, ymm7; 
+    __m256i ymm8, ymm9, ymma, ymmb, ymmc, ymmd, ymme, ymmf;
+
+    ymmf = _mm256_load_si256((const __m256i *)_16xqinv); //_16xqinv
+    ymm0 = _mm256_load_si256((const __m256i *)_16xq);    //_16xq
+
+    for(size_t i = 0; i < 9; i++)
+    {
+        //zeta
+        ymme = _mm256_load_si256((const __m256i *)&zetas[32*i + 944]); //zeta*qinv
+        ymm1 = _mm256_load_si256((const __m256i *)&zetas[32*i + 960]); //zeta
+
+        //load
+        ymm3 = _mm256_load_si256((const __m256i *)&a->coeffs[96*i +  0]); //a[0]
+        ymm5 = _mm256_load_si256((const __m256i *)&a->coeffs[96*i + 16]); //a[1]
+        ymm7 = _mm256_load_si256((const __m256i *)&a->coeffs[96*i + 32]); //a[2]
+
+        //premul
+        ymm2 = _mm256_mullo_epi16(ymm3, ymmf);
+        ymm4 = _mm256_mullo_epi16(ymm5, ymmf);
+        ymm6 = _mm256_mullo_epi16(ymm7, ymmf);
+
+        //mul
+        ymm8 = _mm256_mullo_epi16(ymme, ymm5); //zeta*a[1]
+        ymma = _mm256_mullo_epi16(ymme, ymm7); //zeta*a[2]
+        ymmc = _mm256_mullo_epi16(ymm2, ymm7); //a[0]*a[2]
+        ymme = _mm256_mullo_epi16(ymm4, ymm5); //a[1]*a[1]
+        ymm9 = _mm256_mulhi_epi16(ymm1, ymm5);
+        ymmb = _mm256_mulhi_epi16(ymm1, ymm7);
+        ymmd = _mm256_mulhi_epi16(ymm3, ymm7);
+        ymm1 = _mm256_mulhi_epi16(ymm5, ymm5);
+
+        //reduce
+        ymm8 = _mm256_mulhi_epi16(ymm8, ymm0);
+        ymma = _mm256_mulhi_epi16(ymma, ymm0);
+        ymmc = _mm256_mulhi_epi16(ymmc, ymm0);
+        ymme = _mm256_mulhi_epi16(ymme, ymm0);
+        ymm8 = _mm256_sub_epi16(ymm9, ymm8);
+        ymm9 = _mm256_sub_epi16(ymmb, ymma);
+        ymma = _mm256_sub_epi16(ymmd, ymmc); 
+        ymmb = _mm256_sub_epi16(ymm1, ymme);
+
+        //add
+        ymma = _mm256_sub_epi16(ymmb, ymma); //r[2] = a[1] a[1] - a[0] a[2]
+        
+        //mul
+        ymmb = _mm256_mullo_epi16(ymm2, ymm3); //a[0] a[0]
+        ymmd = _mm256_mullo_epi16(ymm4, ymm9); //zeta a[2] a[1]
+        ymm6 = _mm256_mullo_epi16(ymm6, ymm9); //zeta a[2] a[2]
+        ymm4 = _mm256_mullo_epi16(ymm2, ymm5); //a[1] a[0]
+        ymmc = _mm256_mulhi_epi16(ymm3, ymm3);
+        ymme = _mm256_mulhi_epi16(ymm5, ymm9);
+        ymm7 = _mm256_mulhi_epi16(ymm7, ymm9);
+        ymm5 = _mm256_mulhi_epi16(ymm3, ymm5);
+
+        //reduce
+        ymmb = _mm256_mulhi_epi16(ymmb, ymm0); //a[0] a[0]
+        ymmd = _mm256_mulhi_epi16(ymmd, ymm0); //zeta a[2] a[1]
+        ymm6 = _mm256_mulhi_epi16(ymm6, ymm0); //zeta a[2] a[2]
+        ymm4 = _mm256_mulhi_epi16(ymm4, ymm0); //a[1] a[0]
+        ymmb = _mm256_sub_epi16(ymmc, ymmb);   //a[0] a[0]
+        ymmc = _mm256_sub_epi16(ymme, ymmd);   //zeta a[2] a[1]
+        ymm6 = _mm256_sub_epi16(ymm7, ymm6);   //zeta a[2] a[2]
+        ymm7 = _mm256_sub_epi16(ymm5, ymm4);   //a[1] a[0]
+
+        //add
+        ymmb = _mm256_sub_epi16(ymmb, ymmc); //r[0] = a[0] a[0] - zeta a[2] a[1]
+        ymm6 = _mm256_sub_epi16(ymm6, ymm7); //r[1] = zeta a[2] a[2] - a[1] a[0]
+
+        //premul
+        ymm1 = _mm256_mullo_epi16(ymm8, ymmf); //premul a[1] zeta 
+        ymmd = _mm256_mullo_epi16(ymm9, ymmf); //premul a[2] zeta 
+
+        //mul3
+        ymmc = _mm256_mullo_epi16(ymm1, ymma); //r[2] * a[1] zeta 
+        ymme = _mm256_mullo_epi16(ymmd, ymm6); //r[1] * a[2] zeta 
+        ymm4 = _mm256_mullo_epi16(ymm2, ymmb); //r[0] * a[0]
+        ymmd = _mm256_mulhi_epi16(ymm8, ymma);
+        ymm1 = _mm256_mulhi_epi16(ymm9, ymm6);
+        ymm5 = _mm256_mulhi_epi16(ymm3, ymmb);
+
+        //reduce
+        ymmc = _mm256_mulhi_epi16(ymmc, ymm0);
+        ymme = _mm256_mulhi_epi16(ymme, ymm0);
+        ymm4 = _mm256_mulhi_epi16(ymm4, ymm0);
+        ymmc = _mm256_sub_epi16(ymmd, ymmc);
+        ymmd = _mm256_sub_epi16(ymm1, ymme);
+        ymme = _mm256_sub_epi16(ymm5, ymm4);
+
+        //add
+        ymmc = _mm256_add_epi16(ymmd, ymmc);
+        ymm8 = _mm256_add_epi16(ymme, ymmc);
+
+        //store        
+        _mm256_store_si256((__m256i *)&r->coeffs[96*i +  0], ymmb); //a[0]
+        _mm256_store_si256((__m256i *)&r->coeffs[96*i + 16], ymm6); //a[1]
+        _mm256_store_si256((__m256i *)&r->coeffs[96*i + 32], ymma); //a[2]
+
+        //denominator
+        den[2*i] = ymm8;
+
+        //zeta
+        ymme = _mm256_load_si256((const __m256i *)&zetas[32*i + 944]); //zeta*qinv
+        ymm1 = _mm256_load_si256((const __m256i *)&zetas[32*i + 960]); //zeta
+
+        //load
+        ymm3 = _mm256_load_si256((const __m256i *)&a->coeffs[96*i + 48]); //a[0]
+        ymm5 = _mm256_load_si256((const __m256i *)&a->coeffs[96*i + 64]); //a[1]
+        ymm7 = _mm256_load_si256((const __m256i *)&a->coeffs[96*i + 80]); //a[2]
+
+        //premul
+        ymm2 = _mm256_mullo_epi16(ymm3, ymmf);
+        ymm4 = _mm256_mullo_epi16(ymm5, ymmf);
+        ymm6 = _mm256_mullo_epi16(ymm7, ymmf);
+
+        //mul
+        ymm8 = _mm256_mullo_epi16(ymme, ymm5); //zeta*a[1]
+        ymma = _mm256_mullo_epi16(ymme, ymm7); //zeta*a[2]
+        ymmc = _mm256_mullo_epi16(ymm2, ymm7); //a[0]*a[2]
+        ymme = _mm256_mullo_epi16(ymm4, ymm5); //a[1]*a[1]
+        ymm9 = _mm256_mulhi_epi16(ymm1, ymm5);
+        ymmb = _mm256_mulhi_epi16(ymm1, ymm7);
+        ymmd = _mm256_mulhi_epi16(ymm3, ymm7);
+        ymm1 = _mm256_mulhi_epi16(ymm5, ymm5);
+
+        //reduce
+        ymm8 = _mm256_mulhi_epi16(ymm8, ymm0);
+        ymma = _mm256_mulhi_epi16(ymma, ymm0);
+        ymmc = _mm256_mulhi_epi16(ymmc, ymm0);
+        ymme = _mm256_mulhi_epi16(ymme, ymm0);
+        ymm8 = _mm256_sub_epi16(ymm9, ymm8);
+        ymm9 = _mm256_sub_epi16(ymmb, ymma);
+        ymma = _mm256_sub_epi16(ymmd, ymmc); 
+        ymmb = _mm256_sub_epi16(ymm1, ymme);
+
+        //add
+        ymma = _mm256_sub_epi16(ymmb, ymma); //r[2] = a[1] a[1] - a[0] a[2]
+        
+        //mul
+        ymmb = _mm256_mullo_epi16(ymm2, ymm3); //a[0] a[0]
+        ymmd = _mm256_mullo_epi16(ymm4, ymm9); //zeta a[2] a[1]
+        ymm6 = _mm256_mullo_epi16(ymm6, ymm9); //zeta a[2] a[2]
+        ymm4 = _mm256_mullo_epi16(ymm2, ymm5); //a[1] a[0]
+        ymmc = _mm256_mulhi_epi16(ymm3, ymm3);
+        ymme = _mm256_mulhi_epi16(ymm5, ymm9);
+        ymm7 = _mm256_mulhi_epi16(ymm7, ymm9);
+        ymm5 = _mm256_mulhi_epi16(ymm3, ymm5);
+
+        //reduce
+        ymmb = _mm256_mulhi_epi16(ymmb, ymm0); //a[0] a[0]
+        ymmd = _mm256_mulhi_epi16(ymmd, ymm0); //zeta a[2] a[1]
+        ymm6 = _mm256_mulhi_epi16(ymm6, ymm0); //zeta a[2] a[2]
+        ymm4 = _mm256_mulhi_epi16(ymm4, ymm0); //a[1] a[0]
+        ymmb = _mm256_sub_epi16(ymmc, ymmb);   //a[0] a[0]
+        ymmc = _mm256_sub_epi16(ymme, ymmd);   //zeta a[2] a[1]
+        ymm1 = _mm256_mullo_epi16(ymm8, ymmf);
+        ymmd = _mm256_mullo_epi16(ymm9, ymmf);
+        ymm6 = _mm256_sub_epi16(ymm7, ymm6);   //zeta a[2] a[2]
+        ymm7 = _mm256_sub_epi16(ymm5, ymm4);   //a[1] a[0]
+
+        //add
+        ymmb = _mm256_add_epi16(ymmb, ymmc); //r[0] = a[0] a[0] - zeta a[2] a[1]
+        ymm6 = _mm256_add_epi16(ymm6, ymm7); //r[1] = zeta a[2] a[2] - a[1] a[0]
+        ymm6 = _mm256_sub_epi16(ymm0, ymm6); //r[1] = zeta a[2] a[2] - a[1] a[0]
+
+        //mul3
+        ymmc = _mm256_mullo_epi16(ymm1, ymma); //r[2] * a[1] zeta 
+        ymme = _mm256_mullo_epi16(ymmd, ymm6); //r[1] * a[2] zeta 
+        ymm4 = _mm256_mullo_epi16(ymm2, ymmb); //r[0] * a[0]
+        ymmd = _mm256_mulhi_epi16(ymm8, ymma);
+        ymm1 = _mm256_mulhi_epi16(ymm9, ymm6);
+        ymm5 = _mm256_mulhi_epi16(ymm3, ymmb);
+
+        //reduce
+        ymmc = _mm256_mulhi_epi16(ymmc, ymm0);
+        ymme = _mm256_mulhi_epi16(ymme, ymm0);
+        ymm4 = _mm256_mulhi_epi16(ymm4, ymm0);
+        ymmc = _mm256_sub_epi16(ymmd, ymmc);
+        ymmd = _mm256_sub_epi16(ymm1, ymme);
+        ymme = _mm256_sub_epi16(ymm5, ymm4);
+
+        //add
+        ymmc = _mm256_add_epi16(ymmd, ymmc);
+        ymm8 = _mm256_sub_epi16(ymme, ymmc);
+
+        //store        
+        _mm256_store_si256((__m256i *)&r->coeffs[96*i + 48], ymmb); //a[0]
+        _mm256_store_si256((__m256i *)&r->coeffs[96*i + 64], ymm6); //a[1]
+        _mm256_store_si256((__m256i *)&r->coeffs[96*i + 80], ymma); //a[2]
+
+        //denominator
+        den[2*i+1] = ymm8;
+    }
+}
+
+
+static inline __m256i fqinv_avx2(__m256i r)
+{
+    const __m256i qinv = _mm256_load_si256((const __m256i *)_16xqinv);
+    const __m256i q    = _mm256_load_si256((const __m256i *)_16xq);
+
+    __m256i l, h;
+    __m256i R;
+    __m256i t1, t2, t3;
+    __m256i T1, T2;
+
+    // 10 
+    R  = _mm256_mullo_epi16(r, qinv);
+
+    l  = _mm256_mullo_epi16(r, R);
+    h  = _mm256_mulhi_epi16(r, r);
+    l  = _mm256_mulhi_epi16(l, q);
+    t1 = _mm256_sub_epi16(h, l);
+
+    // 100 
+    T1 = _mm256_mullo_epi16(t1, qinv);
+
+    l  = _mm256_mullo_epi16(t1, T1);
+    h  = _mm256_mulhi_epi16(t1, t1);
+    l  = _mm256_mulhi_epi16(l, q);
+    t2 = _mm256_sub_epi16(h, l);
+
+    // 1000 
+    T2 = _mm256_mullo_epi16(t2, qinv);
+
+    l  = _mm256_mullo_epi16(t2, T2);
+    h  = _mm256_mulhi_epi16(t2, t2);
+    l  = _mm256_mulhi_epi16(l, q);
+    t2 = _mm256_sub_epi16(h, l);
+
+    // 10000 
+    T2 = _mm256_mullo_epi16(t2, qinv);
+
+    l  = _mm256_mullo_epi16(t2, T2);
+    h  = _mm256_mulhi_epi16(t2, t2);
+    l  = _mm256_mulhi_epi16(l, q);
+    t3 = _mm256_sub_epi16(h, l);
+
+    // 1010 
+    l  = _mm256_mullo_epi16(t2, T1);
+    h  = _mm256_mulhi_epi16(t2, t1);
+    l  = _mm256_mulhi_epi16(l, q);
+    t1 = _mm256_sub_epi16(h, l);
+
+    // 11010 
+    T1 = _mm256_mullo_epi16(t1, qinv);
+
+    l  = _mm256_mullo_epi16(t3, T1);
+    h  = _mm256_mulhi_epi16(t3, t1);
+    l  = _mm256_mulhi_epi16(l, q);
+    t2 = _mm256_sub_epi16(h, l);
+
+    // 110100 
+    T2 = _mm256_mullo_epi16(t2, qinv);
+
+    l  = _mm256_mullo_epi16(t2, T2);
+    h  = _mm256_mulhi_epi16(t2, t2);
+    l  = _mm256_mulhi_epi16(l, q);
+    t2 = _mm256_sub_epi16(h, l);
+
+    // 110101 
+    l  = _mm256_mullo_epi16(t2, R);
+    h  = _mm256_mulhi_epi16(t2, r);
+    l  = _mm256_mulhi_epi16(l, q);
+    t2 = _mm256_sub_epi16(h, l);
+
+    // 111111 
+    l  = _mm256_mullo_epi16(t2, T1);
+    h  = _mm256_mulhi_epi16(t2, t1);
+    l  = _mm256_mulhi_epi16(l, q);
+    t1 = _mm256_sub_epi16(h, l);
+
+    // 1101010 
+    T2 = _mm256_mullo_epi16(t2, qinv);
+
+    l  = _mm256_mullo_epi16(t2, T2);
+    h  = _mm256_mulhi_epi16(t2, t2);
+    l  = _mm256_mulhi_epi16(l, q);
+    t2 = _mm256_sub_epi16(h, l);
+
+    // 11010100 
+    T2 = _mm256_mullo_epi16(t2, qinv);
+
+    l  = _mm256_mullo_epi16(t2, T2);
+    h  = _mm256_mulhi_epi16(t2, t2);
+    l  = _mm256_mulhi_epi16(l, q);
+    t2 = _mm256_sub_epi16(h, l);
+
+    // 110101000 
+    T2 = _mm256_mullo_epi16(t2, qinv);
+
+    l  = _mm256_mullo_epi16(t2, T2);
+    h  = _mm256_mulhi_epi16(t2, t2);
+    l  = _mm256_mulhi_epi16(l, q);
+    t2 = _mm256_sub_epi16(h, l);
+
+    // 1101010000 
+    T2 = _mm256_mullo_epi16(t2, qinv);
+
+    l  = _mm256_mullo_epi16(t2, T2);
+    h  = _mm256_mulhi_epi16(t2, t2);
+    l  = _mm256_mulhi_epi16(l, q);
+    t2 = _mm256_sub_epi16(h, l);
+
+    // 11010100000
+    T2 = _mm256_mullo_epi16(t2, qinv);
+
+    l  = _mm256_mullo_epi16(t2, T2);
+    h  = _mm256_mulhi_epi16(t2, t2);
+    l  = _mm256_mulhi_epi16(l, q);
+    t2 = _mm256_sub_epi16(h, l);
+
+    // 110101000000 
+    T2 = _mm256_mullo_epi16(t2, qinv);
+
+    l  = _mm256_mullo_epi16(t2, T2);
+    h  = _mm256_mulhi_epi16(t2, t2);
+    l  = _mm256_mulhi_epi16(l, q);
+    t2 = _mm256_sub_epi16(h, l);
+
+    // 110101111111 
+    T2 = _mm256_mullo_epi16(t2, qinv);
+
+    l  = _mm256_mullo_epi16(t1, T2);
+    h  = _mm256_mulhi_epi16(t1, t2);
+    l  = _mm256_mulhi_epi16(l, q);
+    t2 = _mm256_sub_epi16(h, l);
+
+    return t2;
+}
+
+
+static inline int poly_fqinv_batch(__m256i r[18], const __m256i a[18])
+{
+    const __m256i qinv = _mm256_load_si256((const __m256i *)_16xqinv);
+    const __m256i q = _mm256_load_si256((const __m256i *)_16xq);
+
+    __m256i t[18];
+    __m256i A[18];
+
+    __m256i l, h;
+    __m256i inv, INV;
+
+    __m256i mask_zero;
+
+    for (int i = 1; i < 18; i++) {
+        A[i] = _mm256_mullo_epi16(a[i], qinv);
+    }
+
+    t[0] = a[0];
+
+    for (int i = 1; i < 18; i++) {
+        l    = _mm256_mullo_epi16(t[i - 1], A[i]);
+        h    = _mm256_mulhi_epi16(t[i - 1], a[i]);
+        l    = _mm256_mulhi_epi16(l, q);
+        t[i] = _mm256_sub_epi16(h, l);
+    }
+
+    inv = fqinv_avx2(t[17]);
+
+    for (int i = 17; i > 0; i--) {
+        INV = _mm256_mullo_epi16(inv, qinv);
+
+        l    = _mm256_mullo_epi16(t[i - 1], INV);
+        h    = _mm256_mulhi_epi16(t[i - 1], inv);
+        l    = _mm256_mulhi_epi16(l, q);
+        r[i] = _mm256_sub_epi16(h, l);
+
+        l    = _mm256_mullo_epi16(inv, A[i]);
+        h    = _mm256_mulhi_epi16(inv, a[i]);
+        l    = _mm256_mulhi_epi16(l, q);
+        inv  = _mm256_sub_epi16(h, l);
+    }
+
+    r[0] = inv;
+
+    mask_zero = _mm256_cmpeq_epi16(inv, _mm256_setzero_si256());
+    
+    if (_mm256_movemask_epi8(mask_zero) != 0) {
+        return 1;
+    }
+
+    return 0;
+}
+
+static inline void poly_baseinv_2(poly *r, const __m256i den[18])
+{
+    __m256i l, h, t, T;
+
+    const __m256i qinv     = _mm256_load_si256((const __m256i *)_16xqinv);
+    const __m256i q        = _mm256_load_si256((const __m256i *)_16xq);
+    const __m256i Rinvqinv = _mm256_load_si256((const __m256i *)_16xRinvqinv);
+    const __m256i Rinv     = _mm256_load_si256((const __m256i *)_16xRinv);
+
+    for (size_t i = 0; i < 18; i++) {
+        __m256i r0 = _mm256_load_si256((const __m256i *)&r->coeffs[48*i +  0]);
+        __m256i r1 = _mm256_load_si256((const __m256i *)&r->coeffs[48*i + 16]);
+        __m256i r2 = _mm256_load_si256((const __m256i *)&r->coeffs[48*i + 32]);
+
+        l = _mm256_mullo_epi16(den[i], Rinvqinv);
+        h = _mm256_mulhi_epi16(den[i], Rinv);
+        l = _mm256_mulhi_epi16(l, q);
+        t = _mm256_sub_epi16(h, l);
+
+        T = _mm256_mullo_epi16(t, qinv);
+
+        l  = _mm256_mullo_epi16(r0, T);
+        h  = _mm256_mulhi_epi16(r0, t);
+        l  = _mm256_mulhi_epi16(l, q);
+        r0 = _mm256_sub_epi16(h, l);
+
+        l  = _mm256_mullo_epi16(r1, T);
+        h  = _mm256_mulhi_epi16(r1, t);
+        l  = _mm256_mulhi_epi16(l, q);
+        r1 = _mm256_sub_epi16(h, l);
+
+        l  = _mm256_mullo_epi16(r2, T);
+        h  = _mm256_mulhi_epi16(r2, t);
+        l  = _mm256_mulhi_epi16(l, q);
+        r2 = _mm256_sub_epi16(h, l);
+
+        _mm256_store_si256((__m256i *)&r->coeffs[48*i +  0], r0);
+        _mm256_store_si256((__m256i *)&r->coeffs[48*i + 16], r1);
+        _mm256_store_si256((__m256i *)&r->coeffs[48*i + 32], r2);
+    }
+}
+
+int  poly_baseinv(poly *r, const poly *a)
+{
+    __m256i den1[18];
+    __m256i den2[18];
+
+    poly_baseinv_1(r, den1, a);
+
+    if(poly_fqinv_batch(den2, den1)) return 1;
+
+    poly_baseinv_2(r, den2);
+
+    return 0;
+}
 
 /*************************************************
 * Name:        poly_sotp_decode
