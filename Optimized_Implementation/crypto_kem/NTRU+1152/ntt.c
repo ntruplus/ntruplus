@@ -634,6 +634,7 @@ void fqinv_batch(int16_t *r)
     }
 
     inv  = fqinv(t[NTRUPLUS_N / 4 - 1]);
+	inv = plantard_mul(NTRUPLUS_Rinv, inv);
 
     for (int i = NTRUPLUS_N / 4 - 1; i > 0; i--)
 	{
@@ -647,14 +648,10 @@ void fqinv_batch(int16_t *r)
 
 int baseinv_2(int16_t r[8], int16_t den[2])
 {
-	int16_t  t, s;
 	uint32_t T, S;
 
-	t = plantard_mul(NTRUPLUS_Rinv, den[0]);
-	s = plantard_mul(NTRUPLUS_Rinv, den[1]);
-
-	T = t*NTRUPLUS_QINV;
-	S = s*NTRUPLUS_QINV;
+	T = den[0]*NTRUPLUS_QINV;
+	S = den[1]*NTRUPLUS_QINV;
 
 	r[0] =  plantard_reduce_acc(r[0]*T);
 	r[1] = -plantard_reduce_acc(r[1]*T);
