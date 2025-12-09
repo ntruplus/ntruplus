@@ -1,6 +1,7 @@
 #ifndef POLY_H
 #define POLY_H
 
+#include <immintrin.h>
 #include <stdint.h>
 #include "params.h"
 
@@ -22,6 +23,8 @@ int  poly_sotp_decode(uint8_t msg[NTRUPLUS_N/8], const poly *a, const uint8_t bu
 void poly_ntt(poly *r, const poly *a);
 void poly_invntt(poly *r, const poly *a);
 void poly_basemul(poly *r, const poly *a, const poly *b);
+
+void poly_baseinv_1(poly *r, __m256i den[18], const poly *a);
 int  poly_baseinv(poly *r, const poly *a);
 
 void poly_add(poly *r, const poly *a, const poly *b);
