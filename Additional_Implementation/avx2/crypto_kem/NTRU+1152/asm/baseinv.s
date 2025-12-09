@@ -10,7 +10,6 @@ lea 2304(%rdi), %r8
 
 .p2align 5
 _looptop:
-
 #zeta
 vmovdqa   (%r9), %ymm14 #zeta*qinv
 vmovdqa 32(%r9), %ymm1  #zeta
