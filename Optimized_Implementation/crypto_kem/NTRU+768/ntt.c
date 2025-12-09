@@ -639,14 +639,16 @@ void fqinv_batch(int16_t *r)
 
     t[0] = r[0];
 
-	for (int i = 1; i < NTRUPLUS_N / 4; i++) {
+	for (int i = 1; i < NTRUPLUS_N / 4; i++)
+	{
         R[i] = (uint32_t)r[i] * NTRUPLUS_QINV;
 		t[i] = plantard_mul(t[i - 1], R[i]);
     }
 
     inv  = fqinv(t[NTRUPLUS_N / 4 - 1]);
 
-    for (int i = NTRUPLUS_N / 4 - 1; i > 0; i--) {
+    for (int i = NTRUPLUS_N / 4 - 1; i > 0; i--)
+	{
 	    INV = (uint32_t)inv * NTRUPLUS_QINV;
 		r[i] = plantard_mul(t[i - 1], INV); // R^5
         inv = plantard_mul(inv, R[i]);
