@@ -144,6 +144,8 @@ static inline int poly_fqinv_batch(__m256i r[18], const __m256i a[18])
 {
     const __m256i qinv = _mm256_load_si256((const __m256i *)_16xqinv);
     const __m256i q = _mm256_load_si256((const __m256i *)_16xq);
+    const __m256i Rinvqinv = _mm256_load_si256((const __m256i *)_16xRinvqinv);
+    const __m256i Rinv     = _mm256_load_si256((const __m256i *)_16xRinv);
 
     __m256i t[18];
     __m256i A[18];
@@ -167,6 +169,11 @@ static inline int poly_fqinv_batch(__m256i r[18], const __m256i a[18])
     }
 
     inv = fqinv_avx2(t[17]);
+
+    l = _mm256_mullo_epi16(inv, Rinvqinv);
+    h = _mm256_mulhi_epi16(inv, Rinv);
+    l = _mm256_mulhi_epi16(l, q);
+    inv = _mm256_sub_epi16(h, l);
 
     for (int i = 17; i > 0; i--) {
         INV = _mm256_mullo_epi16(inv, qinv);
@@ -199,19 +206,13 @@ static inline void poly_baseinv_2(poly *r, const __m256i den[18])
 
     const __m256i qinv     = _mm256_load_si256((const __m256i *)_16xqinv);
     const __m256i q        = _mm256_load_si256((const __m256i *)_16xq);
-    const __m256i Rinvqinv = _mm256_load_si256((const __m256i *)_16xRinvqinv);
-    const __m256i Rinv     = _mm256_load_si256((const __m256i *)_16xRinv);
 
     for (size_t i = 0; i < 18; i++) {
         __m256i r0 = _mm256_load_si256((const __m256i *)&r->coeffs[48*i +  0]);
         __m256i r1 = _mm256_load_si256((const __m256i *)&r->coeffs[48*i + 16]);
         __m256i r2 = _mm256_load_si256((const __m256i *)&r->coeffs[48*i + 32]);
 
-        l = _mm256_mullo_epi16(den[i], Rinvqinv);
-        h = _mm256_mulhi_epi16(den[i], Rinv);
-        l = _mm256_mulhi_epi16(l, q);
-        t = _mm256_sub_epi16(h, l);
-
+        t = den[i];
         T = _mm256_mullo_epi16(t, qinv);
 
         l  = _mm256_mullo_epi16(r0, T);
