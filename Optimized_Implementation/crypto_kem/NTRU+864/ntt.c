@@ -610,18 +610,18 @@ void fqinv_batch(int16_t *r)
 	int16_t inv;
 	uint32_t INV;
 
-    for (int i = 1; i < NTRUPLUS_N / 3; i++) {
-        R[i] = (uint32_t)r[i] * NTRUPLUS_QINV;
-    }
-
     t[0] = r[0];
-    for (int i = 1; i < NTRUPLUS_N / 3; i++) {
-        t[i] = plantard_mul(t[i - 1], R[i]); // R^-767
+
+	for (int i = 1; i < NTRUPLUS_N / 3; i++)
+	{
+        R[i] = (uint32_t)r[i] * NTRUPLUS_QINV;
+		t[i] = plantard_mul(t[i - 1], R[i]);
     }
 
-    inv  = fqinv(t[NTRUPLUS_N / 3 - 1]); // R^769
+    inv  = fqinv(t[NTRUPLUS_N / 3 - 1]);
 
-    for (int i = NTRUPLUS_N / 3 - 1; i > 0; i--) {
+    for (int i = NTRUPLUS_N / 3 - 1; i > 0; i--)
+	{
 	    INV = (uint32_t)inv * NTRUPLUS_QINV;
 		r[i] = plantard_mul(t[i - 1], INV); // R^5
         inv = plantard_mul(inv, R[i]);
@@ -632,7 +632,7 @@ void fqinv_batch(int16_t *r)
 
 int baseinv_2(int16_t r[6], int16_t den[2])
 {
-	int16_t t, s;
+	int16_t  t, s;
 	uint32_t T, S;
 
 	t = plantard_mul(NTRUPLUS_Rinv, den[0]);
