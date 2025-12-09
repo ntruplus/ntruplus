@@ -218,16 +218,25 @@ void poly_invntt(poly *r, const poly *a)
 **************************************************/
 int poly_baseinv(poly *r, const poly *a)
 {
+	int16_t den[NTRUPLUS_N / 3];
+
 	for(int i = 0; i < NTRUPLUS_N/6; ++i)
 	{
-		if(baseinv(r->coeffs+6*i, a->coeffs+6*i, zetas[144+i]))
+		if(baseinv_1(r->coeffs + 6*i, den + 2*i, a->coeffs + 6*i, zetas[144 + i]))
 		{
 			for (size_t j = 0; j < NTRUPLUS_N; ++j)
 				r->coeffs[j] = 0;
 
 			return 1;
 		}
-	 }
+	}
+
+	fqinv_batch(den);
+
+	for(int i = 0; i < NTRUPLUS_N/6; ++i)
+	{
+		baseinv_2(r->coeffs + 6*i, den + 2*i);
+	}
 
 	return 0;
 }

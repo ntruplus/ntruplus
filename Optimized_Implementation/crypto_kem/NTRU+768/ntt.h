@@ -9,6 +9,10 @@ extern const uint32_t zetas[192];
 void ntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N]);
 void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N]);
 
+int baseinv_1(int16_t r[8], int16_t det[2], const int16_t a[8], uint32_t zeta);
+void fqinv_batch(int16_t *r);
+int baseinv_2(int16_t r[8], int16_t det[2]);
+
 int  baseinv(int16_t r[8], const int16_t a[8], uint32_t zeta);
 void basemul(int16_t r[4], const int16_t a[4], const int16_t b[4], uint32_t zeta);
 void basemul_add(int16_t r[4], const int16_t a[4], const int16_t b[4], const int16_t c[4], uint32_t zeta);
