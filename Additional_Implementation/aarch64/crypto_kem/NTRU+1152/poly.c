@@ -1,8 +1,5 @@
-#include <arm_neon.h>
-#include <stdint.h>
-#include "params.h"
 #include "poly.h"
-#include "symmetric.h"
+#include <arm_neon.h>
 
 static const int16_t zetas_mul[] __attribute__((aligned(16))) = {
     0x0d81, 0x4bd4, 0xcd7f, 0xff6d, 0xfa8f, 0xf9dd, 0xc5d5, 0x0000,
@@ -43,44 +40,6 @@ static const int16_t zetas_mul[] __attribute__((aligned(16))) = {
     0xf9ce, 0x027d, 0xfd58, 0xfc6b, 0x0284, 0xfe8c, 0xfb57, 0xfb90,
     0x0632, 0xfd83, 0x02a8, 0x0395, 0xfd7c, 0x0174, 0x04a9, 0x0470,
 };
-
-extern void poly_frombytes_asm(poly *r, const uint8_t a[NTRUPLUS_POLYBYTES]);
-extern void poly_tobytes_asm(uint8_t r[NTRUPLUS_POLYBYTES], const poly *a);
-extern void poly_shuffle_asm(poly* r, const poly* a);
-extern void poly_shuffle2_asm(poly* r, const poly* a);
-
-/*************************************************
-* Name:        poly_tobytes
-*
-* Description: Serialization of a polynomial
-*
-* Arguments:   - uint8_t *r: pointer to output byte array
-*                            (needs space for NTRUPLUS_POLYBYTES bytes)
-*              - poly *a:    pointer to input polynomial
-**************************************************/
-void poly_tobytes(uint8_t r[NTRUPLUS_POLYBYTES], const poly *a)
-{
-	poly t;
-
-	poly_shuffle2_asm(&t,a);
-	poly_tobytes_asm(r, &t);
-}
-
-/*************************************************
-* Name:        poly_frombytes
-*
-* Description: De-serialization of a polynomial;
-*              inverse of poly_tobytes
-*
-* Arguments:   - poly *r:          pointer to output polynomial
-*              - const uint8_t *a: pointer to input byte array
-*                                  (of NTRUPLUS_POLYBYTES bytes)
-**************************************************/
-void poly_frombytes(poly *r, const uint8_t a[NTRUPLUS_POLYBYTES])
-{
-	poly_frombytes_asm(r, a);
-	poly_shuffle_asm(r, r); 
-}
 
 static inline int16x8_t fqmul_neon(int16x8_t x, int16x8_t y, int16x8_t zeta)
 {
@@ -180,19 +139,25 @@ static void poly_baseinv_2(poly *r, int16x8_t *den)
 
     for (int i = 0; i < 36; i++)
     {
-        int offset = i * 24;
+        int16x8_t pden = den[i];
+        int16x8_t mden = vnegq_s16(den[i]);
+
+        int offset = i * 32;
 
         int16x8_t r0 = vld1q_s16(rp + offset +  0);
         int16x8_t r1 = vld1q_s16(rp + offset +  8);
         int16x8_t r2 = vld1q_s16(rp + offset + 16);
+        int16x8_t r3 = vld1q_s16(rp + offset + 24);
 
-        r0 = fqmul_neon(r0, den[i], zeta);
-        r1 = fqmul_neon(r1, den[i], zeta);
-        r2 = fqmul_neon(r2, den[i], zeta);
+        r0 = fqmul_neon(r0, pden, zeta);
+        r1 = fqmul_neon(r1, mden, zeta);
+        r2 = fqmul_neon(r2, pden, zeta);
+        r3 = fqmul_neon(r3, mden, zeta);
 
         vst1q_s16(rp + offset +  0, r0);
         vst1q_s16(rp + offset +  8, r1);
         vst1q_s16(rp + offset + 16, r2);
+        vst1q_s16(rp + offset + 24, r3);
     }
 }
 

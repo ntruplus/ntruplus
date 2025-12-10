@@ -6,7 +6,7 @@ RM = /bin/rm -f
 
 LDFLAGS=-lcrypto
 
-SOURCES= kem.c symmetric.c asm/add.s asm/ntt.s asm/base.s asm/crepmod3.s asm/pack.s asm/cbd.s
+SOURCES= kem.c symmetric.c poly.c asm/add.s asm/ntt.s asm/base.s asm/crepmod3.s asm/pack.s asm/cbd.s
 HEADERS= api.h params.h poly.h symmetric.h
 
 
