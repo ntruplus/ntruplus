@@ -254,7 +254,7 @@ void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 			{
 				t1 = r[i + step];
 
-				r[i + step] = barrett_reduce(fqmul(zeta1, t1 - r[i]));
+				r[i + step] = fqmul(zeta1, t1 - r[i]);
 				r[i       ] = barrett_reduce(r[i] + t1);
 			}
 		}
