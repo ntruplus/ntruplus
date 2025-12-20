@@ -214,7 +214,7 @@ void ntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 		for (int i = start; i < start + 4; i++)
 		{
 			uint32_t T1 = zeta1 * r[i + 4];
-			uint32_t T2 = r[i] * zetas[0];
+			uint32_t T2 = r[i] * NTRUPLUS_R;
 			
 			r[i + 4] = plantard_reduce_acc(T2 - T1);
 			r[i    ] = plantard_reduce_acc(T2 + T1);
@@ -274,7 +274,7 @@ void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 			t1 = r[i + 64];
 
 			r[i + 64] = plantard_mul(zeta1, t1 - r[i]);
-			r[i     ] = plantard_mul(zetas[0], r[i] + t1);
+			r[i     ] = plantard_mul(NTRUPLUS_R, r[i] + t1);
 		}
 	}
 
