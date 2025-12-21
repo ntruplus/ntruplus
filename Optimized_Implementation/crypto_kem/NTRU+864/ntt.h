@@ -14,6 +14,6 @@ void fqinv_batch(int16_t *r);
 int baseinv_2(int16_t r[6], int16_t den[2]);
 
 void basemul(int16_t r[6], const int16_t a[6], const int16_t b[6], uint32_t zeta);
-void basemul_add(int16_t r[6], const int16_t a[6], const int16_t b[6], const int16_t c[3], uint32_t zeta);
+void basemul_add(int16_t r[6], const int16_t a[6], const int16_t b[6], const int16_t c[6], uint32_t zeta);
 
 #endif
