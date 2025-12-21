@@ -275,10 +275,11 @@ void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 
 		for (int i = start; i < start + 64; i++)
 		{
-			t1 = r[i + 64];
+			int32_t T1 = (int32_t)r[i + 64] - (int32_t)r[i];
+			int32_t T2 = (int32_t)r[i + 64] + (int32_t)r[i];
 
-			r[i + 64] = plantard_mul(zeta1, t1 - r[i]);
-			r[i     ] = plantard_mul(NTRUPLUS_R, r[i] + t1);
+			r[i + 64] = plantard_mul(zeta1, T1);
+			r[i     ] = plantard_mul(NTRUPLUS_R, T2);
 		}
 	}
 

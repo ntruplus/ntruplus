@@ -269,7 +269,7 @@ void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 		r[i] = a[i];
 	}
 
-	for (int step = 3; step <= 12; step <<= 1)
+	for (int step = 3; step <= 24; step <<= 1)
 	{
 		for (int start = 0; start < NTRUPLUS_N; start += (step << 1))
 		{
@@ -285,38 +285,41 @@ void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 		}
 	}
 
-	for (int start = 0; start < NTRUPLUS_N; start += 48)
+	for (int start = 0; start < NTRUPLUS_N; start += 144)
 	{
+		zeta2 = zetas[k--];
 		zeta1 = zetas[k--];
 
-		for (int i = start; i < start + 24; i++)
+		for (int i = start; i < start + 48; i++)
 		{
-			t1 = r[i + 24];
+			t1 = plantard_mul(NTRUPLUS_OMEGA, r[i + 48] - r[i]);
+			t2 = plantard_mul(zeta1, r[i + 96] - r[i     ] + t1);
+			t3 = plantard_mul(zeta2, r[i + 96] - r[i + 48] - t1);
 
-			r[i + 24] = plantard_mul(zeta1, t1 - r[i]);
-			r[i     ] = plantard_mul(NTRUPLUS_R, r[i] + t1);
+			int32_t T = (int32_t)r[i] + (int32_t)r[i + 48] + (int32_t)r[i + 96];
+
+			r[i     ] = plantard_mul(NTRUPLUS_R, T);
+			r[i + 48] = t2;			
+			r[i + 96] = t3;
 		}
 	}
 
-	for (int step = 48; step <= NTRUPLUS_N/6; step = 3*step)
+	for (int start = 0; start < NTRUPLUS_N; start += 432)
 	{
-		for (int start = 0; start < NTRUPLUS_N; start += 3*step)
+		zeta2 = zetas[k--];
+		zeta1 = zetas[k--];
+
+		for (int i = start; i < start + 144; i++)
 		{
-			zeta2 = zetas[k--];
-			zeta1 = zetas[k--];
+			t1 = plantard_mul(NTRUPLUS_OMEGA, r[i + 144] - r[i]);
+			t2 = plantard_mul(zeta1, r[i + 288] - r[i      ] + t1);
+			t3 = plantard_mul(zeta2, r[i + 288] - r[i + 144] - t1);
 
-			for (int i = start; i < start + step; i++)
-			{
-				t1 = plantard_mul(NTRUPLUS_OMEGA,  r[i +   step] - r[i]);
-				t2 = plantard_mul(zeta1, r[i + 2*step] - r[i]        + t1);
-				t3 = plantard_mul(zeta2, r[i + 2*step] - r[i + step] - t1);
-
-				r[i         ] = r[i] + r[i + step] + r[i + 2*step];
-				r[i +   step] = t2;			
-				r[i + 2*step] = t3;
-			}
+			r[i      ] = r[i] + r[i + 144] + r[i + 288];
+			r[i + 144] = t2;			
+			r[i + 288] = t3;
 		}
-	}
+	}	
 	
 	for (int i = 0; i < NTRUPLUS_N/2; i++)
 	{
