@@ -33,6 +33,7 @@ const uint32_t zetas[192] = {
 	0xA8EA01A2u, 0xD8D37E8Fu, 0x4092EBA3u, 0x69AC520Du, 0x299E1A37u, 0xE6BF800Au, 0xF7C7B852u, 0xBBA63F8Au,
 	0x1EBB5A6Cu, 0x01D9EFDCu, 0xFFDA15C6u, 0x68DBC9CCu, 0x05C6AEEAu, 0x0684420Fu, 0xB7CC7599u, 0xAE8AC651u,
 };
+
 /*************************************************
 * Name:        plantard_reduce
 *
@@ -46,11 +47,12 @@ const uint32_t zetas[192] = {
 * Returns:     an integer in {-(q+1)/2, ..., (q-1)/2} congruent to
 *              a * R^-1 mod q.
 **************************************************/
-static inline int16_t plantard_reduce(int32_t a)
+__attribute__((always_inline))
+static inline int16_t plantard_reduce(uint32_t a)
 {
-	a = ((int32_t)(a*NTRUPLUS_QINV)) >> 16;
-	a=((a+8)*NTRUPLUS_Q) >> 16;
-	return a;
+	int32_t t = (int32_t)(a * NTRUPLUS_QINV) >> 16;
+	t = ((t+8)*NTRUPLUS_Q) >> 16;
+	return t;	
 }
 
 /*************************************************
@@ -67,11 +69,12 @@ static inline int16_t plantard_reduce(int32_t a)
 * Returns:     an integer in {-(q+1)/2, ..., (q-1)/2} congruent to
 *              x * R^-1 mod q.
 **************************************************/
-static inline int16_t plantard_reduce_acc(int32_t a)
+__attribute__((always_inline))
+static inline int16_t plantard_reduce_acc(uint32_t a)
 {
-	a = a >> 16;
-	a = ((a+8)*NTRUPLUS_Q) >> 16;
-	return a;
+	int32_t t = (int32_t)a >> 16;
+	t = ((t+8)*NTRUPLUS_Q) >> 16;
+	return t;
 }
 
 /*************************************************
@@ -89,9 +92,10 @@ static inline int16_t plantard_reduce_acc(int32_t a)
 * Returns:     an integer in {-(q+1)/2, ..., (q-1)/2} congruent to
 *              x * y * R^-1 mod q.
 **************************************************/
+__attribute__((always_inline))
 static inline int16_t plantard_mul(uint32_t a, uint32_t b)
 {
-	int32_t t = (int32_t)((uint32_t)a*b) >> 16;
+	int32_t t = (int32_t)(a * b) >> 16;
 	t = ((t+8)*NTRUPLUS_Q) >> 16;
 	return t;
 }

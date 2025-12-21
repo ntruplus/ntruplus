@@ -59,11 +59,12 @@ const uint32_t zetas[288] = {
 * Returns:     an integer in {-(q+1)/2, ..., (q-1)/2} congruent to
 *              a * R^-1 mod q.
 **************************************************/
-static inline int16_t plantard_reduce(int32_t a)
+__attribute__((always_inline))
+static inline int16_t plantard_reduce(uint32_t a)
 {
-	a = ((int32_t)(a*NTRUPLUS_QINV)) >> 16;
-	a=((a+8)*NTRUPLUS_Q) >> 16;
-	return a;
+	int32_t t = (int32_t)(a * NTRUPLUS_QINV) >> 16;
+	t = ((t+8)*NTRUPLUS_Q) >> 16;
+	return t;	
 }
 
 /*************************************************
@@ -80,11 +81,12 @@ static inline int16_t plantard_reduce(int32_t a)
 * Returns:     an integer in {-(q+1)/2, ..., (q-1)/2} congruent to
 *              x * R^-1 mod q.
 **************************************************/
-static inline int16_t plantard_reduce_acc(int32_t a)
+__attribute__((always_inline))
+static inline int16_t plantard_reduce_acc(uint32_t a)
 {
-	a = a >> 16;
-	a = ((a+8)*NTRUPLUS_Q) >> 16;
-	return a;
+	int32_t t = (int32_t)a >> 16;
+	t = ((t+8)*NTRUPLUS_Q) >> 16;
+	return t;
 }
 
 /*************************************************
@@ -102,9 +104,10 @@ static inline int16_t plantard_reduce_acc(int32_t a)
 * Returns:     an integer in {-(q+1)/2, ..., (q-1)/2} congruent to
 *              x * y * R^-1 mod q.
 **************************************************/
+__attribute__((always_inline))
 static inline int16_t plantard_mul(uint32_t a, uint32_t b)
 {
-	int32_t t = (int32_t)((uint32_t)a*b) >> 16;
+	int32_t t = (int32_t)(a * b) >> 16;
 	t = ((t+8)*NTRUPLUS_Q) >> 16;
 	return t;
 }
