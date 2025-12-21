@@ -442,61 +442,104 @@ int baseinv_2(int16_t r[6], int16_t den[2])
 /*************************************************
 * Name:        basemul
 *
-* Description: Multiplication of polynomials in Zq[X]/(X^3-zeta)
-*              used for multiplication of elements in Rq in NTT domain
+* Description: Simultaneous multiplication in the NTT domain for the
+*              two rings Z_q[X]/(X^3 - zeta) and Z_q[X]/(X^3 + zeta).
 *
-* Arguments:   - int16_t c[3]: pointer to the output polynomial
-*              - const int16_t a[3]: pointer to the first factor
-*              - const int16_t b[3]: pointer to the second factor
-*              - int16_t zeta: integer defining the reduction polynomial
+*              The inputs a and b each encode two degree-3 polynomials:
+*                a[0..2], b[0..2]  in Z_q[X]/(X^3 - zeta),
+*                a[3..5], b[3..5]  in Z_q[X]/(X^3 + zeta).
+*              The output r uses the same layout:
+*                r[0..2] = a[0..2] * b[0..2] mod (X^3 - zeta),
+*                r[3..5] = a[3..5] * b[3..5] mod (X^3 + zeta).
+*
+* Arguments:   - int16_t r[6]:       output (two polynomials)
+*              - const int16_t a[6]: first input (two polynomials)
+*              - const int16_t b[6]: second input (two polynomials)
+*              - uint32_t zeta:      defines X^3 ± zeta
 **************************************************/
-void basemul(int16_t r[3], const int16_t a[3], const int16_t b[3], uint32_t zeta)
+void basemul(int16_t r[6], const int16_t a[6], const int16_t b[6], uint32_t zeta)
 {
-	uint32_t A0, A1, A2;
+    uint32_t z1 = zeta;
+    uint32_t z2 = -zeta;
 
-	A0 = a[0]*NTRUPLUS_QINV;
-	A1 = a[1]*NTRUPLUS_QINV;
-	A2 = a[2]*NTRUPLUS_QINV;
+    uint32_t A0=a[0]*NTRUPLUS_QINV, A1=a[1]*NTRUPLUS_QINV, A2=a[2]*NTRUPLUS_QINV;
+    uint32_t B0=a[3]*NTRUPLUS_QINV, B1=a[4]*NTRUPLUS_QINV, B2=a[5]*NTRUPLUS_QINV;
 
-	r[0] = plantard_reduce_acc(A2*b[1]+A1*b[2]);
-	r[1] = plantard_reduce_acc(A2*b[2]);
+	int16_t r0 = plantard_reduce_acc(A2*b[1] + A1*b[2]);
+    int16_t r1 = plantard_reduce_acc(A2*b[2]);
+    int16_t r2 = plantard_reduce_acc(A2*b[0] + A1*b[1] + A0*b[2]);
 
-	r[0] = plantard_reduce_acc(r[0]*zeta+A0*b[0]);
-	r[1] = plantard_reduce_acc(r[1]*zeta+A0*b[1]+A1*b[0]);
-	r[2] = plantard_reduce_acc(A2*b[0]+A1*b[1]+A0*b[2]);
+	int16_t r3 = plantard_reduce_acc(B2*b[4] + B1*b[5]);
+    int16_t r4 = plantard_reduce_acc(B2*b[5]);
+    int16_t r5 = plantard_reduce_acc(B2*b[3] + B1*b[4] + B0*b[5]);
 
-	r[0] = plantard_mul(NTRUPLUS_Rsq, r[0]);
-	r[1] = plantard_mul(NTRUPLUS_Rsq, r[1]);
-	r[2] = plantard_mul(NTRUPLUS_Rsq, r[2]);
+    r0 = plantard_reduce_acc((int32_t)r0*z1 + A0*b[0]);
+    r1 = plantard_reduce_acc((int32_t)r1*z1 + A0*b[1] + A1*b[0]);
+
+    r3 = plantard_reduce_acc((int32_t)r3*z2 + B0*b[3]);
+    r4 = plantard_reduce_acc((int32_t)r4*z2 + B0*b[4] + B1*b[3]);
+
+
+    r0 = plantard_mul(NTRUPLUS_Rsq, r0);
+    r1 = plantard_mul(NTRUPLUS_Rsq, r1);
+    r2 = plantard_mul(NTRUPLUS_Rsq, r2);
+    r3 = plantard_mul(NTRUPLUS_Rsq, r3);
+    r4 = plantard_mul(NTRUPLUS_Rsq, r4);
+    r5 = plantard_mul(NTRUPLUS_Rsq, r5);
+
+    r[0] = r0; r[1] = r1; r[2] = r2;
+    r[3] = r3; r[4] = r4; r[5] = r5;
 }
 
 /*************************************************
-* Name:        basemul
+* Name:        basemul_add
 *
-* Description: Multiplication of polynomials in Zq[X]/(X^3-zeta)
-*              used for multiplication of elements in Rq in NTT domain
+* Description: Simultaneous multiply-and-add in the NTT domain for the
+*              two rings Z_q[X]/(X^3 - zeta) and Z_q[X]/(X^3 + zeta).
 *
-* Arguments:   - int16_t c[3]: pointer to the output polynomial
-*              - const int16_t a[3]: pointer to the first factor
-*              - const int16_t b[3]: pointer to the second factor
-*              - int16_t zeta: integer defining the reduction polynomial
+*              The inputs a, b, and c each encode two degree-3 polynomials:
+*                a[0..2], b[0..2], c[0..2]  in Z_q[X]/(X^3 - zeta),
+*                a[3..5], b[3..5], c[3..5]  in Z_q[X]/(X^3 + zeta).
+*              The output r uses the same layout:
+*                r[0..2] = a[0..2]*b[0..2] + c[0..2] mod (X^3 - zeta),
+*                r[3..5] = a[3..5]*b[3..5] + c[3..5] mod (X^3 + zeta).
+*
+* Arguments:   - int16_t r[6]:       output (two polynomials)
+*              - const int16_t a[6]: first input (two polynomials)
+*              - const int16_t b[6]: second input (two polynomials)
+*              - const int16_t c[6]: addend (two polynomials)
+*              - uint32_t zeta:      defines X^3 ± zeta
 **************************************************/
-void basemul_add(int16_t r[3], const int16_t a[3], const int16_t b[3], const int16_t c[3], uint32_t zeta)
+void basemul_add(int16_t r[6], const int16_t a[6], const int16_t b[6], const int16_t c[3], uint32_t zeta)
 {
-	uint32_t A0, A1, A2;
+    uint32_t z1 = zeta;
+    uint32_t z2 = -zeta;
 
-	A0 = a[0]*NTRUPLUS_QINV;
-	A1 = a[1]*NTRUPLUS_QINV;
-	A2 = a[2]*NTRUPLUS_QINV;
+    uint32_t A0=a[0]*NTRUPLUS_QINV, A1=a[1]*NTRUPLUS_QINV, A2=a[2]*NTRUPLUS_QINV;
+    uint32_t B0=a[3]*NTRUPLUS_QINV, B1=a[4]*NTRUPLUS_QINV, B2=a[5]*NTRUPLUS_QINV;
 
-	r[0] = plantard_reduce_acc(A2*b[1]+A1*b[2]);
-	r[1] = plantard_reduce_acc(A2*b[2]);
+	int16_t r0 = plantard_reduce_acc(A2*b[1] + A1*b[2]);
+    int16_t r1 = plantard_reduce_acc(A2*b[2]);
+    int16_t r2 = plantard_reduce_acc(A2*b[0] + A1*b[1] + A0*b[2]);
 
-	r[0] = plantard_reduce_acc(r[0]*zeta+A0*b[0]);
-	r[1] = plantard_reduce_acc(r[1]*zeta+A0*b[1]+A1*b[0]);
-	r[2] = plantard_reduce_acc(A2*b[0]+A1*b[1]+A0*b[2]);
+	int16_t r3 = plantard_reduce_acc(B2*b[4] + B1*b[5]);
+    int16_t r4 = plantard_reduce_acc(B2*b[5]);
+    int16_t r5 = plantard_reduce_acc(B2*b[3] + B1*b[4] + B0*b[5]);
 
-	r[0] = plantard_reduce_acc(c[0]*NTRUPLUS_R + r[0]*NTRUPLUS_Rsq);
-	r[1] = plantard_reduce_acc(c[1]*NTRUPLUS_R + r[1]*NTRUPLUS_Rsq);
-	r[2] = plantard_reduce_acc(c[2]*NTRUPLUS_R + r[2]*NTRUPLUS_Rsq);
+    r0 = plantard_reduce_acc((int32_t)r0*z1 + A0*b[0]);
+    r1 = plantard_reduce_acc((int32_t)r1*z1 + A0*b[1] + A1*b[0]);
+
+    r3 = plantard_reduce_acc((int32_t)r3*z2 + B0*b[3]);
+    r4 = plantard_reduce_acc((int32_t)r4*z2 + B0*b[4] + B1*b[3]);
+
+    r0 = plantard_reduce_acc((uint32_t)c[0]*NTRUPLUS_R + (uint32_t)r0*NTRUPLUS_Rsq);
+    r1 = plantard_reduce_acc((uint32_t)c[1]*NTRUPLUS_R + (uint32_t)r1*NTRUPLUS_Rsq);
+    r2 = plantard_reduce_acc((uint32_t)c[2]*NTRUPLUS_R + (uint32_t)r2*NTRUPLUS_Rsq);
+
+    r3 = plantard_reduce_acc((uint32_t)c[3]*NTRUPLUS_R + (uint32_t)r3*NTRUPLUS_Rsq);
+    r4 = plantard_reduce_acc((uint32_t)c[4]*NTRUPLUS_R + (uint32_t)r4*NTRUPLUS_Rsq);
+    r5 = plantard_reduce_acc((uint32_t)c[5]*NTRUPLUS_R + (uint32_t)r5*NTRUPLUS_Rsq);
+
+    r[0] = r0; r[1] = r1; r[2] = r2;
+    r[3] = r3; r[4] = r4; r[5] = r5;
 }
