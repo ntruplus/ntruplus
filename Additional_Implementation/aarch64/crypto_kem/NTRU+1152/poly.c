@@ -109,7 +109,7 @@ static void poly_baseinv_2(poly *r, int16x8_t *den, int16x8_t con)
     }
 }
 
-int  poly_baseinv(poly *r, const poly *a)
+int poly_baseinv(poly *r, const poly *a)
 {
     int16x8_t con = vld1q_s16(consts);
 
