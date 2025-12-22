@@ -121,7 +121,7 @@ static inline int16_t plantard_mul(uint32_t a, uint32_t b)
 *
 * Arguments:   - int16_t a: input value a = x mod q
 *
-* Returns:     16-bit integer congruent to x^{-1} * R^2 mod q.
+* Returns:     16-bit integer congruent to x^{-1} mod q.
 **************************************************/
 static inline int16_t fqinv(int16_t a)
 {
@@ -152,6 +152,8 @@ static inline int16_t fqinv(int16_t a)
     t2 = plantard_reduce(t2*t2);     // 110101000000
     t2 = plantard_reduce(t2*t1);     // 110101111111
 
+	t2 = plantard_mul(NTRUPLUS_Rinv, t2);
+	
     return t2;
 }
 
@@ -608,7 +610,6 @@ void fqinv_batch(int16_t *r)
     }
 
     inv  = fqinv(t[NTRUPLUS_N / 4 - 1]);
-	inv = plantard_mul(NTRUPLUS_Rinv, inv);
 
     for (int i = NTRUPLUS_N / 4 - 1; i > 0; i--)
 	{

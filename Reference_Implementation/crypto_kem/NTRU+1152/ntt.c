@@ -117,7 +117,7 @@ static inline int16_t fqmul(int16_t a, int16_t b)
 *
 * Arguments:   - int16_t a: input value a = x mod q
 *
-* Returns:     16-bit integer congruent to x^{-1} * R^2 mod q.
+* Returns:     16-bit integer congruent to x^{-1} mod q.
 **************************************************/
 static int16_t fqinv(int16_t a)
 {
@@ -143,6 +143,8 @@ static int16_t fqinv(int16_t a)
 	t2 = fqmul(t2, t2);  // 11010100000
 	t2 = fqmul(t2, t2);  // 110101000000
 	t2 = fqmul(t2, t1);  // 110101111111
+
+	t2 = fqmul(NTRUPLUS_Rinv, t2);
 
 	return t2;
 }
@@ -323,7 +325,6 @@ int baseinv(int16_t r[4], const int16_t a[4], const int16_t zeta)
 	r[3] = montgomery_reduce(a[1]*t1 + a[3]*t0); // R^-2
 
 	t3 = fqinv(t3); // R^5
-	t3 = montgomery_reduce(t3*NTRUPLUS_Rinv); // R^3
 
 	r[0] =  montgomery_reduce(r[0]*t3); // R^0
 	r[1] = -montgomery_reduce(r[1]*t3); // R^0
