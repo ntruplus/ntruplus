@@ -59,7 +59,6 @@ const uint32_t zetas[288] = {
 * Returns:     an integer in {-(q+1)/2, ..., (q-1)/2} congruent to
 *              a * R^-1 mod q.
 **************************************************/
-__attribute__((always_inline))
 static inline int16_t plantard_reduce(uint32_t a)
 {
 	int32_t t = (int32_t)(a * NTRUPLUS_QINV) >> 16;
@@ -81,7 +80,6 @@ static inline int16_t plantard_reduce(uint32_t a)
 * Returns:     an integer in {-(q+1)/2, ..., (q-1)/2} congruent to
 *              x * R^-1 mod q.
 **************************************************/
-__attribute__((always_inline))
 static inline int16_t plantard_reduce_acc(uint32_t a)
 {
 	int32_t t = (int32_t)a >> 16;
@@ -104,7 +102,6 @@ static inline int16_t plantard_reduce_acc(uint32_t a)
 * Returns:     an integer in {-(q+1)/2, ..., (q-1)/2} congruent to
 *              x * y * R^-1 mod q.
 **************************************************/
-__attribute__((always_inline))
 static inline int16_t plantard_mul(uint32_t a, uint32_t b)
 {
 	int32_t t = (int32_t)(a * b) >> 16;
@@ -187,7 +184,7 @@ void ntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 
 	for(int i = 0; i < NTRUPLUS_N/2; i++)
 	{
-		t1 = plantard_mul(zeta[0], a[i + NTRUPLUS_N/2]);
+		t1 = plantard_mul(zetas[1], a[i + NTRUPLUS_N/2]);
 
 		r[i + NTRUPLUS_N/2] = a[i] + a[i + NTRUPLUS_N/2] - t1;
 		r[i               ] = a[i]                       + t1;
@@ -228,7 +225,6 @@ void ntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 			t1 = plantard_mul(zeta[0], v[2]);
 			t2 = plantard_mul(zeta[1], v[4]);
 			t3 = plantard_mul(NTRUPLUS_OMEGA, t1 - t2);
-
 			v[4] = v[0] - t1 - t3;
 			v[2] = v[0] - t2 + t3;
 			v[0] = v[0] + t1 + t2;
@@ -236,7 +232,6 @@ void ntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 			t1 = plantard_mul(zeta[0], v[3]);
 			t2 = plantard_mul(zeta[1], v[5]);
 			t3 = plantard_mul(NTRUPLUS_OMEGA, t1 - t2);
-
 			v[5] = v[1] - t1 - t3;
 			v[3] = v[1] - t2 + t3;
 			v[1] = v[1] + t1 + t2;			
@@ -377,64 +372,50 @@ void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 			}
 
 			t1 = v[1];
-
 			v[1] = plantard_mul(zeta[0],  t1 - v[0]);
 			v[0] = v[0] + t1;
 
 			t1 = v[3];
-
 			v[3] = plantard_mul(zeta[1],  t1 - v[2]);
 			v[2] = v[2] + t1;
 
 			t1 = v[5];
-
 			v[5] = plantard_mul(zeta[2],  t1 - v[4]);
 			v[4] = v[4] + t1;
 
 			t1 = v[7];
-
 			v[7] = plantard_mul(zeta[3],  t1 - v[6]);
 			v[6] = v[6] + t1;
 
-
 			t1 = v[2];
-
 			v[2] = plantard_mul(zeta[4],  t1 - v[0]);
 			v[0] = v[0] + t1;
 
 			t1 = v[3];
-
 			v[3] = plantard_mul(zeta[4],  t1 - v[1]);
 			v[1] = v[1] + t1;
 
 			t1 = v[6];
-
 			v[6] = plantard_mul(zeta[5],  t1 - v[4]);
 			v[4] = v[4] + t1;
 
 			t1 = v[7];
-
 			v[7] = plantard_mul(zeta[5],  t1 - v[5]);
 			v[5] = v[5] + t1;
 
-
 			t1 = v[4];
-
 			v[4] = plantard_mul(zeta[6],  t1 - v[0]);
 			v[0] = v[0] + t1;
 
 			t1 = v[5];
-
 			v[5] = plantard_mul(zeta[6],  t1 - v[1]);
 			v[1] = v[1] + t1;
 
 			t1 = v[6];
-
 			v[6] = plantard_mul(zeta[6],  t1 - v[2]);
 			v[2] = v[2] + t1;
 
 			t1 = v[7];
-
 			v[7] = plantard_mul(zeta[6],  t1 - v[3]);
 			v[3] = v[3] + t1;			
 				
@@ -461,24 +442,20 @@ void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 			}
 
 			t1 = v[1];
-
 			v[1] = plantard_mul(zeta[0],  t1 - v[0]);
 			v[0] = v[0] + t1;
 
 			t1 = v[3];
-
 			v[3] = plantard_mul(zeta[1],  t1 - v[2]);
 			v[2] = v[2] + t1;
 
 			t1 = v[5];
-
 			v[5] = plantard_mul(zeta[2],  t1 - v[4]);
 			v[4] = v[4] + t1;			
 
 			t1 = plantard_mul(NTRUPLUS_OMEGA,    v[2] - v[0]);
 			t2 = plantard_mul(zeta[3], v[4] - v[0] + t1);
 			t3 = plantard_mul(zeta[4], v[4] - v[2] - t1);
-
 			v[0] = plantard_mul((int32_t)v[0] + (int32_t)v[2] + (int32_t)v[4], NTRUPLUS_R);
 			v[2] = t2;
 			v[4] = t3;
@@ -486,7 +463,6 @@ void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 			t1 = plantard_mul(NTRUPLUS_OMEGA,    v[3] - v[1]);
 			t2 = plantard_mul(zeta[3], v[5] - v[1] + t1);
 			t3 = plantard_mul(zeta[4], v[5] - v[3] - t1);
-
 			v[1] = plantard_mul((int32_t)v[1] + (int32_t)v[3] + (int32_t)v[5], NTRUPLUS_R);
 			v[3] = t2;
 			v[5] = t3;
@@ -513,7 +489,6 @@ void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 		t1 = plantard_mul(NTRUPLUS_OMEGA,    v[1] - v[0]);
 		t2 = plantard_mul(zeta[0], v[2] - v[0] + t1);
 		t3 = plantard_mul(zeta[1], v[2] - v[1] - t1);
-
 		v[0] = v[0] + v[1] + v[2];
 		v[1] = t2;
 		v[2] = t3;
@@ -521,26 +496,22 @@ void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 		t1 = plantard_mul(NTRUPLUS_OMEGA,    v[4] - v[3]);
 		t2 = plantard_mul(zeta[2], v[5] - v[3] + t1);
 		t3 = plantard_mul(zeta[3], v[5] - v[4] - t1);
-
 		v[3] = v[3] + v[4] + v[5];
 		v[4] = t2;
 		v[5] = t3;
 
 		t1 = v[0] + v[3];
 		t2 = plantard_mul(0x790084B4u, v[0] - v[3]);
-
 		v[0] = plantard_mul(0xFF1C82A1u, t1 - t2);
 		v[3] = plantard_mul(0xFE390542u, t2);
 
 		t1 = v[1] + v[4];
 		t2 = plantard_mul(0x790084B4u, v[1] - v[4]);
-
 		v[1] = plantard_mul(0xFF1C82A1u, t1 - t2);
 		v[4] = plantard_mul(0xFE390542u, t2);
 
 		t1 = v[2] + v[5];
 		t2 = plantard_mul(0x790084B4u, v[2] - v[5]);
-
 		v[2] = plantard_mul(0xFF1C82A1u, t1 - t2);
 		v[5] = plantard_mul(0xFE390542u, t2);				
 
@@ -580,14 +551,14 @@ int baseinv_1(int16_t r[8], int16_t den[2], const int16_t a[8], uint32_t zeta)
 	zeta1 = zeta;
 	zeta2 = -zeta;
 
-	A0 = a[0]*NTRUPLUS_QINV;
-	A1 = a[1]*NTRUPLUS_QINV;
-	A2 = a[2]*NTRUPLUS_QINV;
-	A3 = a[3]*NTRUPLUS_QINV;
-	B0 = a[4]*NTRUPLUS_QINV;
-	B1 = a[5]*NTRUPLUS_QINV;
-	B2 = a[6]*NTRUPLUS_QINV;
-	B3 = a[7]*NTRUPLUS_QINV;
+	A0 = (int32_t)a[0]*NTRUPLUS_QINV;
+	A1 = (int32_t)a[1]*NTRUPLUS_QINV;
+	A2 = (int32_t)a[2]*NTRUPLUS_QINV;
+	A3 = (int32_t)a[3]*NTRUPLUS_QINV;
+	B0 = (int32_t)a[4]*NTRUPLUS_QINV;
+	B1 = (int32_t)a[5]*NTRUPLUS_QINV;
+	B2 = (int32_t)a[6]*NTRUPLUS_QINV;
+	B3 = (int32_t)a[7]*NTRUPLUS_QINV;
 
 	t0 = plantard_reduce_acc(a[2]*A2 - 2*a[1]*A3);
 	s0 = plantard_reduce_acc(a[6]*B2 - 2*a[5]*B3);
@@ -691,8 +662,17 @@ void basemul(int16_t r[8], const int16_t a[8], const int16_t b[8], uint32_t zeta
     uint32_t z1 = zeta;
     uint32_t z2 = -zeta;
 
-    uint32_t A0=a[0]*NTRUPLUS_QINV, A1=a[1]*NTRUPLUS_QINV, A2=a[2]*NTRUPLUS_QINV, A3=a[3]*NTRUPLUS_QINV;
-    uint32_t B0=a[4]*NTRUPLUS_QINV, B1=a[5]*NTRUPLUS_QINV, B2=a[6]*NTRUPLUS_QINV, B3=a[7]*NTRUPLUS_QINV;
+	uint32_t A0, A1, A2, A3;
+	uint32_t B0, B1, B2, B3;
+
+	A0 = (int32_t)a[0]*NTRUPLUS_QINV;
+	A1 = (int32_t)a[1]*NTRUPLUS_QINV;
+	A2 = (int32_t)a[2]*NTRUPLUS_QINV;
+	A3 = (int32_t)a[3]*NTRUPLUS_QINV;
+	B0 = (int32_t)a[4]*NTRUPLUS_QINV;
+	B1 = (int32_t)a[5]*NTRUPLUS_QINV;
+	B2 = (int32_t)a[6]*NTRUPLUS_QINV;
+	B3 = (int32_t)a[7]*NTRUPLUS_QINV;
 
     int16_t r0 = plantard_reduce_acc(A1*b[3]+A2*b[2]+A3*b[1]);
     int16_t r1 = plantard_reduce_acc(A2*b[3]+A3*b[2]);
@@ -704,13 +684,13 @@ void basemul(int16_t r[8], const int16_t a[8], const int16_t b[8], uint32_t zeta
     int16_t r6 = plantard_reduce_acc(B3*b[7]);
     int16_t r7 = plantard_reduce_acc(B0*b[7]+B1*b[6]+B2*b[5]+B3*b[4]);
 
-    r0 = plantard_reduce_acc((int32_t)r0*z1 + A0*b[0]);
-    r1 = plantard_reduce_acc((int32_t)r1*z1 + A0*b[1] + A1*b[0]);
-    r2 = plantard_reduce_acc((int32_t)r2*z1 + A0*b[2] + A1*b[1] + A2*b[0]);
+    r0 = plantard_reduce_acc(r0*z1 + A0*b[0]);
+    r1 = plantard_reduce_acc(r1*z1 + A0*b[1] + A1*b[0]);
+    r2 = plantard_reduce_acc(r2*z1 + A0*b[2] + A1*b[1] + A2*b[0]);
 
-    r4 = plantard_reduce_acc((int32_t)r4*z2 + B0*b[4]);
-    r5 = plantard_reduce_acc((int32_t)r5*z2 + B0*b[5] + B1*b[4]);
-    r6 = plantard_reduce_acc((int32_t)r6*z2 + B0*b[6] + B1*b[5] + B2*b[4]);
+    r4 = plantard_reduce_acc(r4*z2 + B0*b[4]);
+    r5 = plantard_reduce_acc(r5*z2 + B0*b[5] + B1*b[4]);
+    r6 = plantard_reduce_acc(r6*z2 + B0*b[6] + B1*b[5] + B2*b[4]);
 
     r0 = plantard_mul(NTRUPLUS_Rsq, r0);
     r1 = plantard_mul(NTRUPLUS_Rsq, r1);
@@ -749,8 +729,17 @@ void basemul_add(int16_t r[8], const int16_t a[8], const int16_t b[8], const int
     uint32_t z1 = zeta;
     uint32_t z2 = -zeta;
 
-    uint32_t A0=a[0]*NTRUPLUS_QINV, A1=a[1]*NTRUPLUS_QINV, A2=a[2]*NTRUPLUS_QINV, A3=a[3]*NTRUPLUS_QINV;
-    uint32_t B0=a[4]*NTRUPLUS_QINV, B1=a[5]*NTRUPLUS_QINV, B2=a[6]*NTRUPLUS_QINV, B3=a[7]*NTRUPLUS_QINV;
+	uint32_t A0, A1, A2, A3;
+	uint32_t B0, B1, B2, B3;
+
+	A0 = (int32_t)a[0]*NTRUPLUS_QINV;
+	A1 = (int32_t)a[1]*NTRUPLUS_QINV;
+	A2 = (int32_t)a[2]*NTRUPLUS_QINV;
+	A3 = (int32_t)a[3]*NTRUPLUS_QINV;
+	B0 = (int32_t)a[4]*NTRUPLUS_QINV;
+	B1 = (int32_t)a[5]*NTRUPLUS_QINV;
+	B2 = (int32_t)a[6]*NTRUPLUS_QINV;
+	B3 = (int32_t)a[7]*NTRUPLUS_QINV;
 
     int16_t r0 = plantard_reduce_acc(A1*b[3]+A2*b[2]+A3*b[1]);
     int16_t r1 = plantard_reduce_acc(A2*b[3]+A3*b[2]);
@@ -762,23 +751,23 @@ void basemul_add(int16_t r[8], const int16_t a[8], const int16_t b[8], const int
     int16_t r6 = plantard_reduce_acc(B3*b[7]);
     int16_t r7 = plantard_reduce_acc(B0*b[7]+B1*b[6]+B2*b[5]+B3*b[4]);
 
-    r0 = plantard_reduce_acc((int32_t)r0*z1 + A0*b[0]);
-    r1 = plantard_reduce_acc((int32_t)r1*z1 + A0*b[1] + A1*b[0]);
-    r2 = plantard_reduce_acc((int32_t)r2*z1 + A0*b[2] + A1*b[1] + A2*b[0]);
+    r0 = plantard_reduce_acc(r0*z1 + A0*b[0]);
+    r1 = plantard_reduce_acc(r1*z1 + A0*b[1] + A1*b[0]);
+    r2 = plantard_reduce_acc(r2*z1 + A0*b[2] + A1*b[1] + A2*b[0]);
 
-    r4 = plantard_reduce_acc((int32_t)r4*z2 + B0*b[4]);
-    r5 = plantard_reduce_acc((int32_t)r5*z2 + B0*b[5] + B1*b[4]);
-    r6 = plantard_reduce_acc((int32_t)r6*z2 + B0*b[6] + B1*b[5] + B2*b[4]);
+    r4 = plantard_reduce_acc(r4*z2 + B0*b[4]);
+    r5 = plantard_reduce_acc(r5*z2 + B0*b[5] + B1*b[4]);
+    r6 = plantard_reduce_acc(r6*z2 + B0*b[6] + B1*b[5] + B2*b[4]);
 
-    r0 = plantard_reduce_acc((uint32_t)c[0]*NTRUPLUS_R + (uint32_t)r0*NTRUPLUS_Rsq);
-    r1 = plantard_reduce_acc((uint32_t)c[1]*NTRUPLUS_R + (uint32_t)r1*NTRUPLUS_Rsq);
-    r2 = plantard_reduce_acc((uint32_t)c[2]*NTRUPLUS_R + (uint32_t)r2*NTRUPLUS_Rsq);
-    r3 = plantard_reduce_acc((uint32_t)c[3]*NTRUPLUS_R + (uint32_t)r3*NTRUPLUS_Rsq);
+    r0 = plantard_reduce_acc(c[0]*NTRUPLUS_R + r0*NTRUPLUS_Rsq);
+    r1 = plantard_reduce_acc(c[1]*NTRUPLUS_R + r1*NTRUPLUS_Rsq);
+    r2 = plantard_reduce_acc(c[2]*NTRUPLUS_R + r2*NTRUPLUS_Rsq);
+    r3 = plantard_reduce_acc(c[3]*NTRUPLUS_R + r3*NTRUPLUS_Rsq);
 
-    r4 = plantard_reduce_acc((uint32_t)c[4]*NTRUPLUS_R + (uint32_t)r4*NTRUPLUS_Rsq);
-    r5 = plantard_reduce_acc((uint32_t)c[5]*NTRUPLUS_R + (uint32_t)r5*NTRUPLUS_Rsq);
-    r6 = plantard_reduce_acc((uint32_t)c[6]*NTRUPLUS_R + (uint32_t)r6*NTRUPLUS_Rsq);
-    r7 = plantard_reduce_acc((uint32_t)c[7]*NTRUPLUS_R + (uint32_t)r7*NTRUPLUS_Rsq);
+    r4 = plantard_reduce_acc(c[4]*NTRUPLUS_R + r4*NTRUPLUS_Rsq);
+    r5 = plantard_reduce_acc(c[5]*NTRUPLUS_R + r5*NTRUPLUS_Rsq);
+    r6 = plantard_reduce_acc(c[6]*NTRUPLUS_R + r6*NTRUPLUS_Rsq);
+    r7 = plantard_reduce_acc(c[7]*NTRUPLUS_R + r7*NTRUPLUS_Rsq);
 
     r[0] = r0; r[1] = r1; r[2] = r2; r[3] = r3;
     r[4] = r4; r[5] = r5; r[6] = r6; r[7] = r7;
