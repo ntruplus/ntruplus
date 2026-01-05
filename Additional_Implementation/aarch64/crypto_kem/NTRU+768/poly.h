@@ -14,9 +14,11 @@ typedef struct{
 
 void poly_tobytes(uint8_t r[NTRUPLUS_POLYBYTES], const poly *a);
 void poly_frombytes(poly *r, const uint8_t a[NTRUPLUS_POLYBYTES]);
+
 void poly_cbd1(poly *r, const uint8_t buf[NTRUPLUS_N/4]);
-void poly_sotp_encode(poly *r, const unsigned char *msg, const unsigned char *buf);
-int  poly_sotp_decode(unsigned char *msg, const poly *e, const unsigned char *buf);
+void poly_sotp_encode(poly *r, const uint8_t msg[NTRUPLUS_N/8], const uint8_t buf[NTRUPLUS_N/4]);
+int  poly_sotp_decode(uint8_t msg[NTRUPLUS_N/8], const poly *a, const uint8_t buf[NTRUPLUS_N/4]);
+
 void poly_ntt(poly *r, const poly *a);
 void poly_invntt(poly *r, const poly *a);
 int  poly_baseinv(poly *r, const poly *a);
