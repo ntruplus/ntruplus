@@ -120,7 +120,7 @@ static inline int poly_fqinv_batch(int16x8_t r[36], int16x8_t con)
 
 extern void poly_baseinv_1(poly *r, int16x8_t* den, const poly* a);
 
-static void poly_baseinv_2(poly *r, int16x8_t *den, int16x8_t con)
+static inline void poly_baseinv_2(poly *r, int16x8_t *den, int16x8_t con)
 {
     int16_t *rp = r->coeffs;
 
