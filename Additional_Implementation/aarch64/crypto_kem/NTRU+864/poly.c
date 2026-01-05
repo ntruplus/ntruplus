@@ -1,10 +1,6 @@
 #include "poly.h"
 #include <arm_neon.h>
 
-static const int16_t consts[] __attribute__((aligned(16))) = {
-    0x0d81, 0x4bd4, 0xcd7f, 0xff6d, 0xfa8f, 0xf9dd, 0xc5d5, 0x0000
-};
-
 extern void poly_frombytes_asm(poly *r, const uint8_t a[NTRUPLUS_POLYBYTES]);
 extern void poly_tobytes_asm(uint8_t r[NTRUPLUS_POLYBYTES], const poly *a);
 extern void poly_shuffle_asm(poly* r, const poly* a);
@@ -42,6 +38,10 @@ void poly_frombytes(poly *r, const uint8_t a[NTRUPLUS_POLYBYTES])
 	poly_frombytes_asm(r, a);
 	poly_shuffle_asm(r, r); 
 }
+
+static const int16_t consts[] __attribute__((aligned(16))) = {
+    0x0d81, 0x4bd4, 0xcd7f, 0xff6d, 0xfa8f, 0xf9dd, 0xc5d5, 0x0000
+};
 
 static inline int16x8_t fqmul_neon(int16x8_t x, int16x8_t y, int16x8_t con)
 {
@@ -118,10 +118,11 @@ static inline int poly_fqinv_batch(int16x8_t r[36], int16x8_t con)
     return 0;
 }
 
-void poly_baseinv_1(poly *r, int16x8_t* den, const poly* a);
+extern void poly_baseinv_1(poly *r, int16x8_t* den, const poly* a);
+
 static void poly_baseinv_2(poly *r, int16x8_t *den, int16x8_t con)
 {
-    int16_t  *rp   = r->coeffs;
+    int16_t *rp = r->coeffs;
 
     for (int i = 0; i < 36; i++)
     {
@@ -144,8 +145,7 @@ static void poly_baseinv_2(poly *r, int16x8_t *den, int16x8_t con)
 int poly_baseinv(poly *r, const poly *a)
 {
     int16x8_t con = vld1q_s16(consts);
-
-    int16x8_t den[36];
+    int16x8_t den[36] __attribute((aligned(16)));
 
     poly_baseinv_1(r, den, a);
 

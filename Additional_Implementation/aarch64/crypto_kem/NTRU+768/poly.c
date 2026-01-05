@@ -80,10 +80,11 @@ static inline int poly_fqinv_batch(int16x8_t r[24], int16x8_t con)
     return 0;
 }
 
-void poly_baseinv_1(poly *r, int16x8_t* den, const poly* a);
+extern void poly_baseinv_1(poly *r, int16x8_t* den, const poly* a);
+
 static void poly_baseinv_2(poly *r, int16x8_t *den, int16x8_t con)
 {
-    int16_t  *rp = r->coeffs;
+    int16_t *rp = r->coeffs;
 
     for (int i = 0; i < 24; i++)
     {
@@ -112,8 +113,7 @@ static void poly_baseinv_2(poly *r, int16x8_t *den, int16x8_t con)
 int poly_baseinv(poly *r, const poly *a)
 {
     int16x8_t con = vld1q_s16(consts);
-
-    int16x8_t den[24];
+    int16x8_t den[24] __attribute((aligned(16)));
 
     poly_baseinv_1(r, den, a);
 
