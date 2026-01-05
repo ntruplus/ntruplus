@@ -4,7 +4,7 @@
 #include "params.h"
 #include "symmetric.h"
 #include "poly.h"
-#include "Keccak_avx2/fips202.h"
+#include "fips202/fips202.h"
 #include "randombytes.h"
 
 /*************************************************

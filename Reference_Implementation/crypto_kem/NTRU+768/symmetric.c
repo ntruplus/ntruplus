@@ -1,5 +1,5 @@
 #include "symmetric.h"
-#include "fips202.h"
+#include "fips202/fips202.h"
 
 void hash_f(uint8_t *buf, const uint8_t *msg)
 {
