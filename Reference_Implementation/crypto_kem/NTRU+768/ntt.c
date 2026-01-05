@@ -2,12 +2,19 @@
 #include "params.h"
 #include "ntt.h"
 
-#define NTRUPLUS_QINV 12929 // q^(-1) mod 2^16
-#define NTRUPLUS_OMEGA -886 // omega * R mod q
-#define NTRUPLUS_Rinv  -682 // R^-1 mod q
-#define NTRUPLUS_R     -147 // R mod q
-#define NTRUPLUS_Rsq    867 // R^2 mod q
+#define NTRUPLUS_R            -147 // R = 2^16 mod q
+#define NTRUPLUS_RINV         -682 // (R)^(-1) mod q
+#define NTRUPLUS_RSQ           867 // (R^2) mod q
+#define NTRUPLUS_QINV        12929 // (q)^(-1) mod (2^16)
 
+#define NTRUPLUS_OMEGA        -886 // (omega * R) mod q
+#define NTRUPLUS_ZMINUSZ5INV -1665 // (z - z^5)^(-1) * R mod q
+                                   // where z = zeta^((n/d)/6)
+
+#define NTRUPLUS_NINV         -811 // (n/d)^(-1) * R mod q
+#define NTRUPLUS_2NINV       -1622 // 2 * (n/d)^(-1) * R mod q
+
+// zetas: Montgomery-form twiddle factors
 const int16_t zetas[192] = {
 	 -147, -1033,  -682,  -248,  -708,   682,     1,  -722,
 	 -723,  -257, -1124,  -867,  -256,  1484,  1262, -1590,
@@ -98,17 +105,13 @@ static inline int16_t fqmul(int16_t a, int16_t b)
 * Name:        fqinv
 *
 * Description: Computes the multiplicative inverse of a value in the
-*              finite field Z_q, using Montgomery arithmetic.
+*              finite field Z_q.
 *
-*              The input is an ordinary field element x (no scaling),
-*              and the function returns x^{-1} scaled by R^2 modulo q,
-*              where R = 2^16 is the Montgomery radix.
+* Arguments:   - int16_t a: input value a mod q
 *
-* Arguments:   - int16_t a: input value a = x mod q
-*
-* Returns:     16-bit integer congruent to x^{-1} mod q.
+* Returns:     16-bit integer congruent to a^{-1} mod q.
 **************************************************/
-static int16_t fqinv(int16_t a)
+static inline int16_t fqinv(int16_t a)
 {
 	int16_t t1, t2, t3;
 
@@ -133,7 +136,7 @@ static int16_t fqinv(int16_t a)
 	t2 = fqmul(t2, t2);  // 110101000000
 	t2 = fqmul(t2, t1);  // 110101111111
 
-	t2 = fqmul(NTRUPLUS_Rinv, t2);
+	t2 = fqmul(NTRUPLUS_RINV, t2);
 
 	return t2;
 }
@@ -254,7 +257,7 @@ void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 
 		for (int i = start; i < start + 128; i++)
 		{
-			t1 = fqmul(NTRUPLUS_OMEGA,  r[i + 128] - r[i]);
+			t1 = fqmul(NTRUPLUS_OMEGA, r[i + 128] - r[i]);
 			t2 = fqmul(zeta1, r[i + 256] - r[i]       + t1);
 			t3 = fqmul(zeta2, r[i + 256] - r[i + 128] - t1);
 			
@@ -267,10 +270,10 @@ void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 	for (int i = 0; i < NTRUPLUS_N/2; i++)
 	{
 		t1 = r[i] + r[i + NTRUPLUS_N/2];
-		t2 = fqmul(-1665, r[i] - r[i + NTRUPLUS_N/2]);
+		t2 = fqmul(NTRUPLUS_ZMINUSZ5INV, r[i] - r[i + NTRUPLUS_N/2]);
 
-		r[i               ] = fqmul(-811, t1 - t2);
-		r[i + NTRUPLUS_N/2] = fqmul(-1622, t2);	
+		r[i               ] = fqmul(NTRUPLUS_NINV, t1 - t2);
+		r[i + NTRUPLUS_N/2] = fqmul(NTRUPLUS_2NINV, t2);	
 	}
 }
 
@@ -340,10 +343,10 @@ void basemul(int16_t r[4], const int16_t a[4], const int16_t b[4], const int16_t
 	r[2] = montgomery_reduce(r[2]*zeta+a[0]*b[2]+a[1]*b[1]+a[2]*b[0]); // R^-1
 	r[3] = montgomery_reduce(a[0]*b[3]+a[1]*b[2]+a[2]*b[1]+a[3]*b[0]); // R^-1
 
-	r[0] = montgomery_reduce(r[0]*NTRUPLUS_Rsq); // R^0
-	r[1] = montgomery_reduce(r[1]*NTRUPLUS_Rsq); // R^0
-	r[2] = montgomery_reduce(r[2]*NTRUPLUS_Rsq); // R^0
-	r[3] = montgomery_reduce(r[3]*NTRUPLUS_Rsq); // R^0
+	r[0] = montgomery_reduce(r[0]*NTRUPLUS_RSQ); // R^0
+	r[1] = montgomery_reduce(r[1]*NTRUPLUS_RSQ); // R^0
+	r[2] = montgomery_reduce(r[2]*NTRUPLUS_RSQ); // R^0
+	r[3] = montgomery_reduce(r[3]*NTRUPLUS_RSQ); // R^0
 }
 
 /*************************************************
@@ -372,8 +375,8 @@ void basemul_add(int16_t r[4], const int16_t a[4], const int16_t b[4], const int
 	r[2] = montgomery_reduce(r[2]*zeta+a[0]*b[2]+a[1]*b[1]+a[2]*b[0]); // R^-1
 	r[3] = montgomery_reduce(a[0]*b[3]+a[1]*b[2]+a[2]*b[1]+a[3]*b[0]); // R^-1
 
-	r[0] = montgomery_reduce(c[0]*NTRUPLUS_R + r[0]*NTRUPLUS_Rsq); // R^0
-	r[1] = montgomery_reduce(c[1]*NTRUPLUS_R + r[1]*NTRUPLUS_Rsq); // R^0
-	r[2] = montgomery_reduce(c[2]*NTRUPLUS_R + r[2]*NTRUPLUS_Rsq); // R^0
-	r[3] = montgomery_reduce(c[3]*NTRUPLUS_R + r[3]*NTRUPLUS_Rsq); // R^0
+	r[0] = montgomery_reduce(c[0]*NTRUPLUS_R + r[0]*NTRUPLUS_RSQ); // R^0
+	r[1] = montgomery_reduce(c[1]*NTRUPLUS_R + r[1]*NTRUPLUS_RSQ); // R^0
+	r[2] = montgomery_reduce(c[2]*NTRUPLUS_R + r[2]*NTRUPLUS_RSQ); // R^0
+	r[3] = montgomery_reduce(c[3]*NTRUPLUS_R + r[3]*NTRUPLUS_RSQ); // R^0
 }

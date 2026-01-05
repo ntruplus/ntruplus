@@ -311,8 +311,8 @@ int main(void)
 
 	printf("=================== PARAMETERS ===================\n");
 	printf("ALGORITHM_NAME  : %s\n", CRYPTO_ALGNAME);
-	printf("PUBLICKEYBYTES : %d\n", CRYPTO_PUBLICKEYBYTES);
-	printf("SECRETKEYBYTES : %d\n", CRYPTO_SECRETKEYBYTES);
+	printf("PUBLICKEYBYTES  : %d\n", CRYPTO_PUBLICKEYBYTES);
+	printf("SECRETKEYBYTES  : %d\n", CRYPTO_SECRETKEYBYTES);
 	printf("CIPHERTEXTBYTES : %d\n", CRYPTO_CIPHERTEXTBYTES);
 	printf("==================================================\n\n");
 

@@ -13,7 +13,7 @@
 *
 * Returns:     integer in {-1,0,1} congruent to a modulo 3.
 **************************************************/
-static int16_t crepmod3(int16_t a)
+static inline int16_t crepmod3(int16_t a)
 {
 	int16_t t;
 	const int16_t v = ((1<<15) + 3/2)/3;
