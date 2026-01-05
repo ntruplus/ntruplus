@@ -7,9 +7,9 @@
 #include "randombytes.h"
 
 #ifdef DSUPPORTS_SHAKE256_ASM
-#include "CE/SHAKE256/fips202.h"
+#include "CE/fips202.h"
 #else
-#include "NO_CE/SHAKE256/fips202.h"
+#include "NO_CE/fips202.h"
 #endif
 
 /*************************************************

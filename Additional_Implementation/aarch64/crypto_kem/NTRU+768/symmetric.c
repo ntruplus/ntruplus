@@ -1,9 +1,9 @@
 #include "symmetric.h"
 
 #ifdef SUPPORTS_SHAKE256_ASM
-#include "CE/SHAKE256/fips202.h"
+#include "CE/fips202.h"
 #else
-#include "NO_CE/SHAKE256/fips202.h"
+#include "NO_CE/fips202.h"
 #endif
 
 void hash_f(uint8_t *buf, const uint8_t *msg)
