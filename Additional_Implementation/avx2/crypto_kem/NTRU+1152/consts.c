@@ -1,1 +1,0 @@
-../NTRU+864/consts.c
