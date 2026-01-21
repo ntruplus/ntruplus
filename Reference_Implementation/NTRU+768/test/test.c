@@ -5,9 +5,15 @@
 #include "randombytes.h"
 #include "poly.h"
 #include "symmetric.h"
-#include "cpucycles.h"
+#include "counter.h"
 
-#define TEST_LOOP 100000
+#if defined(__aarch64__)
+#define COUNTER_UNIT_STR "ticks"
+#elif defined(__x86_64__) || defined(__i386__)
+#define COUNTER_UNIT_STR "cycles"
+#else
+#error "counter unsupported on this architecture"
+#endif
 
 static void TEST_CCA_KEM(void)
 {
@@ -25,7 +31,7 @@ static void TEST_CCA_KEM(void)
 	crypto_kem_keypair(pk, sk);
 
 	//Encrypt and Decrypt message
-	for(int j = 0; j < TEST_LOOP; j++)
+	for(int j = 0; j < TEST_LOOP_COUNT; j++)
 	{
 		crypto_kem_enc(ct, ss, pk);
 		crypto_kem_dec(dss, ct, sk);
@@ -44,8 +50,6 @@ static void TEST_CCA_KEM(void)
 		}
 	}
 	printf("count: %d\n", cnt);
-	printf("==================================================\n\n");
-
 }
 
 static void TEST_CCA_KEM_CLOCK(void)
@@ -57,58 +61,51 @@ static void TEST_CCA_KEM_CLOCK(void)
 	unsigned char dss[CRYPTO_BYTES] = {0};
 
 	unsigned long long kcycles, ecycles, dcycles;
-	unsigned long long cycles1, cycles2;
+	unsigned long long count1, count2;
 	
 	printf("========= CCA KEM ENCAP DECAP SPEED TEST =========\n");
 	
 	kcycles=0;
-	for (int i = 0; i < TEST_LOOP; i++)
+	for (int i = 0; i < TEST_LOOP_COUNT; i++)
 	{
-		cycles1 = cpucycles();
+		count1 = counter();
 		crypto_kem_keypair(pk, sk);
-		cycles2 = cpucycles();
-		kcycles += cycles2-cycles1-cyclegap;
+		count2 = counter();
+		kcycles += count2 - count1 - countergap;
 	}
-	printf("  KEYGEN runs in ................. %8lld cycles", kcycles/TEST_LOOP);
+	printf("  KEYGEN runs in ................. %8lld %s", kcycles/TEST_LOOP_COUNT, COUNTER_UNIT_STR);
 	printf("\n"); 
 	
 	ecycles=0;
 	dcycles=0;
-	for (int i = 0; i < TEST_LOOP; i++)
+	for (int i = 0; i < TEST_LOOP_COUNT; i++)
 	{
-		cycles1 = cpucycles();
+		count1 = counter();
 		crypto_kem_enc(ct, ss, pk);
-		cycles2 = cpucycles();
-		ecycles += cycles2-cycles1-cyclegap;
+		count2 = counter();
+		ecycles += count2 - count1 - countergap;
 		
-		cycles1 = cpucycles(); 
+		count1 = counter(); 
 		crypto_kem_dec(dss, ct, sk);
-		cycles2 = cpucycles();
-		dcycles += cycles2-cycles1-cyclegap;
+		count2 = counter();
+		dcycles += count2 - count1 - countergap;
 	}
 	
-	printf("  ENCAP  runs in ................. %8lld cycles", ecycles/TEST_LOOP);
-	printf("\n"); 
-	
-	printf("  DECAP  runs in ................. %8lld cycles", dcycles/TEST_LOOP);
-	printf("\n"); 
-	
-	printf("==================================================\n\n");
+	printf("  ENCAP  runs in ................. %8lld %s\n", ecycles/TEST_LOOP_COUNT, COUNTER_UNIT_STR);
+	printf("  DECAP  runs in ................. %8lld %s\n", dcycles/TEST_LOOP_COUNT, COUNTER_UNIT_STR);
 }
 
 int main(void)
 {
 	printf("================= BENCHMARK INFO =================\n");
-	setup_rdtsc();
-	printf("cyclegap: %lld\n",cyclegap);
-	printf("==================================================\n\n");
-
+	setup_counter();
+	printf("ITERATIONS: %d\n", TEST_LOOP_COUNT);
+	printf("COUNTERGAP: %lld %s\n", countergap, COUNTER_UNIT_STR);
 	printf("=================== PARAMETERS ===================\n");
 	printf("ALGORITHM_NAME  : %s\n", CRYPTO_ALGNAME);
 	printf("PUBLICKEYBYTES  : %d\n", CRYPTO_PUBLICKEYBYTES);
 	printf("SECRETKEYBYTES  : %d\n", CRYPTO_SECRETKEYBYTES);
 	printf("CIPHERTEXTBYTES : %d\n", CRYPTO_CIPHERTEXTBYTES);
-	printf("==================================================\n\n");
 
 	TEST_CCA_KEM();
 	TEST_CCA_KEM_CLOCK();
