@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 extern const int16_t zetas[816];
-extern const int16_t zetas_inv[1632];
+extern const int16_t zetas_inv[816];
 
 extern const int16_t _low_mask[16];
 extern const int16_t _16xv[16];

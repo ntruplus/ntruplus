@@ -4,8 +4,6 @@ CFLAGS += -Wall -Wextra -Wpedantic -Wmissing-prototypes -Wredundant-decls \
 NISTFLAGS += -Wno-unused-result -O3 -fomit-frame-pointer
 RM = /bin/rm -f
 
-LDFLAGS=-lcrypto
-
 SOURCES= kem.c symmetric.c poly.c asm/add.s asm/ntt.s asm/base.s asm/crepmod3.s asm/pack.s asm/cbd.s
 HEADERS= api.h params.h poly.h symmetric.h
 
@@ -27,8 +25,8 @@ all: \
 	test \
 	PQCgenKAT_kem
 
-PQCgenKAT_kem: $(HEADERS) rng.h $(SOURCES) PQCgenKAT_kem.c rng.c
-	$(CC) $(NISTFLAGS) -o $@ PQCgenKAT_kem.c rng.c $(SOURCES) $(LDFLAGS)
+PQCgenKAT_kem: $(HEADERS) rng.h $(SOURCES) PQCgenKAT_kem.c aes.c rng.c
+	$(CC) $(NISTFLAGS) -o $@ PQCgenKAT_kem.c aes.c rng.c $(SOURCES)
 
 test: $(HEADERS) randombytes.h $(SOURCES) randombytes.c test.c cpucycles.h
 	$(CC) $(CFLAGS) -o $@ randombytes.c test.c $(SOURCES)
