@@ -1,1 +1,0 @@
-../../../Reference_Implementation/crypto_kem/NTRU+864/params.h
