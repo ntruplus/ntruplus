@@ -1,5 +1,5 @@
-.global poly_tobytes
-poly_tobytes:
+.global poly_tobytes_raw
+poly_tobytes_raw:
 lea 1664(%rsi), %r8
 
 .p2align 5
@@ -137,8 +137,8 @@ vmovdqu %xmm5, 32(%rdi)
 ret
 
 
-.global poly_frombytes
-poly_frombytes:
+.global poly_frombytes_raw
+poly_frombytes_raw:
 vmovdqa _low_mask(%rip), %ymm15
 
 lea 1664(%rdi), %r8

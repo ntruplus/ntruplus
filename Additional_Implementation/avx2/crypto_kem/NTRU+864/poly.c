@@ -4,6 +4,24 @@
 #include "poly.h"
 #include "consts.h"
 
+extern void poly_ntt_pack(poly *b, const poly *a);
+extern void poly_ntt_unpack(poly *b, const poly *a);
+extern void poly_frombytes_raw(poly *r, const uint8_t a[NTRUPLUS_POLYBYTES]);
+extern void poly_tobytes_raw(uint8_t r[NTRUPLUS_POLYBYTES], const poly *a);
+
+void poly_tobytes(uint8_t r[NTRUPLUS_POLYBYTES], const poly *a)
+{
+    poly tmp = *a;
+    poly_ntt_pack(&tmp, &tmp);
+    poly_tobytes_raw(r, &tmp);
+}
+
+void poly_frombytes(poly *r, const uint8_t a[NTRUPLUS_POLYBYTES])
+{
+    poly_frombytes_raw(r, a);
+    poly_ntt_unpack(r, r);
+}
+
 static inline __m256i fqmul_avx2(__m256i a, __m256i b, __m256i B,  __m256i q)
 {
     __m256i l, h, r;
