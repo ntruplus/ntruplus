@@ -1,1 +1,0 @@
-../NTRU+768/PQCgenKAT_kem.c

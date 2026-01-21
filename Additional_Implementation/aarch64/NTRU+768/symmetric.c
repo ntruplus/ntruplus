@@ -1,3 +1,4 @@
+#include <string.h>
 #include "symmetric.h"
 
 #ifdef SUPPORTS_SHAKE256_ASM

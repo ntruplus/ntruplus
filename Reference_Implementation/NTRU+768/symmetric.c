@@ -1,3 +1,4 @@
+#include <string.h>
 #include "symmetric.h"
 #include "fips202/fips202.h"
 

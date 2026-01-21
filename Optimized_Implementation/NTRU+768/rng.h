@@ -1,1 +1,0 @@
-../../Reference_Implementation/NTRU+768/rng.h
