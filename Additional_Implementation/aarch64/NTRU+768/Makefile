@@ -21,17 +21,20 @@ endif
 
 .PHONY: all PQCgenKAT_kem test clean
 
+BUILD_DIR = build
+
 all: \
 	test \
 	PQCgenKAT_kem
 
-PQCgenKAT_kem: $(HEADERS) rng.h $(SOURCES) PQCgenKAT_kem.c aes.c rng.c
-	$(CC) $(NISTFLAGS) -o $@ PQCgenKAT_kem.c aes.c rng.c $(SOURCES)
+PQCgenKAT_kem: $(HEADERS) kat/aes.h kat/rng.h $(SOURCES) kat/PQCgenKAT_kem.c kat/aes.c kat/rng.c
+	@mkdir -p $(BUILD_DIR)
+	$(CC) $(NISTFLAGS) -I. -o $(BUILD_DIR)/PQCgenKAT_kem kat/PQCgenKAT_kem.c kat/aes.c kat/rng.c $(SOURCES)
 
-test: $(HEADERS) randombytes.h $(SOURCES) randombytes.c test.c cpucycles.h
-	$(CC) $(CFLAGS) -o $@ randombytes.c test.c $(SOURCES)
+test: $(HEADERS) randombytes.h $(SOURCES) randombytes.c test/test.c
+	@mkdir -p $(BUILD_DIR)
+	$(CC) $(CFLAGS) -I. -o $(BUILD_DIR)/test randombytes.c test/test.c $(SOURCES)
 
 clean:
-	$(RM) PQCgenKAT_kem
 	$(RM) PQCkemKAT_*.req PQCkemKAT_*.rsp
-	$(RM) test
+	$(RM) -r $(BUILD_DIR)
