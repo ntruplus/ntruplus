@@ -787,9 +787,6 @@ static inline void fqinv_batch(int16_t *r)
     int16_t  t[NTRUPLUS_N / 4];
     uint32_t R[NTRUPLUS_N / 4];
 
-    int16_t inv0, inv1, inv2, inv3;
-    uint32_t INV0, INV1, INV2, INV3;
-
     t[off0] = r[off0];
     t[off1] = r[off1];
     t[off2] = r[off2];
@@ -808,17 +805,17 @@ static inline void fqinv_batch(int16_t *r)
         t[off3 + i] = plantard_mul(t[off3 + i - 1], R[off3 + i]);
     }
 
-    inv0 = fqinv(t[off0 + chunk - 1]);
-    inv1 = fqinv(t[off1 + chunk - 1]);
-    inv2 = fqinv(t[off2 + chunk - 1]);
-    inv3 = fqinv(t[off3 + chunk - 1]);
+    int16_t inv0 = fqinv(t[off0 + chunk - 1]);
+    int16_t inv1 = fqinv(t[off1 + chunk - 1]);
+    int16_t inv2 = fqinv(t[off2 + chunk - 1]);
+    int16_t inv3 = fqinv(t[off3 + chunk - 1]);
 
     for (int i = chunk - 1; i > 0; i--)
     {
-        INV0 = (uint32_t)inv0 * NTRUPLUS_QINV;
-        INV1 = (uint32_t)inv1 * NTRUPLUS_QINV;
-        INV2 = (uint32_t)inv2 * NTRUPLUS_QINV;
-        INV3 = (uint32_t)inv3 * NTRUPLUS_QINV;
+        uint32_t INV0 = (uint32_t)inv0 * NTRUPLUS_QINV;
+        uint32_t INV1 = (uint32_t)inv1 * NTRUPLUS_QINV;
+        uint32_t INV2 = (uint32_t)inv2 * NTRUPLUS_QINV;
+        uint32_t INV3 = (uint32_t)inv3 * NTRUPLUS_QINV;
 
 		r[off0 + i] = plantard_mul(t[off0 + i - 1], INV0);
         r[off1 + i] = plantard_mul(t[off1 + i - 1], INV1);
