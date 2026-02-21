@@ -4,112 +4,130 @@
 #include "poly.h"
 #include "consts.h"
 
-static inline __m256i fqmul_avx2(__m256i a, __m256i b, __m256i B,  __m256i q)
+#define NTRUPLUS_QINV 12929
+
+#define NTRUPLUS_RINV -682
+#define NTRUPLUS_RINV_QINV 29782
+
+static inline __m256i fqmul(__m256i a, __m256i b, __m256i b_qinv, __m256i q)
 {
-    __m256i l, h, r;
-
-    l  = _mm256_mullo_epi16(a, B);
-    h  = _mm256_mulhi_epi16(a, b);
-    l  = _mm256_mulhi_epi16(l, q);
-    r = _mm256_sub_epi16(h, l);
-
-    return r;
+    __m256i lo = _mm256_mullo_epi16(a, b_qinv);
+    __m256i hi = _mm256_mulhi_epi16(a, b);
+    lo = _mm256_mulhi_epi16(lo, q);
+    return _mm256_sub_epi16(hi, lo);
 }
 
-static inline __m256i fqsqr_avx2(__m256i a,  __m256i q, __m256i qinv)
+static inline __m256i fqsqr(__m256i a,  __m256i q, __m256i qinv)
 {
-    __m256i l, h, r;
-    __m256i A;
-
-    A = _mm256_mullo_epi16(a, qinv);
-    l  = _mm256_mullo_epi16(a, A);
-    h  = _mm256_mulhi_epi16(a, a);
-    l  = _mm256_mulhi_epi16(l, q);
-    r = _mm256_sub_epi16(h, l);
-
-    return r;
+    __m256i a_qinv = _mm256_mullo_epi16(a, qinv);
+    __m256i lo = _mm256_mullo_epi16(a, a_qinv);
+    __m256i hi = _mm256_mulhi_epi16(a, a);
+    lo = _mm256_mulhi_epi16(lo, q);
+    return _mm256_sub_epi16(hi, lo);
 }
 
-static inline __m256i fqinv_avx2(__m256i r)
+static inline __m256i fqinv(__m256i r)
 {
-    const __m256i qinv     = _mm256_load_si256((const __m256i *)_16xqinv);
-    const __m256i q        = _mm256_load_si256((const __m256i *)_16xq);
-    const __m256i Rinvqinv = _mm256_load_si256((const __m256i *)_16xRinvqinv);
-    const __m256i Rinv     = _mm256_load_si256((const __m256i *)_16xRinv);
+    const __m256i qinv     = _mm256_set1_epi16(NTRUPLUS_QINV);
+    const __m256i q        = _mm256_set1_epi16(NTRUPLUS_Q);
+    const __m256i Rinvqinv = _mm256_set1_epi16(NTRUPLUS_RINV_QINV);
+    const __m256i Rinv     = _mm256_set1_epi16(NTRUPLUS_RINV);
 
     __m256i T1, T2;
     __m256i t1, t2, t3;
 
     T1  = _mm256_mullo_epi16(r, qinv);
-    t1 = fqsqr_avx2(r, q, qinv);   // 10 
-    
+    t1 = fqsqr(r, q, qinv);     // 10
+   
     T2 = _mm256_mullo_epi16(t1, qinv);
-    t2 = fqsqr_avx2(t1, q, qinv);      // 100 
-    t2 = fqsqr_avx2(t2, q, qinv);      // 1000 
-    t3 = fqsqr_avx2(t2, q, qinv);      // 10000 
-    t1 = fqmul_avx2(t2, t1, T2, q);    // 1010 
+    t2 = fqsqr(t1, q, qinv);    // 100
+    t2 = fqsqr(t2, q, qinv);    // 1000
+    t3 = fqsqr(t2, q, qinv);    // 10000
+    t1 = fqmul(t2, t1, T2, q);  // 1010
 
     T2 = _mm256_mullo_epi16(t1, qinv);
-    t2 = fqmul_avx2(t3, t1, T2, q);    // 11010 
-    t2 = fqsqr_avx2(t2, q, qinv);      // 110100 
-    t2 = fqmul_avx2(t2, r, T1, q);     // 110101 
-    t1 = fqmul_avx2(t2, t1, T2, q);    // 111111
+    t2 = fqmul(t3, t1, T2, q);  // 11010
+    t2 = fqsqr(t2, q, qinv);    // 110100
+    t2 = fqmul(t2, r, T1, q);   // 110101
+    t1 = fqmul(t2, t1, T2, q);  // 111111
 
-    t2 = fqsqr_avx2(t2, q, qinv);      // 1101010
-    t2 = fqsqr_avx2(t2, q, qinv);      // 11010100 
-    t2 = fqsqr_avx2(t2, q, qinv);      // 110101000 
-    t2 = fqsqr_avx2(t2, q, qinv);      // 1101010000 
-    t2 = fqsqr_avx2(t2, q, qinv);      // 11010100000
-    t2 = fqsqr_avx2(t2, q, qinv);      // 110101000000 
+    t2 = fqsqr(t2, q, qinv);    // 1101010
+    t2 = fqsqr(t2, q, qinv);    // 11010100
+    t2 = fqsqr(t2, q, qinv);    // 110101000
+    t2 = fqsqr(t2, q, qinv);    // 1101010000
+    t2 = fqsqr(t2, q, qinv);    // 11010100000
+    t2 = fqsqr(t2, q, qinv);    // 110101000000
 
     T2 = _mm256_mullo_epi16(t2, qinv);
-    t2 = fqmul_avx2(t1, t2, T2, q);    // 110101111111 
+    t2 = fqmul(t1, t2, T2, q);  // 110101111111
 
-    t2 = fqmul_avx2(t2, Rinv, Rinvqinv, q);
+    t2 = fqmul(t2, Rinv, Rinvqinv, q);
 
     return t2;
 }
 
 static inline int poly_fqinv_batch(__m256i *restrict r)
 {
-    const __m256i qinv = _mm256_load_si256((const __m256i *)_16xqinv);
-    const __m256i q    = _mm256_load_si256((const __m256i *)_16xq);
+    const int chunk = NTRUPLUS_N / 192;
+    const int off0 = 0 * chunk;
+    const int off1 = 1 * chunk;
+    const int off2 = 2 * chunk;
+
+    const __m256i qinv = _mm256_set1_epi16(NTRUPLUS_QINV);
+    const __m256i q    = _mm256_set1_epi16(NTRUPLUS_Q);
     const __m256i z    = _mm256_setzero_si256();
 
-    __m256i t[18];
-    __m256i R[18];
+    __m256i t[NTRUPLUS_N / 64];
+    __m256i R[NTRUPLUS_N / 64];
 
-    __m256i inv;
+    t[off0] = r[off0];
+    t[off1] = r[off1];
+    t[off2] = r[off2];
 
-    t[0] = r[0];
+    for (size_t i = 1; i < chunk; i++) 
+    {
+        R[off0 + i] = _mm256_mullo_epi16(r[off0 + i], qinv);
+        R[off1 + i] = _mm256_mullo_epi16(r[off1 + i], qinv);
+        R[off2 + i] = _mm256_mullo_epi16(r[off2 + i], qinv);
 
-    for (size_t i = 1; i < 18; i++) {
-        __m256i ri = r[i];
-        __m256i Bi = _mm256_mullo_epi16(ri, qinv);
-        R[i] = Bi;
-        t[i] = fqmul_avx2(t[i-1], ri, Bi, q);
+        t[off0 + i] = fqmul(t[off0 + i - 1], r[off0 + i], R[off0 + i], q);
+        t[off1 + i] = fqmul(t[off1 + i - 1], r[off1 + i], R[off1 + i], q);
+        t[off2 + i] = fqmul(t[off2 + i - 1], r[off2 + i], R[off2 + i], q);
     }
 
-    __m256i mask_zero = _mm256_cmpeq_epi16(t[17], z);
+    __m256i mask_zero0 = _mm256_cmpeq_epi16(t[off0 + chunk - 1], z);
+    __m256i mask_zero1 = _mm256_cmpeq_epi16(t[off1 + chunk - 1], z);
+    __m256i mask_zero2 = _mm256_cmpeq_epi16(t[off2 + chunk - 1], z);
+
+    __m256i mask_zero = _mm256_or_si256(mask_zero0, _mm256_or_si256(mask_zero1, mask_zero2));
     if (!_mm256_testz_si256(mask_zero, mask_zero)) return 1;
 
-    inv = fqinv_avx2(t[17]);
+    __m256i inv0 = fqinv(t[off0 + chunk - 1]);
+    __m256i inv1 = fqinv(t[off1 + chunk - 1]);
+    __m256i inv2 = fqinv(t[off2 + chunk - 1]);
 
-    for (size_t i = 17; i > 0; i--) {
-        __m256i ti  = t[i - 1];
-        __m256i ri  = r[i];
-        __m256i INV = _mm256_mullo_epi16(inv, qinv);
+    for (size_t i = chunk - 1; i > 0; i--)
+    {
+        __m256i INV0 = _mm256_mullo_epi16(inv0, qinv);
+        __m256i INV1 = _mm256_mullo_epi16(inv1, qinv);
+        __m256i INV2 = _mm256_mullo_epi16(inv2, qinv);
 
-        __m256i l0 = _mm256_mulhi_epi16(_mm256_mullo_epi16(ti, INV), q);
-        __m256i l1 = _mm256_mulhi_epi16(_mm256_mullo_epi16(inv, R[i]), q);
-        __m256i h0 = _mm256_mulhi_epi16(ti, inv);
-        __m256i h1 = _mm256_mulhi_epi16(inv, ri);
+        __m256i tmp0 = r[off0 + i];
+        __m256i tmp1 = r[off1 + i];
+        __m256i tmp2 = r[off2 + i];
 
-        r[i] = _mm256_sub_epi16(h0, l0);
-        inv  = _mm256_sub_epi16(h1, l1);
+        r[off0 + i] = fqmul(t[off0 + i - 1], inv0, INV0, q);
+        r[off1 + i] = fqmul(t[off1 + i - 1], inv1, INV1, q);
+        r[off2 + i] = fqmul(t[off2 + i - 1], inv2, INV2, q);
+
+        inv0 = fqmul(inv0, tmp0, R[off0 + i], q);
+        inv1 = fqmul(inv1, tmp1, R[off1 + i], q);
+        inv2 = fqmul(inv2, tmp2, R[off2 + i], q);
     }
 
-    r[0] = inv;
+    r[off0] = inv0;
+    r[off1] = inv1;
+    r[off2] = inv2;
 
     return 0;
 }
