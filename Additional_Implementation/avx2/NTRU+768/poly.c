@@ -17,6 +17,14 @@ static inline __m256i fqmul(__m256i a, __m256i b, __m256i b_qinv, __m256i q)
     return _mm256_sub_epi16(hi, lo);
 }
 
+static inline __m256i fqmul_neg(__m256i a, __m256i b, __m256i b_qinv, __m256i q)
+{
+    __m256i lo = _mm256_mullo_epi16(a, b_qinv);
+    __m256i hi = _mm256_mulhi_epi16(a, b);
+    lo = _mm256_mulhi_epi16(lo, q);
+    return _mm256_sub_epi16(lo, hi);
+}
+
 static inline __m256i fqsqr(__m256i a,  __m256i q, __m256i qinv)
 {
     __m256i a_qinv = _mm256_mullo_epi16(a, qinv);
@@ -146,27 +154,10 @@ static inline void poly_baseinv_2(poly *r, const __m256i den[12])
         __m256i t = den[i];
         __m256i T = _mm256_mullo_epi16(t, qinv);
 
-        __m256i l, h;
-
-        l  = _mm256_mullo_epi16(r0, T);
-        h  = _mm256_mulhi_epi16(r0, t);
-        l  = _mm256_mulhi_epi16(l, q);
-        r0 = _mm256_sub_epi16(h, l);
-
-        l  = _mm256_mullo_epi16(r1, T);
-        h  = _mm256_mulhi_epi16(r1, t);
-        l  = _mm256_mulhi_epi16(l, q);
-        r1 = _mm256_sub_epi16(l, h);
-
-        l  = _mm256_mullo_epi16(r2, T);
-        h  = _mm256_mulhi_epi16(r2, t);
-        l  = _mm256_mulhi_epi16(l, q);
-        r2 = _mm256_sub_epi16(h, l);
-
-        l  = _mm256_mullo_epi16(r3, T);
-        h  = _mm256_mulhi_epi16(r3, t);
-        l  = _mm256_mulhi_epi16(l, q);
-        r3 = _mm256_sub_epi16(l, h);
+        r0 = fqmul(r0, t, T, q);
+        r1 = fqmul_neg(r1, t, T, q);
+        r2 = fqmul(r2, t, T, q);
+        r3 = fqmul_neg(r3, t, T, q);
 
         _mm256_store_si256((__m256i *)&r->coeffs[64*i +  0], r0);
         _mm256_store_si256((__m256i *)&r->coeffs[64*i + 16], r1);
