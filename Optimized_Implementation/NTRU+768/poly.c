@@ -809,10 +809,36 @@ static inline void fqinv_batch(int16_t *r)
         t[off3 + i] = plantard_mul(t[off3 + i - 1], R[off3 + i]);
     }
 
-    int16_t inv0 = fqinv(t[off0 + chunk - 1]);
-    int16_t inv1 = fqinv(t[off1 + chunk - 1]);
-    int16_t inv2 = fqinv(t[off2 + chunk - 1]);
-    int16_t inv3 = fqinv(t[off3 + chunk - 1]);
+    int16_t x0 = t[off0 + chunk - 1];
+    int16_t x1 = t[off1 + chunk - 1];
+    int16_t x2 = t[off2 + chunk - 1];
+    int16_t x3 = t[off3 + chunk - 1];
+
+    uint32_t X1 = (uint32_t)x1 * NTRUPLUS_QINV;
+    uint32_t X2 = (uint32_t)x2 * NTRUPLUS_QINV;
+    uint32_t X3 = (uint32_t)x3 * NTRUPLUS_QINV;
+
+    int16_t t2[4];
+    t2[0] = x0;
+    t2[1] = plantard_mul(t2[0], X1);
+    t2[2] = plantard_mul(t2[1], X2);
+    t2[3] = plantard_mul(t2[2], X3);
+
+    int16_t inv = fqinv(t2[3]);
+
+    uint32_t INV = (uint32_t)inv * NTRUPLUS_QINV;
+    int16_t inv3 = plantard_mul(t2[2], INV);
+    inv = plantard_mul(inv, X3);
+
+    INV = (uint32_t)inv * NTRUPLUS_QINV;
+    int16_t inv2 = plantard_mul(t2[1], INV);
+    inv = plantard_mul(inv, X2);
+
+    INV = (uint32_t)inv * NTRUPLUS_QINV;
+    int16_t inv1 = plantard_mul(t2[0], INV);
+    inv = plantard_mul(inv, X1);
+
+    int16_t inv0 = inv;
 
     for (int i = chunk - 1; i > 0; i--)
     {
