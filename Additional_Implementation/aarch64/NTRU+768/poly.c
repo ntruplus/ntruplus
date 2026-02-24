@@ -74,14 +74,28 @@ static inline int poly_fqinv_batch(int16x8_t* r, int16x8_t con)
         t[off2 + i] = fqmul(t[off2 + i - 1], r[off2 + i], con);
     }
 
-    if (!vminvq_u16(vreinterpretq_u16_s16(t[off0 + chunk - 1])) &&
-        !vminvq_u16(vreinterpretq_u16_s16(t[off1 + chunk - 1])) &&
+    if (!vminvq_u16(vreinterpretq_u16_s16(t[off0 + chunk - 1])) ||
+        !vminvq_u16(vreinterpretq_u16_s16(t[off1 + chunk - 1])) ||
         !vminvq_u16(vreinterpretq_u16_s16(t[off2 + chunk - 1])))
         return 1;
 
-    int16x8_t inv0 = fqinv(t[off0 + chunk - 1], con);
-    int16x8_t inv1 = fqinv(t[off1 + chunk - 1], con);
-    int16x8_t inv2 = fqinv(t[off2 + chunk - 1], con);
+    int16x8_t x[3];
+    x[0] = t[off0 + chunk - 1];
+    x[1] = t[off1 + chunk - 1];
+    x[2] = t[off2 + chunk - 1];
+
+    int16x8_t t2[3];
+    t2[0] = x[0];
+    t2[1] = fqmul(t2[0], x[1], con);
+    t2[2] = fqmul(t2[1], x[2], con);
+
+    int16x8_t inv = fqinv(t2[2], con);
+
+    int16x8_t inv2 = fqmul(t2[1], inv, con);
+    inv = fqmul(inv, x[2], con);    
+    int16x8_t inv1 = fqmul(t2[0], inv, con);
+    inv = fqmul(inv, x[1], con);
+    int16x8_t inv0 = inv;
 
     for (int i = chunk - 1; i > 0; i--)
     {
