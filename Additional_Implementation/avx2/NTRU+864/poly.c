@@ -120,9 +120,27 @@ static inline int poly_fqinv_batch(__m256i *restrict r)
     __m256i mask_zero = _mm256_or_si256(mask_zero0, _mm256_or_si256(mask_zero1, mask_zero2));
     if (!_mm256_testz_si256(mask_zero, mask_zero)) return 1;
 
-    __m256i inv0 = fqinv(t[off0 + chunk - 1]);
-    __m256i inv1 = fqinv(t[off1 + chunk - 1]);
-    __m256i inv2 = fqinv(t[off2 + chunk - 1]);
+    __m256i x0 = t[off0 + chunk - 1];
+    __m256i x1 = t[off1 + chunk - 1];
+    __m256i x2 = t[off2 + chunk - 1];
+
+    __m256i X1 = _mm256_mullo_epi16(x1, qinv);
+    __m256i X2 = _mm256_mullo_epi16(x2, qinv);
+
+    __m256i t2[3];
+    t2[0] = x0;
+    t2[1] = fqmul(t2[0], x1, X1, q);
+    t2[2] = fqmul(t2[1], x2, X2, q);
+
+    __m256i inv = fqinv(t2[2]);
+    __m256i INV = _mm256_mullo_epi16(inv, qinv);
+    __m256i inv2 = fqmul(t2[1], inv, INV, q);
+    inv = fqmul(inv, x2, X2, q);
+
+    INV = _mm256_mullo_epi16(inv, qinv);
+    __m256i inv1 = fqmul(t2[0], inv, INV, q);
+    inv = fqmul(inv, x1, X1, q);
+    __m256i inv0 = inv;
 
     for (size_t i = chunk - 1; i > 0; i--)
     {
