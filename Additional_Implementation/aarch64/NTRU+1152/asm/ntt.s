@@ -7,6 +7,7 @@ _poly_ntt:
     zetas_ptr     .req x2
     counter   .req x8
     
+    mov src, dst
     adr zetas_ptr, zetas
 
     ld1 {v0.8h - v2.8h}, [zetas_ptr], #48
@@ -632,6 +633,7 @@ _poly_invntt:
     zetas_ptr .req x2
     counter   .req x8
 
+    mov src, dst
     adr zetas_ptr, zetas_inv
 
     mov counter, #2304

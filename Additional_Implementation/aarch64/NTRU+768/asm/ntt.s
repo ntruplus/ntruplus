@@ -3,10 +3,11 @@
 poly_ntt:
 _poly_ntt:
     dst       .req x0
-    src       .req x0
+    src       .req x1
     zetas_ptr .req x2
     counter   .req x8
     
+    mov src, dst
     adr zetas_ptr, zetas
     
     ld1 {v0.8h - v3.8h}, [zetas_ptr], #64
@@ -471,10 +472,11 @@ _looptop_3456:
 poly_invntt:
 _poly_invntt:
     dst       .req x0
-    src       .req x0    
+    src       .req x1    
     zetas_ptr .req x2
     counter   .req x8
 
+    mov src, dst
     adr zetas_ptr, zetas_inv
 
     mov counter, #1536
