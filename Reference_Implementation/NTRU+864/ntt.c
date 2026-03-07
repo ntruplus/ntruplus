@@ -156,19 +156,18 @@ static inline int16_t fqinv(int16_t a)
 * Name:        ntt
 *
 * Description: Number-theoretic transform (NTT) in R_q. Transforms the
-*              coefficient representation of a into a representation
+*              coefficient representation of r into a representation
 *              where each block of 3 coefficients corresponds to an
 *              element of Zq[X]/(X^3 - zeta_i).
 *
-* Arguments:   - int16_t r[NTRUPLUS_N]: pointer to output vector; NTT
-*                                       representation of a in the
+* Arguments:   - int16_t r[NTRUPLUS_N]: pointer to input/output vector;
+*                                       input coefficients of r in R_q,
+*                                       output NTT representation in the
 *                                       product ring Zq[X]/(X^3 - zeta_i)
-*              - const int16_t a[NTRUPLUS_N]: pointer to input vector of
-*                                            coefficients of a in R_q
 *
 * Returns:     none.
 **************************************************/
-void ntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
+void ntt(int16_t r[NTRUPLUS_N])
 {
 	int16_t t1, t2, t3;
 	int16_t zeta1, zeta2;
@@ -179,10 +178,10 @@ void ntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 
 	for (int i = 0; i < NTRUPLUS_N/2; i++)
 	{
-		t1 = fqmul(zeta1, a[i + NTRUPLUS_N/2]);
+		t1 = fqmul(zeta1, r[i + NTRUPLUS_N/2]);
 
-		r[i + NTRUPLUS_N/2] = a[i] + a[i + NTRUPLUS_N/2] - t1;
-		r[i               ] = a[i]                       + t1;
+		r[i + NTRUPLUS_N/2] = r[i] + r[i + NTRUPLUS_N/2] - t1;
+		r[i               ] = r[i]                       + t1;
 	}
 
 	for (int step = NTRUPLUS_N/6; step >= 48; step = step/3)
@@ -226,28 +225,23 @@ void ntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 * Name:        invntt
 *
 * Description: Inverse number-theoretic transform (NTT) in R_q. Transforms
-*              the NTT representation of a, where each block of 3
+*              the NTT representation in r, where each block of 3
 *              coefficients corresponds to an element of Zq[X]/(X^3 - zeta_i),
 *              back to the coefficient representation in R_q.
 *
-* Arguments:   - int16_t r[NTRUPLUS_N]: pointer to output vector; coefficient
-*                                       representation of a in R_q
-*              - const int16_t a[NTRUPLUS_N]: pointer to input vector in NTT
-*                                            representation in the product
-*                                            ring Zq[X]/(X^3 - zeta_i)
+* Arguments:   - int16_t r[NTRUPLUS_N]: pointer to input/output vector;
+*                                       input NTT representation in the
+*                                       product ring Zq[X]/(X^3 - zeta_i),
+*                                       output coefficient representation
+*                                       in R_q
 *
 * Returns:     none.
 **************************************************/
-void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
+void invntt(int16_t r[NTRUPLUS_N])
 {
 	int16_t t1,t2,t3;
 	int16_t zeta1,zeta2;
 	int k = 287;
-
-	for (int i = 0; i < NTRUPLUS_N; i++)
-	{
-		r[i] = a[i];
-	}
 
 	for (int step = 3; step <= 24; step <<= 1)
 	{

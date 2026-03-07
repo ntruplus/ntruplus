@@ -186,12 +186,11 @@ int poly_sotp_decode(uint8_t msg[NTRUPLUS_N/8], const poly *a, const uint8_t buf
 *
 * Description: Computes number-theoretic transform (NTT)
 *
-* Arguments:   - poly *r: pointer to output polynomial
-*              - poly *a: pointer to input polynomial
+* Arguments:   - poly *r: pointer to input/output polynomial
 **************************************************/
-void poly_ntt(poly *r, const poly *a)
+void poly_ntt(poly *r)
 {
-	ntt(r->coeffs, a->coeffs);
+	ntt(r->coeffs);
 }
 
 /*************************************************
@@ -199,12 +198,11 @@ void poly_ntt(poly *r, const poly *a)
 *
 * Description: Computes inverse of number-theoretic transform (NTT)
 *
-* Arguments:   - poly *r: pointer to output polynomial
-*              - poly *a: pointer to input polynomial
+* Arguments:   - poly *r: pointer to input/output polynomial
 **************************************************/
-void poly_invntt(poly *r, const poly *a)
+void poly_invntt(poly *r)
 {
-	invntt(r->coeffs, a->coeffs);
+	invntt(r->coeffs);
 }
 
 /*************************************************

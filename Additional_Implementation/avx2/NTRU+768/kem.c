@@ -51,7 +51,7 @@ static inline int genf_derand(poly *f, poly *finv, const uint8_t *coins)
     poly_triple(f, f);
     f->coeffs[0] += 1;
 
-    poly_ntt(f, f);
+    poly_ntt(f);
 
     return poly_baseinv(finv, f);
 }
@@ -78,7 +78,7 @@ static inline int geng_derand(poly *g, poly *ginv, const uint8_t *coins)
     poly_cbd1(g, buf);
     poly_triple(g, g);
 
-    poly_ntt(g, g);
+    poly_ntt(g);
 
     return poly_baseinv(ginv, g);
 }
@@ -180,12 +180,12 @@ static inline int crypto_kem_enc_derand(uint8_t *ct, uint8_t *ss,
     hash_h(buf1, msg);
     
     poly_cbd1(&r, buf1 + NTRUPLUS_SYMBYTES);
-    poly_ntt(&r, &r);
+    poly_ntt(&r);
     
     poly_tobytes(buf2, &r);
     hash_g(buf2, buf2);
     poly_sotp_encode(&m, msg, buf2);
-    poly_ntt(&m, &m);
+    poly_ntt(&m);
     
     poly_frombytes(&h, pk);
 	poly_basemul(&c, &h, &r);
@@ -259,10 +259,11 @@ int crypto_kem_dec(unsigned char *ss,
 	poly_frombytes(&hinv, sk + NTRUPLUS_POLYBYTES);
 	
 	poly_basemul(&m1, &c, &f);
-	poly_invntt(&m1, &m1);
+	poly_invntt(&m1);
 	poly_crepmod3(&m1, &m1);
 	
-	poly_ntt(&m2, &m1);
+	m2 = m1;
+	poly_ntt(&m2);
 	poly_sub(&c, &c, &m2);
 	poly_basemul(&r2, &c, &hinv);
 	poly_tobytes(buf1, &r2);
@@ -276,7 +277,7 @@ int crypto_kem_dec(unsigned char *ss,
 	hash_h(buf3, msg);
 	
 	poly_cbd1(&r1, buf3 + NTRUPLUS_SSBYTES);
-	poly_ntt(&r1, &r1);
+	poly_ntt(&r1);
 	poly_tobytes(buf2, &r1);
 	
 	fail |= verify(buf1, buf2, NTRUPLUS_POLYBYTES);

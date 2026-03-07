@@ -272,7 +272,7 @@ int poly_sotp_decode(uint8_t msg[NTRUPLUS_N/8], const poly *a, const uint8_t buf
 *
 * Returns:     none.
 **************************************************/
-static inline void ntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
+static inline void ntt(int16_t r[NTRUPLUS_N])
 {
 	int16_t t1,t2,t3;
 	uint32_t T1,T2;
@@ -285,10 +285,10 @@ static inline void ntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 
 	for(int i = 0; i < NTRUPLUS_N/2; i++)
 	{
-		t1 = plantard_mul(zeta[0], a[i + NTRUPLUS_N/2]);
-		
-		r[i + NTRUPLUS_N/2] = a[i] + a[i + NTRUPLUS_N/2] - t1;
-		r[i               ] = a[i]                       + t1;
+		t1 = plantard_mul(zeta[0], r[i + NTRUPLUS_N/2]);
+
+		r[i + NTRUPLUS_N/2] = r[i] + r[i + NTRUPLUS_N/2] - t1;
+		r[i               ] = r[i]                       + t1;
 	}
 
 	for(int i = 0; i < 2; i++)
@@ -453,31 +453,30 @@ static inline void ntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 *
 * Description: Computes number-theoretic transform (NTT)
 *
-* Arguments:   - poly *r: pointer to output polynomial
-*              - poly *a: pointer to input polynomial
+* Arguments:   - poly *r: pointer to input/output polynomial
 **************************************************/
-void poly_ntt(poly *r, const poly *a)
+void poly_ntt(poly *r)
 {
-	ntt(r->coeffs, a->coeffs);
+	ntt(r->coeffs);
 }
 
 /*************************************************
 * Name:        invntt
 *
 * Description: Inverse number-theoretic transform (NTT) in R_q. Transforms
-*              the NTT representation of a, where each block of 4
+*              the NTT representation in r, where each block of 4
 *              coefficients corresponds to an element of Zq[X]/(X^4 - zeta_i),
 *              back to the coefficient representation in R_q.
 *
-* Arguments:   - int16_t r[NTRUPLUS_N]: pointer to output vector; coefficient
-*                                       representation of a in R_q
-*              - const int16_t a[NTRUPLUS_N]: pointer to input vector in NTT
-*                                            representation in the product
-*                                            ring Zq[X]/(X^4 - zeta_i)
+* Arguments:   - int16_t r[NTRUPLUS_N]: pointer to input/output vector;
+*                                       input NTT representation in the
+*                                       product ring Zq[X]/(X^4 - zeta_i),
+*                                       output coefficient representation
+*                                       in R_q
 *
 * Returns:     none.
 **************************************************/
-static inline void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
+static inline void invntt(int16_t r[NTRUPLUS_N])
 {
 	int16_t v[8];
 
@@ -493,7 +492,7 @@ static inline void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 		{
 			for (int k = 0; k < 8; k++)
 			{
-				v[k] = a[2*k+j+16*i];
+				v[k] = r[2*k+j+16*i];
 			}
 
 			t1 = v[2];
@@ -659,12 +658,11 @@ static inline void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 *
 * Description: Computes inverse of number-theoretic transform (NTT)
 *
-* Arguments:   - poly *r: pointer to output polynomial
-*              - poly *a: pointer to input polynomial
+* Arguments:   - poly *r: pointer to input/output polynomial
 **************************************************/
-void poly_invntt(poly *r, const poly *a)
+void poly_invntt(poly *r)
 {
-	invntt(r->coeffs, a->coeffs);
+	invntt(r->coeffs);
 }
 
 /*************************************************

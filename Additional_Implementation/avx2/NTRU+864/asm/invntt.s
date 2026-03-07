@@ -4,17 +4,17 @@ vmovdqa     _16xq(%rip), %ymm0
 vmovdqa     _16xv(%rip), %ymm1
 lea     zetas_inv(%rip), %rdx
 
-lea 1728(%rsi), %r8
+lea 1728(%rdi), %r8
 
 .p2align 5
 _looptop_start_6543:
 #load
-vmovdqa    (%rsi), %ymm4
-vmovdqa  32(%rsi), %ymm5
-vmovdqa  64(%rsi), %ymm6
-vmovdqa  96(%rsi), %ymm7
-vmovdqa 128(%rsi), %ymm8
-vmovdqa 160(%rsi), %ymm9
+vmovdqa    (%rdi), %ymm4
+vmovdqa  32(%rdi), %ymm5
+vmovdqa  64(%rdi), %ymm6
+vmovdqa  96(%rdi), %ymm7
+vmovdqa 128(%rdi), %ymm8
+vmovdqa 160(%rdi), %ymm9
 
 #level6
 #zetas
@@ -212,10 +212,9 @@ vmovdqa %ymm7,  96(%rdi)
 vmovdqa %ymm8, 128(%rdi)
 vmovdqa %ymm9, 160(%rdi)
 
-add $192, %rsi
 add $192, %rdi
 add $64,  %rdx
-cmp %r8,  %rsi
+cmp %r8,  %rdi
 jb  _looptop_start_6543
 
 sub $1728, %rdi

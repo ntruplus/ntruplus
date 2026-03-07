@@ -20,8 +20,8 @@ void poly_cbd1(poly *r, const uint8_t buf[NTRUPLUS_N/4]);
 void poly_sotp_encode(poly *r, const uint8_t msg[NTRUPLUS_N/8], const uint8_t buf[NTRUPLUS_N/4]);
 int  poly_sotp_decode(uint8_t msg[NTRUPLUS_N/8], const poly *a, const uint8_t buf[NTRUPLUS_N/4]);
 
-void poly_ntt(poly *r, const poly *a);
-void poly_invntt(poly *r, const poly *a);
+void poly_ntt(poly *r);
+void poly_invntt(poly *r);
 void poly_basemul(poly *r, const poly *a, const poly *b);
 
 void poly_baseinv_1(poly *r, __m256i den[12], const poly *a);

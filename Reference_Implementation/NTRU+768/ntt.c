@@ -145,19 +145,18 @@ static inline int16_t fqinv(int16_t a)
 * Name:        ntt
 *
 * Description: Number-theoretic transform (NTT) in R_q. Transforms the
-*              coefficient representation of a into a representation
+*              coefficient representation of r into a representation
 *              where each block of 4 coefficients corresponds to an
 *              element of Zq[X]/(X^4 - zeta_i).
 *
-* Arguments:   - int16_t r[NTRUPLUS_N]: pointer to output vector; NTT
-*                                       representation of a in the
+* Arguments:   - int16_t r[NTRUPLUS_N]: pointer to input/output vector;
+*                                       input coefficients of r in R_q,
+*                                       output NTT representation in the
 *                                       product ring Zq[X]/(X^4 - zeta_i)
-*              - const int16_t a[NTRUPLUS_N]: pointer to input vector of
-*                                            coefficients of a in R_q
 *
 * Returns:     none.
 **************************************************/
-void ntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
+void ntt(int16_t r[NTRUPLUS_N])
 {
 	int16_t t1, t2, t3;
 	int16_t zeta1, zeta2;
@@ -167,10 +166,10 @@ void ntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 
 	for (int i = 0; i < NTRUPLUS_N / 2; i++)
 	{
-		t1 = fqmul(zeta1, a[i + NTRUPLUS_N / 2]);
+		t1 = fqmul(zeta1, r[i + NTRUPLUS_N / 2]);
 
-		r[i + NTRUPLUS_N / 2] = a[i] + a[i + NTRUPLUS_N / 2] - t1;
-		r[i                 ] = a[i]                         + t1;
+		r[i + NTRUPLUS_N / 2] = r[i] + r[i + NTRUPLUS_N / 2] - t1;
+		r[i                 ] = r[i]                         + t1;
 	}
 
 	for (int start = 0; start < NTRUPLUS_N; start += 384)
@@ -200,39 +199,37 @@ void ntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
 			{
 				t1 = fqmul(zeta1, r[i + step]);
 				
-				r[i + step] = barrett_reduce(r[i] - t1);
-				r[i       ] = barrett_reduce(r[i] + t1);
+				r[i + step] = r[i] - t1;
+				r[i       ] = r[i] + t1;
 			}
 		}
 	}
+
+	for (int i = 0; i < NTRUPLUS_N; i++)
+		r[i] = barrett_reduce(r[i]);
 }
 
 /*************************************************
 * Name:        invntt
 *
 * Description: Inverse number-theoretic transform (NTT) in R_q. Transforms
-*              the NTT representation of a, where each block of 4
+*              the NTT representation in r, where each block of 4
 *              coefficients corresponds to an element of Zq[X]/(X^4 - zeta_i),
 *              back to the coefficient representation in R_q.
 *
-* Arguments:   - int16_t r[NTRUPLUS_N]: pointer to output vector; coefficient
-*                                       representation of a in R_q
-*              - const int16_t a[NTRUPLUS_N]: pointer to input vector in NTT
-*                                            representation in the product
-*                                            ring Zq[X]/(X^4 - zeta_i)
+* Arguments:   - int16_t r[NTRUPLUS_N]: pointer to input/output vector;
+*                                       input NTT representation in the
+*                                       product ring Zq[X]/(X^4 - zeta_i),
+*                                       output coefficient representation
+*                                       in R_q
 *
 * Returns:     none.
 **************************************************/
-void invntt(int16_t r[NTRUPLUS_N], const int16_t a[NTRUPLUS_N])
+void invntt(int16_t r[NTRUPLUS_N])
 {
 	int16_t t1, t2, t3;
 	int16_t zeta1, zeta2;
 	int k = 191;
-
-	for (int i = 0; i < NTRUPLUS_N; i++)
-	{
-		r[i] = a[i];
-	}
 
 	for (int step = 4; step <= 64; step <<= 1)
 	{

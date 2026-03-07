@@ -9,17 +9,17 @@ lea     zetas(%rip), %rdx
 vpbroadcastd  (%rdx), %ymm15
 vpbroadcastd 4(%rdx), %ymm2
 
-lea 1152(%rsi), %r8
+lea 1152(%rdi), %r8
 
 .p2align 5
 _looptop_j_0:
 #load
-vmovdqa     (%rsi), %ymm3
-vmovdqa   32(%rsi), %ymm4
-vmovdqa   64(%rsi), %ymm5
-vmovdqa 1152(%rsi), %ymm6
-vmovdqa 1184(%rsi), %ymm7
-vmovdqa 1216(%rsi), %ymm8
+vmovdqa     (%rdi), %ymm3
+vmovdqa   32(%rdi), %ymm4
+vmovdqa   64(%rdi), %ymm5
+vmovdqa 1152(%rdi), %ymm6
+vmovdqa 1184(%rdi), %ymm7
+vmovdqa 1216(%rdi), %ymm8
 
 #mul
 vpmullw %ymm15, %ymm6, %ymm12
@@ -56,9 +56,8 @@ vmovdqa %ymm12, 1152(%rdi)
 vmovdqa %ymm13, 1184(%rdi)
 vmovdqa %ymm14, 1216(%rdi)
 
-add $96, %rsi
 add $96, %rdi
-cmp %r8, %rsi
+cmp %r8, %rdi
 jb   _looptop_j_0
 
 sub $1152, %rdi

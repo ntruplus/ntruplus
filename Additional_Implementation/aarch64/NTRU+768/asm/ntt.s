@@ -3,7 +3,7 @@
 poly_ntt:
 _poly_ntt:
     dst       .req x0
-    src       .req x1
+    src       .req x0
     zetas_ptr .req x2
     counter   .req x8
     
@@ -471,7 +471,7 @@ _looptop_3456:
 poly_invntt:
 _poly_invntt:
     dst       .req x0
-    src       .req x1    
+    src       .req x0    
     zetas_ptr .req x2
     counter   .req x8
 

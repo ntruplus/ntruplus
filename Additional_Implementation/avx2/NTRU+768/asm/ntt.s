@@ -9,17 +9,17 @@ lea     zetas(%rip), %rdx
 vpbroadcastd  (%rdx), %ymm15
 vpbroadcastd 4(%rdx), %ymm2
 
-lea 768(%rsi), %r8
+lea 768(%rdi), %r8
 
 .p2align 5
 _looptop_j_0:
 #load
-vmovdqa    (%rsi), %ymm3
-vmovdqa  32(%rsi), %ymm4
-vmovdqa  64(%rsi), %ymm5
-vmovdqa 768(%rsi), %ymm6
-vmovdqa 800(%rsi), %ymm7
-vmovdqa 832(%rsi), %ymm8
+vmovdqa    (%rdi), %ymm3
+vmovdqa  32(%rdi), %ymm4
+vmovdqa  64(%rdi), %ymm5
+vmovdqa 768(%rdi), %ymm6
+vmovdqa 800(%rdi), %ymm7
+vmovdqa 832(%rdi), %ymm8
 
 #mul
 vpmullw %ymm15, %ymm6, %ymm12
@@ -56,9 +56,8 @@ vmovdqa %ymm12, 768(%rdi)
 vmovdqa %ymm13, 800(%rdi)
 vmovdqa %ymm14, 832(%rdi)
 
-add $96, %rsi
 add $96, %rdi
-cmp %r8, %rsi
+cmp %r8, %rdi
 jb  _looptop_j_0
 
 sub $768, %rdi
@@ -463,4 +462,3 @@ jb  _looptop_start_3456
 ret
 
 .section .note.GNU-stack,"",@progbits
-
