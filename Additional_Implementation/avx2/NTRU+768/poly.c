@@ -74,19 +74,19 @@ static inline __m256i fqinv(__m256i r)
     return t2;
 }
 
-static inline int poly_fqinv_batch(__m256i *restrict r)
+static inline int fqinv_batch(__m256i *restrict r)
 {
-    const int chunk = NTRUPLUS_N / 192;
-    const int off0 = 0;
-    const int off1 = chunk;
+    const int chunk = NTRUPLUS_N/(3*16*NTRUPLUS_D);
+    const int off0 = 0 * chunk;
+    const int off1 = 1 * chunk;
     const int off2 = 2 * chunk;
 
     const __m256i qinv = _mm256_set1_epi16(NTRUPLUS_QINV);
     const __m256i q    = _mm256_set1_epi16(NTRUPLUS_Q);
     const __m256i z    = _mm256_setzero_si256();
 
-    __m256i t[NTRUPLUS_N / 64];
-    __m256i R[NTRUPLUS_N / 64];
+    __m256i t[NTRUPLUS_N/(16 * NTRUPLUS_D)];
+    __m256i R[NTRUPLUS_N/(16 * NTRUPLUS_D)];
 
     t[off0] = r[off0];
     t[off1] = r[off1];
@@ -200,7 +200,7 @@ int poly_baseinv(poly *r, const poly *a)
 
     poly_baseinv_1(r, den, a);
 
-    if(poly_fqinv_batch(den))
+    if(fqinv_batch(den))
     {
         for (size_t j = 0; j < NTRUPLUS_N; ++j)
             r->coeffs[j] = 0;
