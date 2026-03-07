@@ -780,14 +780,14 @@ static inline int16_t fqinv(int16_t a)
 
 static inline void fqinv_batch(int16_t *r)
 {
-    const int chunk = NTRUPLUS_N / 16;
+    const int chunk = NTRUPLUS_N / (4*NTRUPLUS_D);
     const int off0 = 0 * chunk;
     const int off1 = 1 * chunk;
     const int off2 = 2 * chunk;
     const int off3 = 3 * chunk;
 
-    int16_t  t[NTRUPLUS_N / 4];
-    uint32_t R[NTRUPLUS_N / 4];
+    int16_t  t[NTRUPLUS_N / NTRUPLUS_D];
+    uint32_t R[NTRUPLUS_N / NTRUPLUS_D];
 
     t[off0] = r[off0];
     t[off1] = r[off1];
@@ -824,31 +824,20 @@ static inline void fqinv_batch(int16_t *r)
 
     int16_t inv = fqinv(t2[3]);
 
-    uint32_t INV = (uint32_t)inv * NTRUPLUS_QINV;
-    int16_t inv3 = plantard_mul(t2[2], INV);
+    int16_t inv3 = plantard_reduce(t2[2]*inv);
     inv = plantard_mul(inv, X3);
-
-    INV = (uint32_t)inv * NTRUPLUS_QINV;
-    int16_t inv2 = plantard_mul(t2[1], INV);
+    int16_t inv2 = plantard_reduce(t2[1]*inv);
     inv = plantard_mul(inv, X2);
-
-    INV = (uint32_t)inv * NTRUPLUS_QINV;
-    int16_t inv1 = plantard_mul(t2[0], INV);
+    int16_t inv1 = plantard_reduce(t2[0]*inv);
     inv = plantard_mul(inv, X1);
-
     int16_t inv0 = inv;
 
     for (int i = chunk - 1; i > 0; i--)
     {
-        uint32_t INV0 = (uint32_t)inv0 * NTRUPLUS_QINV;
-        uint32_t INV1 = (uint32_t)inv1 * NTRUPLUS_QINV;
-        uint32_t INV2 = (uint32_t)inv2 * NTRUPLUS_QINV;
-        uint32_t INV3 = (uint32_t)inv3 * NTRUPLUS_QINV;
-
-		r[off0 + i] = plantard_mul(t[off0 + i - 1], INV0);
-        r[off1 + i] = plantard_mul(t[off1 + i - 1], INV1);
-        r[off2 + i] = plantard_mul(t[off2 + i - 1], INV2);
-        r[off3 + i] = plantard_mul(t[off3 + i - 1], INV3);
+		r[off0 + i] = plantard_reduce(t[off0 + i - 1]*inv0);
+		r[off1 + i] = plantard_reduce(t[off1 + i - 1]*inv1);
+		r[off2 + i] = plantard_reduce(t[off2 + i - 1]*inv2);
+		r[off3 + i] = plantard_reduce(t[off3 + i - 1]*inv3);
 
 		inv0 = plantard_mul(inv0, R[off0 + i]);
         inv1 = plantard_mul(inv1, R[off1 + i]);
