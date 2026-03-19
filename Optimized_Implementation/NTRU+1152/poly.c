@@ -183,21 +183,6 @@ static inline int16_t montgomery_reduce(int32_t a)
 }
 
 /*************************************************
-* Name:        fqmul
-*
-* Description: Multiplication followed by Montgomery reduction.
-*
-* Arguments:   - int16_t a: first factor
-*              - int16_t b: second factor
-*
-* Returns:     16-bit integer congruent to a*b*R^-1 mod q.
-**************************************************/
-static inline int16_t fqmul(int16_t a, int16_t b)
-{
-    return montgomery_reduce((int32_t)a * b);
-}
-
-/*************************************************
 * Name:        poly_tobytes
 *
 * Description: Serialization of a polynomial
