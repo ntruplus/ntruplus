@@ -105,6 +105,74 @@ static inline int16_t plantard_mul(uint32_t a, uint32_t b)
 	return t;
 }
 
+#define NTRUPLUS_R_MONT            -147
+#define NTRUPLUS_RSQ_MONT           867
+#define NTRUPLUS_QINV_MONT        12929
+
+const int16_t zetas_mont[192] = {
+	 -147, -1033,  -682,  -248,  -708,   682,     1,  -722,
+	 -723,  -257, -1124,  -867,  -256,  1484,  1262, -1590,
+	 1611,   222,  1164, -1346,  1716, -1521,  -357,   395,
+	 -455,   639,   502,   655,  -699,   541,    95, -1577,
+	-1241,   550,   -44,    39,  -820,  -216,  -121,  -757,
+	 -348,   937,   893,   387,  -603,  1713, -1105,  1058,
+	 1449,   837,   901,  1637,  -569, -1617, -1530,  1199,
+	   50,  -830,  -625,     4,   176,  -156,  1257, -1507,
+	 -380,  -606,  1293,   661,  1428, -1580,  -565,  -992,
+	  548,  -800,    64,  -371,   961,   641,    87,   630,
+	  675,  -834,   205,    54, -1081,  1351,  1413, -1331,
+	-1673, -1267, -1558,   281, -1464,  -588,  1015,   436,
+	  223,  1138, -1059,  -397,  -183,  1655,   559, -1674,
+	  277,   933,  1723,   437, -1514,   242,  1640,   432,
+	-1583,   696,   774,  1671,   927,   514,   512,   489,
+	  297,   601,  1473,  1130,  1322,   871,   760,  1212,
+	 -312,  -352,   443,   943,     8,  1250,  -100,  1660,
+	  -31,  1206, -1341, -1247,   444,   235,  1364, -1209,
+	  361,   230,   673,   582,  1409,  1501,  1401,   251,
+	 1022, -1063,  1053,  1188,   417, -1391,   -27, -1626,
+	 1685,  -315,  1408, -1248,   400,   274, -1543,    32,
+	-1550,  1531, -1367,  -124,  1458,  1379,  -940, -1681,
+	   22,  1709,  -275,  1108,   354, -1728,  -968,   858,
+	 1221,  -218,   294,  -732, -1095,   892,  1588,  -779
+};
+
+/*************************************************
+* Name:        montgomery_reduce
+*
+* Description: Montgomery reduction; given a 32-bit integer a, computes
+*              a 16-bit integer congruent to a * R^-1 mod q,
+*              where R = 2^16.
+*
+* Arguments:   - int32_t a: input integer to be reduced;
+*                           must lie in {-q*2^15, ..., q*2^15-1}
+*
+* Returns:     an integer in {-q+1, ..., q-1} congruent to
+*              a * R^-1 mod q.
+**************************************************/
+static inline int16_t montgomery_reduce(int32_t a)
+{
+	int16_t t;
+	
+	t = (int16_t)a * NTRUPLUS_QINV_MONT;
+	t = (a - (int32_t)t * NTRUPLUS_Q) >> 16;
+	return t;
+}
+
+/*************************************************
+* Name:        fqmul
+*
+* Description: Multiplication followed by Montgomery reduction.
+*
+* Arguments:   - int16_t a: first factor
+*              - int16_t b: second factor
+*
+* Returns:     16-bit integer congruent to a*b*R^-1 mod q.
+**************************************************/
+static inline int16_t fqmul(int16_t a, int16_t b)
+{
+    return montgomery_reduce((int32_t)a * b);
+}
+
 /*************************************************
 * Name:        poly_tobytes
 *
@@ -981,58 +1049,26 @@ int poly_baseinv(poly *r, const poly *a)
 /*************************************************
 * Name:        basemul
 *
-* Description: Simultaneous multiplication in the NTT domain for the
-*              two rings Z_q[X]/(X^4 - zeta) and Z_q[X]/(X^4 + zeta).
+* Description: Multiplication of polynomials in Zq[X]/(X^4 - zeta),
+*              used for multiplication of elements in R_q in the NTT domain.
 *
-*              The inputs a and b each encode two degree-3 polynomials:
-*                a[0..3], b[0..3]  in Z_q[X]/(X^4 - zeta),
-*                a[4..7], b[4..7]  in Z_q[X]/(X^4 + zeta).
-*              The output r uses the same layout:
-*                r[0..3] = a[0..3] * b[0..3] mod (X^4 - zeta),
-*                r[4..7] = a[4..7] * b[4..7] mod (X^4 + zeta).
+* Arguments:   - int16_t r[4]:        pointer to the output polynomial
+*              - const int16_t a[4]:  pointer to the first factor
+*              - const int16_t b[4]:  pointer to the second factor
+*              - const int16_t zeta:  parameter defining X^4 - zeta
 *
-* Arguments:   - int16_t r[8]:       output (two polynomials)
-*              - const int16_t a[8]: first input (two polynomials)
-*              - const int16_t b[8]: second input (two polynomials)
-*              - uint32_t zeta:      defines X^4 ± zeta
+* Returns:     none.
 **************************************************/
-static inline void basemul(int16_t r[8], const int16_t a[8], const int16_t b[8], uint32_t zeta)
+static inline void basemul(int16_t r[4], const int16_t a[4], const int16_t b[4], const int16_t zeta)
 {
-    uint32_t z1 = zeta;
-    uint32_t z2 = -zeta;
+	r[0] = montgomery_reduce(a[1]*b[3]+a[2]*b[2]+a[3]*b[1]); // R^-1
+	r[1] = montgomery_reduce(a[2]*b[3]+a[3]*b[2]);           // R^-1
+	r[2] = montgomery_reduce(a[3]*b[3]);                     // R^-1
 
-	uint32_t A0, A1, A2, A3;
-	uint32_t B0, B1, B2, B3;
-
-	A0 = (int32_t)a[0]*NTRUPLUS_QINV;
-	A1 = (int32_t)a[1]*NTRUPLUS_QINV;
-	A2 = (int32_t)a[2]*NTRUPLUS_QINV;
-	A3 = (int32_t)a[3]*NTRUPLUS_QINV;
-	B0 = (int32_t)a[4]*NTRUPLUS_QINV;
-	B1 = (int32_t)a[5]*NTRUPLUS_QINV;
-	B2 = (int32_t)a[6]*NTRUPLUS_QINV;
-	B3 = (int32_t)a[7]*NTRUPLUS_QINV;
-
-    int16_t r0 = plantard_reduce_acc(A1*b[3]+A2*b[2]+A3*b[1]);
-    int16_t r1 = plantard_reduce_acc(A2*b[3]+A3*b[2]);
-    int16_t r2 = plantard_reduce_acc(A3*b[3]);
-    int16_t r3 = plantard_reduce_acc(A0*b[3]+A1*b[2]+A2*b[1]+A3*b[0]);
-
-    int16_t r4 = plantard_reduce_acc(B1*b[7]+B2*b[6]+B3*b[5]);
-    int16_t r5 = plantard_reduce_acc(B2*b[7]+B3*b[6]);
-    int16_t r6 = plantard_reduce_acc(B3*b[7]);
-    int16_t r7 = plantard_reduce_acc(B0*b[7]+B1*b[6]+B2*b[5]+B3*b[4]);
-
-    r0 = plantard_reduce_acc(r0*z1 + A0*b[0]);
-    r1 = plantard_reduce_acc(r1*z1 + A0*b[1] + A1*b[0]);
-    r2 = plantard_reduce_acc(r2*z1 + A0*b[2] + A1*b[1] + A2*b[0]);
-
-    r4 = plantard_reduce_acc(r4*z2 + B0*b[4]);
-    r5 = plantard_reduce_acc(r5*z2 + B0*b[5] + B1*b[4]);
-    r6 = plantard_reduce_acc(r6*z2 + B0*b[6] + B1*b[5] + B2*b[4]);
-
-    r[0]=r0; r[1]=r1; r[2]=r2; r[3]=r3;
-    r[4]=r4; r[5]=r5; r[6]=r6; r[7]=r7;
+	r[0] = montgomery_reduce(r[0]*zeta+a[0]*b[0]);  				   // R^-1
+	r[1] = montgomery_reduce(r[1]*zeta+a[0]*b[1]+a[1]*b[0]); 		   // R^-1
+	r[2] = montgomery_reduce(r[2]*zeta+a[0]*b[2]+a[1]*b[1]+a[2]*b[0]); // R^-1
+	r[3] = montgomery_reduce(a[0]*b[3]+a[1]*b[2]+a[2]*b[1]+a[3]*b[0]); // R^-1
 }
 
 /*************************************************
@@ -1047,10 +1083,13 @@ static inline void basemul(int16_t r[8], const int16_t a[8], const int16_t b[8],
 void poly_basemul(poly *r, const poly *a, const poly *b)
 {
 	for(int i = 0; i < NTRUPLUS_N/8; ++i)
-		basemul(r->coeffs + 8*i, a->coeffs + 8*i, b->coeffs + 8*i, zetas[96 + i]);
+	{
+		basemul(r->coeffs + 8*i, a->coeffs + 8*i, b->coeffs + 8*i, zetas_mont[96 + i]);
+		basemul(r->coeffs + 8*i + 4, a->coeffs + 8*i + 4, b->coeffs + 8*i + 4, -zetas_mont[96 + i]);
+	}
 
 	for(int i = 0; i < NTRUPLUS_N; i++)
-		r->coeffs[i] = plantard_mul(NTRUPLUS_RSQ, r->coeffs[i]);		
+		r->coeffs[i] = montgomery_reduce(r->coeffs[i]*NTRUPLUS_RSQ_MONT);
 }
 
 /*************************************************
@@ -1066,10 +1105,13 @@ void poly_basemul(poly *r, const poly *a, const poly *b)
 void poly_basemul_add(poly *r, const poly *a, const poly *b, const poly *c)
 {
 	for(int i = 0; i < NTRUPLUS_N/8; ++i)
-		basemul(r->coeffs + 8*i, a->coeffs + 8*i, b->coeffs + 8*i, zetas[96 + i]);
+	{
+		basemul(r->coeffs + 8*i, a->coeffs + 8*i, b->coeffs + 8*i, zetas_mont[96 + i]);
+		basemul(r->coeffs + 8*i + 4, a->coeffs + 8*i + 4, b->coeffs + 8*i + 4, -zetas_mont[96 + i]);
+	}
 
 	for(int i = 0; i < NTRUPLUS_N; i++)
-		r->coeffs[i] = plantard_reduce_acc((uint32_t)c->coeffs[i]*NTRUPLUS_R + (uint32_t)r->coeffs[i]*NTRUPLUS_RSQ);
+		r->coeffs[i] = montgomery_reduce(c->coeffs[i]*NTRUPLUS_R_MONT + r->coeffs[i]*NTRUPLUS_RSQ_MONT);
 }
 
 /*************************************************
