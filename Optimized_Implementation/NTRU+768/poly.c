@@ -706,6 +706,19 @@ static inline void invntt_scaled(int16_t r[NTRUPLUS_N])
 }
 
 /*************************************************
+* Name:        poly_invntt_scaled
+*
+* Description: Computes the inverse NTT for an input carrying the Montgomery
+*              R^-1 scale produced by poly_basemul_scaled.
+*
+* Arguments:   - poly *r: pointer to input/output polynomial
+**************************************************/
+void poly_invntt_scaled(poly *r)
+{
+	invntt_scaled(r->coeffs);
+}
+
+/*************************************************
 * Name:        baseinv
 *
 * Description: Simultaneous inversion of polynomials in
@@ -1091,17 +1104,17 @@ void poly_basemul_add(poly *r, const poly *a, const poly *b, const poly *c)
 }
 
 /*************************************************
-* Name:        poly_basemul_invntt
+* Name:        poly_basemul_scaled
 *
-* Description: Multiplication in the NTT domain followed by inverse NTT.
-*              The Montgomery scale is carried through the inverse NTT
-*              and absorbed into its final normalization constants.
+* Description: Multiplication of two polynomials in the NTT domain. The
+*              output carries the Montgomery R^-1 scale consumed by
+*              poly_invntt_scaled.
 *
 * Arguments:   - poly *r:       pointer to the output polynomial
 *              - const poly *a: pointer to the first input polynomial
 *              - const poly *b: pointer to the second input polynomial
 **************************************************/
-void poly_basemul_invntt(poly *r, const poly *a, const poly *b)
+void poly_basemul_scaled(poly *r, const poly *a, const poly *b)
 {
 	for (int i = 0; i < NTRUPLUS_N / 8; i++)
 	{
@@ -1110,8 +1123,6 @@ void poly_basemul_invntt(poly *r, const poly *a, const poly *b)
 		basemul(r->coeffs + 8*i + 4, a->coeffs + 8*i + 4,
 		        b->coeffs + 8*i + 4, -zetas_mont[96 + i]);
 	}
-
-	invntt_scaled(r->coeffs);
 }
 
 /*************************************************
