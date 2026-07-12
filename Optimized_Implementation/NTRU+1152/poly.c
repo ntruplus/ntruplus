@@ -1040,14 +1040,19 @@ int poly_baseinv(poly *r, const poly *a)
 **************************************************/
 static inline void basemul(int16_t r[4], const int16_t a[4], const int16_t b[4], const int16_t zeta)
 {
-	r[0] = montgomery_reduce(a[1]*b[3]+a[2]*b[2]+a[3]*b[1]); // R^-1
-	r[1] = montgomery_reduce(a[2]*b[3]+a[3]*b[2]);           // R^-1
-	r[2] = montgomery_reduce(a[3]*b[3]);                     // R^-1
+	int16_t t0 = montgomery_reduce(a[1]*b[3]+a[2]*b[2]+a[3]*b[1]); // R^-1
+	int16_t t1 = montgomery_reduce(a[2]*b[3]+a[3]*b[2]);           // R^-1
+	int16_t t2 = montgomery_reduce(a[3]*b[3]);                     // R^-1
 
-	r[0] = montgomery_reduce(r[0]*zeta+a[0]*b[0]);  				   // R^-1
-	r[1] = montgomery_reduce(r[1]*zeta+a[0]*b[1]+a[1]*b[0]); 		   // R^-1
-	r[2] = montgomery_reduce(r[2]*zeta+a[0]*b[2]+a[1]*b[1]+a[2]*b[0]); // R^-1
-	r[3] = montgomery_reduce(a[0]*b[3]+a[1]*b[2]+a[2]*b[1]+a[3]*b[0]); // R^-1
+	int16_t c0 = montgomery_reduce(t0*zeta+a[0]*b[0]);                             // R^-1
+	int16_t c1 = montgomery_reduce(t1*zeta+a[0]*b[1]+a[1]*b[0]);                   // R^-1
+	int16_t c2 = montgomery_reduce(t2*zeta+a[0]*b[2]+a[1]*b[1]+a[2]*b[0]);         // R^-1
+	int16_t c3 = montgomery_reduce(a[0]*b[3]+a[1]*b[2]+a[2]*b[1]+a[3]*b[0]);       // R^-1
+
+	r[0] = c0;
+	r[1] = c1;
+	r[2] = c2;
+	r[3] = c3;
 }
 
 /*************************************************
