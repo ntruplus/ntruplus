@@ -1004,15 +1004,16 @@ static inline void baseinv_2(int16_t r[4], int16_t den[1])
 int poly_baseinv(poly *r, const poly *a)
 {
 	int16_t den[NTRUPLUS_N / 4];
+	int fail = 0;
 
 	for(int i = 0; i < NTRUPLUS_N/8; ++i)
-	{
-		if(baseinv_1(r->coeffs + 8*i, den + 2*i, a->coeffs + 8*i, zetas[144 + i]))
-		{
-			memset(r->coeffs, 0, NTRUPLUS_N*sizeof(int16_t));
+		fail |= baseinv_1(r->coeffs + 8*i, den + 2*i,
+		                  a->coeffs + 8*i, zetas[144 + i]);
 
-			return 1;
-		}
+	if (fail)
+	{
+		memset(r->coeffs, 0, NTRUPLUS_N*sizeof(int16_t));
+		return 1;
 	}
 
 	fqinv_batch(den);
