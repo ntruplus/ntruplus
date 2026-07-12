@@ -757,8 +757,6 @@ static inline int baseinv_1(int16_t r[8], int16_t den[2], const int16_t a[8], ui
 	t3 = plantard_reduce(t0*t0 - t1*t2);
 	s3 = plantard_reduce(s0*s0 - s1*s2);
 	
-	if(!(t3 && s3)) return 1;
-
 	r[0] = plantard_reduce_acc(A0*t0 + A2*t2);
 	r[1] = plantard_reduce_acc(A3*t2 + A1*t0);
 	r[2] = plantard_reduce_acc(A2*t0 + A0*t1);
@@ -771,7 +769,7 @@ static inline int baseinv_1(int16_t r[8], int16_t den[2], const int16_t a[8], ui
 	den[0] = t3; // R^-3
 	den[1] = s3; // R^-3
 
-	return 0;
+	return (t3 == 0) | (s3 == 0);
 }
 
 /*************************************************

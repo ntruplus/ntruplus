@@ -757,12 +757,10 @@ static inline int baseinv_1(int16_t r[6], int16_t den[2], const int16_t a[6], ui
 	t2  = plantard_reduce_acc(t2*zeta+t0*A0);
 	s2  = plantard_reduce_acc(s0*B0-s2*zeta);
 
-	if(!(t2 && s2)) return 1;
-
 	den[0] = t2;
 	den[1] = s2;
 
-	return 0;
+	return (t2 == 0) | (s2 == 0);
 }
 
 /*************************************************
