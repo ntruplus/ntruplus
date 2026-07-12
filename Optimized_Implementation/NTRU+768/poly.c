@@ -11,6 +11,7 @@
 
 #define NTRUPLUS_OMEGA       0xCA75BE64u
 #define NTRUPLUS_ZMINUSZ5INV 0x790084B4u
+#define NTRUPLUS_ZETA1       -722
 
 #define NTRUPLUS_NINV        0xC3F17C56u
 #define NTRUPLUS_2NINV       0x87E2F8ACu
@@ -332,13 +333,9 @@ static inline void ntt(int16_t r[NTRUPLUS_N])
 	uint32_t zeta[5];
 	int16_t v[8];
 
-	int index = 1;
-
-	zeta[0] = zetas[index++];
-
 	for(int i = 0; i < NTRUPLUS_N/2; i++)
 	{
-		t1 = plantard_mul(zeta[0], r[i + NTRUPLUS_N/2]);
+		t1 = NTRUPLUS_ZETA1 * r[i + NTRUPLUS_N/2];
 
 		r[i + NTRUPLUS_N/2] = r[i] + r[i + NTRUPLUS_N/2] - t1;
 		r[i               ] = r[i]                       + t1;
