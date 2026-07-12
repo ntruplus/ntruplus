@@ -501,7 +501,8 @@ static inline void ntt(int16_t r[NTRUPLUS_N])
 /*************************************************
 * Name:        poly_ntt
 *
-* Description: Computes number-theoretic transform (NTT)
+* Description: Computes the number-theoretic transform (NTT) for a polynomial
+*              whose coefficients are in the range [-3, 4].
 *
 * Arguments:   - poly *r: pointer to input/output polynomial
 **************************************************/
