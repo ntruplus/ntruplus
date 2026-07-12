@@ -359,7 +359,7 @@ static inline void ntt(int16_t r[NTRUPLUS_N])
 
 	int index = 2;
 
-	for(int i = 0; i < NTRUPLUS_N/2; i++)
+	for(int i = 0; i < NTRUPLUS_N / 2; i++)
 	{
 		t1 = NTRUPLUS_ZETA1 * r[i + NTRUPLUS_N/2];
 
