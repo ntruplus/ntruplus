@@ -1127,13 +1127,12 @@ void poly_sub(poly *r, const poly *a, const poly *b)
 *
 * Description: Multiply polynomial by 3; no modular reduction is performed
 *
-* Arguments: - poly *r: pointer to output polynomial
-*            - const poly *a: pointer to input polynomial
+* Arguments: - poly *r: pointer to input/output polynomial
 **************************************************/
-void poly_triple(poly *r, const poly *a) 
+void poly_triple(poly *r) 
 {
 	for(int i = 0; i < NTRUPLUS_N; ++i)
-		r->coeffs[i] = 3*a->coeffs[i];
+		r->coeffs[i] *= 3;
 }
 
 /*************************************************
@@ -1165,11 +1164,10 @@ static inline int16_t crepmod3(int16_t a)
 *
 * Description: Compute modulus 3 operation to polynomial
 *
-* Arguments: - poly *r: pointer to output polynomial
-*            - const poly *a: pointer to input polynomial
+* Arguments: - poly *r: pointer to input/output polynomial
 **************************************************/
-void poly_crepmod3(poly *r, const poly *a)
+void poly_crepmod3(poly *r)
 {
 	for(int i = 0; i < NTRUPLUS_N; i++)
-		r->coeffs[i] = crepmod3(a->coeffs[i]);
+		r->coeffs[i] = crepmod3(r->coeffs[i]);
 }
