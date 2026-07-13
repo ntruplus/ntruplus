@@ -1120,8 +1120,8 @@ void poly_basemul_scaled(poly *r, const poly *a, const poly *b)
 	{
 		basemul(r->coeffs + 8*i, a->coeffs + 8*i, b->coeffs + 8*i,
 		        zetas_mont[96 + i]);
-		basemul(r->coeffs + 8*i + 4, a->coeffs + 8*i + 4,
-		        b->coeffs + 8*i + 4, -zetas_mont[96 + i]);
+		basemul(r->coeffs + 8*i + 4, a->coeffs + 8*i + 4, b->coeffs + 8*i + 4,
+		        -zetas_mont[96 + i]);
 	}
 }
 

@@ -1102,9 +1102,9 @@ void poly_basemul_scaled(poly *r, const poly *a, const poly *b)
 	for(int i = 0; i < NTRUPLUS_N/(2*NTRUPLUS_D); i++)
 	{
 		basemul(r->coeffs + 6*i, a->coeffs + 6*i, b->coeffs + 6*i,
-				zetas_mont[144 + i]);
-		basemul(r->coeffs + 6*i + 3, a->coeffs + 6*i + 3,
-				b->coeffs + 6*i + 3, -zetas_mont[144 + i]);
+		        zetas_mont[144 + i]);
+		basemul(r->coeffs + 6*i + 3, a->coeffs + 6*i + 3, b->coeffs + 6*i + 3,
+		        -zetas_mont[144 + i]);
 	}
 }
 
