@@ -1123,7 +1123,7 @@ void poly_basemul_add(poly *r, const poly *a, const poly *b, const poly *c)
 **************************************************/
 void poly_basemul_scaled(poly *r, const poly *a, const poly *b)
 {
-	for(int i = 0; i < NTRUPLUS_N/8; ++i)
+	for(int i = 0; i < NTRUPLUS_N/8; i++)
 	{
 		basemul(r->coeffs + 8*i, a->coeffs + 8*i, b->coeffs + 8*i, zetas_mont[144 + i]);
 		basemul(r->coeffs + 8*i + 4, a->coeffs + 8*i + 4, b->coeffs + 8*i + 4, -zetas_mont[144 + i]);
