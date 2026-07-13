@@ -5,7 +5,7 @@
 #include "symmetric.h"
 
 #define NTRUPLUS_R           0x0012F51Eu 
-#define NTRUPLUS_RINV        0xECF7EDA3u
+#define NTRUPLUS_RINVSQ      0x35774C7Fu
 #define NTRUPLUS_RSQ         0xBFCBDDF0u
 #define NTRUPLUS_QINV        0x74563281u
 
@@ -800,42 +800,40 @@ static inline int baseinv_1(int16_t r[8], int16_t den[2], const int16_t a[8], ui
 * Description: Computes the multiplicative inverse of a value in the
 *              finite field Z_q.
 *
-* Arguments:   - int16_t a: input value a mod q
+* Arguments:   - int16_t a: input value in {-(q+1)/2, ..., (q-1)/2}
 *
-* Returns:     16-bit integer congruent to a^{-1} mod q.
+* Returns:     an integer in {-(q+1)/2, ..., (q-1)/2} congruent to
+*              a^{-1} mod q.
 **************************************************/
 static inline int16_t fqinv(int16_t a)
 {
-    int16_t t1, t2, t3;
-    uint32_t A, T1;
+	int16_t t0, t1, t2;
+	uint32_t A, T;
 
-    A  = a*NTRUPLUS_QINV;
-    t1 = plantard_reduce_acc(a*A);   // 10
+	A = a*NTRUPLUS_QINV;
+	t0 = plantard_reduce_acc(a*A);      // 10
+	t0 = plantard_reduce(t0*t0);        // 100
+	t0 = plantard_reduce(t0*t0);        // 1000
+	t0 = plantard_reduce(t0*t0);        // 10000
 
-    T1 = t1*NTRUPLUS_QINV;
-    t2 = plantard_reduce_acc(t1*T1); // 100
-    t2 = plantard_reduce(t2*t2);     // 1000
-    t3 = plantard_reduce(t2*t2);     // 10000
-    t1 = plantard_reduce_acc(t2*T1); // 1010
+	T = t0*NTRUPLUS_QINV;
+	t1 = plantard_reduce_acc(t0*T);     // 100000
+	t1 = plantard_reduce(t1*t1);        // 1000000
+	t1 = plantard_reduce(t1*t1);        // 10000000
 
-    T1 = t1*NTRUPLUS_QINV;
-    t2 = plantard_reduce_acc(t3*T1); // 11010
-    t2 = plantard_reduce(t2*t2);     // 110100
-    t2 = plantard_reduce_acc(t2*A);  // 110101
+	T = t1*NTRUPLUS_QINV;
+	t2 = plantard_reduce_acc(t0*T);     // 10010000
+	t2 = plantard_reduce_acc(t2*A);     // 10010001
 
-    t1 = plantard_reduce_acc(t2*T1); // 111111
+	T = t2*NTRUPLUS_QINV;
+	t0 = plantard_reduce_acc(t1*T);     // 100010001
+	t0 = plantard_reduce(t0*t0);        // 1000100010
+	t0 = plantard_reduce_acc(t0*T);     // 1010110011
+	t1 = plantard_reduce(t0*t0);        // 10101100110
+	t1 = plantard_reduce(t1*t1);        // 101011001100
 
-    t2 = plantard_reduce(t2*t2);     // 1101010
-    t2 = plantard_reduce(t2*t2);     // 11010100
-    t2 = plantard_reduce(t2*t2);     // 110101000
-    t2 = plantard_reduce(t2*t2);     // 1101010000
-    t2 = plantard_reduce(t2*t2);     // 11010100000
-    t2 = plantard_reduce(t2*t2);     // 110101000000
-    t2 = plantard_reduce(t2*t1);     // 110101111111
-
-	t2 = plantard_mul(NTRUPLUS_RINV, t2);
-	
-    return t2;
+	T = t0*NTRUPLUS_RINVSQ; // below 64*q^2 for centered fqinv inputs.
+	return plantard_reduce_acc(t1*T);   // 110101111111
 }
 
 static inline void fqinv_batch(int16_t *r)
