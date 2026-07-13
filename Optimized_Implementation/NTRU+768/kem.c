@@ -22,7 +22,7 @@ static inline int verify(const uint8_t *a, const uint8_t *b, size_t len)
 {
     uint8_t acc = 0;
 
-    for (size_t i = 0; i < len; i++)
+    for(size_t i = 0; i < len; i++)
         acc |= (uint8_t)(a[i] ^ b[i]);
 
     return (-(uint64_t)acc) >> 63;
@@ -43,7 +43,7 @@ static inline int verify(const uint8_t *a, const uint8_t *b, size_t len)
 **************************************************/
 static inline int genf_derand(poly *f, poly *finv, const uint8_t *coins)
 {
-    uint8_t buf[NTRUPLUS_N / 4];
+    uint8_t buf[NTRUPLUS_N/4];
 
     shake256(buf, sizeof buf, coins, 32);
 
@@ -71,7 +71,7 @@ static inline int genf_derand(poly *f, poly *finv, const uint8_t *coins)
 **************************************************/
 static inline int geng_derand(poly *g, poly *ginv, const uint8_t *coins)
 {
-    uint8_t buf[NTRUPLUS_N / 4];
+    uint8_t buf[NTRUPLUS_N/4];
 
     shake256(buf, sizeof buf, coins, 32);
 
@@ -167,16 +167,16 @@ static inline int crypto_kem_enc_derand(uint8_t *ct, uint8_t *ss,
                                         const uint8_t *pk,
                                         const uint8_t *coins)
 {
-	uint8_t msg[NTRUPLUS_N / 8 + NTRUPLUS_SYMBYTES];
-	uint8_t buf1[NTRUPLUS_SYMBYTES + NTRUPLUS_N / 4];
+	uint8_t msg[NTRUPLUS_N/8 + NTRUPLUS_SYMBYTES];
+	uint8_t buf1[NTRUPLUS_SYMBYTES + NTRUPLUS_N/4];
 	uint8_t buf2[NTRUPLUS_POLYBYTES];
 
     poly c, h, r, m;
 
-    for (size_t i = 0; i < NTRUPLUS_N / 8; i++)
+    for(size_t i = 0; i < NTRUPLUS_N/8; i++)
         msg[i] = coins[i];
 
-    hash_f(msg + NTRUPLUS_N / 8, pk);
+    hash_f(msg + NTRUPLUS_N/8, pk);
     hash_h(buf1, msg);
 
     poly_cbd1(&r, buf1 + NTRUPLUS_SYMBYTES);
@@ -191,7 +191,7 @@ static inline int crypto_kem_enc_derand(uint8_t *ct, uint8_t *ss,
     poly_basemul_add(&c, &h, &r, &m);
     poly_tobytes(ct, &c);
 
-    for (size_t i = 0; i < NTRUPLUS_SSBYTES; i++)
+    for(size_t i = 0; i < NTRUPLUS_SSBYTES; i++)
         ss[i] = buf1[i];
 
     return 0;
@@ -215,7 +215,7 @@ static inline int crypto_kem_enc_derand(uint8_t *ct, uint8_t *ss,
 **************************************************/
 int crypto_kem_enc(uint8_t *ct, uint8_t *ss, const uint8_t *pk)
 {
-    uint8_t coins[NTRUPLUS_N / 8];
+    uint8_t coins[NTRUPLUS_N/8];
 
     randombytes(coins, sizeof coins);
     return crypto_kem_enc_derand(ct, ss, pk, coins);
@@ -239,7 +239,7 @@ int crypto_kem_enc(uint8_t *ct, uint8_t *ss, const uint8_t *pk)
 **************************************************/
 int crypto_kem_dec(uint8_t *ss, const uint8_t *ct, const uint8_t *sk)
 {
-	uint8_t msg[NTRUPLUS_N / 8 + NTRUPLUS_SYMBYTES];
+	uint8_t msg[NTRUPLUS_N/8 + NTRUPLUS_SYMBYTES];
 	uint8_t buf1[NTRUPLUS_POLYBYTES];
 	uint8_t buf2[NTRUPLUS_POLYBYTES];
 	uint8_t buf3[NTRUPLUS_POLYBYTES + NTRUPLUS_SYMBYTES];
@@ -267,8 +267,8 @@ int crypto_kem_dec(uint8_t *ss, const uint8_t *ct, const uint8_t *sk)
     hash_g(buf2, buf1);
     fail = poly_sotp_decode(msg, &m1, buf2);
 
-    for (size_t i = 0; i < NTRUPLUS_SYMBYTES; i++)
-        msg[i + NTRUPLUS_N / 8] = sk[i + 2 * NTRUPLUS_POLYBYTES];
+    for(size_t i = 0; i < NTRUPLUS_SYMBYTES; i++)
+        msg[i + NTRUPLUS_N/8] = sk[i + 2 * NTRUPLUS_POLYBYTES];
 
     hash_h(buf3, msg);
 
@@ -278,7 +278,7 @@ int crypto_kem_dec(uint8_t *ss, const uint8_t *ct, const uint8_t *sk)
 
     fail |= verify(buf1, buf2, NTRUPLUS_POLYBYTES);
 
-    for (size_t i = 0; i < NTRUPLUS_SSBYTES; i++)
+    for(size_t i = 0; i < NTRUPLUS_SSBYTES; i++)
         ss[i] = buf3[i] & ~(-fail);
 
     return fail;

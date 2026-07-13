@@ -242,10 +242,10 @@ void poly_cbd1(poly *r, const unsigned char buf[NTRUPLUS_N/4])
 {
 	uint8_t t1, t2;
 
-	for(size_t i = 0; i < NTRUPLUS_N / 8; i++)
+	for(size_t i = 0; i < NTRUPLUS_N/8; i++)
 	{
 		t1 = buf[i];
-		t2 = buf[i + NTRUPLUS_N / 8];
+		t2 = buf[i + NTRUPLUS_N/8];
 
 		for(size_t j = 0; j < 8; j++)
 		{
@@ -302,10 +302,10 @@ int poly_sotp_decode(uint8_t msg[NTRUPLUS_N/8], const poly *a, const uint8_t buf
 	uint32_t r = 0;
 	uint8_t mask;
 
-	for(size_t i = 0; i < NTRUPLUS_N / 8; i++)
+	for(size_t i = 0; i < NTRUPLUS_N/8; i++)
 	{
 		t1 = buf[i                 ];
-		t2 = buf[i + NTRUPLUS_N / 8];
+		t2 = buf[i + NTRUPLUS_N/8];
 		t3 = 0;
 
 		for(size_t j = 0; j < 8; j++)
@@ -328,7 +328,7 @@ int poly_sotp_decode(uint8_t msg[NTRUPLUS_N/8], const poly *a, const uint8_t buf
 
 	mask = (uint8_t)(r - 1);
 
-	for (size_t i = 0; i < NTRUPLUS_N / 8; i++)
+	for(size_t i = 0; i < NTRUPLUS_N/8; i++)
 		msg[i] &= mask;
 
 	return r;
@@ -359,7 +359,7 @@ static inline void ntt(int16_t r[NTRUPLUS_N])
 
 	int index = 2;
 
-	for(int i = 0; i < NTRUPLUS_N / 2; i++)
+	for(int i = 0; i < NTRUPLUS_N/2; i++)
 	{
 		t1 = NTRUPLUS_ZETA1 * r[i + NTRUPLUS_N/2];
 
@@ -384,7 +384,7 @@ static inline void ntt(int16_t r[NTRUPLUS_N])
 		}		
 	}
 
-	for (int i = 0; i < 6; i++)
+	for(int i = 0; i < 6; i++)
 	{
 		zeta[0] = zetas[6+2*i];
 		zeta[1] = zetas[7+2*i];
@@ -392,9 +392,9 @@ static inline void ntt(int16_t r[NTRUPLUS_N])
 		zeta[3] = zetas[19+3*i];
 		zeta[4] = zetas[20+3*i];
 
-		for (int j = 0; j < 32; j++)
+		for(int j = 0; j < 32; j++)
 		{
-			for (int k = 0; k < 6; k++)
+			for(int k = 0; k < 6; k++)
 			{
 				v[k] = r[32*k+j+192*i];
 			}
@@ -425,14 +425,14 @@ static inline void ntt(int16_t r[NTRUPLUS_N])
 			v[5] = v[4] - t1;
 			v[4] = v[4] + t1;
 
-			for (int k = 0; k < 6; k++)
+			for(int k = 0; k < 6; k++)
 			{
 				r[32*k+j+192*i] = v[k];
 			}
 		}
 	}
 	
-	for (int i = 0; i < 36; i++)
+	for(int i = 0; i < 36; i++)
 	{
 		zeta[0] = zetas[36+i];
 		zeta[1] = zetas[72+2*i];
@@ -442,9 +442,9 @@ static inline void ntt(int16_t r[NTRUPLUS_N])
 		zeta[5] = zetas[146+4*i];
 		zeta[6] = zetas[147+4*i];
 
-		for (int j = 0; j < 4; j++)
+		for(int j = 0; j < 4; j++)
 		{
-			for (int k = 0; k < 8; k++)
+			for(int k = 0; k < 8; k++)
 			{
 				v[k] = r[4*k+j+32*i];
 			}
@@ -501,7 +501,7 @@ static inline void ntt(int16_t r[NTRUPLUS_N])
 			v[7] = plantard_reduce_acc(T1 - T2);
 			v[6] = plantard_reduce_acc(T1 + T2);
 
-			for (int k = 0; k < 8; k++)
+			for(int k = 0; k < 8; k++)
 			{
 				r[4*k+j+32*i] = v[k];
 			}
@@ -545,7 +545,7 @@ static inline void invntt_scaled(int16_t r[NTRUPLUS_N])
 	uint32_t zeta[7];
 	int16_t v[8];
 
-	for (int i = 0; i < 36; i++)
+	for(int i = 0; i < 36; i++)
 	{
 		zeta[0] = zetas[287-4*i];
 		zeta[1] = zetas[286-4*i];
@@ -555,9 +555,9 @@ static inline void invntt_scaled(int16_t r[NTRUPLUS_N])
 		zeta[5] = zetas[142-2*i];
 		zeta[6] = zetas[71-i];
 
-		for (int j = 0; j < 4; j++)
+		for(int j = 0; j < 4; j++)
 		{
-			for (int k = 0; k < 8; k++)
+			for(int k = 0; k < 8; k++)
 			{
 				v[k] = r[4*k+j+32*i];
 			}
@@ -610,14 +610,14 @@ static inline void invntt_scaled(int16_t r[NTRUPLUS_N])
 			v[7] = plantard_mul(zeta[6],  t1 - v[3]);
 			v[3] = v[3] + t1;			
 				
-			for (int k = 0; k < 8; k++)
+			for(int k = 0; k < 8; k++)
 			{
 				r[4*k+j+32*i] = v[k];
 			}
 		}
 	}
 
-	for (int i = 0; i < 6; i++)
+	for(int i = 0; i < 6; i++)
 	{
 		zeta[0] = zetas[35-3*i];
 		zeta[1] = zetas[34-3*i];
@@ -625,9 +625,9 @@ static inline void invntt_scaled(int16_t r[NTRUPLUS_N])
 		zeta[3] = zetas[16-2*i];
 		zeta[4] = zetas[17-2*i];
 
-		for (int j = 0; j < 32; j++)
+		for(int j = 0; j < 32; j++)
 		{
-			for (int k = 0; k < 6; k++)
+			for(int k = 0; k < 6; k++)
 			{
 				v[k] = r[32*k+j+192*i];
 			}
@@ -658,7 +658,7 @@ static inline void invntt_scaled(int16_t r[NTRUPLUS_N])
 			v[3] = t2;
 			v[5] = t3;
 
-			for (int k = 0; k < 6; k++)
+			for(int k = 0; k < 6; k++)
 			{
 				r[32*k+j+192*i] = v[k];
 			}
@@ -670,9 +670,9 @@ static inline void invntt_scaled(int16_t r[NTRUPLUS_N])
 	zeta[2] = zetas[2];
 	zeta[3] = zetas[3];
 
-	for (int i = 0; i < 192; i++)
+	for(int i = 0; i < 192; i++)
 	{
-		for (int j = 0; j < 6; j++)
+		for(int j = 0; j < 6; j++)
 		{
 			v[j] = r[192*j+i];
 		}
@@ -706,7 +706,7 @@ static inline void invntt_scaled(int16_t r[NTRUPLUS_N])
 		v[2] = plantard_mul(NTRUPLUS_NINV, t1 - t2);
 		v[5] = plantard_mul(NTRUPLUS_2NINV, t2);
 
-		for (int j = 0; j < 6; j++)
+		for(int j = 0; j < 6; j++)
 		{
 			r[192*j+i] = v[j];
 		}
@@ -840,7 +840,7 @@ static inline int16_t fqinv(int16_t a)
 
 static inline void fqinv_batch(int16_t *r)
 {
-    const int chunk = NTRUPLUS_N / (NTRUPLUS_D * 8);
+    const int chunk = NTRUPLUS_N/(NTRUPLUS_D * 8);
     const int off0  = 0 * chunk;
     const int off1  = 1 * chunk;
     const int off2  = 2 * chunk;
@@ -850,8 +850,8 @@ static inline void fqinv_batch(int16_t *r)
     const int off6  = 6 * chunk;
     const int off7  = 7 * chunk;
 
-    int16_t  pc0[NTRUPLUS_N / NTRUPLUS_D];
-    uint32_t R[NTRUPLUS_N / NTRUPLUS_D];
+    int16_t  pc0[NTRUPLUS_N/NTRUPLUS_D];
+    uint32_t R[NTRUPLUS_N/NTRUPLUS_D];
 
     pc0[off0] = r[off0];
     pc0[off1] = r[off1];
@@ -862,7 +862,7 @@ static inline void fqinv_batch(int16_t *r)
     pc0[off6] = r[off6];
     pc0[off7] = r[off7];
 
-    for (int i = 1; i < chunk; i++)
+    for(int i = 1; i < chunk; i++)
     {
         R[off0 + i] = (uint32_t)r[off0 + i] * NTRUPLUS_QINV;
         R[off1 + i] = (uint32_t)r[off1 + i] * NTRUPLUS_QINV;
@@ -963,7 +963,7 @@ static inline void fqinv_batch(int16_t *r)
     inv0[4] = plantard_mul(inv1[2], R1[5]);
     inv0[6] = plantard_mul(inv1[3], R1[7]);
 
-    for (int i = chunk - 1; i > 0; i--)
+    for(int i = chunk - 1; i > 0; i--)
     {
 		r[off0 + i] = plantard_reduce(pc0[off0 + i - 1]*inv0[0]);
 		r[off1 + i] = plantard_reduce(pc0[off1 + i - 1]*inv0[1]);
@@ -1016,7 +1016,7 @@ static inline void baseinv_2(int16_t r[4], int16_t den[1])
 **************************************************/
 int poly_baseinv(poly *r, const poly *a)
 {
-	int16_t den[NTRUPLUS_N / 4];
+	int16_t den[NTRUPLUS_N/4];
 	int fail = 0;
 
 	for(int i = 0; i < NTRUPLUS_N/8; ++i)
@@ -1072,9 +1072,9 @@ static inline void basemul(int16_t r[4], const int16_t a[4], const int16_t b[4],
 *
 * Description: Multiplication of two polynomials in NTT domain
 *
-* Arguments:   - poly *r:       pointer to output polynomial
-*              - const poly *a: pointer to first input polynomial
-*              - const poly *b: pointer to second input polynomial
+* Arguments:   - poly *r:       pointer to the output polynomial
+*              - const poly *a: pointer to the first input polynomial
+*              - const poly *b: pointer to the second input polynomial
 **************************************************/
 void poly_basemul(poly *r, const poly *a, const poly *b)
 {
