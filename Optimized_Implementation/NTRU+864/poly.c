@@ -184,6 +184,26 @@ static inline int16_t montgomery_reduce(int32_t a)
 }
 
 /*************************************************
+* Name:        barrett_reduce
+*
+* Description: Barrett reduction; given a 16-bit integer a, computes a
+*              centered representative congruent to a mod q in
+*              {-(q+1)/2, ..., (q+1)/2}.
+*
+* Arguments:   - int16_t a: input integer to be reduced
+*
+* Returns:     integer in {-(q+1)/2, ..., (q+1)/2} congruent to a mod q.
+**************************************************/
+static inline int16_t barrett_reduce(int16_t a)
+{
+	int16_t t;
+	const int16_t v = ((1<<26) + NTRUPLUS_Q/2) / NTRUPLUS_Q;
+
+	t  = ((int32_t)v*a + (1<<25)) >> 26;
+	return a - t*NTRUPLUS_Q;
+}
+
+/*************************************************
 * Name:        poly_tobytes
 *
 * Description: Serialization of a polynomial
@@ -353,7 +373,6 @@ int poly_sotp_decode(uint8_t msg[NTRUPLUS_N/8], const poly *a, const uint8_t buf
 static inline void ntt(int16_t r[NTRUPLUS_N])
 {
 	int16_t t1,t2,t3;
-	uint32_t T1,T2;
 	uint32_t zeta[5];
 	int16_t v[8];
 
@@ -435,52 +454,24 @@ static inline void ntt(int16_t r[NTRUPLUS_N])
 	for(int i = 0; i < 36; i++)
 	{
 		zeta[0] = zetas[36+i];
-		zeta[1] = zetas[72+2*i];
-		zeta[2] = zetas[73+2*i];
 
-		for(int j = 0; j < 3; j++)
+		for(int j = 0; j < 12; j++)
 		{
-			for(int k = 0; k < 8; k++)
-			{
-				v[k] = r[3*k+j+24*i];
-			}
+			t1 = plantard_mul(zeta[0], r[24*i+j+12]);
+			r[24*i+j+12] = r[24*i+j] - t1;
+			r[24*i+j   ] = r[24*i+j] + t1;
+		}
+	}
 
-			t1 = plantard_mul(zeta[0], v[4]);
-			v[4] = v[0] - t1;
-			v[0] = v[0] + t1;
+	for(int i = 0; i < 72; i++)
+	{
+		zeta[0] = zetas[72+i];
 
-			t1 = plantard_mul(zeta[0], v[5]);
-			v[5] = v[1] - t1;
-			v[1] = v[1] + t1;
-
-			t1 = plantard_mul(zeta[0], v[6]);
-			v[6] = v[2] - t1;
-			v[2] = v[2] + t1;
-
-			t1 = plantard_mul(zeta[0], v[7]);
-			v[7] = v[3] - t1;
-			v[3] = v[3] + t1;
-
-			t1 = plantard_mul(zeta[1], v[2]);
-			v[2] = v[0] - t1;
-			v[0] = v[0] + t1;
-
-			t1 = plantard_mul(zeta[1], v[3]);
-			v[3] = v[1] - t1;
-			v[1] = v[1] + t1;
-
-			t1 = plantard_mul(zeta[2], v[6]);
-			v[6] = v[4] - t1;
-			v[4] = v[4] + t1;
-
-			t1 = plantard_mul(zeta[2], v[7]);
-			v[7] = v[5] - t1;
-			v[5] = v[5] + t1;
-
-			for(int k = 0; k < 8; k++)
-			{
-				r[3*k+j+24*i] = v[k];
-			}
+		for(int j = 0; j < 6; j++)
+		{
+			t1 = plantard_mul(zeta[0], r[12*i+j+6]);
+			r[12*i+j+6] = r[12*i+j] - t1;
+			r[12*i+j  ] = r[12*i+j] + t1;
 		}
 	}
 
@@ -492,13 +483,14 @@ static inline void ntt(int16_t r[NTRUPLUS_N])
 
 		for(int i = start; i < start + 3; i++)
 		{
-			T1 = r[i]*NTRUPLUS_R;
-			T2 = zeta[0]*r[i + 3];
-
-			r[i + 3] = plantard_reduce_acc(T1 - T2);
-			r[i    ] = plantard_reduce_acc(T1 + T2);
+			t1 = plantard_mul(zeta[0], r[i + 3]);
+			r[i + 3] = r[i] - t1;
+			r[i    ] = r[i] + t1;
 		}
 	}
+
+	for(int i = 0; i < NTRUPLUS_N; i++)
+		r[i] = barrett_reduce(r[i]);
 }
 
 /*************************************************
