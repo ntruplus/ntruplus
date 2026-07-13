@@ -167,9 +167,9 @@ static inline int crypto_kem_enc_derand(uint8_t *ct, uint8_t *ss,
                                         const uint8_t *pk,
                                         const uint8_t *coins)
 {
-	uint8_t msg[NTRUPLUS_N / 8 + NTRUPLUS_SYMBYTES];
-	uint8_t buf1[NTRUPLUS_SYMBYTES + NTRUPLUS_N / 4];
-	uint8_t buf2[NTRUPLUS_POLYBYTES];
+	uint8_t msg[HASH_H_INBYTES];
+	uint8_t buf1[HASH_H_OUTBYTES];
+	uint8_t buf2[HASH_G_INBYTES];
     
     poly c, h, r, m;
     
@@ -243,10 +243,10 @@ int crypto_kem_dec(unsigned char *ss,
                    const unsigned char *ct,
                    const unsigned char *sk)
 {
-	uint8_t msg[NTRUPLUS_N / 8 + NTRUPLUS_SYMBYTES] = {0};
-	uint8_t buf1[NTRUPLUS_POLYBYTES] = {0};
-	uint8_t buf2[NTRUPLUS_POLYBYTES] = {0};
-	uint8_t buf3[NTRUPLUS_POLYBYTES+NTRUPLUS_SYMBYTES] = {0};
+	uint8_t msg[HASH_H_INBYTES] = {0};
+	uint8_t buf1[HASH_G_INBYTES] = {0};
+	uint8_t buf2[HASH_G_INBYTES] = {0};
+	uint8_t buf3[HASH_H_OUTBYTES] = {0};
 	
 	int8_t fail;
 	
@@ -271,7 +271,7 @@ int crypto_kem_dec(unsigned char *ss,
 	hash_g(buf2, buf1);
 	fail = poly_sotp_decode(msg, &m1, buf2);
 	
-	for (int i = 0; i < NTRUPLUS_SYMBYTES; i++)
+	for (int i = 0; i < HASH_F_OUTBYTES; i++)
 		msg[i + NTRUPLUS_N / 8] = sk[i + 2 * NTRUPLUS_POLYBYTES]; 
 
 	hash_h(buf3, msg);
