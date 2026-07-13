@@ -799,6 +799,8 @@ static inline int baseinv_1(int16_t r[8], int16_t den[2], const int16_t a[8], ui
 *
 * Description: Computes the multiplicative inverse of a value in the
 *              finite field Z_q.
+*              The exponent q-2 = 3455 uses a 15-step addition chain
+*              (OEIS A003313, https://oeis.org/A003313).
 *
 * Arguments:   - int16_t a: input value in {-(q+1)/2, ..., (q-1)/2}
 *
