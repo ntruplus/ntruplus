@@ -498,7 +498,6 @@ _poly_invntt_scale:
     mls v10.8h, v14.8h, v0.h[0]
     mls v11.8h, v15.8h, v0.h[0]
 
-    # Range after level 6: [-6912,6912].
     #shuffle
     trn1 v12.2d, v4.2d, v8.2d
     trn2 v13.2d, v4.2d, v8.2d
@@ -527,6 +526,7 @@ _poly_invntt_scale:
     trn1 v10.8h, v23.8h, v27.8h
     trn2 v11.8h, v23.8h, v27.8h
 
+    # Range after level 6: [-6912,6912].
     #level 5
     #update
     sub v12.8h,  v5.8h,  v4.8h
@@ -591,7 +591,6 @@ _poly_invntt_scale:
     sqrdmulh v30.8h,  v8.8h, v0.h[1]
     sqrdmulh v31.8h,  v9.8h, v0.h[1]
 
-
     mls      v4.8h, v28.8h, v0.h[0]
     mls      v5.8h, v29.8h, v0.h[0]
     mls      v8.8h, v30.8h, v0.h[0]
@@ -626,11 +625,11 @@ _poly_invntt_scale:
     mls v10.8h, v14.8h, v0.h[0]
     mls v11.8h, v15.8h, v0.h[0]
 
-    # Range after level 3: [-6214,6214].
     #store
     st1 {v4.8h - v7.8h},  [dst], #64
     st1 {v8.8h - v11.8h}, [dst], #64
 
+    # Range after level 3: [-6214,6214].
     subs counter, counter, #128
     b.ne _looptop_6543
 
@@ -699,7 +698,6 @@ _looptop_210:
     sqrdmulh v27.8h,  v7.8h, v0.h[1]
     sqrdmulh v28.8h,  v9.8h, v0.h[1]
 
-
     mls       v5.8h, v26.8h, v0.h[0]
     mls       v7.8h, v27.8h, v0.h[0]
     mls       v9.8h, v28.8h, v0.h[0]
@@ -708,10 +706,10 @@ _looptop_210:
     sqrdmulh v30.8h, v13.8h, v0.h[1]
     sqrdmulh v31.8h, v15.8h, v0.h[1]
 
-
     mls      v11.8h, v29.8h, v0.h[0]
     mls      v13.8h, v30.8h, v0.h[0]
     mls      v15.8h, v31.8h, v0.h[0]
+
 
     # Range after level 2: [-2365,2365].
     #level 1
@@ -912,41 +910,7 @@ _looptop_210:
     mls v15.8h, v27.8h, v0.h[0]
     mls v16.8h, v28.8h, v0.h[0]
 
-    # Range before Barrett reduction: [-2135,2135].
-    #Barrett reduction
-    sqrdmulh v20.8h,  v5.8h, v0.h[1]
-    sqrdmulh v21.8h,  v6.8h, v0.h[1]
-    sqrdmulh v22.8h,  v7.8h, v0.h[1]
-
-    mls       v5.8h, v20.8h, v0.h[0]
-    mls       v6.8h, v21.8h, v0.h[0]
-    mls       v7.8h, v22.8h, v0.h[0]
-
-    sqrdmulh v23.8h,  v8.8h, v0.h[1]
-    sqrdmulh v24.8h,  v9.8h, v0.h[1]
-    sqrdmulh v25.8h,  v10.8h, v0.h[1]
-
-    mls       v8.8h, v23.8h, v0.h[0]
-    mls       v9.8h, v24.8h, v0.h[0]
-    mls      v10.8h, v25.8h, v0.h[0]
-
-    sqrdmulh v26.8h,  v11.8h, v0.h[1]
-    sqrdmulh v27.8h,  v12.8h, v0.h[1]
-    sqrdmulh v28.8h,  v13.8h, v0.h[1]
-
-    mls      v11.8h, v26.8h, v0.h[0]
-    mls      v12.8h, v27.8h, v0.h[0]
-    mls      v13.8h, v28.8h, v0.h[0]
-
-    sqrdmulh v29.8h,  v14.8h, v0.h[1]
-    sqrdmulh v30.8h,  v15.8h, v0.h[1]
-    sqrdmulh v31.8h,  v16.8h, v0.h[1]
-
-    mls      v14.8h, v29.8h, v0.h[0]
-    mls      v15.8h, v30.8h, v0.h[0]
-    mls      v16.8h, v31.8h, v0.h[0]
-
-    # Range after level 0: [-q+1,q-1].
+    # Range after level 0: [-2135,2135].
     #store
     str q5, [dst, #0*128]
     str q6, [dst, #1*128]
