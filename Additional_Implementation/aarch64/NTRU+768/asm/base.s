@@ -45,7 +45,7 @@ _looptop:
     smull2  v17.4s, v7.8h, v11.8h //a3*b3
 
     smlal   v12.4s, v6.4h, v10.4h //a2*b2
-    smlal2  v13.4s, v6.8h, v10.8h //a2*b2    
+    smlal2  v13.4s, v6.8h, v10.8h //a2*b2
     smlal   v14.4s, v7.4h, v10.4h //a3*b2
     smlal2  v15.4s, v7.8h, v10.8h //a3*b2
 
@@ -126,7 +126,7 @@ _looptop:
     uzp2    v5.8h, v14.8h, v15.8h
     uzp2    v4.8h, v12.8h, v13.8h
 
-    #mul
+    #Barrett multiplication
     mul v11.8h, v7.8h, v0.h[3]
     mul v10.8h, v6.8h, v0.h[3]
     mul  v9.8h, v5.8h, v0.h[3]
@@ -144,7 +144,7 @@ _looptop:
 
     #store
     st1 {v8.8h - v11.8h}, [dst], #64
-    
+
     subs counter, counter, #64
     b.ne _looptop
 
@@ -301,6 +301,23 @@ _looptop_scale:
     ret
 
 
+/*************************************************
+* Name:        poly_basemul_add
+*
+* Description: Multiplication of two polynomials in the NTT domain followed
+*              by addition of a third polynomial.
+*
+* Arguments:   - poly *r:       pointer to the output polynomial
+*              - const poly *a: pointer to the first multiplicand;
+*                               coefficients must lie in (-2q,2q)
+*              - const poly *b: pointer to the second multiplicand;
+*                               coefficients must lie in (-2q,2q)
+*              - const poly *c: pointer to the polynomial to add;
+*                               coefficients must lie in [-q+1,q-1]
+*
+* Returns:     none. Output coefficients lie in (-5q/2,5q/2) and are
+*              reduced by poly_tobytes before serialization.
+**************************************************/
 .global poly_basemul_add
 .global _poly_basemul_add
 poly_basemul_add:
@@ -308,7 +325,7 @@ _poly_basemul_add:
     dst       .req x0
     src1      .req x1
     src2      .req x2
-    src3      .req x3    
+    src3      .req x3
     zetas_ptr .req x4
     counter   .req x8
 
@@ -416,7 +433,7 @@ _looptop_add:
     uzp2 v6.8h, v20.8h, v21.8h
     uzp2 v7.8h, v22.8h, v23.8h
 
-    #mul
+    #Barrett multiplication
     mul  v8.8h, v4.8h, v0.h[3]
     mul  v9.8h, v5.8h, v0.h[3]
     mul v10.8h, v6.8h, v0.h[3]
@@ -438,49 +455,48 @@ _looptop_add:
     add v10.8h, v10.8h, v14.8h
     add v11.8h, v11.8h, v15.8h
 
-    #reduce
-    sqdmulh v12.8h,  v8.8h, v0.h[1]
-    sqdmulh v13.8h,  v9.8h, v0.h[1]
-    sqdmulh v14.8h, v10.8h, v0.h[1]
-    sqdmulh v15.8h, v11.8h, v0.h[1]
-
-    srshr v12.8h, v12.8h, #11
-    srshr v13.8h, v13.8h, #11
-    srshr v14.8h, v14.8h, #11
-    srshr v15.8h, v15.8h, #11
-
-    mls  v8.8h, v12.8h, v0.h[0]
-    mls  v9.8h, v13.8h, v0.h[0]
-    mls v10.8h, v14.8h, v0.h[0]
-    mls v11.8h, v15.8h, v0.h[0]
-
+    # Range before serialization: (-5q/2,5q/2).
     #store
     st1 {v8.8h - v11.8h}, [dst], #64
-    
+
     subs counter, counter, #64
     b.ne _looptop_add
 
     .unreq    dst
     .unreq    src1
     .unreq    src2
+    .unreq    src3
     .unreq    zetas_ptr
     .unreq    counter
 
     ret
 
 
+/*************************************************
+* Name:        poly_baseinv_1
+*
+* Description: Computes the base-inverse numerators and their denominators.
+*              The denominators are batch-inverted and applied by
+*              poly_baseinv_2.
+*
+* Arguments:   - poly *r:        pointer to the numerator output polynomial
+*              - int16x8_t *den: pointer to the denominator output vectors
+*              - const poly *a:  pointer to the input polynomial
+*
+* Returns:     none.
+**************************************************/
 .global poly_baseinv_1
 .global _poly_baseinv_1
 poly_baseinv_1:
 _poly_baseinv_1:
     dst       .req x0
-    den       .req x1   
+    den       .req x1
     src       .req x2
     zetas_ptr .req x3
     counter   .req x8
 
     adr zetas_ptr, zetas_mul
-    
+
     ld1 {v0.8h}, [zetas_ptr], #16
 
     mov counter, #1536
@@ -653,7 +669,7 @@ _looptop_baseinv_1:
     smlal2 v12.4s, v5.8h, v26.8h //a2*t2
     smlal  v13.4s, v4.4h, v24.4h //a1*t0
     smlal2 v14.4s, v4.8h, v24.8h //a1*t0
-    
+
     smlal  v15.4s, v3.4h, v25.4h //a0*t1
     smlal2 v16.4s, v3.8h, v25.8h //a0*t1
     smlal  v17.4s, v6.4h, v24.4h //a3*t0
@@ -689,22 +705,22 @@ _looptop_baseinv_1:
     str q14, [dst, #3*16]
 
     smull  v11.4s,  v7.4h, v28.4h //a0*t0
-    smull2 v12.4s,  v7.8h, v28.8h //a0*t0   
+    smull2 v12.4s,  v7.8h, v28.8h //a0*t0
     smull  v13.4s, v10.4h, v30.4h //a3*t2
-    smull2 v14.4s, v10.8h, v30.8h //a3*t2 
-    
+    smull2 v14.4s, v10.8h, v30.8h //a3*t2
+
     smull  v15.4s, v9.4h, v28.4h //a2*t0
-    smull2 v16.4s, v9.8h, v28.8h //a2*t0   
+    smull2 v16.4s, v9.8h, v28.8h //a2*t0
     smull  v17.4s, v8.4h, v29.4h //a1*t1
     smull2 v18.4s, v8.8h, v29.8h //a1*t1
 
     smlal  v11.4s, v9.4h, v30.4h //a2*t2
-    smlal2 v12.4s, v9.8h, v30.8h //a2*t2   
+    smlal2 v12.4s, v9.8h, v30.8h //a2*t2
     smlal  v13.4s, v8.4h, v28.4h //a1*t0
     smlal2 v14.4s, v8.8h, v28.8h //a1*t0
 
     smlal  v15.4s,  v7.4h, v29.4h //a0*t1
-    smlal2 v16.4s,  v7.8h, v29.8h //a0*t1   
+    smlal2 v16.4s,  v7.8h, v29.8h //a0*t1
     smlal  v17.4s, v10.4h, v28.4h //a3*t0
     smlal2 v18.4s, v10.8h, v28.8h //a3*t0
 
@@ -742,11 +758,11 @@ _looptop_baseinv_1:
     b.ne _looptop_baseinv_1
 
     .unreq    dst
-    .unreq   den
+    .unreq    den
     .unreq    src
     .unreq    zetas_ptr
     .unreq    counter
-    
+
     ret
 
 

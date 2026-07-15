@@ -19,7 +19,7 @@ _poly_basemul:
     dst       .req x0
     src1      .req x1
     src2      .req x2
-    zetas_ptr     .req x3
+    zetas_ptr .req x3
     counter   .req x8
 
     adr zetas_ptr, zetas_mul
@@ -96,7 +96,7 @@ _looptop:
     uzp2 v5.8h, v12.8h, v13.8h
     uzp2 v4.8h, v10.8h, v11.8h
 
-    #mul
+    #Barrett multiplication
     mul v9.8h, v6.8h, v0.h[3]
     mul v8.8h, v5.8h, v0.h[3]
     mul v7.8h, v4.8h, v0.h[3]
@@ -111,7 +111,7 @@ _looptop:
 
     #store
     st1 {v7.8h - v9.8h}, [dst], #48
-    
+
     subs counter, counter, #48
     b.ne _looptop
 
@@ -146,7 +146,7 @@ _poly_basemul_scale:
     dst       .req x0
     src1      .req x1
     src2      .req x2
-    zetas_ptr     .req x3
+    zetas_ptr .req x3
     counter   .req x8
 
     adr zetas_ptr, zetas_mul
@@ -238,6 +238,23 @@ _looptop_scale:
     ret
 
 
+/*************************************************
+* Name:        poly_basemul_add
+*
+* Description: Multiplication of two polynomials in the NTT domain followed
+*              by addition of a third polynomial.
+*
+* Arguments:   - poly *r:       pointer to the output polynomial
+*              - const poly *a: pointer to the first multiplicand;
+*                               coefficients must lie in (-2q,2q)
+*              - const poly *b: pointer to the second multiplicand;
+*                               coefficients must lie in (-2q,2q)
+*              - const poly *c: pointer to the polynomial to add;
+*                               coefficients must lie in [-q+1,q-1]
+*
+* Returns:     none. Output coefficients lie in (-q,q) and are reduced by
+*              poly_tobytes before serialization.
+**************************************************/
 .global poly_basemul_add
 .global _poly_basemul_add
 poly_basemul_add:
@@ -245,7 +262,7 @@ _poly_basemul_add:
     dst       .req x0
     src1      .req x1
     src2      .req x2
-    src3      .req x3    
+    src3      .req x3
     zetas_ptr .req x4
     counter   .req x8
 
@@ -324,7 +341,7 @@ _looptop_add:
     uzp2 v5.8h, v15.8h, v16.8h
     uzp2 v6.8h, v17.8h, v18.8h
 
-    #mul
+    #Barrett multiplication
     mul v7.8h, v4.8h, v0.h[3]
     mul v8.8h, v5.8h, v0.h[3]
     mul v9.8h, v6.8h, v0.h[3]
@@ -342,22 +359,19 @@ _looptop_add:
     add v8.8h, v8.8h, v11.8h
     add v9.8h, v9.8h, v12.8h
 
-    #reduce
-    sqdmulh v13.8h, v7.8h, v0.h[1]
-    sqdmulh v14.8h, v8.8h, v0.h[1]
-    sqdmulh v15.8h, v9.8h, v0.h[1]
-
-    srshr v13.8h, v13.8h, #11
-    srshr v14.8h, v14.8h, #11
-    srshr v15.8h, v15.8h, #11
+    # Barrett reduction with round(2^15/q) = 9
+    sqrdmulh v13.8h, v7.8h, v0.h[1]
+    sqrdmulh v14.8h, v8.8h, v0.h[1]
+    sqrdmulh v15.8h, v9.8h, v0.h[1]
 
     mls v7.8h, v13.8h, v0.h[0]
     mls v8.8h, v14.8h, v0.h[0]
     mls v9.8h, v15.8h, v0.h[0]
 
+    # Range before serialization: (-q,q).
     #store
     st1 {v7.8h - v9.8h}, [dst], #48
-    
+
     subs counter, counter, #48
     b.ne _looptop_add
 
@@ -371,6 +385,19 @@ _looptop_add:
     ret
 
 
+/*************************************************
+* Name:        poly_baseinv_1
+*
+* Description: Computes the base-inverse numerators and their denominators.
+*              The denominators are batch-inverted and applied by
+*              poly_baseinv_2.
+*
+* Arguments:   - poly *r:        pointer to the numerator output polynomial
+*              - int16x8_t *den: pointer to the denominator output vectors
+*              - const poly *a:  pointer to the input polynomial
+*
+* Returns:     none.
+**************************************************/
 .global poly_baseinv_1
 .global _poly_baseinv_1
 poly_baseinv_1:
@@ -380,7 +407,7 @@ _poly_baseinv_1:
     src       .req x2
     zetas_ptr .req x3
     counter   .req x8
-    
+
     adr zetas_ptr, zetas_mul
 
     ld1  {v0.8h}, [zetas_ptr], #16
@@ -560,13 +587,13 @@ _looptop_baseinv_1:
     .unreq    den
     .unreq    src
     .unreq    zetas_ptr
-    .unreq    counter 
+    .unreq    counter
 
     ret
 
 .align 4
 zetas_mul:
-    .hword 0x0d81, 0x4bd4, 0xcd7f, 0xff6d, 0xfa8f, 0xf9dd, 0xc5d5, 0x0000
+    .hword 0x0d81, 0x0009, 0xcd7f, 0xff6d, 0xfa8f, 0xf9dd, 0xc5d5, 0x0000
     .hword 0xfad5, 0x00a3, 0x0135, 0x03d5, 0xfdd3, 0xfefe, 0x00e8, 0xf970
     .hword 0x052b, 0xff5d, 0xfecb, 0xfc2b, 0x022d, 0x0102, 0xff18, 0x0690
     .hword 0xf987, 0xfb2f, 0x0090, 0x06a3, 0x0137, 0xfbdc, 0x0242, 0x0512
