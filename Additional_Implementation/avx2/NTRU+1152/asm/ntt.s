@@ -401,14 +401,10 @@ vpsubw %ymm9,  %ymm5, %ymm9
 vpsubw %ymm10, %ymm6, %ymm10
 
 #reduce2
-vpmulhw %ymm1, %ymm11, %ymm3
-vpmulhw %ymm1, %ymm12, %ymm4
-vpmulhw %ymm1, %ymm13, %ymm5
-vpmulhw %ymm1, %ymm14, %ymm6
-vpsraw  $10,   %ymm3,  %ymm3
-vpsraw  $10,   %ymm4,  %ymm4
-vpsraw  $10,   %ymm5,  %ymm5
-vpsraw  $10,   %ymm6,  %ymm6
+vpmulhrsw %ymm1, %ymm11, %ymm3
+vpmulhrsw %ymm1, %ymm12, %ymm4
+vpmulhrsw %ymm1, %ymm13, %ymm5
+vpmulhrsw %ymm1, %ymm14, %ymm6
 vpmullw %ymm0, %ymm3,  %ymm3
 vpmullw %ymm0, %ymm4,  %ymm4
 vpmullw %ymm0, %ymm5,  %ymm5
@@ -418,14 +414,10 @@ vpsubw  %ymm4, %ymm12, %ymm12
 vpsubw  %ymm5, %ymm13, %ymm13
 vpsubw  %ymm6, %ymm14, %ymm14
 
-vpmulhw %ymm1, %ymm7,  %ymm3
-vpmulhw %ymm1, %ymm8,  %ymm4
-vpmulhw %ymm1, %ymm9,  %ymm5
-vpmulhw %ymm1, %ymm10, %ymm6
-vpsraw  $10,   %ymm3,  %ymm3
-vpsraw  $10,   %ymm4,  %ymm4
-vpsraw  $10,   %ymm5,  %ymm5
-vpsraw  $10,   %ymm6,  %ymm6
+vpmulhrsw %ymm1, %ymm7,  %ymm3
+vpmulhrsw %ymm1, %ymm8,  %ymm4
+vpmulhrsw %ymm1, %ymm9,  %ymm5
+vpmulhrsw %ymm1, %ymm10, %ymm6
 vpmullw %ymm0, %ymm3,  %ymm3
 vpmullw %ymm0, %ymm4,  %ymm4
 vpmullw %ymm0, %ymm5,  %ymm5

@@ -380,18 +380,12 @@ vmovdqa  96(%rsi), %ymm3
 vmovdqa 128(%rsi), %ymm4
 vmovdqa 160(%rsi), %ymm5
 
-vpmulhw %ymm15, %ymm0,  %ymm6
-vpmulhw %ymm15, %ymm1,  %ymm7
-vpmulhw %ymm15, %ymm2,  %ymm8
-vpmulhw %ymm15, %ymm3,  %ymm9
-vpmulhw %ymm15, %ymm4,  %ymm10
-vpmulhw %ymm15, %ymm5,  %ymm11
-vpsraw  $10,    %ymm6,  %ymm6
-vpsraw  $10,    %ymm7,  %ymm7
-vpsraw  $10,    %ymm8,  %ymm8
-vpsraw  $10,    %ymm9,  %ymm9
-vpsraw  $10,    %ymm10, %ymm10
-vpsraw  $10,    %ymm11, %ymm11
+vpmulhrsw %ymm15, %ymm0, %ymm6
+vpmulhrsw %ymm15, %ymm1, %ymm7
+vpmulhrsw %ymm15, %ymm2, %ymm8
+vpmulhrsw %ymm15, %ymm3, %ymm9
+vpmulhrsw %ymm15, %ymm4, %ymm10
+vpmulhrsw %ymm15, %ymm5, %ymm11
 vpmullw %ymm14, %ymm6,  %ymm6
 vpmullw %ymm14, %ymm7,  %ymm7
 vpmullw %ymm14, %ymm8,  %ymm8
@@ -405,12 +399,6 @@ vpsubw  %ymm9,  %ymm3,  %ymm3
 vpsubw  %ymm10, %ymm4,  %ymm4
 vpsubw  %ymm11, %ymm5,  %ymm5
 
-vpsubw %ymm14, %ymm0,  %ymm0
-vpsubw %ymm14, %ymm1,  %ymm1
-vpsubw %ymm14, %ymm2,  %ymm2
-vpsubw %ymm14, %ymm3,  %ymm3
-vpsubw %ymm14, %ymm4,  %ymm4
-vpsubw %ymm14, %ymm5,  %ymm5
 vpsraw $15,    %ymm0,  %ymm6
 vpsraw $15,    %ymm1,  %ymm7
 vpsraw $15,    %ymm2,  %ymm8

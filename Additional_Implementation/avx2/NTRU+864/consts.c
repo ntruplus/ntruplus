@@ -4,8 +4,9 @@
 
 #define QINV 12929
 #define LOW ((1U << 12) - 1)
-#define V ((1U << 26)/NTRUPLUS_Q)
-#define V2 10923
+#define BARRETT_V(q) (((1U << 15) + (q)/2)/(q))
+#define V BARRETT_V(NTRUPLUS_Q)
+#define V2 BARRETT_V(3)
 
 #define WQINV 13706
 #define W -886

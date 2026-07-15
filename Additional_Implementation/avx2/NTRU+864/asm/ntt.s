@@ -363,18 +363,12 @@ vpsubw %ymm7, %ymm10, %ymm7
 vpsubw %ymm8, %ymm11, %ymm8
 
 #reduce2
-vpmulhw %ymm1,  %ymm3,  %ymm9
-vpmulhw %ymm1,  %ymm4,  %ymm10
-vpmulhw %ymm1,  %ymm5,  %ymm11
-vpmulhw %ymm1,  %ymm6,  %ymm12
-vpmulhw %ymm1,  %ymm7,  %ymm13
-vpmulhw %ymm1,  %ymm8,  %ymm14
-vpsraw  $10,    %ymm9,  %ymm9
-vpsraw  $10,    %ymm10, %ymm10
-vpsraw  $10,    %ymm11, %ymm11
-vpsraw  $10,    %ymm12, %ymm12
-vpsraw  $10,    %ymm13, %ymm13
-vpsraw  $10,    %ymm14, %ymm14
+vpmulhrsw %ymm1, %ymm3,  %ymm9
+vpmulhrsw %ymm1, %ymm4,  %ymm10
+vpmulhrsw %ymm1, %ymm5,  %ymm11
+vpmulhrsw %ymm1, %ymm6,  %ymm12
+vpmulhrsw %ymm1, %ymm7,  %ymm13
+vpmulhrsw %ymm1, %ymm8,  %ymm14
 vpmullw %ymm0,  %ymm9,  %ymm9
 vpmullw %ymm0,  %ymm10, %ymm10
 vpmullw %ymm0,  %ymm11, %ymm11

@@ -46,12 +46,9 @@ vpsubw  %ymm11, %ymm14, %ymm11
 vpsubw  %ymm12, %ymm15, %ymm12
 
 #reduce2
-vpmulhw %ymm1,  %ymm7,  %ymm13
-vpmulhw %ymm1,  %ymm8,  %ymm14
-vpmulhw %ymm1,  %ymm9,  %ymm15
-vpsraw  $10,    %ymm13, %ymm13
-vpsraw  $10,    %ymm14, %ymm14
-vpsraw  $10,    %ymm15, %ymm15
+vpmulhrsw %ymm1, %ymm7, %ymm13
+vpmulhrsw %ymm1, %ymm8, %ymm14
+vpmulhrsw %ymm1, %ymm9, %ymm15
 vpmullw %ymm0,  %ymm13, %ymm13
 vpmullw %ymm0,  %ymm14, %ymm14
 vpmullw %ymm0,  %ymm15, %ymm15
@@ -183,12 +180,9 @@ vpsubw %ymm11, %ymm14, %ymm11
 vpsubw %ymm12, %ymm15, %ymm12
 
 #reduce2
-vpmulhw %ymm1,  %ymm7,  %ymm13
-vpmulhw %ymm1,  %ymm8,  %ymm14
-vpmulhw %ymm1,  %ymm9,  %ymm15
-vpsraw  $10,    %ymm13, %ymm13
-vpsraw  $10,    %ymm14, %ymm14
-vpsraw  $10,    %ymm15, %ymm15
+vpmulhrsw %ymm1, %ymm7, %ymm13
+vpmulhrsw %ymm1, %ymm8, %ymm14
+vpmulhrsw %ymm1, %ymm9, %ymm15
 vpmullw %ymm0,  %ymm13, %ymm13
 vpmullw %ymm0,  %ymm14, %ymm14
 vpmullw %ymm0,  %ymm15, %ymm15
@@ -340,8 +334,7 @@ vpaddw %ymm9,  %ymm8,  %ymm11 #X+Y
 vpaddw %ymm10, %ymm11, %ymm11 #X+Y+Z
 
 #reduce2
-vpmulhw %ymm1,  %ymm11, %ymm14
-vpsraw  $10,    %ymm14, %ymm14
+vpmulhrsw %ymm1, %ymm11, %ymm14
 vpmullw %ymm0,  %ymm14, %ymm14
 vpsubw  %ymm14, %ymm11, %ymm11
 
