@@ -1,3 +1,17 @@
+/*************************************************
+* Name:        poly_basemul
+*
+* Description: Multiplication of two polynomials in the NTT domain.
+*
+* Arguments:   - poly *r:       pointer to the output polynomial
+*              - const poly *a: pointer to the first input polynomial;
+*                               coefficients must lie in (-2q,2q)
+*              - const poly *b: pointer to the second input polynomial;
+*                               coefficients must lie in (-2q,2q)
+*
+* Returns:     none. Output coefficients lie in (-3q/2,3q/2) and are
+*              reduced by poly_tobytes before serialization.
+**************************************************/
 .global poly_basemul
 .global _poly_basemul
 poly_basemul:
@@ -128,22 +142,6 @@ _looptop:
     mls  v9.8h, v5.8h, v0.h[0]
     mls  v8.8h, v4.8h, v0.h[0]
 
-    #reduce
-    sqdmulh v15.8h, v11.8h, v0.h[1]
-    sqdmulh v14.8h, v10.8h, v0.h[1]
-    sqdmulh v13.8h,  v9.8h, v0.h[1]
-    sqdmulh v12.8h,  v8.8h, v0.h[1]
-
-    srshr v15.8h, v15.8h, #11
-    srshr v14.8h, v14.8h, #11
-    srshr v13.8h, v13.8h, #11
-    srshr v12.8h, v12.8h, #11
-
-    mls v11.8h, v15.8h, v0.h[0]
-    mls v10.8h, v14.8h, v0.h[0]
-    mls  v9.8h, v13.8h, v0.h[0]
-    mls  v8.8h, v12.8h, v0.h[0]
-
     #store
     st1 {v8.8h - v11.8h}, [dst], #64
     
@@ -159,6 +157,21 @@ _looptop:
     ret
 
 
+/*************************************************
+* Name:        poly_basemul_scale
+*
+* Description: Multiplication of two polynomials in the NTT domain while
+*              retaining the R^-1 representation for poly_invntt_scale.
+*
+* Arguments:   - poly *r:       pointer to the output polynomial
+*              - const poly *a: pointer to the first input polynomial;
+*                               coefficients must lie in [-q+1,q-1]
+*              - const poly *b: pointer to the second input polynomial;
+*                               coefficients must lie in [-q+1,q-1]
+*
+* Returns:     none. Output coefficients lie in [-q+1,q-1] in the
+*              R^-1 representation.
+**************************************************/
 .global poly_basemul_scale
 .global _poly_basemul_scale
 poly_basemul_scale:
