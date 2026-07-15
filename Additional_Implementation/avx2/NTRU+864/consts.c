@@ -17,6 +17,8 @@
 #define R2qinv 2787
 #define Rinv -682
 #define Rinvqinv 29782
+#define NINV_SCALE -33
+#define NINV_SCALE_QINV 32095
 
 #define MASK_5555 0x5555
 #define MASK_0303 0x0303
@@ -39,6 +41,8 @@ const int16_t _16xR2[16]       __attribute__((aligned(32))) = FILL_16(R2);
 const int16_t _16xR2qinv[16]   __attribute__((aligned(32))) = FILL_16(R2qinv);
 const int16_t _16xRinv[16]     __attribute__((aligned(32))) = FILL_16(Rinv);
 const int16_t _16xRinvqinv[16] __attribute__((aligned(32))) = FILL_16(Rinvqinv);
+const int16_t _16xNinv_scale[16]     __attribute__((aligned(32))) = FILL_16(NINV_SCALE);
+const int16_t _16xNinv_scaleqinv[16] __attribute__((aligned(32))) = FILL_16(NINV_SCALE_QINV);
 
 const int16_t _16x5555[16]     __attribute__((aligned(32))) = FILL_16(MASK_5555);
 const int16_t _16x0303[16]     __attribute__((aligned(32))) = FILL_16(MASK_0303);

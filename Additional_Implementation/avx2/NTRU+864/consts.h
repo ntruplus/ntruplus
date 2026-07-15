@@ -21,6 +21,8 @@ extern const int16_t _16xR2[16];
 extern const int16_t _16xR2qinv[16];
 extern const int16_t _16xRinv[16];
 extern const int16_t _16xRinvqinv[16];
+extern const int16_t _16xNinv_scale[16];
+extern const int16_t _16xNinv_scaleqinv[16];
 
 extern const int16_t _16x5555[16];
 extern const int16_t _16x0303[16];

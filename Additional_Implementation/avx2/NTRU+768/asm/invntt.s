@@ -1,5 +1,5 @@
-.global poly_invntt
-poly_invntt:
+.global poly_invntt_scale
+poly_invntt_scale:
 vmovdqa     _16xq(%rip), %ymm0
 vmovdqa     _16xv(%rip), %ymm1
 lea     zetas_inv(%rip), %rdx
@@ -413,8 +413,9 @@ sub $1536, %rdi
 #zetas
 vpbroadcastd 1152(%rdx), %ymm2  #(z-z^5)^-1
 vpbroadcastd 1156(%rdx), %ymm3  #(z-z^5)^-1
-vpbroadcastd 1160(%rdx), %ymm13
-vpbroadcastd 1164(%rdx), %ymm14
+
+vmovdqa _16xNinv_scaleqinv(%rip), %ymm13
+vmovdqa _16xNinv_scale(%rip),     %ymm14
 
 vpsllw $1, %ymm13, %ymm15
 vpsllw $1, %ymm14, %ymm1
