@@ -100,7 +100,7 @@ _looptop_012:
     add v12.8h, v12.8h, v30.8h
     add v13.8h, v13.8h, v31.8h
 
-    #level1
+    #level 1
     #mul 1
     mul v23.8h,  v8.8h, v0.h[6]
     mul v24.8h,  v9.8h, v0.h[6]
@@ -235,7 +235,7 @@ _looptop_012:
     add v15.8h, v15.8h, v27.8h //r[i] + t1 + t2
     add v16.8h, v16.8h, v28.8h //r[i] + t1 + t2
 
-    #level2
+    #level 2
     #mul 1
     mul v23.8h,  v6.8h, v1.h[6]
     mul v26.8h,  v9.8h, v2.h[2]
