@@ -1,48 +1,6 @@
 #include "poly.h"
 #include <arm_neon.h>
 
-extern void poly_frombytes_asm(poly *r, const uint8_t a[NTRUPLUS_POLYBYTES]);
-extern void poly_tobytes_asm(uint8_t r[NTRUPLUS_POLYBYTES], const poly *a);
-extern void poly_shuffle_asm(poly *r, const poly *a);
-extern void poly_shuffle2_asm(poly *r, const poly *a);
-
-/*************************************************
-* Name:        poly_tobytes
-*
-* Description: Reduces polynomial coefficients to [0,q) and serializes each
-*              coefficient into 12 bits.
-*
-* Arguments:   - uint8_t *r:    pointer to NTRUPLUS_POLYBYTES output bytes
-*              - const poly *a: pointer to the input polynomial;
-*                               coefficients must lie in (-5q/2,5q/2)
-*
-* Returns:     none.
-**************************************************/
-void poly_tobytes(uint8_t r[NTRUPLUS_POLYBYTES], const poly *a)
-{
-	poly t;
-
-	poly_shuffle2_asm(&t, a);
-	poly_tobytes_asm(r, &t);
-}
-
-/*************************************************
-* Name:        poly_frombytes
-*
-* Description: De-serializes a polynomial from its canonical 12-bit
-*              coefficient representation.
-*
-* Arguments:   - poly *r:          pointer to output polynomial
-*              - const uint8_t *a: pointer to NTRUPLUS_POLYBYTES input bytes
-*
-* Returns:     none. Output coefficients lie in [0,q).
-**************************************************/
-void poly_frombytes(poly *r, const uint8_t a[NTRUPLUS_POLYBYTES])
-{
-	poly_frombytes_asm(r, a);
-	poly_shuffle_asm(r, r);
-}
-
 static const int16_t consts[] __attribute__((aligned(16))) = {
     0x0d81, 0x4bd4, 0xcd7f, 0xff6d, 0xfa8f, 0xf9dd, 0xc5d5, 0x0000
 };
