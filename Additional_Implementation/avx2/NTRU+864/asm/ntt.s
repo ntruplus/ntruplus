@@ -6,8 +6,9 @@ lea     zetas(%rip), %rdx
 
 #level0
 #zetas
-vpbroadcastd  (%rdx), %ymm15
-vpbroadcastd 4(%rdx), %ymm2
+# Input coefficients are in [-3,4].  The raw -722 product keeps this
+# butterfly in [-2891,2896], so its Montgomery reduction is unnecessary.
+vmovdqa _16xzeta1(%rip), %ymm15
 
 lea 864(%rdi), %r8
 
@@ -25,17 +26,6 @@ vmovdqa 928(%rdi), %ymm8
 vpmullw %ymm15, %ymm6, %ymm12
 vpmullw %ymm15, %ymm7, %ymm13
 vpmullw %ymm15, %ymm8, %ymm14
-vpmulhw %ymm2,  %ymm6, %ymm9
-vpmulhw %ymm2,  %ymm7, %ymm10
-vpmulhw %ymm2,  %ymm8, %ymm11
-
-#reduce
-vpmulhw %ymm0,  %ymm12, %ymm12
-vpmulhw %ymm0,  %ymm13, %ymm13
-vpmulhw %ymm0,  %ymm14, %ymm14
-vpsubw  %ymm12, %ymm9,  %ymm12
-vpsubw  %ymm13, %ymm10, %ymm13
-vpsubw  %ymm14, %ymm11, %ymm14
 
 #update
 vpaddw %ymm12, %ymm3,  %ymm9
