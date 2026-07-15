@@ -16,7 +16,7 @@
 #define NTRUPLUS_NINV        0x82A0FD8Fu
 #define NTRUPLUS_2NINV       0x0541FB1Du
 
-const uint32_t zetas[288] = {
+static const uint32_t zetas[288] = {
 	0x0012F51Eu, 0xCA88B381u, 0x8F70A253u, 0x533C346Eu, 0x40342211u, 0x708F5DAEu, 0x2152DD6Bu, 0x93A935D7u,
 	0x4FD4292Du, 0x276560CAu, 0x7F84C6C2u, 0xC320F414u, 0x435058DDu, 0x044B88A1u, 0x8CC62A36u, 0x5B87713Au,
 	0x1611540Du, 0xB02BD6D4u, 0x0BA052F1u, 0x35D61612u, 0x2A35C321u, 0xF8138CC7u, 0x58DCF91Du, 0x60C96C57u,
@@ -122,25 +122,7 @@ static inline int16_t plantard_mul(uint32_t a, uint32_t b)
 #define NTRUPLUS_RSQ_MONT           867
 #define NTRUPLUS_QINV_MONT        12929
 
-const int16_t zetas_mont[288] = {
-	 -147, -1033, -1265,   708,   460,  1265,  -467,   727,
-	  556,  1307,  -773,  -161,  1200, -1612,   570,  1529,
-	 1135,  -556,  1120,   298,  -822, -1556,   -93,  1463,
-	  532,  -377,  -909,    58,  -392,  -450,  1722,  1236,
-	 -486,  -491, -1569, -1078,    36,  1289, -1443,  1628,
-	 1664,  -725,  -952,    99, -1020,   353,  -599,  1119,
-	  592,   839,  1622,   652,  1244,  -783, -1085,  -726,
-	  566,  -284, -1369, -1292,   268,  -391,   781,  -172,
-	   96, -1172,   211,   737,   473,  -445,  -234,   264,
-	-1536,  1467,  -676, -1542,  -170,   635,  -705, -1332,
-	 -658,   831, -1712,  1311,  1488,  -881,  1087, -1315,
-	 1245,   -75,   791,    -6,  -875,  -697,   -70, -1162,
-	  287,  -767,  -945,  1598,  -882,  1261,   206,   654,
-	-1421,   -81,   716, -1251,   838, -1300,  1035,  -104,
-	  966,  -558,   -61, -1704,   404,  -899,   862, -1593,
-	-1460,   -37,  1266,   965, -1584, -1404,  -265,  -942,
-	  905,  1195,  -619,   787,   118,   576,   286, -1475,
-	 -194,   928,  1229, -1032,  1608,  1111, -1669,   642,
+static const int16_t zetas_mont[144] = {
 	-1323,   163,   309,   981,  -557,  -258,   232, -1680,
 	-1657, -1233,   144,  1699,   311, -1060,   578,  1298,
 	 -403,  1607,  1074,  -148,   447, -1568,  1142,  -402,
@@ -1047,8 +1029,8 @@ void poly_basemul(poly *r, const poly *a, const poly *b)
 {
 	for(int i = 0; i < NTRUPLUS_N/(2*NTRUPLUS_D); i++)
 	{
-		basemul(r->coeffs+6*i,   a->coeffs+6*i,   b->coeffs+6*i,    zetas_mont[144+i]);
-		basemul(r->coeffs+6*i+3, a->coeffs+6*i+3, b->coeffs+6*i+3, -zetas_mont[144+i]);
+		basemul(r->coeffs+6*i,   a->coeffs+6*i,   b->coeffs+6*i,    zetas_mont[i]);
+		basemul(r->coeffs+6*i+3, a->coeffs+6*i+3, b->coeffs+6*i+3, -zetas_mont[i]);
 	}
 
 	for(int i = 0; i < NTRUPLUS_N; i++)
@@ -1069,8 +1051,8 @@ void poly_basemul_add(poly *r, const poly *a, const poly *b, const poly *c)
 {
 	for(int i = 0; i < NTRUPLUS_N/(2*NTRUPLUS_D); i++)
 	{
-		basemul(r->coeffs+6*i,   a->coeffs+6*i,   b->coeffs+6*i,    zetas_mont[144+i]);
-		basemul(r->coeffs+6*i+3, a->coeffs+6*i+3, b->coeffs+6*i+3, -zetas_mont[144+i]);
+		basemul(r->coeffs+6*i,   a->coeffs+6*i,   b->coeffs+6*i,    zetas_mont[i]);
+		basemul(r->coeffs+6*i+3, a->coeffs+6*i+3, b->coeffs+6*i+3, -zetas_mont[i]);
 	}
 
 	for(int i = 0; i < NTRUPLUS_N; i++)
@@ -1093,9 +1075,9 @@ void poly_basemul_scaled(poly *r, const poly *a, const poly *b)
 	for(int i = 0; i < NTRUPLUS_N/(2*NTRUPLUS_D); i++)
 	{
 		basemul(r->coeffs + 6*i, a->coeffs + 6*i, b->coeffs + 6*i,
-		        zetas_mont[144 + i]);
+		        zetas_mont[i]);
 		basemul(r->coeffs + 6*i + 3, a->coeffs + 6*i + 3, b->coeffs + 6*i + 3,
-		        -zetas_mont[144 + i]);
+		        -zetas_mont[i]);
 	}
 }
 
