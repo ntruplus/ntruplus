@@ -793,6 +793,19 @@ static inline int16_t fqinv(int16_t a)
 	return plantard_reduce_acc(t1*T);   // 110101111111
 }
 
+/*************************************************
+* Name:        fqinv_batch
+*
+* Description: Inverts a batch of field elements using one call to fqinv.
+*              Eight independent product and recovery chains are combined
+*              hierarchically to expose ILP while retaining Montgomery's trick.
+*
+* Reference:   J. Kim, H. Cho, and J. H. Park, "Accelerating NTRU+ Key
+*              Generation via Hierarchical Batch Inversion," IACR ePrint
+*              2026/1191, https://eprint.iacr.org/2026/1191.
+*
+* Arguments:   - int16_t *r: input/output array of field elements
+**************************************************/
 static inline void fqinv_batch(int16_t *r)
 {
     const int chunk = NTRUPLUS_N/(NTRUPLUS_D * 8);
@@ -963,7 +976,13 @@ static inline void baseinv_2(int16_t r[6], int16_t den[1])
 /*************************************************
 * Name:        poly_baseinv
 *
-* Description: Inversion of polynomial in NTT domain
+* Description: Inversion of polynomial in NTT domain. baseinv_1 exposes all
+*              base denominators, fqinv_batch inverts them hierarchically,
+*              and baseinv_2 applies the inverses to complete each base inverse.
+*
+* Reference:   J. Kim, H. Cho, and J. H. Park, "Accelerating NTRU+ Key
+*              Generation via Hierarchical Batch Inversion," IACR ePrint
+*              2026/1191, https://eprint.iacr.org/2026/1191.
 *
 * Arguments:   - poly *r:       pointer to output polynomial
 *              - const poly *a: pointer to input polynomial

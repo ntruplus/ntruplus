@@ -70,6 +70,21 @@ static inline __m256i fqinv(__m256i r)
     return t2;
 }
 
+/*************************************************
+* Name:        fqinv_batch
+*
+* Description: Inverts batches of SIMD field elements using one vector fqinv.
+*              Six independent product and recovery chains are combined
+*              hierarchically to expose ILP while retaining Montgomery's trick.
+*
+* Reference:   J. Kim, H. Cho, and J. H. Park, "Accelerating NTRU+ Key
+*              Generation via Hierarchical Batch Inversion," IACR ePrint
+*              2026/1191, https://eprint.iacr.org/2026/1191.
+*
+* Arguments:   - __m256i *r: input/output array of SIMD field elements
+*
+* Returns:     1 if an input is zero; otherwise 0
+**************************************************/
 static inline int fqinv_batch(__m256i *restrict r)
 {
     const int chunk = NTRUPLUS_N / (6 * 16 * NTRUPLUS_D);
@@ -276,7 +291,14 @@ static inline void poly_baseinv_2(poly *r, const __m256i den[12])
 /*************************************************
 * Name:        poly_baseinv
 *
-* Description: Inversion of polynomial in NTT domain
+* Description: Inversion of polynomial in NTT domain. poly_baseinv_1 exposes
+*              all base denominators, fqinv_batch inverts them hierarchically,
+*              and poly_baseinv_2 applies the inverses to complete each base
+*              inverse.
+*
+* Reference:   J. Kim, H. Cho, and J. H. Park, "Accelerating NTRU+ Key
+*              Generation via Hierarchical Batch Inversion," IACR ePrint
+*              2026/1191, https://eprint.iacr.org/2026/1191.
 *
 * Arguments:   - poly *r:       pointer to output polynomial
 *              - const poly *a: pointer to input polynomial

@@ -92,6 +92,22 @@ static inline int16x8_t fqinv(int16x8_t a, int16x8_t con)
     return t2;
 }
 
+/*************************************************
+* Name:        poly_fqinv_batch
+*
+* Description: Inverts batches of SIMD field elements using one vector fqinv.
+*              Three independent product and recovery chains expose ILP and
+*              are combined using Montgomery's trick.
+*
+* Reference:   J. Kim, H. Cho, and J. H. Park, "Accelerating NTRU+ Key
+*              Generation via Hierarchical Batch Inversion," IACR ePrint
+*              2026/1191, https://eprint.iacr.org/2026/1191.
+*
+* Arguments:   - int16x8_t *r: input/output array of SIMD field elements
+*              - int16x8_t con: vector of arithmetic constants
+*
+* Returns:     1 if an input is zero; otherwise 0
+**************************************************/
 static inline int poly_fqinv_batch(int16x8_t* r, int16x8_t con)
 {
     const int chunk = NTRUPLUS_N / 72;
@@ -181,6 +197,23 @@ static inline void poly_baseinv_2(poly *r, int16x8_t *den, int16x8_t con)
     }
 }
 
+/*************************************************
+* Name:        poly_baseinv
+*
+* Description: Inversion of polynomial in NTT domain. poly_baseinv_1 exposes
+*              all base denominators, poly_fqinv_batch inverts them in batches,
+*              and poly_baseinv_2 applies the inverses to complete each base
+*              inverse.
+*
+* Reference:   J. Kim, H. Cho, and J. H. Park, "Accelerating NTRU+ Key
+*              Generation via Hierarchical Batch Inversion," IACR ePrint
+*              2026/1191, https://eprint.iacr.org/2026/1191.
+*
+* Arguments:   - poly *r:       pointer to output polynomial
+*              - const poly *a: pointer to input polynomial
+*
+* Returns:     1 if the polynomial is not invertible; otherwise 0
+**************************************************/
 int poly_baseinv(poly *r, const poly *a)
 {
     int16x8_t con = vld1q_s16(consts);
