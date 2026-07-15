@@ -53,7 +53,7 @@ static inline int genf_derand(poly *f, poly *finv, const uint8_t *coins)
     shake256(buf, sizeof buf, coins, 32);
 
     poly_cbd1(f, buf);
-    poly_triple(f, f);
+    poly_triple(f);
     f->coeffs[0] += 1;
 
     poly_ntt(f);
@@ -81,7 +81,7 @@ static inline int geng_derand(poly *g, poly *ginv, const uint8_t *coins)
     shake256(buf, sizeof buf, coins, 32);
 
     poly_cbd1(g, buf);
-    poly_triple(g, g);
+    poly_triple(g);
 
     poly_ntt(g);
 
@@ -261,7 +261,7 @@ int crypto_kem_dec(uint8_t *ss, const uint8_t *ct, const uint8_t *sk)
     
     poly_basemul_scale(&m1, &c, &f);
     poly_invntt_scale(&m1);
-    poly_crepmod3(&m1, &m1);
+    poly_crepmod3(&m1);
     
     m2 = m1;
     poly_ntt(&m2);

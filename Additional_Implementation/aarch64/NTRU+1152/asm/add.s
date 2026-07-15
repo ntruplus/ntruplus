@@ -54,9 +54,10 @@ _loop_sub:
 poly_triple:
 _poly_triple:
     dst     .req x0
-    src     .req x1
+    src     .req x9
     counter .req x8
 
+    mov src, dst
     movi v0.8h, #3
     mov counter, #2304
 

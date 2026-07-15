@@ -3,9 +3,8 @@
 *
 * Description: Centers coefficients modulo q and reduces them modulo 3.
 *
-* Arguments:   - poly *r:       pointer to the output polynomial
-*              - const poly *a: pointer to the input polynomial;
-*                               coefficients must lie in [-q+1,q-1]
+* Arguments:   - poly *r: pointer to the input/output polynomial;
+*                         input coefficients must lie in [-q+1,q-1]
 *
 * Returns:     none. Output coefficients lie in {-1,0,1}.
 **************************************************/
@@ -14,10 +13,11 @@
 poly_crepmod3:
 _poly_crepmod3:
     dst        .req x0
-    src        .req x1
+    src        .req x9
     const_ptr  .req x2
     counter    .req x8
 
+    mov src, dst
     adr const_ptr, crepmod3_consts
     ld1 {v0.8h - v3.8h}, [const_ptr]
     movi v4.8h, #3
