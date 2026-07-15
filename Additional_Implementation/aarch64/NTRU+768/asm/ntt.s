@@ -17,10 +17,10 @@ _poly_ntt:
     src       .req x1
     zetas_ptr .req x2
     counter   .req x8
-    
+
     mov src, dst
     adr zetas_ptr, zetas
-    
+
     ld1 {v0.8h - v3.8h}, [zetas_ptr], #64
 
     mov counter, #128
@@ -452,7 +452,7 @@ _looptop_3456:
 poly_invntt_scale:
 _poly_invntt_scale:
     dst       .req x0
-    src       .req x1    
+    src       .req x1
     zetas_ptr .req x2
     counter   .req x8
 
@@ -730,7 +730,7 @@ _looptop_210:
     #update 2
     sub  v30.8h,  v9.8h,  v7.8h //r[i + 2*step] - r[i + step]
     sub  v31.8h, v10.8h,  v8.8h //r[i + 2*step] - r[i + step]
-    
+
     sub  v28.8h,  v9.8h,  v5.8h //r[i + 2*step] - r[i]
     sub  v29.8h, v10.8h,  v6.8h //r[i + 2*step] - r[i]
 
@@ -742,7 +742,7 @@ _looptop_210:
 
     add  v28.8h, v28.8h, v17.8h //r[i + 2*step] - r[i] + t1
     add  v29.8h, v29.8h, v18.8h //r[i + 2*step] - r[i] + t1
-    
+
     add   v5.8h,  v5.8h,  v9.8h //r[i] + r[i + step] + r[i + 2*step]
     add   v6.8h,  v6.8h, v10.8h //r[i] + r[i + step] + r[i + 2*step]
 
@@ -779,7 +779,7 @@ _looptop_210:
     #update 2
     sub  v30.8h, v15.8h, v13.8h //r[i + 2*step] - r[i + step]
     sub  v31.8h, v16.8h, v14.8h //r[i + 2*step] - r[i + step]
-    
+
     sub  v28.8h, v15.8h, v11.8h //r[i + 2*step] - r[i]
     sub  v29.8h, v16.8h, v12.8h //r[i + 2*step] - r[i]
 
@@ -791,7 +791,7 @@ _looptop_210:
 
     add  v28.8h, v28.8h, v17.8h //r[i + 2*step] - r[i] + t1
     add  v29.8h, v29.8h, v18.8h //r[i + 2*step] - r[i] + t1
-    
+
     add   v11.8h,  v11.8h, v15.8h //r[i] + r[i + step] + r[i + 2*step]
     add   v12.8h,  v12.8h, v16.8h //r[i] + r[i + step] + r[i + 2*step]
 
@@ -918,7 +918,7 @@ _looptop_210:
     str q8, [dst, #3*128]
     str q9, [dst, #4*128]
     str q10, [dst, #5*128]
-    str q11, [dst, #6*128]  
+    str q11, [dst, #6*128]
     str q12, [dst, #7*128]
     str q13, [dst, #8*128]
     str q14, [dst, #9*128]
