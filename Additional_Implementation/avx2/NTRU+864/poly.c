@@ -44,40 +44,48 @@ static inline __m256i fqsqr(__m256i a,  __m256i q, __m256i qinv)
     return _mm256_sub_epi16(hi, lo);
 }
 
-static inline __m256i fqinv(__m256i r)
+/*************************************************
+* Name:        fqinv
+*
+* Description: Computes SIMD multiplicative inverses in Z_q.
+*              The exponent q-2 = 3455 is evaluated using a shortest
+*              addition chain of length 15 (OEIS A003313).
+*
+* Arguments:   - __m256i a: input field elements
+*
+* Returns:     lane-wise multiplicative inverses of a
+**************************************************/
+static inline __m256i fqinv(__m256i a)
 {
-    const __m256i qinv   = _mm256_set1_epi16(NTRUPLUS_QINV);
-    const __m256i q      = _mm256_set1_epi16(NTRUPLUS_Q);
+    const __m256i qinv = _mm256_set1_epi16(NTRUPLUS_QINV);
+    const __m256i q    = _mm256_set1_epi16(NTRUPLUS_Q);
 
-    __m256i T1, T2;
-    __m256i t1, t2, t3;
+    __m256i t0, t1;
+    __m256i T;
 
-    T1  = _mm256_mullo_epi16(r, qinv);
-    t1 = fqsqr(r, q, qinv);     // 10
-   
-    T2 = _mm256_mullo_epi16(t1, qinv);
-    t2 = fqsqr(t1, q, qinv);    // 100
-    t2 = fqsqr(t2, q, qinv);    // 1000
-    t3 = fqsqr(t2, q, qinv);    // 10000
-    t1 = fqmul(t2, t1, T2, q);  // 1010
+    T = _mm256_mullo_epi16(a, qinv);
+    t0 = fqsqr(a, q, qinv);        // 10
+    t0 = fqsqr(t0, q, qinv);       // 100
+    t0 = fqsqr(t0, q, qinv);       // 1000
+    t0 = fqsqr(t0, q, qinv);       // 10000
+    t1 = fqmul(t0, a, T, q);       // 10001
 
-    T2 = _mm256_mullo_epi16(t1, qinv);
-    t2 = fqmul(t3, t1, T2, q);  // 11010
-    t2 = fqsqr(t2, q, qinv);    // 110100
-    t2 = fqmul(t2, r, T1, q);   // 110101
-    t1 = fqmul(t2, t1, T2, q);  // 111111
+    T = _mm256_mullo_epi16(t1, qinv);
+    t0 = fqsqr(t0, q, qinv);       // 100000
+    t0 = fqsqr(t0, q, qinv);       // 1000000
+    t0 = fqsqr(t0, q, qinv);       // 10000000
+    t1 = fqmul(t0, t1, T, q);      // 10010001
 
-    t2 = fqsqr(t2, q, qinv);    // 1101010
-    t2 = fqsqr(t2, q, qinv);    // 11010100
-    t2 = fqsqr(t2, q, qinv);    // 110101000
-    t2 = fqsqr(t2, q, qinv);    // 1101010000
-    t2 = fqsqr(t2, q, qinv);    // 11010100000
-    t2 = fqsqr(t2, q, qinv);    // 110101000000
+    T = _mm256_mullo_epi16(t1, qinv);
+    t0 = fqmul(t0, t1, T, q);      // 100010001
+    t1 = fqmul(t0, t1, T, q);      // 110100010
+    T = _mm256_mullo_epi16(t0, qinv);
+    t1 = fqmul(t1, t0, T, q);      // 1010110011
+    t0 = fqsqr(t1, q, qinv);       // 10101100110
+    t0 = fqsqr(t0, q, qinv);       // 101011001100
 
-    T2 = _mm256_mullo_epi16(t2, qinv);
-    t2 = fqmul(t1, t2, T2, q);  // 110101111111
-
-    return t2;
+    T = _mm256_mullo_epi16(t1, qinv);
+    return fqmul(t0, t1, T, q);    // 110101111111
 }
 
 /*************************************************

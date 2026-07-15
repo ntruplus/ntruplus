@@ -22,36 +22,45 @@ static inline int16x8_t fqmul(int16x8_t x, int16x8_t y, int16x8_t con)
     return vuzp2q_s16(vreinterpretq_s16_s32(l), vreinterpretq_s16_s32(h));
 }
 
+/*************************************************
+* Name:        fqinv
+*
+* Description: Computes SIMD multiplicative inverses in Z_q.
+*              The exponent q-2 = 3455 is evaluated using a shortest
+*              addition chain of length 15 (OEIS A003313).
+*
+* Arguments:   - int16x8_t a:   input field elements
+*              - int16x8_t con: vector of arithmetic constants
+*
+* Returns:     lane-wise multiplicative inverses of a
+**************************************************/
 static inline int16x8_t fqinv(int16x8_t a, int16x8_t con)
 {
-    int16x8_t t1, t2, t3;
+    int16x8_t t0, t1;
 
-    t1 = fqmul(a,  a,  con); // 10
-    t2 = fqmul(t1, t1, con); // 100
-    t2 = fqmul(t2, t2, con); // 1000
-    t3 = fqmul(t2, t2, con); // 10000
+    t0 = fqmul(a, a, con);      // 10
+    t0 = fqmul(t0, t0, con);    // 100
+    t0 = fqmul(t0, t0, con);    // 1000
+    t0 = fqmul(t0, t0, con);    // 10000
+    t1 = fqmul(t0, a, con);     // 10001
 
-    t1 = fqmul(t1, t2, con); // 1010
+    t0 = fqmul(t0, t0, con);    // 100000
+    t0 = fqmul(t0, t0, con);    // 1000000
+    t0 = fqmul(t0, t0, con);    // 10000000
+    t1 = fqmul(t0, t1, con);    // 10010001
 
-    t2 = fqmul(t1, t3, con); // 11010
-    t2 = fqmul(t2, t2, con); // 110100
-    t2 = fqmul(t2, a,  con); // 110101
+    t0 = fqmul(t1, t0, con);    // 100010001
+    t0 = fqmul(t0, t0, con);    // 1000100010
+    t1 = fqmul(t0, t1, con);    // 1010110011
+    t0 = fqmul(t1, t1, con);    // 10101100110
+    t0 = fqmul(t0, t0, con);    // 101011001100
+    t0 = fqmul(t0, t1, con);    // 110101111111
 
-    t1 = fqmul(t1, t2, con); // 111111
+    t1 = vqrdmulhq_laneq_s16(t0, con, 6);
+    t0 = vmulq_laneq_s16(t0, con, 5);
+    t0 = vmlsq_laneq_s16(t0, t1, con, 0);
 
-    t2 = fqmul(t2, t2, con); // 1101010
-    t2 = fqmul(t2, t2, con); // 11010100
-    t2 = fqmul(t2, t2, con); // 110101000
-    t2 = fqmul(t2, t2, con); // 1101010000
-    t2 = fqmul(t2, t2, con); // 11010100000
-    t2 = fqmul(t2, t2, con); // 110101000000
-    t2 = fqmul(t2, t1, con); // 110101111111
-
-    t1   = vqrdmulhq_laneq_s16(t2, con, 6);
-    t2 = vmulq_laneq_s16(t2, con, 5);
-    t2 = vmlsq_laneq_s16(t2, t1, con, 0);
-
-    return t2;
+    return t0;
 }
 
 /*************************************************
