@@ -8,13 +8,28 @@ static const int16_t consts[] __attribute__((aligned(16))) = {
 static inline int16x8_t fqmul(int16x8_t x, int16x8_t y, int16x8_t con)
 {
     int32x4_t l, h;
-    int16x8_t t;
+    int16x8_t t = vmulq_s16(x, y);
 
     l  = vmull_s16(vget_low_s16(x), vget_low_s16(y));
     h  = vmull_high_s16(x, y);
 
-    t  = vuzp1q_s16(vreinterpretq_s16_s32(l), vreinterpretq_s16_s32(h));
     t  = vmulq_laneq_s16(t, con, 2);
+
+    l  = vmlal_lane_s16(l, vget_low_s16(t), vget_low_s16(con), 0);
+    h  = vmlal_high_lane_s16(h, t, vget_low_s16(con), 0);
+
+    return vuzp2q_s16(vreinterpretq_s16_s32(l), vreinterpretq_s16_s32(h));
+}
+
+/* yqinv = y * QINV mod 2^16 is reused across multiple products. */
+static inline int16x8_t fqmul_precomp(int16x8_t x, int16x8_t y,
+                                     int16x8_t yqinv, int16x8_t con)
+{
+    int32x4_t l, h;
+    const int16x8_t t = vmulq_s16(x, yqinv);
+
+    l  = vmull_s16(vget_low_s16(x), vget_low_s16(y));
+    h  = vmull_high_s16(x, y);
 
     l  = vmlal_lane_s16(l, vget_low_s16(t), vget_low_s16(con), 0);
     h  = vmlal_high_lane_s16(h, t, vget_low_s16(con), 0);
@@ -79,7 +94,7 @@ static inline int16x8_t fqinv(int16x8_t a, int16x8_t con)
 *
 * Returns:     1 if an input is zero; otherwise 0
 **************************************************/
-static inline int poly_fqinv_batch(int16x8_t* r, int16x8_t con)
+static inline int poly_fqinv_batch(int16x8_t *r, int16x8_t con)
 {
     const int chunk = NTRUPLUS_N / 96;
     const int off0 = 0 * chunk;
@@ -99,34 +114,28 @@ static inline int poly_fqinv_batch(int16x8_t* r, int16x8_t con)
         t[off2 + i] = fqmul(t[off2 + i - 1], r[off2 + i], con);
     }
 
-    if (!vminvq_u16(vreinterpretq_u16_s16(t[off0 + chunk - 1])) ||
-        !vminvq_u16(vreinterpretq_u16_s16(t[off1 + chunk - 1])) ||
-        !vminvq_u16(vreinterpretq_u16_s16(t[off2 + chunk - 1])))
+    const int16x8_t x0 = t[off0 + chunk - 1];
+    const int16x8_t x1 = t[off1 + chunk - 1];
+    const int16x8_t x2 = t[off2 + chunk - 1];
+
+    if (!vminvq_u16(vreinterpretq_u16_s16(x0)) ||
+        !vminvq_u16(vreinterpretq_u16_s16(x1)) ||
+        !vminvq_u16(vreinterpretq_u16_s16(x2)))
         return 1;
 
-    int16x8_t x[3];
-    x[0] = t[off0 + chunk - 1];
-    x[1] = t[off1 + chunk - 1];
-    x[2] = t[off2 + chunk - 1];
+    const int16x8_t x01 = fqmul(x0, x1, con);
+    const int16x8_t inv012 = fqinv(fqmul(x01, x2, con), con);
+    const int16x8_t inv01 = fqmul(inv012, x2, con);
 
-    int16x8_t t2[3];
-    t2[0] = x[0];
-    t2[1] = fqmul(t2[0], x[1], con);
-    t2[2] = fqmul(t2[1], x[2], con);
-
-    int16x8_t inv = fqinv(t2[2], con);
-
-    int16x8_t inv2 = fqmul(t2[1], inv, con);
-    inv = fqmul(inv, x[2], con);    
-    int16x8_t inv1 = fqmul(t2[0], inv, con);
-    inv = fqmul(inv, x[1], con);
-    int16x8_t inv0 = inv;
+    int16x8_t inv0 = fqmul(inv01, x1, con);
+    int16x8_t inv1 = fqmul(inv01, x0, con);
+    int16x8_t inv2 = fqmul(inv012, x01, con);
 
     for (int i = chunk - 1; i > 0; i--)
     {
-        int16x8_t tmp0 = r[off0 + i];
-        int16x8_t tmp1 = r[off1 + i];
-        int16x8_t tmp2 = r[off2 + i];
+        const int16x8_t tmp0 = r[off0 + i];
+        const int16x8_t tmp1 = r[off1 + i];
+        const int16x8_t tmp2 = r[off2 + i];
 
         r[off0 + i] = fqmul(t[off0 + i - 1], inv0, con);
         r[off1 + i] = fqmul(t[off1 + i - 1], inv1, con);
@@ -144,28 +153,30 @@ static inline int poly_fqinv_batch(int16x8_t* r, int16x8_t con)
     return 0;
 }
 
-extern void poly_baseinv_1(poly *r, int16x8_t* den, const poly* a);
+extern void poly_baseinv_1(poly *r, int16x8_t *den, const poly *a);
 
-static inline void poly_baseinv_2(poly *r, int16x8_t *den, int16x8_t con)
+static inline void poly_baseinv_2(poly *r, const int16x8_t *den, int16x8_t con)
 {
     int16_t *rp = r->coeffs;
 
     for (int i = 0; i < 36; i++)
     {
-        int16x8_t pden = den[i];
-        int16x8_t mden = vnegq_s16(den[i]);
+        const int16x8_t pden = den[i];
+        const int16x8_t mden = vnegq_s16(pden);
+        const int16x8_t pden_qinv = vmulq_laneq_s16(pden, con, 2);
+        const int16x8_t mden_qinv = vnegq_s16(pden_qinv);
 
-        int offset = i * 32;
+        const int offset = i * 32;
 
         int16x8_t r0 = vld1q_s16(rp + offset +  0);
         int16x8_t r1 = vld1q_s16(rp + offset +  8);
         int16x8_t r2 = vld1q_s16(rp + offset + 16);
         int16x8_t r3 = vld1q_s16(rp + offset + 24);
 
-        r0 = fqmul(r0, pden, con);
-        r1 = fqmul(r1, mden, con);
-        r2 = fqmul(r2, pden, con);
-        r3 = fqmul(r3, mden, con);
+        r0 = fqmul_precomp(r0, pden, pden_qinv, con);
+        r1 = fqmul_precomp(r1, mden, mden_qinv, con);
+        r2 = fqmul_precomp(r2, pden, pden_qinv, con);
+        r3 = fqmul_precomp(r3, mden, mden_qinv, con);
 
         vst1q_s16(rp + offset +  0, r0);
         vst1q_s16(rp + offset +  8, r1);
@@ -193,18 +204,19 @@ static inline void poly_baseinv_2(poly *r, int16x8_t *den, int16x8_t con)
 **************************************************/
 int poly_baseinv(poly *r, const poly *a)
 {
-    int16x8_t con = vld1q_s16(consts);
-    int16x8_t den[36] __attribute((aligned(16)));
+    const int16x8_t con = vld1q_s16(consts);
+    int16x8_t den[36] __attribute__((aligned(16)));
 
     poly_baseinv_1(r, den, a);
 
-    if(poly_fqinv_batch(den, con))
+    if (poly_fqinv_batch(den, con))
     {
         for (int i = 0; i < NTRUPLUS_N; i++)
             r->coeffs[i] = 0;
-        
+
         return 1;
-    } 
+    }
+
     poly_baseinv_2(r, den, con);
 
     return 0;
