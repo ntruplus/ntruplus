@@ -27,6 +27,7 @@ _poly_ntt:
     mov counter, #96
 
 _looptop_012:
+    # v0-v4: constants; v5-v22: coefficients; v23-v31: temporaries.
     # Input range: [-3,4].
     #level 0
     ldr q14, [src, #9*96]
@@ -392,6 +393,7 @@ _looptop_012:
     mov counter, #1728
 
 _looptop_3456:
+    # v0-v2: constants; v4-v15: coefficient banks; v16-v24: temporaries.
     #load zetas
     ld1  {v0.8h}, [zetas_ptr], #16
 
@@ -533,21 +535,21 @@ _looptop_3456:
 
     # Range after level 6: [-19210,18871].
     #Barrett reduction
-    sqrdmulh v29.8h,  v7.8h, v0.h[1]
-    sqrdmulh v30.8h,  v8.8h, v0.h[1]
-    sqrdmulh v31.8h,  v9.8h, v0.h[1]
+    sqrdmulh v22.8h,  v7.8h, v0.h[1]
+    sqrdmulh v23.8h,  v8.8h, v0.h[1]
+    sqrdmulh v24.8h,  v9.8h, v0.h[1]
 
-    mls      v7.8h, v29.8h, v0.h[0]
-    mls      v8.8h, v30.8h, v0.h[0]
-    mls      v9.8h, v31.8h, v0.h[0]
+    mls      v7.8h, v22.8h, v0.h[0]
+    mls      v8.8h, v23.8h, v0.h[0]
+    mls      v9.8h, v24.8h, v0.h[0]
 
-    sqrdmulh v26.8h,  v4.8h, v0.h[1]
-    sqrdmulh v27.8h,  v5.8h, v0.h[1]
-    sqrdmulh v28.8h,  v6.8h, v0.h[1]
+    sqrdmulh v19.8h,  v4.8h, v0.h[1]
+    sqrdmulh v20.8h,  v5.8h, v0.h[1]
+    sqrdmulh v21.8h,  v6.8h, v0.h[1]
 
-    mls      v4.8h, v26.8h, v0.h[0]
-    mls      v5.8h, v27.8h, v0.h[0]
-    mls      v6.8h, v28.8h, v0.h[0]
+    mls      v4.8h, v19.8h, v0.h[0]
+    mls      v5.8h, v20.8h, v0.h[0]
+    mls      v6.8h, v21.8h, v0.h[0]
 
     # Range after R=2^15 Barrett reduction: [-2556,2555].
     #store
@@ -563,7 +565,6 @@ _looptop_3456:
     .unreq    counter
 
     ret
-
 
 /*************************************************
 * Name:        poly_invntt_scale
@@ -593,6 +594,7 @@ _poly_invntt_scale:
     mov counter, #1728
 
 _looptop_6543:
+    # v0-v2: constants; v4-v15: coefficient banks; v16-v21: temporaries.
     #zetas
     ld1 {v0.8h}, [zetas_ptr], #16
 
@@ -699,13 +701,13 @@ _looptop_6543:
 
     # Range before Barrett reduction: [-27648,27648].
     #Barrett reduction
-    sqrdmulh v29.8h,  v4.8h, v0.h[1]
-    sqrdmulh v30.8h,  v5.8h, v0.h[1]
-    sqrdmulh v31.8h,  v6.8h, v0.h[1]
+    sqrdmulh v19.8h,  v4.8h, v0.h[1]
+    sqrdmulh v20.8h,  v5.8h, v0.h[1]
+    sqrdmulh v21.8h,  v6.8h, v0.h[1]
 
-    mls      v4.8h, v29.8h, v0.h[0]
-    mls      v5.8h, v30.8h, v0.h[0]
-    mls      v6.8h, v31.8h, v0.h[0]
+    mls      v4.8h, v19.8h, v0.h[0]
+    mls      v5.8h, v20.8h, v0.h[0]
+    mls      v6.8h, v21.8h, v0.h[0]
 
     # Range after level 4: [-3129,3129].
     #shuffle
@@ -755,6 +757,7 @@ _looptop_6543:
     mov counter, #96
 
 _looptop_210:
+    # v0-v4: constants; v5-v22: coefficients; v23-v31: temporaries.
     #load
     ldr  q5, [dst, #0*96]
     ldr  q6, [dst, #1*96]
@@ -1189,6 +1192,7 @@ _looptop_210:
     str q12, [dst, #7*96]
     str q13, [dst, #8*96]
 
+    # v5 is free after store 1 and holds the final scale constants.
     ldr s5, [zetas_ptr]
 
     sqrdmulh v24.8h, v14.8h, v5.h[1]
@@ -1244,8 +1248,7 @@ _looptop_210:
     .unreq    zetas_ptr
     .unreq    counter
 
-ret
-
+    ret
 
 .align 4
 zetas:

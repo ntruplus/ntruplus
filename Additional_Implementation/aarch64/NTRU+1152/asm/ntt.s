@@ -27,6 +27,7 @@ _poly_ntt:
     mov counter, #128
 
 _looptop_012:
+    # v0-v4: constants; v5-v22: coefficients; v23-v31: temporaries.
     # Input range: [-3,4].
     #level 0
     ldr q14, [src, #9*128]
@@ -392,6 +393,7 @@ _looptop_012:
     mov counter, #2304
 
 _looptop_3456:
+    # v0-v3: constants; v4-v11: coefficients; v12-v31: temporaries.
     #load zetas
     ld1 {v0.8h - v3.8h}, [zetas_ptr], #64
 
@@ -613,6 +615,7 @@ _poly_invntt_scale:
     mov counter, #2304
 
 _looptop_6543:
+    # v0-v3: constants; v4-v11: coefficients; v12-v31: temporaries.
     #load zetas
     ld1 {v0.8h - v3.8h}, [zetas_ptr], #64
 
@@ -792,6 +795,7 @@ _looptop_6543:
     mov counter, #128
 
 _looptop_210:
+    # v0-v4: constants; v5-v22: coefficients; v23-v31: temporaries.
     #load
     ldr  q5, [dst, #0*128]
     ldr  q6, [dst, #1*128]
@@ -1226,6 +1230,7 @@ _looptop_210:
     str q12, [dst, #7*128]
     str q13, [dst, #8*128]
 
+    # v5 is free after store 1 and holds the final scale constants.
     ldr s5, [zetas_ptr]
 
     sqrdmulh v24.8h, v14.8h, v5.h[1]
@@ -1281,7 +1286,7 @@ _looptop_210:
     .unreq    zetas_ptr
     .unreq    counter
 
-ret
+    ret
 
 .align 4
 zetas:
@@ -1362,7 +1367,6 @@ zetas:
     .hword 0xfced, 0xe2dc, 0xfd95, 0xe915, 0x0389, 0x2182, 0x04ab, 0x2c3f
     .hword 0xfe7b, 0x047c, 0x020a, 0xfebd, 0xff57, 0x053f, 0x04cf, 0x0180
     .hword 0xf199, 0x2a82, 0x1354, 0xf40a, 0xf9be, 0x31ba, 0x2d94, 0x0e38
-
 
 .align 4
 zetas_inv:
