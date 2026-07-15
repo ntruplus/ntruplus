@@ -16,8 +16,8 @@ extern void poly_tobytes_raw(uint8_t r[NTRUPLUS_POLYBYTES], const poly *a);
 
 void poly_tobytes(uint8_t r[NTRUPLUS_POLYBYTES], const poly *a)
 {
-    poly tmp = *a;
-    poly_ntt_pack(&tmp, &tmp);
+    poly tmp;
+    poly_ntt_pack(&tmp, a);
     poly_tobytes_raw(r, &tmp);
 }
 

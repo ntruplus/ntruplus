@@ -243,10 +243,10 @@ int crypto_kem_dec(unsigned char *ss,
                    const unsigned char *ct,
                    const unsigned char *sk)
 {
-	uint8_t msg[HASH_H_INBYTES] = {0};
-	uint8_t buf1[HASH_G_INBYTES] = {0};
-	uint8_t buf2[HASH_G_INBYTES] = {0};
-	uint8_t buf3[HASH_H_OUTBYTES] = {0};
+	uint8_t msg[HASH_H_INBYTES];
+	uint8_t buf1[HASH_G_INBYTES];
+	uint8_t buf2[HASH_G_INBYTES];
+	uint8_t buf3[HASH_H_OUTBYTES];
 	
 	int8_t fail;
 	
