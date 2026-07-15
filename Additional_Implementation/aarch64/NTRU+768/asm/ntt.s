@@ -7,7 +7,7 @@
 * Arguments:   - poly *r: pointer to the input/output polynomial;
 *                         input coefficients must lie in [-3,4]
 *
-* Returns:     none. Output coefficients lie in (-q,q).
+* Returns:     none. Output coefficients lie in [-q+1,q-1].
 **************************************************/
 .global poly_ntt
 .global _poly_ntt
@@ -442,10 +442,10 @@ _looptop_3456:
 *              the inverse NTT scaling factor.
 *
 * Arguments:   - poly *r: pointer to the input/output polynomial;
-*                         input coefficients must lie in (-3q/2,3q/2)
+*                         input coefficients must lie in [-q+1,q-1]
 *                         in the R^-1 representation
 *
-* Returns:     none. Output coefficients lie in (-q,q).
+* Returns:     none. Output coefficients lie in [-q+1,q-1].
 **************************************************/
 .global poly_invntt_scale
 .global _poly_invntt_scale
@@ -469,6 +469,7 @@ _poly_invntt_scale:
     ld1 {v4.8h - v7.8h},  [src], #64
     ld1 {v8.8h - v11.8h}, [src], #64
 
+    # Input range: [-3456,3456].
     #level 6
     #update
     sub v12.8h,  v8.8h, v4.8h
@@ -497,6 +498,7 @@ _poly_invntt_scale:
     mls v10.8h, v14.8h, v0.h[0]
     mls v11.8h, v15.8h, v0.h[0]
 
+    # Range after level 6: [-6912,6912].
     #shuffle
     trn1 v12.2d, v4.2d, v8.2d
     trn2 v13.2d, v4.2d, v8.2d
@@ -553,6 +555,7 @@ _poly_invntt_scale:
     mls  v9.8h, v14.8h, v0.h[0]
     mls v11.8h, v15.8h, v0.h[0]
 
+    # Range after level 5: [-13824,13824].
     #level 4
     #update
     sub v12.8h, v6.8h, v4.8h
@@ -581,6 +584,7 @@ _poly_invntt_scale:
     mls v10.8h, v14.8h, v0.h[0]
     mls v11.8h, v15.8h, v0.h[0]
 
+    # Range before Barrett reduction: [-27648,27648].
     #Barrett reduction
     sqrdmulh v28.8h,  v4.8h, v0.h[1]
     sqrdmulh v29.8h,  v5.8h, v0.h[1]
@@ -593,6 +597,7 @@ _poly_invntt_scale:
     mls      v8.8h, v30.8h, v0.h[0]
     mls      v9.8h, v31.8h, v0.h[0]
 
+    # Range after level 4: [-3161,3161].
     #level 3
     #update
     sub v12.8h,  v8.8h, v4.8h
@@ -621,6 +626,7 @@ _poly_invntt_scale:
     mls v10.8h, v14.8h, v0.h[0]
     mls v11.8h, v15.8h, v0.h[0]
 
+    # Range after level 3: [-6214,6214].
     #store
     st1 {v4.8h - v7.8h},  [dst], #64
     st1 {v8.8h - v11.8h}, [dst], #64
@@ -687,6 +693,7 @@ _looptop_210:
     mls v14.8h, v21.8h, v0.h[0]
     mls v16.8h, v22.8h, v0.h[0]
 
+    # Range before Barrett reduction: [-12428,12428].
     #Barrett reduction
     sqrdmulh v26.8h,  v5.8h, v0.h[1]
     sqrdmulh v27.8h,  v7.8h, v0.h[1]
@@ -706,6 +713,7 @@ _looptop_210:
     mls      v13.8h, v30.8h, v0.h[0]
     mls      v15.8h, v31.8h, v0.h[0]
 
+    # Range after level 2: [-2365,2365].
     #level 1
     #update 1
     sub v30.8h, v7.8h, v5.8h //r[i + step] - r[i]
@@ -805,6 +813,7 @@ _looptop_210:
     mls v13.8h, v28.8h, v0.h[0]
     mls v14.8h, v29.8h, v0.h[0]
 
+    # Range after level 1: [-6564,6564].
     #level 0
     #update 1
     sub  v17.8h,  v5.8h, v11.8h
@@ -903,11 +912,11 @@ _looptop_210:
     mls v15.8h, v27.8h, v0.h[0]
     mls v16.8h, v28.8h, v0.h[0]
 
+    # Range before Barrett reduction: [-2135,2135].
     #Barrett reduction
     sqrdmulh v20.8h,  v5.8h, v0.h[1]
     sqrdmulh v21.8h,  v6.8h, v0.h[1]
     sqrdmulh v22.8h,  v7.8h, v0.h[1]
-
 
     mls       v5.8h, v20.8h, v0.h[0]
     mls       v6.8h, v21.8h, v0.h[0]
@@ -917,7 +926,6 @@ _looptop_210:
     sqrdmulh v24.8h,  v9.8h, v0.h[1]
     sqrdmulh v25.8h,  v10.8h, v0.h[1]
 
-
     mls       v8.8h, v23.8h, v0.h[0]
     mls       v9.8h, v24.8h, v0.h[0]
     mls      v10.8h, v25.8h, v0.h[0]
@@ -925,7 +933,6 @@ _looptop_210:
     sqrdmulh v26.8h,  v11.8h, v0.h[1]
     sqrdmulh v27.8h,  v12.8h, v0.h[1]
     sqrdmulh v28.8h,  v13.8h, v0.h[1]
-
 
     mls      v11.8h, v26.8h, v0.h[0]
     mls      v12.8h, v27.8h, v0.h[0]
@@ -935,11 +942,11 @@ _looptop_210:
     sqrdmulh v30.8h,  v15.8h, v0.h[1]
     sqrdmulh v31.8h,  v16.8h, v0.h[1]
 
-
     mls      v14.8h, v29.8h, v0.h[0]
     mls      v15.8h, v30.8h, v0.h[0]
     mls      v16.8h, v31.8h, v0.h[0]
-    
+
+    # Range after level 0: [-q+1,q-1].
     #store
     str q5, [dst, #0*128]
     str q6, [dst, #1*128]
