@@ -19,65 +19,47 @@ _poly_crepmod3:
 
     mov src, dst
     adr const_ptr, crepmod3_consts
-    ld1 {v0.8h - v3.8h}, [const_ptr]
-    movi v4.8h, #3
+    ld1 {v0.8h - v1.8h}, [const_ptr]
+    movi v2.8h, #3
+    neg v3.8h, v0.8h
 
     mov counter, #2304
 
 _looptop:
-    ld1 {v5.8h - v8.8h}, [src], #64
+    ld1 {v16.8h - v19.8h}, [src], #64
 
-    sshr v9.8h,  v5.8h, #15
-    sshr v10.8h, v6.8h, #15
-    sshr v11.8h, v7.8h, #15
-    sshr v12.8h, v8.8h, #15
+    cmgt v20.8h, v16.8h, v0.8h
+    cmgt v21.8h, v17.8h, v0.8h
+    cmgt v22.8h, v18.8h, v0.8h
+    cmgt v23.8h, v19.8h, v0.8h
 
-    and v9.16b,  v9.16b,  v0.16b
-    and v10.16b, v10.16b, v0.16b
-    and v11.16b, v11.16b, v0.16b
-    and v12.16b, v12.16b, v0.16b
+    add v16.8h, v16.8h, v20.8h
+    add v17.8h, v17.8h, v21.8h
+    add v18.8h, v18.8h, v22.8h
+    add v19.8h, v19.8h, v23.8h
 
-    add v5.8h, v5.8h, v9.8h
-    add v6.8h, v6.8h, v10.8h
-    add v7.8h, v7.8h, v11.8h
-    add v8.8h, v8.8h, v12.8h
+    cmgt v20.8h, v3.8h, v16.8h
+    cmgt v21.8h, v3.8h, v17.8h
+    cmgt v22.8h, v3.8h, v18.8h
+    cmgt v23.8h, v3.8h, v19.8h
 
-    sub v5.8h, v5.8h, v1.8h
-    sub v6.8h, v6.8h, v1.8h
-    sub v7.8h, v7.8h, v1.8h
-    sub v8.8h, v8.8h, v1.8h
+    sub v16.8h, v16.8h, v20.8h
+    sub v17.8h, v17.8h, v21.8h
+    sub v18.8h, v18.8h, v22.8h
+    sub v19.8h, v19.8h, v23.8h
 
-    sshr v9.8h,  v5.8h, #15
-    sshr v10.8h, v6.8h, #15
-    sshr v11.8h, v7.8h, #15
-    sshr v12.8h, v8.8h, #15
+    # Barrett reduction modulo 3 with R = 2^15.
+    sqrdmulh v20.8h, v16.8h, v1.8h
+    sqrdmulh v21.8h, v17.8h, v1.8h
+    sqrdmulh v22.8h, v18.8h, v1.8h
+    sqrdmulh v23.8h, v19.8h, v1.8h
 
-    and v9.16b,  v9.16b,  v0.16b
-    and v10.16b, v10.16b, v0.16b
-    and v11.16b, v11.16b, v0.16b
-    and v12.16b, v12.16b, v0.16b
+    mls v16.8h, v20.8h, v2.8h
+    mls v17.8h, v21.8h, v2.8h
+    mls v18.8h, v22.8h, v2.8h
+    mls v19.8h, v23.8h, v2.8h
 
-    add v5.8h, v5.8h, v9.8h
-    add v6.8h, v6.8h, v10.8h
-    add v7.8h, v7.8h, v11.8h
-    add v8.8h, v8.8h, v12.8h
-
-    sub v5.8h, v5.8h, v2.8h
-    sub v6.8h, v6.8h, v2.8h
-    sub v7.8h, v7.8h, v2.8h
-    sub v8.8h, v8.8h, v2.8h
-
-    sqrdmulh v9.8h,  v5.8h, v3.8h
-    sqrdmulh v10.8h, v6.8h, v3.8h
-    sqrdmulh v11.8h, v7.8h, v3.8h
-    sqrdmulh v12.8h, v8.8h, v3.8h
-
-    mls v5.8h, v9.8h,  v4.8h
-    mls v6.8h, v10.8h, v4.8h
-    mls v7.8h, v11.8h, v4.8h
-    mls v8.8h, v12.8h, v4.8h
-
-    st1 {v5.8h - v8.8h}, [dst], #64
+    st1 {v16.8h - v19.8h}, [dst], #64
 
     subs counter, counter, #64
     b.ne _looptop
@@ -92,7 +74,6 @@ _looptop:
 
 .align 4
 crepmod3_consts:
-    .hword 3457, 3457, 3457, 3457, 3457, 3457, 3457, 3457
-    .hword 1729, 1729, 1729, 1729, 1729, 1729, 1729, 1729
-    .hword 1728, 1728, 1728, 1728, 1728, 1728, 1728, 1728
-    .hword 10923, 10923, 10923, 10923, 10923, 10923, 10923, 10923
+    # (q-1)/2 = 1728, round(2^15/3) = 10923
+    .hword 0x06c0, 0x06c0, 0x06c0, 0x06c0, 0x06c0, 0x06c0, 0x06c0, 0x06c0
+    .hword 0x2aab, 0x2aab, 0x2aab, 0x2aab, 0x2aab, 0x2aab, 0x2aab, 0x2aab

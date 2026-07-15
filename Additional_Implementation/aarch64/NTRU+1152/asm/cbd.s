@@ -1,9 +1,20 @@
+/*************************************************
+* Name:        poly_cbd1
+*
+* Description: Samples a polynomial from the centered binomial distribution
+*              with parameter eta = 1.
+*
+* Arguments:   - poly *r: pointer to the output polynomial
+*              - const uint8_t *buf: pointer to NTRUPLUS_N/4 input bytes
+*
+* Returns:     none. Output coefficients lie in {-1,0,1}.
+**************************************************/
 .global poly_cbd1
 .global _poly_cbd1
 poly_cbd1:
 _poly_cbd1:
     dst       .req x0
-    src       .req x1 
+    src       .req x1
     counter   .req x8
 
     movi    v0.16b, #0x55
@@ -14,11 +25,10 @@ _poly_cbd1:
 
 _loop_cbd:
     #load
-    ldr q5, [src, #0]
-    ldr q6, [src, #144]
-    add src, src, #16
+    ldr q5, [src], #16
+    ldr q6, [src, #128]
 
-    ushr v7.16b, v5.16b, #1     
+    ushr v7.16b, v5.16b, #1
     ushr v8.16b, v6.16b, #1
 
     and  v9.16b,  v5.16b, v0.16b
@@ -130,13 +140,25 @@ _loop_cbd:
     ret
 
 
+/*************************************************
+* Name:        poly_sotp_encode
+*
+* Description: Encodes a message using a one-time pad and centered binomial
+*              sampling with parameter eta = 1.
+*
+* Arguments:   - poly *r: pointer to the output polynomial
+*              - const uint8_t *msg: pointer to NTRUPLUS_N/8 message bytes
+*              - const uint8_t *buf: pointer to NTRUPLUS_N/4 pad bytes
+*
+* Returns:     none. Output coefficients lie in {-1,0,1}.
+**************************************************/
 .global poly_sotp_encode
 .global _poly_sotp_encode
 poly_sotp_encode:
 _poly_sotp_encode:
     dst       .req x0
     src1      .req x1
-    src2      .req x2 
+    src2      .req x2
     counter   .req x8
 
     movi    v0.16b, #0x55
@@ -147,16 +169,14 @@ _poly_sotp_encode:
 
 _loop_sotp_encode:
     #load
-    ldr q4, [src1, #0]
-    ldr q5, [src2, #0]
-    ldr q6, [src2, #144]
-    add src1, src1, #16
-    add src2, src2, #16
+    ldr q4, [src1], #16
+    ldr q5, [src2], #16
+    ldr q6, [src2, #128]
 
     #xor
     eor v5.16b, v4.16b, v5.16b
 
-    ushr v7.16b, v5.16b, #1     
+    ushr v7.16b, v5.16b, #1
     ushr v8.16b, v6.16b, #1
 
     and  v9.16b,  v5.16b, v0.16b
@@ -269,6 +289,18 @@ _loop_sotp_encode:
     ret
 
 
+/*************************************************
+* Name:        poly_sotp_decode
+*
+* Description: Decodes a message using the inverse one-time-pad operation and
+*              checks that every recovered coefficient is valid.
+*
+* Arguments:   - uint8_t *msg: pointer to NTRUPLUS_N/8 output bytes
+*              - const poly *a: pointer to the input polynomial
+*              - const uint8_t *buf: pointer to NTRUPLUS_N/4 pad bytes
+*
+* Returns:     0 on success and 1 on failure.
+**************************************************/
 .global poly_sotp_decode
 .global _poly_sotp_decode
 poly_sotp_decode:
@@ -281,7 +313,6 @@ _poly_sotp_decode:
     #load
     movi    v0.16b, #0x55
     movi    v1.16b, #0x01
-    movi    v2.16b, #0xff
 
     #global error
     movi    v3.16b, #0xff
@@ -399,7 +430,7 @@ _loop_sotp_decode:
     shl v17.16b, v11.16b, #1
 
     eor v18.16b, v10.16b, v17.16b
-    eor v19.16b, v18.16b, v2.16b 
+    mvn v19.16b, v18.16b
 
     eor v20.16b, v19.16b, v5.16b
 
@@ -409,9 +440,8 @@ _loop_sotp_decode:
     subs counter, counter, #256
     b.ne _loop_sotp_decode
 
-    eor v3.16b, v3.16b, v2.16b
-    and v3.16b, v3.16b, v0.16b
-    
+    bic v3.16b, v0.16b, v3.16b
+
     umaxv h3, v3.8h
     umov  w0, v3.h[0]
     cmp w0, #0
