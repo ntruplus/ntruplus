@@ -796,8 +796,8 @@ static inline int baseinv_1(int16_t r[2*NTRUPLUS_D], int16_t den[2],
 *
 * Description: Computes the multiplicative inverse of a value in the
 *              finite field Z_q.
-*              The exponent q-2 = 3455 uses a 15-step addition chain
-*              (OEIS A003313, https://oeis.org/A003313).
+*              The exponent q-2 = 3455 is evaluated using a shortest
+*              addition chain of length 15 (OEIS A003313).
 *
 * Arguments:   - int16_t a: input value in {-(q+1)/2, ..., (q-1)/2}
 *
@@ -806,7 +806,7 @@ static inline int baseinv_1(int16_t r[2*NTRUPLUS_D], int16_t den[2],
 **************************************************/
 static inline int16_t fqinv(int16_t a)
 {
-	int16_t t0, t1, t2;
+	int16_t t0, t1;
 	uint32_t A, T;
 
 	A = a*NTRUPLUS_QINV;
@@ -814,25 +814,22 @@ static inline int16_t fqinv(int16_t a)
 	t0 = plantard_reduce(t0*t0);        // 100
 	t0 = plantard_reduce(t0*t0);        // 1000
 	t0 = plantard_reduce(t0*t0);        // 10000
+	t1 = plantard_reduce_acc(t0*A);     // 10001
 
-	T = t0*NTRUPLUS_QINV;
-	t1 = plantard_reduce_acc(t0*T);     // 100000
-	t1 = plantard_reduce(t1*t1);        // 1000000
-	t1 = plantard_reduce(t1*t1);        // 10000000
+	t0 = plantard_reduce(t0*t0);        // 100000
+	t0 = plantard_reduce(t0*t0);        // 1000000
+	t0 = plantard_reduce(t0*t0);        // 10000000
+	t1 = plantard_reduce(t0*t1);        // 10010001
 
 	T = t1*NTRUPLUS_QINV;
-	t2 = plantard_reduce_acc(t0*T);     // 10010000
-	t2 = plantard_reduce_acc(t2*A);     // 10010001
+	t0 = plantard_reduce_acc(t0*T);     // 100010001
+	t1 = plantard_reduce_acc(t0*T);     // 110100010
+	t1 = plantard_reduce(t1*t0);        // 1010110011
+	t0 = plantard_reduce(t1*t1);        // 10101100110
+	t0 = plantard_reduce(t0*t0);        // 101011001100
 
-	T = t2*NTRUPLUS_QINV;
-	t0 = plantard_reduce_acc(t1*T);     // 100010001
-	t0 = plantard_reduce(t0*t0);        // 1000100010
-	t0 = plantard_reduce_acc(t0*T);     // 1010110011
-	t1 = plantard_reduce(t0*t0);        // 10101100110
-	t1 = plantard_reduce(t1*t1);        // 101011001100
-
-	T = t0*NTRUPLUS_RINVSQ; // below 64*q^2 for centered fqinv inputs.
-	return plantard_reduce_acc(t1*T);   // 110101111111
+	T = t1*NTRUPLUS_RINVSQ; // below 64*q^2 for centered fqinv inputs.
+	return plantard_reduce_acc(t0*T);   // 110101111111
 }
 
 /*************************************************

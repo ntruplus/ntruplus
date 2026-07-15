@@ -115,8 +115,9 @@ static inline int16_t fqmul(int16_t a, int16_t b)
 /*************************************************
 * Name:        fqinv
 *
-* Description: Computes the multiplicative inverse of a value in the
-*              finite field Z_q.
+* Description: Computes the multiplicative inverse in Z_q using Fermat's
+*              little theorem. The exponent q-2 = 3455 is evaluated using
+*              a shortest addition chain of length 15 (OEIS A003313).
 *
 * Arguments:   - int16_t a: input value a mod q
 *
@@ -124,32 +125,27 @@ static inline int16_t fqmul(int16_t a, int16_t b)
 **************************************************/
 static inline int16_t fqinv(int16_t a)
 {
-	int16_t t1, t2, t3;
+	int16_t t0, t1;
 
-	t1 = fqmul(a, a);    // 10
-	t2 = fqmul(t1, t1);  // 100
-	t2 = fqmul(t2, t2);  // 1000
-	t3 = fqmul(t2, t2);  // 10000
+	t0 = fqmul(a, a);    // 10
+	t0 = fqmul(t0, t0);  // 100
+	t0 = fqmul(t0, t0);  // 1000
+	t0 = fqmul(t0, t0);  // 10000
+	t1 = fqmul(t0, a);   // 10001
 
-	t1 = fqmul(t1, t2);  // 1010
+	t0 = fqmul(t0, t0);  // 100000
+	t0 = fqmul(t0, t0);  // 1000000
+	t0 = fqmul(t0, t0);  // 10000000
+	t1 = fqmul(t0, t1);  // 10010001
 
-	t2 = fqmul(t1, t3);  // 11010
-	t2 = fqmul(t2, t2);  // 110100
-	t2 = fqmul(t2, a);   // 110101
+	t0 = fqmul(t1, t0);  // 100010001
+	t1 = fqmul(t0, t1);  // 110100010
+	t1 = fqmul(t1, t0);  // 1010110011
+	t0 = fqmul(t1, t1);  // 10101100110
+	t0 = fqmul(t0, t0);  // 101011001100
+	t0 = fqmul(t0, t1);  // 110101111111
 
-	t1 = fqmul(t1, t2);  // 111111
-
-	t2 = fqmul(t2, t2);  // 1101010
-	t2 = fqmul(t2, t2);  // 11010100
-	t2 = fqmul(t2, t2);  // 110101000
-	t2 = fqmul(t2, t2);  // 1101010000
-	t2 = fqmul(t2, t2);  // 11010100000
-	t2 = fqmul(t2, t2);  // 110101000000
-	t2 = fqmul(t2, t1);  // 110101111111
-
-	t2 = fqmul(NTRUPLUS_RINV, t2);
-
-	return t2;
+	return fqmul(NTRUPLUS_RINV, t0);
 }
 
 /*************************************************
