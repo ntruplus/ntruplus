@@ -93,6 +93,25 @@ _loop_tobytes:
     ld1 {v1.8h-v4.8h}, [src], #64
     ld1 {v5.8h-v8.8h}, [src], #64
 
+    # Barrett reduction with round(2^15/q) = 9
+    movi v9.8h, #9
+    sqrdmulh v10.8h, v1.8h, v9.8h
+    sqrdmulh v11.8h, v2.8h, v9.8h
+    sqrdmulh v12.8h, v3.8h, v9.8h
+    sqrdmulh v13.8h, v4.8h, v9.8h
+    sqrdmulh v14.8h, v5.8h, v9.8h
+    sqrdmulh v15.8h, v6.8h, v9.8h
+    sqrdmulh v16.8h, v7.8h, v9.8h
+    sqrdmulh v17.8h, v8.8h, v9.8h
+    mls v1.8h, v10.8h, v0.8h
+    mls v2.8h, v11.8h, v0.8h
+    mls v3.8h, v12.8h, v0.8h
+    mls v4.8h, v13.8h, v0.8h
+    mls v5.8h, v14.8h, v0.8h
+    mls v6.8h, v15.8h, v0.8h
+    mls v7.8h, v16.8h, v0.8h
+    mls v8.8h, v17.8h, v0.8h
+
     sshr v9.8h,  v1.8h, #15
     sshr v10.8h, v2.8h, #15
     sshr v11.8h, v3.8h, #15
