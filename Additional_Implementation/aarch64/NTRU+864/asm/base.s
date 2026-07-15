@@ -123,6 +123,105 @@ _looptop:
     ret
 
 
+.global poly_basemul_scale
+.global _poly_basemul_scale
+poly_basemul_scale:
+_poly_basemul_scale:
+    dst       .req x0
+    src1      .req x1
+    src2      .req x2
+    zetas_ptr     .req x3
+    counter   .req x8
+
+    adr zetas_ptr, zetas_mul
+
+    ld1  {v0.8h}, [zetas_ptr], #16
+
+    mov counter, #1728
+
+_looptop_scale:
+    #load
+    ld1  {v1.8h}, [zetas_ptr], #16
+
+    #load
+    ld1 {v4.8h - v6.8h}, [src1], #48
+    ld1 {v7.8h - v9.8h}, [src2], #48
+
+    smull  v10.4s, v5.4h, v9.4h //a1*b2
+    smull2 v11.4s, v5.8h, v9.8h //a1*b2
+    smull  v12.4s, v6.4h, v9.4h //a2*b2
+    smull2 v13.4s, v6.8h, v9.8h //a2*b2
+
+    smlal  v10.4s, v6.4h, v8.4h //a2*b1
+    smlal2 v11.4s, v6.8h, v8.8h //a2*b1
+
+    uzp1 v15.8h, v12.8h, v13.8h
+    uzp1 v14.8h, v10.8h, v11.8h
+
+    mul v15.8h, v15.8h, v0.h[2]
+    mul v14.8h, v14.8h, v0.h[2]
+
+    smlal  v12.4s, v15.4h, v0.h[0]
+    smlal2 v13.4s, v15.8h, v0.h[0]
+    smlal  v10.4s, v14.4h, v0.h[0]
+    smlal2 v11.4s, v14.8h, v0.h[0]
+
+    uzp2 v30.8h, v12.8h, v13.8h
+    uzp2 v29.8h, v10.8h, v11.8h
+
+    smull  v14.4s, v6.4h, v7.4h //a2*b0
+    smull2 v15.4s, v6.8h, v7.8h //a2*b0
+    smull  v12.4s, v30.4h, v1.4h //r[1]*zeta
+    smull2 v13.4s, v30.8h, v1.8h //r[1]*zeta
+    smull  v10.4s, v29.4h, v1.4h //r[0]*zeta
+    smull2 v11.4s, v29.8h, v1.8h //r[0]*zeta
+
+    smlal  v14.4s, v4.4h, v9.4h //a0*b2
+    smlal2 v15.4s, v4.8h, v9.8h //a0*b2
+    smlal  v12.4s, v4.4h, v8.4h //a0*b1
+    smlal2 v13.4s, v4.8h, v8.8h //a0*b1
+    smlal  v10.4s, v4.4h, v7.4h //a0*b0
+    smlal2 v11.4s, v4.8h, v7.8h //a0*b0
+
+    smlal  v14.4s, v5.4h, v8.4h //a1*b1
+    smlal2 v15.4s, v5.8h, v8.8h //a1*b1
+    smlal  v12.4s, v5.4h, v7.4h //a1*b0
+    smlal2 v13.4s, v5.8h, v7.8h //a1*b0
+
+    uzp1 v18.8h, v14.8h, v15.8h
+    uzp1 v17.8h, v12.8h, v13.8h
+    uzp1 v16.8h, v10.8h, v11.8h
+
+    mul v18.8h, v18.8h, v0.h[2]
+    mul v17.8h, v17.8h, v0.h[2]
+    mul v16.8h, v16.8h, v0.h[2]
+
+    smlal  v14.4s, v18.4h, v0.h[0]
+    smlal2 v15.4s, v18.8h, v0.h[0]
+    smlal  v12.4s, v17.4h, v0.h[0]
+    smlal2 v13.4s, v17.8h, v0.h[0]
+    smlal  v10.4s, v16.4h, v0.h[0]
+    smlal2 v11.4s, v16.8h, v0.h[0]
+
+    uzp2 v6.8h, v14.8h, v15.8h
+    uzp2 v5.8h, v12.8h, v13.8h
+    uzp2 v4.8h, v10.8h, v11.8h
+
+    #store in R^-1 representation for poly_invntt_scale
+    st1 {v4.8h - v6.8h}, [dst], #48
+
+    subs counter, counter, #48
+    b.ne _looptop_scale
+
+    .unreq    dst
+    .unreq    src1
+    .unreq    src2
+    .unreq    zetas_ptr
+    .unreq    counter
+
+    ret
+
+
 .global poly_basemul_add
 .global _poly_basemul_add
 poly_basemul_add:
