@@ -15,7 +15,7 @@
 #error "counter unsupported on this architecture"
 #endif
 
-static void TEST_CCA_KEM(void)
+static int TEST_CCA_KEM(void)
 {
 	unsigned char pk[CRYPTO_PUBLICKEYBYTES] = {0};
 	unsigned char sk[CRYPTO_SECRETKEYBYTES] = {0};
@@ -50,6 +50,8 @@ static void TEST_CCA_KEM(void)
 		}
 	}
 	printf("count: %d\n", cnt);
+
+	return cnt;
 }
 
 static void TEST_CCA_KEM_CLOCK(void)
@@ -97,6 +99,8 @@ static void TEST_CCA_KEM_CLOCK(void)
 
 int main(void)
 {
+	int failures;
+
 	printf("================= BENCHMARK INFO =================\n");
 	setup_counter();
 	printf("ITERATIONS: %d\n", TEST_LOOP_COUNT);
@@ -107,8 +111,8 @@ int main(void)
 	printf("SECRETKEYBYTES  : %d\n", CRYPTO_SECRETKEYBYTES);
 	printf("CIPHERTEXTBYTES : %d\n", CRYPTO_CIPHERTEXTBYTES);
 
-	TEST_CCA_KEM();
+	failures = TEST_CCA_KEM();
 	TEST_CCA_KEM_CLOCK();
 
-	return 0;
+	return failures == 0 ? 0 : 1;
 }

@@ -2,8 +2,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#ifdef __ARM_FEATURE_CRYPTO
-/* On ARM platforms with crypto extensions, use the assembly-implemented f1600 */
+#ifdef __ARM_FEATURE_SHA3
+/* On ARM platforms with SHA-3 extensions, use the assembly-implemented f1600 */
 extern void f1600(uint64_t *state, const uint64_t *roundConstants);
 #else
 /* Otherwise, you would provide a reference implementation here. */
@@ -38,7 +38,7 @@ static const uint64_t KeccakF_RoundConstants[NROUNDS] = {
     0x8000000080008008ULL
 };
 
-#ifdef __ARM_FEATURE_CRYPTO
+#ifdef __ARM_FEATURE_SHA3
 static inline void KeccakF1600_StatePermute(uint64_t state[25]) {
     f1600(state, KeccakF_RoundConstants);
 }

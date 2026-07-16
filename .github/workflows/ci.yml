@@ -1,0 +1,91 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  portable:
+    name: ${{ matrix.implementation }} (${{ matrix.compiler }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        implementation:
+          - Reference_Implementation
+          - Optimized_Implementation
+        compiler:
+          - clang
+          - gcc
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Build and test all parameter sets
+        run: |
+          for parameter in 768 864 1152; do
+            ./scripts/ci-test.sh \
+              "${{ matrix.implementation }}/NTRU+$parameter" \
+              "CC=${{ matrix.compiler }}"
+          done
+
+  avx2:
+    name: AVX2 (${{ matrix.compiler }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler:
+          - clang
+          - gcc
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Verify runner instruction set
+        run: |
+          grep -qw avx2 /proc/cpuinfo
+          grep -qw aes /proc/cpuinfo
+
+      - name: Build and test all parameter sets
+        run: |
+          for parameter in 768 864 1152; do
+            ./scripts/ci-test.sh \
+              "Additional_Implementation/avx2/NTRU+$parameter" \
+              "CC=${{ matrix.compiler }}"
+          done
+
+  aarch64:
+    name: AArch64 (${{ matrix.compiler }})
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler:
+          - clang
+          - gcc
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Verify runner instruction set
+        run: grep -qw sha3 /proc/cpuinfo
+
+      - name: Build and test all parameter sets
+        run: |
+          for parameter in 768 864 1152; do
+            ./scripts/ci-test.sh \
+              "Additional_Implementation/aarch64/NTRU+$parameter" \
+              "CC=${{ matrix.compiler }}"
+          done

@@ -6,7 +6,7 @@
 #include "poly.h"
 #include "randombytes.h"
 
-#ifdef DSUPPORTS_SHAKE256_ASM
+#ifdef SUPPORTS_SHAKE256_ASM
 #include "CE/fips202.h"
 #else
 #include "NO_CE/fips202.h"
