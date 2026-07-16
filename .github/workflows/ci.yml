@@ -13,94 +13,146 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  portable:
-    name: ${{ matrix.implementation }} (${{ matrix.compiler }}, ${{ matrix.runner }})
+  test:
+    name: ${{ matrix.name }}
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
-        implementation:
-          - Reference_Implementation
-          - Optimized_Implementation
-        compiler:
-          - clang
-          - gcc
-        runner:
-          - ubuntu-24.04
-          - ubuntu-24.04-arm
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v6
-
-      - name: Build and test all parameter sets
-        run: |
-          for parameter in 768 864 1152; do
-            ./scripts/ci-test.sh \
-              "${{ matrix.implementation }}/NTRU+$parameter" \
-              "CC=${{ matrix.compiler }}"
-          done
-
-  avx2:
-    name: AVX2 (${{ matrix.compiler }})
-    runs-on: ubuntu-24.04
-    timeout-minutes: 20
-    strategy:
-      fail-fast: false
-      matrix:
-        compiler:
-          - clang
-          - gcc
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v6
-
-      - name: Verify runner instruction set
-        run: |
-          grep -qw avx2 /proc/cpuinfo
-          grep -qw aes /proc/cpuinfo
-
-      - name: Build and test all parameter sets
-        run: |
-          for parameter in 768 864 1152; do
-            ./scripts/ci-test.sh \
-              "Additional_Implementation/avx2/NTRU+$parameter" \
-              "CC=${{ matrix.compiler }}"
-          done
-
-  aarch64:
-    name: AArch64 (${{ matrix.compiler }}, ${{ matrix.shake }})
-    runs-on: ubuntu-24.04-arm
-    timeout-minutes: 20
-    strategy:
-      fail-fast: false
-      matrix:
         include:
-          - compiler: clang
-            shake: SHA3 assembly
-            shake256_asm: 1
-          - compiler: clang
-            shake: portable SHAKE256
+          - name: Reference (Clang, x86-64)
+            implementation: Reference_Implementation
+            compiler: clang
+            runner: ubuntu-24.04
             shake256_asm: 0
-          - compiler: gcc
-            shake: SHA3 assembly
-            shake256_asm: 1
-          - compiler: gcc
-            shake: portable SHAKE256
+          - name: Reference (GCC, x86-64)
+            implementation: Reference_Implementation
+            compiler: gcc
+            runner: ubuntu-24.04
             shake256_asm: 0
+          - name: Reference (Clang, AArch64)
+            implementation: Reference_Implementation
+            compiler: clang
+            runner: ubuntu-24.04-arm
+            shake256_asm: 0
+          - name: Reference (GCC, AArch64)
+            implementation: Reference_Implementation
+            compiler: gcc
+            runner: ubuntu-24.04-arm
+            shake256_asm: 0
+          - name: Optimized (Clang, x86-64)
+            implementation: Optimized_Implementation
+            compiler: clang
+            runner: ubuntu-24.04
+            shake256_asm: 0
+          - name: Optimized (GCC, x86-64)
+            implementation: Optimized_Implementation
+            compiler: gcc
+            runner: ubuntu-24.04
+            shake256_asm: 0
+          - name: Optimized (Clang, AArch64)
+            implementation: Optimized_Implementation
+            compiler: clang
+            runner: ubuntu-24.04-arm
+            shake256_asm: 0
+          - name: Optimized (GCC, AArch64)
+            implementation: Optimized_Implementation
+            compiler: gcc
+            runner: ubuntu-24.04-arm
+            shake256_asm: 0
+          - name: AVX2 (Clang)
+            implementation: Additional_Implementation/avx2
+            compiler: clang
+            runner: ubuntu-24.04
+            shake256_asm: 0
+          - name: AVX2 (GCC)
+            implementation: Additional_Implementation/avx2
+            compiler: gcc
+            runner: ubuntu-24.04
+            shake256_asm: 0
+          - name: AArch64 SHA3 assembly (Clang)
+            implementation: Additional_Implementation/aarch64
+            compiler: clang
+            runner: ubuntu-24.04-arm
+            shake256_asm: 1
+          - name: AArch64 portable SHAKE256 (Clang)
+            implementation: Additional_Implementation/aarch64
+            compiler: clang
+            runner: ubuntu-24.04-arm
+            shake256_asm: 0
+          - name: AArch64 SHA3 assembly (GCC)
+            implementation: Additional_Implementation/aarch64
+            compiler: gcc
+            runner: ubuntu-24.04-arm
+            shake256_asm: 1
+          - name: AArch64 portable SHAKE256 (GCC)
+            implementation: Additional_Implementation/aarch64
+            compiler: gcc
+            runner: ubuntu-24.04-arm
+            shake256_asm: 0
+
     steps:
       - name: Check out repository
         uses: actions/checkout@v6
 
       - name: Verify runner instruction set
-        if: matrix.shake256_asm == 1
-        run: grep -qw sha3 /proc/cpuinfo
-
-      - name: Build and test all parameter sets
+        if: contains(matrix.implementation, 'Additional_Implementation')
         run: |
+          if [ "${{ matrix.implementation }}" = "Additional_Implementation/avx2" ]; then
+            grep -qw avx2 /proc/cpuinfo
+            grep -qw aes /proc/cpuinfo
+          elif [ "${{ matrix.shake256_asm }}" = 1 ]; then
+            grep -qw sha3 /proc/cpuinfo
+          fi
+
+      - name: Build, test, and compare KATs
+        run: |
+          set -eu
+          repository=$PWD
+
           for parameter in 768 864 1152; do
-            ./scripts/ci-test.sh \
-              "Additional_Implementation/aarch64/NTRU+$parameter" \
-              "CC=${{ matrix.compiler }}" \
-              "HAS_SHAKE256_ASM=${{ matrix.shake256_asm }}"
+            (
+              set -eu
+              implementation="${{ matrix.implementation }}/NTRU+$parameter"
+              kat_directory="KAT/NTRU+$parameter"
+
+              echo "Building $implementation"
+              make -C "$implementation" clean test PQCgenKAT_kem \
+                "CC=${{ matrix.compiler }}" \
+                "HAS_SHAKE256_ASM=${{ matrix.shake256_asm }}"
+
+              echo "Running encapsulation/decapsulation tests"
+              set +e
+              test_output=$("$implementation/build/test")
+              test_status=$?
+              set -e
+              printf '%s\n' "$test_output"
+              if [ "$test_status" -ne 0 ] || \
+                 ! printf '%s\n' "$test_output" | grep -qx 'count: 0'; then
+                echo "encapsulation/decapsulation test failed" >&2
+                exit 1
+              fi
+
+              echo "Checking generated known-answer tests"
+              kat_workdir=$(mktemp -d "${TMPDIR:-/tmp}/ntruplus-kat.XXXXXX")
+              trap 'rm -rf "$kat_workdir"' EXIT HUP INT TERM
+              (
+                cd "$kat_workdir"
+                "$repository/$implementation/build/PQCgenKAT_kem"
+              )
+
+              for extension in req rsp; do
+                expected=$(find "$kat_directory" -maxdepth 1 -type f \
+                  -name "*.$extension" -print -quit)
+                if [ -z "$expected" ]; then
+                  echo "no .$extension KAT file found in $kat_directory" >&2
+                  exit 1
+                fi
+                generated="$kat_workdir/${expected##*/}"
+                cmp "$generated" "$expected"
+              done
+
+              echo "$implementation passed"
+            )
           done

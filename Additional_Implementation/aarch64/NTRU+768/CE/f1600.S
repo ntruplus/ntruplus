@@ -1,4 +1,5 @@
     .text
+    .arch armv8.2-a+sha3
     .align 4
     .global f1600
     .global _f1600

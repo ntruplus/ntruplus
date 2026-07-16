@@ -12,6 +12,13 @@
 #include "NO_CE/fips202.h"
 #endif
 
+#ifdef NTRUPLUS_SUPERCOP
+#include "crypto_declassify.h"
+#define ntruplus_declassify crypto_declassify
+#else
+#define ntruplus_declassify(x, xlen) ((void)(x), (void)(xlen))
+#endif
+
 /*************************************************
 * Name:        verify
 *
@@ -134,20 +141,25 @@ static inline void crypto_kem_keypair_derand(uint8_t *pk, uint8_t *sk,
 *
 * Returns 0 on success.
 **************************************************/
-int crypto_kem_keypair(uint8_t *pk, uint8_t *sk)
+int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
 {
     uint8_t coins[NTRUPLUS_SYMBYTES];
+    int r;
 
     poly f, finv;
     poly g, ginv;
 
     do {
         randombytes(coins, sizeof coins);
-    } while (genf_derand(&f, &finv, coins));
+        r = genf_derand(&f, &finv, coins);
+        ntruplus_declassify(&r, sizeof r);
+    } while (r);
 
     do {
         randombytes(coins, sizeof coins);
-    } while (geng_derand(&g, &ginv, coins));
+        r = geng_derand(&g, &ginv, coins);
+        ntruplus_declassify(&r, sizeof r);
+    } while (r);
 
     crypto_kem_keypair_derand(pk, sk, &f, &finv, &g, &ginv);
     return 0;
@@ -220,7 +232,8 @@ static inline int crypto_kem_enc_derand(uint8_t *ct, uint8_t *ss,
 *
 * Returns 0 on success, 1 if pk contains a non-canonical coefficient.
 **************************************************/
-int crypto_kem_enc(uint8_t *ct, uint8_t *ss, const uint8_t *pk)
+int crypto_kem_enc(unsigned char *ct, unsigned char *ss,
+                   const unsigned char *pk)
 {
     uint8_t coins[NTRUPLUS_N / 8];
 
@@ -244,7 +257,8 @@ int crypto_kem_enc(uint8_t *ct, uint8_t *ss, const uint8_t *pk)
 *
 * Returns 0 on success, 1 on failure.
 **************************************************/
-int crypto_kem_dec(uint8_t *ss, const uint8_t *ct, const uint8_t *sk)
+int crypto_kem_dec(unsigned char *ss, const unsigned char *ct,
+                   const unsigned char *sk)
 {
 	uint8_t msg[HASH_H_INBYTES];
 	uint8_t buf1[HASH_G_INBYTES];
