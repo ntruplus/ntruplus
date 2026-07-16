@@ -90,12 +90,17 @@
         mov v20.8b, v25.8b
         mov v21.8b, v26.8b
 
-        ld1r {v25.2d}, [x1], #8
+        ldr d25, [x1], #8
         eor v0.8b, v0.8b, v25.8b
     .endm
 
 f1600:
 _f1600:
+    stp d8,  d9,  [sp, #-64]!
+    stp d10, d11, [sp, #16]
+    stp d12, d13, [sp, #32]
+    stp d14, d15, [sp, #48]
+
     mov x2, x0
     mov x3, #6
 
@@ -162,5 +167,10 @@ loop:
     str d22, [x0, #176]
     str d23, [x0, #184]
     str d24, [x0, #192]
+
+    ldp d10, d11, [sp, #16]
+    ldp d12, d13, [sp, #32]
+    ldp d14, d15, [sp, #48]
+    ldp d8,  d9,  [sp], #64
 
     ret
