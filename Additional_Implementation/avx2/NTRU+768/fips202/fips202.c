@@ -7,18 +7,12 @@
  * SPDX-License-Identifier: MIT
  */
 
+#include "util.h"
+
 #include "fips202.h"
 #include "KeccakP-1600-SnP.h"
 
 #include <string.h>
-
-static void clear_bytes(void *v, size_t len) {
-    volatile uint8_t *p = v;
-
-    while (len-- > 0) {
-        *p++ = 0;
-    }
-}
 
 /*************************************************
  * Name:        keccak_init
@@ -146,5 +140,5 @@ void shake256(uint8_t *output, size_t outlen, const uint8_t *input,
     shake256_absorb(&state, input, inlen);
     shake256_finalize(&state);
     shake256_squeeze(output, outlen, &state);
-    clear_bytes(&state, sizeof(state));
+    secure_clear(&state, sizeof(state));
 }

@@ -1,3 +1,5 @@
+#include "util.h"
+
 #include "fips202.h"
 #include <stddef.h>
 #include <stdint.h>
@@ -9,14 +11,6 @@
 extern void f1600(uint64_t *state, const uint64_t *roundConstants);
 
 #define NROUNDS 24
-
-static void clear_bytes(void *v, size_t len) {
-    volatile uint8_t *p = v;
-
-    while (len-- > 0) {
-        *p++ = 0;
-    }
-}
 
 static const uint64_t KeccakF_RoundConstants[NROUNDS] = {
     0x0000000000000001ULL,
@@ -120,7 +114,7 @@ void shake256(uint8_t *out, size_t outlen, const uint8_t *in, size_t inlen) {
         for (size_t i = 0; i < outlen; i++) {
             out[i] = temp[i];
         }
-        clear_bytes(temp, sizeof(temp));
+        secure_clear(temp, sizeof(temp));
     }
-    clear_bytes(&state, sizeof(state));
+    secure_clear(&state, sizeof(state));
 }

@@ -502,4 +502,6 @@ jb  _looptop_start_0
 
 ret
 
+.ifndef no_gnu_stack
 .section .note.GNU-stack,"",@progbits
+.endif

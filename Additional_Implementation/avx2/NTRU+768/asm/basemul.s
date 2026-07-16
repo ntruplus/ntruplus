@@ -796,4 +796,6 @@ jb  _looptop_basemul_scale
 
 ret
 
+.ifndef no_gnu_stack
 .section .note.GNU-stack,"",@progbits
+.endif

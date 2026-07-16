@@ -72,16 +72,16 @@ _looptop_sub:
 
 .global poly_triple
 poly_triple:
-    lea 1728(%rsi), %r8
+    lea 1728(%rdi), %r8
 
 .p2align 5
 _looptop_triple:
-    vmovdqa    (%rsi), %ymm0
-    vmovdqa  32(%rsi), %ymm1
-    vmovdqa  64(%rsi), %ymm2
-    vmovdqa  96(%rsi), %ymm3
-    vmovdqa 128(%rsi), %ymm4
-    vmovdqa 160(%rsi), %ymm5
+    vmovdqa    (%rdi), %ymm0
+    vmovdqa  32(%rdi), %ymm1
+    vmovdqa  64(%rdi), %ymm2
+    vmovdqa  96(%rdi), %ymm3
+    vmovdqa 128(%rdi), %ymm4
+    vmovdqa 160(%rdi), %ymm5
 
     vpaddw %ymm0, %ymm0, %ymm10
     vpaddw %ymm1, %ymm1, %ymm11
@@ -104,11 +104,12 @@ _looptop_triple:
     vmovdqa %ymm4, 128(%rdi)
     vmovdqa %ymm5, 160(%rdi)
 
-    add $192, %rsi
     add $192, %rdi
-    cmp %r8,  %rsi
+    cmp %r8,  %rdi
     jb  _looptop_triple
 
     ret
 
+.ifndef no_gnu_stack
 .section .note.GNU-stack,"",@progbits
+.endif

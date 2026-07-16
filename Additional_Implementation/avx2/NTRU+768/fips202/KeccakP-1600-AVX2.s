@@ -1151,4 +1151,6 @@ mask6_17:
 
 .asciz  "Keccak-1600 for AVX2, CRYPTOGAMS by <appro@openssl.org>"
 
+.ifndef no_gnu_stack
 .section .note.GNU-stack,"",@progbits
+.endif

@@ -43,7 +43,7 @@ NTRUPLUS_INTERNAL NTRUPLUS_SYSV
 void poly_add(poly *r, const poly *a, const poly *b);
 NTRUPLUS_INTERNAL NTRUPLUS_SYSV
 void poly_sub(poly *c, const poly *a, const poly *b);
-NTRUPLUS_INTERNAL NTRUPLUS_SYSV void poly_triple(poly *r, const poly *a);
-NTRUPLUS_INTERNAL NTRUPLUS_SYSV void poly_crepmod3(poly *b, const poly *a);
+NTRUPLUS_INTERNAL NTRUPLUS_SYSV void poly_triple(poly *r);
+NTRUPLUS_INTERNAL NTRUPLUS_SYSV void poly_crepmod3(poly *r);
 
 #endif

@@ -5,7 +5,7 @@ NISTFLAGS += -Wno-unused-result -O3 -fomit-frame-pointer
 RM = /bin/rm -f
 
 SOURCES= kem.c symmetric.c poly.c asm/add.s asm/ntt.s asm/base.s asm/crepmod3.s asm/pack.s asm/cbd.s
-HEADERS= api.h params.h poly.h symmetric.h
+HEADERS= api.h params.h poly.h symmetric.h util.h
 
 
 HAS_SHAKE256_ASM := 1

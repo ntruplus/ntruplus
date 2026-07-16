@@ -6,14 +6,14 @@ vmovdqa _16xqm1div2(%rip), %ymm2
 vmovdqa      _16xv2(%rip), %ymm3
 vmovdqa       _16x3(%rip), %ymm4
 
-lea 1536(%rsi), %r8
+lea 1536(%rdi), %r8
 
 .p2align 5
 _loop_poly_crepmod3:
-vmovdqa   (%rsi), %ymm7
-vmovdqa 32(%rsi), %ymm8
-vmovdqa 64(%rsi), %ymm9
-vmovdqa 96(%rsi), %ymm10
+vmovdqa   (%rdi), %ymm7
+vmovdqa 32(%rdi), %ymm8
+vmovdqa 64(%rdi), %ymm9
+vmovdqa 96(%rdi), %ymm10
 
 vpsraw $15, %ymm7,  %ymm11
 vpsraw $15, %ymm8,  %ymm12
@@ -76,11 +76,12 @@ vmovdqa %ymm8,  32(%rdi)
 vmovdqa %ymm9,  64(%rdi)
 vmovdqa %ymm10, 96(%rdi)
 
-add $128, %rsi
 add $128, %rdi
-cmp %r8,  %rsi
+cmp %r8,  %rdi
 jb  _loop_poly_crepmod3
 
 ret
 
+.ifndef no_gnu_stack
 .section .note.GNU-stack,"",@progbits
+.endif

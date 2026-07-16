@@ -1,3 +1,4 @@
+#include "util.h"
 #include <stdint.h>
 #include <string.h>
 #include "params.h"
@@ -139,6 +140,7 @@ void poly_sotp_encode(poly *r, const uint8_t msg[NTRUPLUS_N/8], const uint8_t bu
     }
 
 	poly_cbd1(r, tmp);
+	secure_clear(tmp, sizeof tmp);
 }
 
 /*************************************************

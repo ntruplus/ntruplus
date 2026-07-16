@@ -397,4 +397,6 @@ jb  _looptop_start_3456
 
 ret
 
+.ifndef no_gnu_stack
 .section .note.GNU-stack,"",@progbits
+.endif

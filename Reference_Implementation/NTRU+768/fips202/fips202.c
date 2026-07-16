@@ -5,6 +5,8 @@
  * from https://twitter.com/tweetfips202
  * by Gilles Van Assche, Daniel J. Bernstein, and Peter Schwabe */
 
+#include "util.h"
+
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
@@ -13,14 +15,6 @@
 
 #define NROUNDS 24
 #define ROL(a, offset) (((a) << (offset)) ^ ((a) >> (64 - (offset))))
-
-static void clear_bytes(void *v, size_t len) {
-    volatile uint8_t *p = v;
-
-    while (len-- > 0) {
-        *p++ = 0;
-    }
-}
 
 /*************************************************
  * Name:        load64
@@ -550,7 +544,7 @@ void shake256_inc_ctx_clone(shake256incctx *dest, const shake256incctx *src) {
 }
 
 void shake256_inc_ctx_release(shake256incctx *state) {
-    clear_bytes(state->ctx, PQC_SHAKEINCCTX_BYTES);
+    secure_clear(state->ctx, PQC_SHAKEINCCTX_BYTES);
 }
 
 /*************************************************
@@ -590,7 +584,7 @@ void shake256_ctx_clone(shake256ctx *dest, const shake256ctx *src) {
 
 /** Clear the state. */
 void shake256_ctx_release(shake256ctx *state) {
-    clear_bytes(state->ctx, PQC_SHAKECTX_BYTES);
+    secure_clear(state->ctx, PQC_SHAKECTX_BYTES);
 }
 
 /*************************************************
@@ -621,6 +615,6 @@ void shake256(uint8_t *output, size_t outlen,
             output[i] = t[i];
         }
     }
-    clear_bytes(t, sizeof(t));
+    secure_clear(t, sizeof(t));
     shake256_ctx_release(&s);
 }

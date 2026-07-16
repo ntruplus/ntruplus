@@ -307,4 +307,6 @@ _looptop_poly_sotp_1:
 
     ret
 
+.ifndef no_gnu_stack
 .section .note.GNU-stack,"",@progbits
+.endif

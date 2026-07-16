@@ -4,8 +4,12 @@ CFLAGS += -Wall -Wextra -Wpedantic -Wmissing-prototypes -Wredundant-decls \
 NISTFLAGS += -Wno-unused-result -O3 -fomit-frame-pointer
 RM = /bin/rm -f
 
+ifneq (,$(findstring mingw,$(shell $(CC) -dumpmachine)))
+MINGW_LDLIBS = -ladvapi32
+endif
+
 SOURCES= kem.c poly.c ntt.c symmetric.c fips202/fips202.c
-HEADERS= api.h params.h poly.h ntt.h symmetric.h fips202/fips202.h
+HEADERS= api.h params.h poly.h ntt.h symmetric.h util.h fips202/fips202.h
 
 .PHONY: all PQCgenKAT_kem test clean
 
@@ -21,7 +25,7 @@ PQCgenKAT_kem: $(HEADERS) kat/aes.h kat/rng.h $(SOURCES) kat/PQCgenKAT_kem.c kat
 
 test: $(HEADERS) randombytes.h $(SOURCES) randombytes.c test/test.c
 	@mkdir -p $(BUILD_DIR)
-	$(CC) $(CFLAGS) -I. -o $(BUILD_DIR)/test randombytes.c test/test.c $(SOURCES)
+	$(CC) $(CFLAGS) -I. -o $(BUILD_DIR)/test randombytes.c test/test.c $(SOURCES) $(MINGW_LDLIBS)
 
 clean:
 	$(RM) PQCkemKAT_*.req PQCkemKAT_*.rsp

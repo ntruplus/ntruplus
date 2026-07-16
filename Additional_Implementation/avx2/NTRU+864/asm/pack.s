@@ -495,4 +495,6 @@ jb  _looptop_poly_ntt_pack
 
 ret
 
+.ifndef no_gnu_stack
 .section .note.GNU-stack,"",@progbits
+.endif
