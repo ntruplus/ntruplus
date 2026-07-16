@@ -14,6 +14,11 @@
 .global _poly_frombytes
 poly_frombytes:
 _poly_frombytes:
+    stp d8,  d9,  [sp, #-64]!
+    stp d10, d11, [sp, #16]
+    stp d12, d13, [sp, #32]
+    stp d14, d15, [sp, #48]
+
     dst       .req x0
     src       .req x1
     counter   .req x8
@@ -91,6 +96,12 @@ _loop_frombytes:
     umov w0, v29.h[0]
     cmp w0, #3457
     cset w0, hs
+
+    ldp d10, d11, [sp, #16]
+    ldp d12, d13, [sp, #32]
+    ldp d14, d15, [sp, #48]
+    ldp d8,  d9,  [sp], #64
+
     ret
 
 
@@ -110,6 +121,11 @@ _loop_frombytes:
 .global _poly_tobytes
 poly_tobytes:
 _poly_tobytes:
+    stp d8,  d9,  [sp, #-64]!
+    stp d10, d11, [sp, #16]
+    stp d12, d13, [sp, #32]
+    stp d14, d15, [sp, #48]
+
     dst       .req x0
     src       .req x1
     counter   .req x8
@@ -201,6 +217,11 @@ _loop_tobytes:
     .unreq    dst
     .unreq    src
     .unreq    counter
+
+    ldp d10, d11, [sp, #16]
+    ldp d12, d13, [sp, #32]
+    ldp d14, d15, [sp, #48]
+    ldp d8,  d9,  [sp], #64
 
     ret
 

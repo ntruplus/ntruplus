@@ -13,6 +13,11 @@
 .global _poly_cbd1
 poly_cbd1:
 _poly_cbd1:
+    stp d8,  d9,  [sp, #-64]!
+    stp d10, d11, [sp, #16]
+    stp d12, d13, [sp, #32]
+    stp d14, d15, [sp, #48]
+
     dst       .req x0
     src       .req x1
     counter   .req x8
@@ -137,6 +142,11 @@ _loop_cbd:
     .unreq    src
     .unreq    counter
 
+    ldp d10, d11, [sp, #16]
+    ldp d12, d13, [sp, #32]
+    ldp d14, d15, [sp, #48]
+    ldp d8,  d9,  [sp], #64
+
     ret
 
 
@@ -156,6 +166,11 @@ _loop_cbd:
 .global _poly_sotp_encode
 poly_sotp_encode:
 _poly_sotp_encode:
+    stp d8,  d9,  [sp, #-64]!
+    stp d10, d11, [sp, #16]
+    stp d12, d13, [sp, #32]
+    stp d14, d15, [sp, #48]
+
     dst       .req x0
     src1      .req x1
     src2      .req x2
@@ -286,6 +301,11 @@ _loop_sotp_encode:
     .unreq    src2
     .unreq    counter
 
+    ldp d10, d11, [sp, #16]
+    ldp d12, d13, [sp, #32]
+    ldp d14, d15, [sp, #48]
+    ldp d8,  d9,  [sp], #64
+
     ret
 
 
@@ -305,6 +325,11 @@ _loop_sotp_encode:
 .global _poly_sotp_decode
 poly_sotp_decode:
 _poly_sotp_decode:
+    stp d8,  d9,  [sp, #-64]!
+    stp d10, d11, [sp, #16]
+    stp d12, d13, [sp, #32]
+    stp d14, d15, [sp, #48]
+
     dst       .req x0
     src1      .req x1
     src2      .req x2
@@ -486,5 +511,10 @@ _loop_sotp_decode:
     .unreq    src2
     .unreq    counter
     .unreq    dst_start
+
+    ldp d10, d11, [sp, #16]
+    ldp d12, d13, [sp, #32]
+    ldp d14, d15, [sp, #48]
+    ldp d8,  d9,  [sp], #64
 
     ret

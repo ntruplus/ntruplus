@@ -16,6 +16,11 @@
 .global _poly_basemul
 poly_basemul:
 _poly_basemul:
+    stp d8,  d9,  [sp, #-64]!
+    stp d10, d11, [sp, #16]
+    stp d12, d13, [sp, #32]
+    stp d14, d15, [sp, #48]
+
     dst       .req x0
     src1      .req x1
     src2      .req x2
@@ -121,6 +126,11 @@ _looptop:
     .unreq    zetas_ptr
     .unreq    counter
 
+    ldp d10, d11, [sp, #16]
+    ldp d12, d13, [sp, #32]
+    ldp d14, d15, [sp, #48]
+    ldp d8,  d9,  [sp], #64
+
     ret
 
 
@@ -143,6 +153,11 @@ _looptop:
 .global _poly_basemul_scale
 poly_basemul_scale:
 _poly_basemul_scale:
+    stp d8,  d9,  [sp, #-64]!
+    stp d10, d11, [sp, #16]
+    stp d12, d13, [sp, #32]
+    stp d14, d15, [sp, #48]
+
     dst       .req x0
     src1      .req x1
     src2      .req x2
@@ -235,6 +250,11 @@ _looptop_scale:
     .unreq    zetas_ptr
     .unreq    counter
 
+    ldp d10, d11, [sp, #16]
+    ldp d12, d13, [sp, #32]
+    ldp d14, d15, [sp, #48]
+    ldp d8,  d9,  [sp], #64
+
     ret
 
 
@@ -259,6 +279,11 @@ _looptop_scale:
 .global _poly_basemul_add
 poly_basemul_add:
 _poly_basemul_add:
+    stp d8,  d9,  [sp, #-64]!
+    stp d10, d11, [sp, #16]
+    stp d12, d13, [sp, #32]
+    stp d14, d15, [sp, #48]
+
     dst       .req x0
     src1      .req x1
     src2      .req x2
@@ -382,6 +407,11 @@ _looptop_add:
     .unreq    zetas_ptr
     .unreq    counter
 
+    ldp d10, d11, [sp, #16]
+    ldp d12, d13, [sp, #32]
+    ldp d14, d15, [sp, #48]
+    ldp d8,  d9,  [sp], #64
+
     ret
 
 
@@ -402,6 +432,11 @@ _looptop_add:
 .global _poly_baseinv_1
 poly_baseinv_1:
 _poly_baseinv_1:
+    stp d8,  d9,  [sp, #-64]!
+    stp d10, d11, [sp, #16]
+    stp d12, d13, [sp, #32]
+    stp d14, d15, [sp, #48]
+
     dst       .req x0
     den       .req x1
     src       .req x2
@@ -588,6 +623,11 @@ _looptop_baseinv_1:
     .unreq    src
     .unreq    zetas_ptr
     .unreq    counter
+
+    ldp d10, d11, [sp, #16]
+    ldp d12, d13, [sp, #32]
+    ldp d14, d15, [sp, #48]
+    ldp d8,  d9,  [sp], #64
 
     ret
 

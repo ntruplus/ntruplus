@@ -13,6 +13,11 @@
 .global _poly_ntt
 poly_ntt:
 _poly_ntt:
+    stp d8,  d9,  [sp, #-64]!
+    stp d10, d11, [sp, #16]
+    stp d12, d13, [sp, #32]
+    stp d14, d15, [sp, #48]
+
     dst       .req x0
     src       .req x1
     zetas_ptr .req x2
@@ -433,6 +438,11 @@ _looptop_3456:
     .unreq    zetas_ptr
     .unreq    counter
 
+    ldp d10, d11, [sp, #16]
+    ldp d12, d13, [sp, #32]
+    ldp d14, d15, [sp, #48]
+    ldp d8,  d9,  [sp], #64
+
     ret
 
 /*************************************************
@@ -452,6 +462,11 @@ _looptop_3456:
 .global _poly_invntt_scale
 poly_invntt_scale:
 _poly_invntt_scale:
+    stp d8,  d9,  [sp, #-64]!
+    stp d10, d11, [sp, #16]
+    stp d12, d13, [sp, #32]
+    stp d14, d15, [sp, #48]
+
     dst       .req x0
     src       .req x1
     zetas_ptr .req x2
@@ -935,6 +950,11 @@ _looptop_210:
     .unreq    src
     .unreq    zetas_ptr
     .unreq    counter
+
+    ldp d10, d11, [sp, #16]
+    ldp d12, d13, [sp, #32]
+    ldp d14, d15, [sp, #48]
+    ldp d8,  d9,  [sp], #64
 
     ret
 
