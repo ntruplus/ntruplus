@@ -173,7 +173,8 @@ int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
 *              - const uint8_t *coins: input randomness for
 *                                      deterministic encapsulation
 *
-* Returns 0 on success, 1 if pk contains a non-canonical coefficient.
+* Returns 0 on success. If pk contains a non-canonical coefficient, ct and ss
+* are set to all zero bytes and 1 is returned.
 **************************************************/
 static inline int crypto_kem_enc_derand(uint8_t *ct, uint8_t *ss,
                                         const uint8_t *pk,
@@ -186,7 +187,14 @@ static inline int crypto_kem_enc_derand(uint8_t *ct, uint8_t *ss,
     poly c, h, r, m;
 
     if(poly_frombytes(&h, pk))
+    {
+        for (size_t i = 0; i < NTRUPLUS_CIPHERTEXTBYTES; i++)
+            ct[i] = 0;
+        for (size_t i = 0; i < NTRUPLUS_SSBYTES; i++)
+            ss[i] = 0;
+
         return 1;
+    }
     
     for (size_t i = 0; i < NTRUPLUS_N / 8; i++)
         msg[i] = coins[i];
@@ -225,7 +233,8 @@ static inline int crypto_kem_enc_derand(uint8_t *ct, uint8_t *ss,
 *              - const uint8_t *pk: input public key
 *                (array of CRYPTO_PUBLICKEYBYTES bytes)
 *
-* Returns 0 on success, 1 if pk contains a non-canonical coefficient.
+* Returns 0 on success. If pk contains a non-canonical coefficient, ct and ss
+* are set to all zero bytes and 1 is returned.
 **************************************************/
 int crypto_kem_enc(unsigned char *ct, unsigned char *ss,
                    const unsigned char *pk)

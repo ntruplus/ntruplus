@@ -2,14 +2,21 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#if defined(__ARM_FEATURE_SHA3) || defined(NTRUPLUS_FORCE_SHA3)
-/* On ARM platforms with SHA-3 extensions, use the assembly-implemented f1600 */
-extern void f1600(uint64_t *state, const uint64_t *roundConstants);
-#else
-/* Otherwise, you would provide a reference implementation here. */
+#if !defined(__ARM_FEATURE_SHA3) && !defined(NTRUPLUS_FORCE_SHA3)
+#error "CE/fips202.c requires the ARMv8.2-A SHA-3 extensions"
 #endif
 
+extern void f1600(uint64_t *state, const uint64_t *roundConstants);
+
 #define NROUNDS 24
+
+static void clear_bytes(void *v, size_t len) {
+    volatile uint8_t *p = v;
+
+    while (len-- > 0) {
+        *p++ = 0;
+    }
+}
 
 static const uint64_t KeccakF_RoundConstants[NROUNDS] = {
     0x0000000000000001ULL,
@@ -38,16 +45,9 @@ static const uint64_t KeccakF_RoundConstants[NROUNDS] = {
     0x8000000080008008ULL
 };
 
-#if defined(__ARM_FEATURE_SHA3) || defined(NTRUPLUS_FORCE_SHA3)
 static inline void KeccakF1600_StatePermute(uint64_t state[25]) {
     f1600(state, KeccakF_RoundConstants);
 }
-#else
-static void KeccakF1600_StatePermute(uint64_t state[25]) {
-    /* Reference (software) implementation omitted for brevity.
-       You can insert a portable version of the Keccak‑f[1600] permutation here. */
-}
-#endif
 
 /* Helper function: load 8 bytes as a little‑endian 64‑bit integer */
 static uint64_t load64(const uint8_t *x) {
@@ -120,7 +120,9 @@ void shake128(uint8_t *out, size_t outlen, const uint8_t *in, size_t inlen) {
         for (size_t i = 0; i < outlen; i++) {
             out[i] = temp[i];
         }
+        clear_bytes(temp, sizeof(temp));
     }
+    clear_bytes(&state, sizeof(state));
 }
 
 /* SHAKE256 functions */
@@ -145,5 +147,7 @@ void shake256(uint8_t *out, size_t outlen, const uint8_t *in, size_t inlen) {
         for (size_t i = 0; i < outlen; i++) {
             out[i] = temp[i];
         }
+        clear_bytes(temp, sizeof(temp));
     }
+    clear_bytes(&state, sizeof(state));
 }

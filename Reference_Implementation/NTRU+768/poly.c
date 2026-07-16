@@ -157,7 +157,7 @@ int poly_sotp_decode(uint8_t msg[NTRUPLUS_N/8], const poly *a, const uint8_t buf
 	uint8_t t1, t2, t3;
 	uint16_t t4;
 	uint32_t r = 0;
-	uint8_t mask;
+	volatile uint8_t mask;
 
 	for(size_t i = 0; i < NTRUPLUS_N / 8; i++)
 	{

@@ -308,6 +308,9 @@ _poly_sotp_decode:
     src1      .req x1
     src2      .req x2
     counter   .req x8
+    dst_start .req x10
+
+    mov dst_start, dst
 
     #load
     movi    v0.16b, #0x55
@@ -446,9 +449,32 @@ _loop_sotp_decode:
     cmp w0, #0
     cset x0, ne
 
+    sub w11, w0, #1
+    dup v5.16b, w11
+
+    ldr q4, [dst_start, #0]
+    and v4.16b, v4.16b, v5.16b
+    str q4, [dst_start, #0]
+    ldr q4, [dst_start, #16]
+    and v4.16b, v4.16b, v5.16b
+    str q4, [dst_start, #16]
+    ldr q4, [dst_start, #32]
+    and v4.16b, v4.16b, v5.16b
+    str q4, [dst_start, #32]
+    ldr q4, [dst_start, #48]
+    and v4.16b, v4.16b, v5.16b
+    str q4, [dst_start, #48]
+    ldr q4, [dst_start, #64]
+    and v4.16b, v4.16b, v5.16b
+    str q4, [dst_start, #64]
+    ldr q4, [dst_start, #80]
+    and v4.16b, v4.16b, v5.16b
+    str q4, [dst_start, #80]
+
     .unreq    dst
     .unreq    src1
     .unreq    src2
     .unreq    counter
+    .unreq    dst_start
 
     ret

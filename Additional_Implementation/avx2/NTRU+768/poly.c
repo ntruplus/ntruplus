@@ -534,14 +534,19 @@ int poly_sotp_decode(uint8_t msg[NTRUPLUS_N/8], const poly *a, const uint8_t buf
     fail_mask = _mm256_and_si256(fail_mask, mask55);
 
     int fail = !_mm256_testz_si256(fail_mask, fail_mask);
-    __m256i m = _mm256_set1_epi8((uint8_t)(fail - 1)); // fail=0 -> 0xFF, fail=1 -> 0x00
+    volatile uint8_t mask = (uint8_t)(fail - 1);
+    const __m256i m = _mm256_set1_epi8((char)mask);
+    size_t i = 0;
 
-    for (size_t i = 0; i + 32 <= NTRUPLUS_N / 8; i += 32)
+    for (; i + 32 <= NTRUPLUS_N / 8; i += 32)
     {
         __m256i x = _mm256_loadu_si256((const __m256i *)(msg + i));
         x = _mm256_and_si256(x, m);
         _mm256_storeu_si256((__m256i *)(msg + i), x);
     }
+
+    for (; i < NTRUPLUS_N / 8; i++)
+        msg[i] &= mask;
 
     return fail;
 }

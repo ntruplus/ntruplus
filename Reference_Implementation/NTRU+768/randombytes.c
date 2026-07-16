@@ -38,6 +38,10 @@ void randombytes(uint8_t *out, size_t outlen) {
   if(!CryptReleaseContext(ctx, 0))
     abort();
 }
+#elif defined(__APPLE__)
+void randombytes(uint8_t *out, size_t outlen) {
+  arc4random_buf(out, outlen);
+}
 #elif defined(__linux__) && defined(SYS_getrandom)
 void randombytes(uint8_t *out, size_t outlen) {
   ssize_t ret;
@@ -55,16 +59,20 @@ void randombytes(uint8_t *out, size_t outlen) {
 }
 #else
 void randombytes(uint8_t *out, size_t outlen) {
-  static int fd = -1;
+  int fd;
   ssize_t ret;
 
-  while(fd == -1) {
+  do {
+#ifdef O_CLOEXEC
+    fd = open("/dev/urandom", O_RDONLY | O_CLOEXEC);
+#else
     fd = open("/dev/urandom", O_RDONLY);
+#endif
     if(fd == -1 && errno == EINTR)
       continue;
     else if(fd == -1)
       abort();
-  }
+  } while(fd == -1);
 
   while(outlen > 0) {
     ret = read(fd, out, outlen);
@@ -76,5 +84,8 @@ void randombytes(uint8_t *out, size_t outlen) {
     out += ret;
     outlen -= ret;
   }
+
+  if(close(fd) == -1)
+    abort();
 }
 #endif

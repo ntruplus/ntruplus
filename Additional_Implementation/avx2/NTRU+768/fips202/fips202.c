@@ -10,8 +10,15 @@
 #include "fips202.h"
 #include "KeccakP-1600-SnP.h"
 
-#include <stdlib.h>
 #include <string.h>
+
+static void clear_bytes(void *v, size_t len) {
+    volatile uint8_t *p = v;
+
+    while (len-- > 0) {
+        *p++ = 0;
+    }
+}
 
 /*************************************************
  * Name:        keccak_init
@@ -139,6 +146,7 @@ void shake128(uint8_t *output, size_t outlen, const uint8_t *input,
     shake128_absorb(&state, input, inlen);
     shake128_finalize(&state);
     shake128_squeeze(output, outlen, &state);
+    clear_bytes(&state, sizeof(state));
 }
 
 /* shake256 */
@@ -163,6 +171,7 @@ void shake256(uint8_t *output, size_t outlen, const uint8_t *input,
     shake256_absorb(&state, input, inlen);
     shake256_finalize(&state);
     shake256_squeeze(output, outlen, &state);
+    clear_bytes(&state, sizeof(state));
 }
 
 /* sha3-256 */
@@ -175,6 +184,7 @@ void sha3_256_absorb(keccak_state *state, const uint8_t *input, size_t inlen) {
 void sha3_256_finalize(uint8_t *output, keccak_state *state) {
     keccak_finalize(state->s, SHA3_256_RATE, 0x06);
     keccak_squeeze(output, 32, state->s, SHA3_256_RATE);
+    clear_bytes(state, sizeof(*state));
 }
 
 void sha3_256(uint8_t *output, const uint8_t *input, size_t inlen) {
