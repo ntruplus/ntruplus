@@ -98,33 +98,6 @@ static void keccak_squeezeblocks(uint8_t *out, size_t nblocks, unsigned int r, u
     }
 }
 
-/* SHAKE128 functions */
-void shake128_absorb(keccak_state *state, const uint8_t *in, size_t inlen) {
-    keccak_absorb(state->s, SHAKE128_RATE, in, inlen, 0x1F);
-}
-
-void shake128_squeezeblocks(uint8_t *out, size_t nblocks, keccak_state *state) {
-    keccak_squeezeblocks(out, nblocks, SHAKE128_RATE, state->s);
-}
-
-void shake128(uint8_t *out, size_t outlen, const uint8_t *in, size_t inlen) {
-    keccak_state state;
-    shake128_absorb(&state, in, inlen);
-    size_t nblocks = outlen / SHAKE128_RATE;
-    shake128_squeezeblocks(out, nblocks, &state);
-    out += nblocks * SHAKE128_RATE;
-    outlen -= nblocks * SHAKE128_RATE;
-    if (outlen > 0) {
-        uint8_t temp[SHAKE128_RATE];
-        shake128_squeezeblocks(temp, 1, &state);
-        for (size_t i = 0; i < outlen; i++) {
-            out[i] = temp[i];
-        }
-        clear_bytes(temp, sizeof(temp));
-    }
-    clear_bytes(&state, sizeof(state));
-}
-
 /* SHAKE256 functions */
 void shake256_absorb(keccak_state *state, const uint8_t *in, size_t inlen) {
     keccak_absorb(state->s, SHAKE256_RATE, in, inlen, 0x1F);
