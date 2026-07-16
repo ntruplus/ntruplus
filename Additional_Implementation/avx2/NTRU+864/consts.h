@@ -12,6 +12,7 @@ extern const int16_t _16xv2[16];
 extern const int16_t _16x1[16];
 extern const int16_t _16x3[16];
 extern const int16_t _16xq[16];
+extern const int16_t _16xqm1[16];
 extern const int16_t _16xzeta1[16];
 extern const int16_t _16xqp1div2[16];
 extern const int16_t _16xqm1div2[16];

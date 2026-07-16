@@ -34,6 +34,7 @@ const int16_t _16xv2[16]       __attribute__((aligned(32))) = FILL_16(V2);
 const int16_t _16x1[16]        __attribute__((aligned(32))) = FILL_16(1);
 const int16_t _16x3[16]        __attribute__((aligned(32))) = FILL_16(3);
 const int16_t _16xq[16]        __attribute__((aligned(32))) = FILL_16(NTRUPLUS_Q);
+const int16_t _16xqm1[16]      __attribute__((aligned(32))) = FILL_16(NTRUPLUS_Q - 1);
 const int16_t _16xzeta1[16]    __attribute__((aligned(32))) = FILL_16(ZETA1);
 const int16_t _16xqp1div2[16]  __attribute__((aligned(32))) = FILL_16(Qp1div2);
 const int16_t _16xqm1div2[16]  __attribute__((aligned(32))) = FILL_16(Qm1div2);

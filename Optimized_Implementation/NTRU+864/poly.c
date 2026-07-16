@@ -220,14 +220,25 @@ void poly_tobytes(uint8_t r[NTRUPLUS_POLYBYTES], const poly *a)
 * Arguments:   - poly *r:          pointer to output polynomial
 *              - const uint8_t *a: pointer to input byte array
 *                                  (of NTRUPLUS_POLYBYTES bytes)
+*
+* Returns 0 on success, 1 if any coefficient is greater than or equal to q.
 **************************************************/
-void poly_frombytes(poly *r, const uint8_t a[NTRUPLUS_POLYBYTES])
+int poly_frombytes(poly *r, const uint8_t a[NTRUPLUS_POLYBYTES])
 {
+	uint32_t fail = 0;
+
 	for(size_t i = 0; i < NTRUPLUS_N/2; i++)
 	{
-		r->coeffs[2*i]   = ((a[3*i+0] >> 0) | ((uint16_t)a[3*i+1] << 8)) & 0xFFF;
-		r->coeffs[2*i+1] = ((a[3*i+1] >> 4) | ((uint16_t)a[3*i+2] << 4)) & 0xFFF;
+		const uint16_t t0 = ((a[3*i+0] >> 0) | ((uint16_t)a[3*i+1] << 8)) & 0xFFF;
+		const uint16_t t1 = ((a[3*i+1] >> 4) | ((uint16_t)a[3*i+2] << 4)) & 0xFFF;
+
+		r->coeffs[2*i]   = t0;
+		r->coeffs[2*i+1] = t1;
+		fail |= (uint32_t)(NTRUPLUS_Q - 1) - t0;
+		fail |= (uint32_t)(NTRUPLUS_Q - 1) - t1;
 	}
+
+	return fail >> 31;
 }
 
 /*************************************************

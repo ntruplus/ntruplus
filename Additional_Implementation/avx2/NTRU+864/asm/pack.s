@@ -140,6 +140,7 @@ ret
 .global poly_frombytes_raw
 poly_frombytes_raw:
 vmovdqa _low_mask(%rip), %ymm15
+xor %eax, %eax
 
 lea 1664(%rdi), %r8
 
@@ -218,6 +219,13 @@ vmovdqa %ymm1, 32(%rdi)
 vmovdqa %ymm2, 64(%rdi)
 vmovdqa %ymm3, 96(%rdi)
 
+vpmaxuw %ymm1, %ymm0, %ymm4
+vpmaxuw %ymm3, %ymm2, %ymm5
+vpmaxuw %ymm5, %ymm4, %ymm4
+vpcmpgtw _16xqm1(%rip), %ymm4, %ymm4
+vpmovmskb %ymm4, %edx
+or %edx, %eax
+
 add $128, %rdi
 add $96,  %rsi
 cmp %r8,  %rdi
@@ -286,6 +294,16 @@ vmovdqa %xmm5, 16(%rdi)
 vmovdqa %xmm6, 32(%rdi)
 vmovdqa %xmm7, 48(%rdi)
 
+vpmaxuw %xmm5, %xmm4, %xmm0
+vpmaxuw %xmm7, %xmm6, %xmm1
+vpmaxuw %xmm1, %xmm0, %xmm0
+vpcmpgtw _16xqm1(%rip), %xmm0, %xmm0
+vpmovmskb %xmm0, %edx
+or %edx, %eax
+
+test %eax, %eax
+setne %al
+movzbl %al, %eax
 ret
 
 

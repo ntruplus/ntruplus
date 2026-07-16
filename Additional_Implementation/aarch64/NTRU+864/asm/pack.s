@@ -7,7 +7,8 @@
 * Arguments:   - poly *r:          pointer to the output polynomial
 *              - const uint8_t *a: pointer to NTRUPLUS_POLYBYTES input bytes
 *
-* Returns:     none. Output coefficients lie in [0,q).
+* Returns:     0 on success, 1 if any coefficient is greater than or equal to q.
+*              Output coefficients lie in [0,4095].
 **************************************************/
 .global poly_frombytes
 .global _poly_frombytes
@@ -20,6 +21,7 @@ _poly_frombytes:
     adr x2, const_unpack_masks
     ld1 {v28.16b-v30.16b}, [x2], #48
     ldr q31, [x2]
+    movi v0.8h, #0
 
     mov counter, #1728
 
@@ -93,6 +95,13 @@ _loop_frombytes:
     st1 {v1.8h-v4.8h}, [dst], #64
     st1 {v5.8h-v6.8h}, [dst], #32
 
+    umax v16.8h, v1.8h,  v2.8h
+    umax v17.8h, v3.8h,  v4.8h
+    umax v18.8h, v5.8h,  v6.8h
+    umax v16.8h, v16.8h, v17.8h
+    umax v16.8h, v16.8h, v18.8h
+    umax v0.8h,  v0.8h,  v16.8h
+
     subs counter, counter, #96
     b.ne _loop_frombytes
 
@@ -100,6 +109,10 @@ _loop_frombytes:
     .unreq    src
     .unreq    counter
 
+    umaxv h0, v0.8h
+    umov w0, v0.h[0]
+    cmp w0, #3457
+    cset w0, hs
     ret
 
 

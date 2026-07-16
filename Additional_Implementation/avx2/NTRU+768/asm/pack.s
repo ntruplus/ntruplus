@@ -146,6 +146,7 @@ ret
 .global poly_frombytes
 poly_frombytes:
 vmovdqa _low_mask(%rip), %ymm15
+xor %eax, %eax
 
 lea 1152(%rsi), %r8
 
@@ -233,11 +234,25 @@ vmovdqa %ymm8,  160(%rdi)
 vmovdqa %ymm9,  192(%rdi)
 vmovdqa %ymm10, 224(%rdi)
 
+vpmaxuw %ymm12, %ymm11, %ymm0
+vpmaxuw %ymm14, %ymm13, %ymm1
+vpmaxuw %ymm8,  %ymm7,  %ymm2
+vpmaxuw %ymm10, %ymm9,  %ymm3
+vpmaxuw %ymm1,  %ymm0,  %ymm0
+vpmaxuw %ymm3,  %ymm2,  %ymm2
+vpmaxuw %ymm2,  %ymm0,  %ymm0
+vpcmpgtw _16xqm1(%rip), %ymm0, %ymm0
+vpmovmskb %ymm0, %edx
+or %edx, %eax
+
 add $256, %rdi
 add $192, %rsi
 cmp %r8,  %rsi
 jb  _looptop_poly_frombytes
 
+test %eax, %eax
+setne %al
+movzbl %al, %eax
 ret
 
 .section .note.GNU-stack,"",@progbits

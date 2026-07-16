@@ -161,7 +161,7 @@ int crypto_kem_keypair(uint8_t *pk, uint8_t *sk)
 *              - const uint8_t *coins: input randomness for
 *                                      deterministic encapsulation
 *
-* Returns 0 on success.
+* Returns 0 on success, 1 if pk contains a non-canonical coefficient.
 **************************************************/
 static inline int crypto_kem_enc_derand(uint8_t *ct, uint8_t *ss,
                                         const uint8_t *pk,
@@ -172,6 +172,9 @@ static inline int crypto_kem_enc_derand(uint8_t *ct, uint8_t *ss,
 	uint8_t buf2[HASH_G_INBYTES];
 
     poly c, h, r, m;
+
+    if(poly_frombytes(&h, pk))
+        return 1;
 
     for(size_t i = 0; i < NTRUPLUS_N/8; i++)
         msg[i] = coins[i];
@@ -187,7 +190,6 @@ static inline int crypto_kem_enc_derand(uint8_t *ct, uint8_t *ss,
     poly_sotp_encode(&m, msg, buf2);
     poly_ntt(&m);
 
-    poly_frombytes(&h, pk);
     poly_basemul_add(&c, &h, &r, &m);
     poly_tobytes(ct, &c);
 
@@ -211,7 +213,7 @@ static inline int crypto_kem_enc_derand(uint8_t *ct, uint8_t *ss,
 *              - const uint8_t *pk: input public key
 *                (array of CRYPTO_PUBLICKEYBYTES bytes)
 *
-* Returns 0 on success.
+* Returns 0 on success, 1 if pk contains a non-canonical coefficient.
 **************************************************/
 int crypto_kem_enc(uint8_t *ct, uint8_t *ss, const uint8_t *pk)
 {
@@ -250,9 +252,15 @@ int crypto_kem_dec(uint8_t *ss, const uint8_t *ct, const uint8_t *sk)
     poly r1, r2;
     poly m1, m2;
 
-    poly_frombytes(&c, ct);
-    poly_frombytes(&f, sk);
-    poly_frombytes(&hinv, sk + NTRUPLUS_POLYBYTES);
+    if(poly_frombytes(&c, ct) ||
+       poly_frombytes(&f, sk) ||
+       poly_frombytes(&hinv, sk + NTRUPLUS_POLYBYTES))
+    {
+        for(size_t i = 0; i < NTRUPLUS_SSBYTES; i++)
+            ss[i] = 0;
+
+        return 1;
+    }
 
     poly_basemul_scaled(&m1, &c, &f);
     poly_invntt_scaled(&m1);
