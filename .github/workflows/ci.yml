@@ -66,20 +66,25 @@ jobs:
           done
 
   aarch64:
-    name: AArch64 (${{ matrix.compiler }})
+    name: AArch64 (${{ matrix.compiler }}, ${{ matrix.shake }})
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
-        compiler:
-          - clang
-          - gcc
+        include:
+          - compiler: clang
+            shake: SHA3 assembly
+            shake256_asm: 1
+          - compiler: gcc
+            shake: portable SHAKE256
+            shake256_asm: 0
     steps:
       - name: Check out repository
         uses: actions/checkout@v6
 
       - name: Verify runner instruction set
+        if: matrix.shake256_asm == 1
         run: grep -qw sha3 /proc/cpuinfo
 
       - name: Build and test all parameter sets
@@ -87,5 +92,6 @@ jobs:
           for parameter in 768 864 1152; do
             ./scripts/ci-test.sh \
               "Additional_Implementation/aarch64/NTRU+$parameter" \
-              "CC=${{ matrix.compiler }}"
+              "CC=${{ matrix.compiler }}" \
+              "HAS_SHAKE256_ASM=${{ matrix.shake256_asm }}"
           done
