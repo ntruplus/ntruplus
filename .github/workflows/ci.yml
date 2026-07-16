@@ -76,6 +76,12 @@ jobs:
           - compiler: clang
             shake: SHA3 assembly
             shake256_asm: 1
+          - compiler: clang
+            shake: portable SHAKE256
+            shake256_asm: 0
+          - compiler: gcc
+            shake: SHA3 assembly
+            shake256_asm: 1
           - compiler: gcc
             shake: portable SHAKE256
             shake256_asm: 0
