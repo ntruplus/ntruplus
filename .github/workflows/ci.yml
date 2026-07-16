@@ -14,8 +14,8 @@ concurrency:
 
 jobs:
   portable:
-    name: ${{ matrix.implementation }} (${{ matrix.compiler }})
-    runs-on: ubuntu-24.04
+    name: ${{ matrix.implementation }} (${{ matrix.compiler }}, ${{ matrix.runner }})
+    runs-on: ${{ matrix.runner }}
     timeout-minutes: 20
     strategy:
       fail-fast: false
@@ -26,6 +26,9 @@ jobs:
         compiler:
           - clang
           - gcc
+        runner:
+          - ubuntu-24.04
+          - ubuntu-24.04-arm
     steps:
       - name: Check out repository
         uses: actions/checkout@v6
