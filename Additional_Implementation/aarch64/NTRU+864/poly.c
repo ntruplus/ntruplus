@@ -1,3 +1,4 @@
+#include "util.h"
 #include "poly.h"
 #include <arm_neon.h>
 
@@ -120,8 +121,10 @@ static inline int poly_fqinv_batch(int16x8_t *r, int16x8_t con)
 
     if (!vminvq_u16(vreinterpretq_u16_s16(x0)) ||
         !vminvq_u16(vreinterpretq_u16_s16(x1)) ||
-        !vminvq_u16(vreinterpretq_u16_s16(x2)))
+        !vminvq_u16(vreinterpretq_u16_s16(x2))) {
+        secure_clear(t, sizeof t);
         return 1;
+    }
 
     const int16x8_t x01 = fqmul(x0, x1, con);
     const int16x8_t inv012 = fqinv(fqmul(x01, x2, con), con);
@@ -150,6 +153,7 @@ static inline int poly_fqinv_batch(int16x8_t *r, int16x8_t con)
     r[off1] = inv1;
     r[off2] = inv2;
 
+    secure_clear(t, sizeof t);
     return 0;
 }
 
@@ -208,10 +212,12 @@ int poly_baseinv(poly *r, const poly *a)
         for (int i = 0; i < NTRUPLUS_N; i++)
             r->coeffs[i] = 0;
 
+        secure_clear(den, sizeof den);
         return 1;
     }
 
     poly_baseinv_2(r, den, con);
+    secure_clear(den, sizeof den);
 
     return 0;
 }

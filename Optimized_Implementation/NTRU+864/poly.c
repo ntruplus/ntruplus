@@ -1,3 +1,4 @@
+#include "util.h"
 #include <string.h>
 #include <stdint.h>
 #include "params.h"
@@ -730,6 +731,8 @@ static inline void invntt_scaled(int16_t r[NTRUPLUS_N])
 			r[144*i+j] = v[i];
 		}
 	}
+
+	secure_clear(v, sizeof v);
 }
 
 /*************************************************
@@ -961,6 +964,10 @@ static inline void fqinv_batch(int16_t *r)
 
 	inv2[0] = plantard_mul(inv, R3[1]);
 
+	secure_clear(&inv, sizeof inv);
+	secure_clear(r3, sizeof r3);
+	secure_clear(R3, sizeof R3);
+
 	// derive_fqinv - level 2
 	int16_t inv1[4];
 
@@ -969,6 +976,10 @@ static inline void fqinv_batch(int16_t *r)
 
 	inv1[0] = plantard_mul(inv2[0], R2[1]);
 	inv1[2] = plantard_mul(inv2[1], R2[3]);
+
+	secure_clear(inv2, sizeof inv2);
+	secure_clear(r2, sizeof r2);
+	secure_clear(R2, sizeof R2);
 
 	// derive_fqinv - level 1
 	int16_t inv0[8];
@@ -982,6 +993,10 @@ static inline void fqinv_batch(int16_t *r)
 	inv0[2] = plantard_mul(inv1[1], R1[3]);
 	inv0[4] = plantard_mul(inv1[2], R1[5]);
 	inv0[6] = plantard_mul(inv1[3], R1[7]);
+
+	secure_clear(inv1, sizeof inv1);
+	secure_clear(r1, sizeof r1);
+	secure_clear(R1, sizeof R1);
 
 	for(int i = chunk - 1; i > 0; i--)
 	{
@@ -1012,6 +1027,10 @@ static inline void fqinv_batch(int16_t *r)
 	r[off5] = inv0[5];
 	r[off6] = inv0[6];
 	r[off7] = inv0[7];
+
+	secure_clear(pc0, sizeof pc0);
+	secure_clear(R, sizeof R);
+	secure_clear(inv0, sizeof inv0);
 }
 
 static inline void baseinv_2(int16_t r[NTRUPLUS_D], int16_t den[1])
@@ -1057,6 +1076,7 @@ int poly_baseinv(poly *r, const poly *a)
 	if (fail)
 	{
 		memset(r->coeffs, 0, NTRUPLUS_N*sizeof(int16_t));
+		secure_clear(den, sizeof den);
 		return 1;
 	}
 
@@ -1064,6 +1084,8 @@ int poly_baseinv(poly *r, const poly *a)
 
 	for(int i = 0; i < NTRUPLUS_N/NTRUPLUS_D; i++)
 		baseinv_2(r->coeffs + NTRUPLUS_D*i, den + i);
+
+	secure_clear(den, sizeof den);
 
 	return 0;
 }

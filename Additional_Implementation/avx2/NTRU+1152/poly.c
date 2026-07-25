@@ -1,3 +1,4 @@
+#include "util.h"
 #include <immintrin.h>
 
 #include "params.h"
@@ -148,7 +149,11 @@ static inline int fqinv_batch(__m256i *restrict r)
     mask_zero4 = _mm256_or_si256(mask_zero4, mask_zero5);
     mask_zero0 = _mm256_or_si256(mask_zero0, mask_zero2);
     mask_zero0 = _mm256_or_si256(mask_zero0, mask_zero4);
-    if (!_mm256_testz_si256(mask_zero0, mask_zero0)) return 1;
+    if (!_mm256_testz_si256(mask_zero0, mask_zero0)) {
+        secure_clear(pc, sizeof pc);
+        secure_clear(R, sizeof R);
+        return 1;
+    }
 
     // product_chain - level 1
     __m256i r1[6];
@@ -213,9 +218,12 @@ static inline int fqinv_batch(__m256i *restrict r)
     inv = fqmul(inv, r2[1], R2[1], q);
 
     inv1[0] = inv;
+    secure_clear(&inv, sizeof inv);
 
     // derive_fqinv - level 1
     __m256i inv0[6];
+    __m256i INV[6];
+    __m256i tmp[6];
 
     inv0[1] = fqmul(inv1[0], r1[0], R1[0], q);
     inv0[0] = fqmul(inv1[0], r1[1], R1[1], q);
@@ -224,19 +232,23 @@ static inline int fqinv_batch(__m256i *restrict r)
     inv0[5] = fqmul(inv1[2], r1[4], R1[4], q);
     inv0[4] = fqmul(inv1[2], r1[5], R1[5], q);
 
+    secure_clear(r1, sizeof r1);
+    secure_clear(R1, sizeof R1);
+    secure_clear(r2, sizeof r2);
+    secure_clear(R2, sizeof R2);
+    secure_clear(pc2, sizeof pc2);
+    secure_clear(PC2, sizeof PC2);
+    secure_clear(inv1, sizeof inv1);
+
     // derive_fqinv - level 0
     for (size_t i = chunk - 1; i > 0; i--)
     {
-        __m256i INV[6];
-
         INV[0] = _mm256_mullo_epi16(inv0[0], qinv);
         INV[1] = _mm256_mullo_epi16(inv0[1], qinv);
         INV[2] = _mm256_mullo_epi16(inv0[2], qinv);
         INV[3] = _mm256_mullo_epi16(inv0[3], qinv);
         INV[4] = _mm256_mullo_epi16(inv0[4], qinv);
         INV[5] = _mm256_mullo_epi16(inv0[5], qinv);
-
-        __m256i tmp[6];
 
         tmp[0] = r[off0 + i];
         tmp[1] = r[off1 + i];
@@ -260,12 +272,19 @@ static inline int fqinv_batch(__m256i *restrict r)
         inv0[5] = fqmul(inv0[5], tmp[5], R[off5 + i], q);
     }
 
+    secure_clear(pc, sizeof pc);
+    secure_clear(R, sizeof R);
+    secure_clear(INV, sizeof INV);
+    secure_clear(tmp, sizeof tmp);
+
     r[off0] = inv0[0];
     r[off1] = inv0[1];
     r[off2] = inv0[2];
     r[off3] = inv0[3];
     r[off4] = inv0[4];
     r[off5] = inv0[5];
+
+    secure_clear(inv0, sizeof inv0);
 
     return 0;
 }
@@ -323,10 +342,12 @@ int  poly_baseinv(poly *r, const poly *a)
     {
         for (size_t j = 0; j < NTRUPLUS_N; ++j)
             r->coeffs[j] = 0;
+        secure_clear(den, sizeof den);
         return 1;
     }
 
     poly_baseinv_2(r, den);
+    secure_clear(den, sizeof den);
 
     return 0;
 }
