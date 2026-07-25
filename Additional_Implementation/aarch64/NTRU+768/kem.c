@@ -127,6 +127,8 @@ static inline void crypto_kem_keypair_derand(uint8_t *pk, uint8_t *sk,
     poly_tobytes(sk, f);
     poly_tobytes(sk + NTRUPLUS_POLYBYTES, &h);
     hash_f(sk + 2 * NTRUPLUS_POLYBYTES, pk);
+
+    secure_clear(&h, sizeof h);
 }
 
 /*************************************************
@@ -337,7 +339,9 @@ cleanup:
     secure_clear(buf1, sizeof buf1);
     secure_clear(buf2, sizeof buf2);
     secure_clear(buf3, sizeof buf3);
+    secure_clear(&c, sizeof c);
     secure_clear(&f, sizeof f);
+    secure_clear(&hinv, sizeof hinv);
     secure_clear(&m, sizeof m);
 
     return fail;

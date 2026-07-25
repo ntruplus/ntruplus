@@ -1,7 +1,7 @@
 CC =clang
 CFLAGS += -Wall -Wextra -Wpedantic -Wmissing-prototypes -Wredundant-decls \
-  -Wshadow -Wpointer-arith -O3 -fomit-frame-pointer
-NISTFLAGS += -Wno-unused-result -O3 -fomit-frame-pointer
+  -Wshadow -Wpointer-arith -Wa,--noexecstack -O3 -fomit-frame-pointer
+NISTFLAGS += -Wno-unused-result -Wa,--noexecstack -O3 -fomit-frame-pointer
 RM = /bin/rm -f
 
 SOURCES= kem.c symmetric.c poly.c asm/add.s asm/ntt.s asm/base.s asm/crepmod3.s asm/pack.s asm/cbd.s
