@@ -1,1 +1,1 @@
-../../NTRU+768/util.h
+../../avx2/NTRU+768/util.h
