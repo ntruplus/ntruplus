@@ -19,7 +19,8 @@ _poly_crepmod3:
 
     mov src, dst
     adr const_ptr, crepmod3_consts
-    ld1 {v0.8h - v2.8h}, [const_ptr]
+    movi v0.8h, #3
+    ld1 {v1.8h - v2.8h}, [const_ptr]
 
     mov counter, #1728
 
@@ -68,8 +69,6 @@ _looptop:
 
 .align 4
 crepmod3_consts:
-    # v0.h[0] = q, v0.h[1] = 3
     # v1 = round(2^26/q), v2 = round(2^15/3), for q = 3457
-    .hword 0x0d81, 0x0003, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000
     .hword 0x4bd4, 0x4bd4, 0x4bd4, 0x4bd4, 0x4bd4, 0x4bd4, 0x4bd4, 0x4bd4
     .hword 0x2aab, 0x2aab, 0x2aab, 0x2aab, 0x2aab, 0x2aab, 0x2aab, 0x2aab
