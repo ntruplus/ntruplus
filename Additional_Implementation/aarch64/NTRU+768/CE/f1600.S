@@ -23,6 +23,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+/*
+ * NTRU+ adaptation of neon-ntt common/feat.S: converted the two-state
+ * f1600x2 kernel to a single-state f1600 implementation and adjusted state
+ * load/store, round scheduling, and AArch64 ABI preservation.
+ */
+
     .text
     .arch armv8.2-a+sha3
     .align 4
