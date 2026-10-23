@@ -110,7 +110,7 @@ static inline int16_t plantard_mul(uint32_t a, uint32_t b)
 #define NTRUPLUS_R_MONT            -147
 #define NTRUPLUS_RSQ_MONT           867
 #define NTRUPLUS_QINV_MONT        12929
-#define NTRUPLUS_QINV_R_MONT 0x3280FFEDu /* QINV * (-147) mod 2^32 */
+#define NTRUPLUS_QINV_R_MONT 0x3280FFEDu
 
 static const int16_t zetas_mont[96] = {
 	  223,  1138, -1059,  -397,  -183,  1655,   559, -1674,
