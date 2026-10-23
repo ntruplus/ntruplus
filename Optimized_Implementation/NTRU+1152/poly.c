@@ -122,6 +122,7 @@ static inline int16_t plantard_mul(uint32_t a, uint32_t b)
 #define NTRUPLUS_R_MONT            -147
 #define NTRUPLUS_RSQ_MONT           867
 #define NTRUPLUS_QINV_MONT        12929
+#define NTRUPLUS_QINV_R_MONT 0x3280FFEDu /* QINV * (-147) mod 2^32 */
 
 static const int16_t zetas_mont[144] = {
 	-1323,   163,   309,   981,  -557,  -258,   232, -1680,
@@ -1058,11 +1059,11 @@ static inline void fqinv_batch(int16_t *r)
 	clear_i16(inv0, sizeof inv0/sizeof inv0[0]);
 }
 
-static inline void baseinv_2(int16_t r[NTRUPLUS_D], int16_t den[1])
+static inline void baseinv_2_mont(int16_t r[NTRUPLUS_D], int16_t den[1])
 {
 	uint32_t T;
 
-	T = den[0]*NTRUPLUS_QINV;
+	T = (uint32_t)den[0]*NTRUPLUS_QINV_R_MONT;
 
 	r[0] =  plantard_reduce_acc(r[0]*T);
 	r[1] = -plantard_reduce_acc(r[1]*T);
@@ -1071,22 +1072,24 @@ static inline void baseinv_2(int16_t r[NTRUPLUS_D], int16_t den[1])
 }
 
 /*************************************************
-* Name:        poly_baseinv
+* Name:        poly_baseinv_mont
 *
-* Description: Inversion of polynomial in NTT domain. baseinv_1 exposes all
-*              base denominators, fqinv_batch inverts them hierarchically,
-*              and baseinv_2 applies the inverses to complete each base inverse.
+* Description: Montgomery-scaled inversion in the NTT domain: r = R*a^-1,
+*              where R = 2^16. baseinv_1 exposes the base denominators,
+*              fqinv_batch inverts them hierarchically, and baseinv_2_mont
+*              completes each Montgomery-scaled base inverse.
 *
 * Reference:   J. Kim, H. Cho, and J. H. Park, "Accelerating NTRU+ Key
 *              Generation via Hierarchical Batch Inversion," IACR ePrint
 *              2026/1191, https://eprint.iacr.org/2026/1191.
 *
 * Arguments:   - poly *r:       pointer to output polynomial
-*              - const poly *a: pointer to input polynomial
+*              - const poly *a: input polynomial with coefficient absolute
+*                               values at most (NTRUPLUS_Q+1)/2
 *
 * Returns:     1 if the polynomial is not invertible; otherwise 0.
 **************************************************/
-int poly_baseinv(poly *r, const poly *a)
+int poly_baseinv_mont(poly *r, const poly *a)
 {
 	int16_t den[NTRUPLUS_N/NTRUPLUS_D];
 	int fail = 0;
@@ -1109,7 +1112,7 @@ int poly_baseinv(poly *r, const poly *a)
 	fqinv_batch(den);
 
 	for(int i = 0; i < NTRUPLUS_N/NTRUPLUS_D; i++)
-		baseinv_2(r->coeffs + NTRUPLUS_D*i, den + i);
+		baseinv_2_mont(r->coeffs + NTRUPLUS_D*i, den + i);
 
 	clear_i16(den, sizeof den/sizeof den[0]);
 
@@ -1204,8 +1207,9 @@ void poly_basemul_add(poly *r, const poly *a, const poly *b, const poly *c)
 * Name:        poly_basemul_scaled
 *
 * Description: Multiplication of two polynomials in the NTT domain. The
-*              output carries the Montgomery R^-1 scale consumed by
-*              poly_invntt_scaled.
+*              output is a*b*R^-1, where R = 2^16. With ordinary inputs,
+*              this scale is consumed by poly_invntt_scaled. With one
+*              Montgomery-scaled input, the output has ordinary scale.
 *
 * Arguments:   - poly *r:       pointer to the output polynomial
 *              - const poly *a: pointer to the first input polynomial
