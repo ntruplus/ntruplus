@@ -121,7 +121,7 @@ static inline void crypto_kem_keypair_derand(uint8_t *pk, uint8_t *sk,
     poly_tobytes(sk + NTRUPLUS_POLYBYTES, &h);
     hash_f(sk + 2 * NTRUPLUS_POLYBYTES, pk);
 
-    secure_clear(&h, sizeof h);
+    poly_secure_clear(&h);
 }
 
 /*************************************************
@@ -164,10 +164,10 @@ int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
 
     secure_clear(coins, sizeof coins);
     secure_clear(buf, sizeof buf);
-    secure_clear(&f, sizeof f);
-    secure_clear(&finv, sizeof finv);
-    secure_clear(&g, sizeof g);
-    secure_clear(&ginv, sizeof ginv);
+    poly_secure_clear(&f);
+    poly_secure_clear(&finv);
+    poly_secure_clear(&g);
+    poly_secure_clear(&ginv);
 
     return 0;
 }
@@ -228,8 +228,8 @@ static inline int crypto_kem_enc_derand(uint8_t *ct, uint8_t *ss,
 
     secure_clear(msg, sizeof msg);
     secure_clear(buf, sizeof buf);
-    secure_clear(&r, sizeof r);
-    secure_clear(&m, sizeof m);
+    poly_secure_clear(&r);
+    poly_secure_clear(&m);
 
     return 0;
 }
@@ -332,10 +332,10 @@ cleanup:
     secure_clear(buf1, sizeof buf1);
     secure_clear(buf2, sizeof buf2);
     secure_clear(buf3, sizeof buf3);
-    secure_clear(&c, sizeof c);
-    secure_clear(&f, sizeof f);
-    secure_clear(&hinv, sizeof hinv);
-    secure_clear(&m, sizeof m);
+    poly_secure_clear(&c);
+    poly_secure_clear(&f);
+    poly_secure_clear(&hinv);
+    poly_secure_clear(&m);
 
     return fail;
 }

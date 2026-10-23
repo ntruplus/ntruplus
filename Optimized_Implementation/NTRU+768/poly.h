@@ -1,6 +1,7 @@
 #ifndef POLY_H
 #define POLY_H
 
+#include <stddef.h>
 #include <stdint.h>
 #include "params.h"
 
@@ -11,6 +12,14 @@
 typedef struct{
 	int16_t coeffs[NTRUPLUS_N];
 } poly;
+
+static inline void poly_secure_clear(poly *r)
+{
+    volatile int16_t *p = r->coeffs;
+
+    for(size_t i = 0; i < NTRUPLUS_N; i++)
+        p[i] = 0;
+}
 
 void poly_tobytes(uint8_t r[NTRUPLUS_POLYBYTES], const poly *a);
 int  poly_frombytes(poly *r, const uint8_t a[NTRUPLUS_POLYBYTES]);

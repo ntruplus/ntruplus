@@ -324,25 +324,33 @@ int poly_sotp_decode(uint8_t msg[NTRUPLUS_N/8], const poly *a, const uint8_t buf
     uint16_t t2;
     uint32_t fail = 0;
     volatile uint8_t mask;
+
     for(size_t i = 0; i < NTRUPLUS_N/8; i++)
     {
         t0 = buf[i + NTRUPLUS_N/8];
         t1 = 0;
+
         for(size_t j = 0; j < 8; j++)
         {
             t2 = t0 & 0x1;
             t2 += a->coeffs[8*i + j];
             fail |= t2;
             t1 ^= (uint8_t)(t2 << j);
+
             t0 >>= 1;
         }
+
         msg[i] = t1 ^ buf[i];
     }
+
     fail >>= 1;
     fail = (-fail) >> 31;
+
     mask = (uint8_t)(fail - 1);
+
     for(size_t i = 0; i < NTRUPLUS_N/8; i++)
         msg[i] &= mask;
+
     return fail;
 }
 
@@ -369,7 +377,7 @@ static inline void ntt(int16_t r[NTRUPLUS_N])
 		const int16_t t = NTRUPLUS_ZETA1 * r[i + NTRUPLUS_N/2];
 
 		r[i + NTRUPLUS_N/2] = r[i] + r[i + NTRUPLUS_N/2] - t;
-		r[i]                 = r[i] + t;
+		r[i]                = r[i] + t;
 	}
 
 	for(int j = 0; j < 2; j++)
