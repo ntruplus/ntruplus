@@ -252,6 +252,36 @@ void poly_cbd1(poly *r, const uint8_t buf[NTRUPLUS_N/4])
 }
 
 /*************************************************
+* Name:        poly_cbd1_triple
+*
+* Description: Sample a polynomial as in poly_cbd1 and multiply its
+*              coefficients by 3 for key generation.
+*
+* Arguments:   - poly *r: pointer to output polynomial
+*              - const uint8_t *buf: input random bytes
+*                                     (of length NTRUPLUS_N/4 bytes)
+**************************************************/
+void poly_cbd1_triple(poly *r, const uint8_t buf[NTRUPLUS_N/4])
+{
+    uint8_t t0, t1;
+
+    for(size_t i = 0; i < NTRUPLUS_N/8; i++)
+    {
+        t0 = buf[i];
+        t1 = buf[i + NTRUPLUS_N/8];
+
+        for(size_t j = 0; j < 8; j++)
+        {
+            r->coeffs[8*i + j] = 3*((t0 & 0x1) - (t1 & 0x1));
+
+            t0 >>= 1;
+            t1 >>= 1;
+        }
+    }
+}
+
+
+/*************************************************
 * Name:        poly_sotp_encode
 *
 * Description: Encode a message deterministically using SOTP and a random,
