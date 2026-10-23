@@ -873,6 +873,22 @@ static inline int16_t fqinv(int16_t a)
 	return plantard_reduce_acc(t0*T);   // 110101111111
 }
 
+static inline void clear_i16(int16_t *p, size_t n)
+{
+    volatile int16_t *v = p;
+
+    while(n-- > 0)
+        *v++ = 0;
+}
+
+static inline void clear_u32(uint32_t *p, size_t n)
+{
+    volatile uint32_t *v = p;
+
+    while(n-- > 0)
+        *v++ = 0;
+}
+
 /*************************************************
 * Name:        fqinv_batch
 *
@@ -989,9 +1005,9 @@ static inline void fqinv_batch(int16_t *r)
 
 	inv2[0] = plantard_mul(inv, R3[1]);
 
-	secure_clear(&inv, sizeof inv);
-	secure_clear(r3, sizeof r3);
-	secure_clear(R3, sizeof R3);
+	clear_i16(&inv, 1);
+	clear_i16(r3, sizeof r3/sizeof r3[0]);
+	clear_u32(R3, sizeof R3/sizeof R3[0]);
 
 	// derive_fqinv - level 2
 	int16_t inv1[4];
@@ -1002,9 +1018,9 @@ static inline void fqinv_batch(int16_t *r)
 	inv1[0] = plantard_mul(inv2[0], R2[1]);
 	inv1[2] = plantard_mul(inv2[1], R2[3]);
 
-	secure_clear(inv2, sizeof inv2);
-	secure_clear(r2, sizeof r2);
-	secure_clear(R2, sizeof R2);
+	clear_i16(inv2, sizeof inv2/sizeof inv2[0]);
+	clear_i16(r2, sizeof r2/sizeof r2[0]);
+	clear_u32(R2, sizeof R2/sizeof R2[0]);
 
 	// derive_fqinv - level 1
 	int16_t inv0[8];
@@ -1019,9 +1035,9 @@ static inline void fqinv_batch(int16_t *r)
 	inv0[4] = plantard_mul(inv1[2], R1[5]);
 	inv0[6] = plantard_mul(inv1[3], R1[7]);
 
-	secure_clear(inv1, sizeof inv1);
-	secure_clear(r1, sizeof r1);
-	secure_clear(R1, sizeof R1);
+	clear_i16(inv1, sizeof inv1/sizeof inv1[0]);
+	clear_i16(r1, sizeof r1/sizeof r1[0]);
+	clear_u32(R1, sizeof R1/sizeof R1[0]);
 
 	for(int i = chunk - 1; i > 0; i--)
 	{
@@ -1053,9 +1069,9 @@ static inline void fqinv_batch(int16_t *r)
 	r[off6] = inv0[6];
 	r[off7] = inv0[7];
 
-	secure_clear(pc0, sizeof pc0);
-	secure_clear(R, sizeof R);
-	secure_clear(inv0, sizeof inv0);
+	clear_i16(pc0, sizeof pc0/sizeof pc0[0]);
+	clear_u32(R, sizeof R/sizeof R[0]);
+	clear_i16(inv0, sizeof inv0/sizeof inv0[0]);
 }
 
 static inline void baseinv_2(int16_t r[NTRUPLUS_D], int16_t den[1])
