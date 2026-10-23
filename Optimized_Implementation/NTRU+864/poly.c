@@ -283,19 +283,18 @@ void poly_cbd1(poly *r, const uint8_t buf[NTRUPLUS_N/4])
 **************************************************/
 void poly_sotp_encode(poly *r, const uint8_t msg[NTRUPLUS_N/8], const uint8_t buf[NTRUPLUS_N/4])
 {
-	uint8_t tmp[NTRUPLUS_N/4];
-
-	for(int i = 0; i < NTRUPLUS_N/8; i++)
+	for(size_t i = 0; i < NTRUPLUS_N/8; i++)
 	{
-		tmp[i] = buf[i] ^ msg[i];
-	}
+		uint8_t t1 = buf[i] ^ msg[i];
+		uint8_t t2 = buf[i + NTRUPLUS_N/8];
 
-	for(int i = NTRUPLUS_N/8; i < NTRUPLUS_N/4; i++)
-	{
-		tmp[i] = buf[i];
+		for(size_t j = 0; j < 8; j++)
+		{
+			r->coeffs[8*i + j] = (t1 & 0x1) - (t2 & 0x1);
+			t1 >>= 1;
+			t2 >>= 1;
+		}
 	}
-
-	poly_cbd1(r, tmp);
 }
 
 /*************************************************
