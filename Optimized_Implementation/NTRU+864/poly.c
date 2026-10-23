@@ -1091,15 +1091,25 @@ int poly_baseinv(poly *r, const poly *a)
 *
 * Returns:     none.
 **************************************************/
-static inline void basemul(int16_t r[NTRUPLUS_D], const int16_t a[NTRUPLUS_D],
-		const int16_t b[NTRUPLUS_D], const int16_t zeta)
+static inline void basemul(int16_t r[NTRUPLUS_D],
+                          const int16_t a[NTRUPLUS_D],
+                          const int16_t b[NTRUPLUS_D],
+                          const int16_t zeta)
 {
-	r[0] = montgomery_reduce(a[2]*b[1] + a[1]*b[2]); // R^-1
-	r[1] = montgomery_reduce(a[2]*b[2]);              // R^-1
+    int32_t p00 = (int32_t)a[0]*b[0];
+    int32_t p11 = (int32_t)a[1]*b[1];
+    int32_t p22 = (int32_t)a[2]*b[2];
 
-	r[0] = montgomery_reduce(r[0]*zeta + a[0]*b[0]);             // R^-1
-	r[1] = montgomery_reduce(r[1]*zeta + a[0]*b[1] + a[1]*b[0]); // R^-1
-	r[2] = montgomery_reduce(a[2]*b[0] + a[1]*b[1] + a[0]*b[2]);  // R^-1
+    int32_t p01 = (a[0] + a[1])*(b[0] + b[1]) - p00 - p11;
+    int32_t p02 = (a[0] + a[2])*(b[0] + b[2]) - p00 - p22;
+    int32_t p12 = (a[1] + a[2])*(b[1] + b[2]) - p11 - p22;
+
+    int16_t t0 = montgomery_reduce(p12);
+    int16_t t1 = montgomery_reduce(p22);
+
+    r[0] = montgomery_reduce(t0*zeta + p00);
+    r[1] = montgomery_reduce(t1*zeta + p01);
+    r[2] = montgomery_reduce(p02 + p11);
 }
 
 /*************************************************
