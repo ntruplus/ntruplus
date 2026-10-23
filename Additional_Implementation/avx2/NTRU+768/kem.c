@@ -123,7 +123,7 @@ static inline void crypto_kem_keypair_derand(uint8_t *pk, uint8_t *sk,
     poly_tobytes(sk + NTRUPLUS_POLYBYTES, &h);
     hash_f(sk + 2 * NTRUPLUS_POLYBYTES, pk);
 
-    secure_clear(&h, sizeof h);
+    clear_u8(&h, sizeof h);
 }
 
 /*************************************************
@@ -164,12 +164,12 @@ int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
 
     crypto_kem_keypair_derand(pk, sk, &f, &finv, &g, &ginv);
 
-    secure_clear(coins, sizeof coins);
-    secure_clear(buf, sizeof buf);
-    secure_clear(&f, sizeof f);
-    secure_clear(&finv, sizeof finv);
-    secure_clear(&g, sizeof g);
-    secure_clear(&ginv, sizeof ginv);
+    clear_u8(coins, sizeof coins);
+    clear_u8(buf, sizeof buf);
+    clear_u8(&f, sizeof f);
+    clear_u8(&finv, sizeof finv);
+    clear_u8(&g, sizeof g);
+    clear_u8(&ginv, sizeof ginv);
 
     return 0;
 }
@@ -203,7 +203,7 @@ static inline int crypto_kem_enc_derand(uint8_t *ct, uint8_t *ss,
     {
         for (size_t i = 0; i < NTRUPLUS_CIPHERTEXTBYTES; i++)
             ct[i] = 0;
-        secure_clear(ss, NTRUPLUS_SSBYTES);
+        clear_u8(ss, NTRUPLUS_SSBYTES);
 
         return 1;
     }
@@ -229,10 +229,10 @@ static inline int crypto_kem_enc_derand(uint8_t *ct, uint8_t *ss,
     for (size_t i = 0; i < NTRUPLUS_SSBYTES; i++)
         ss[i] = buf[i];
 
-    secure_clear(msg, sizeof msg);
-    secure_clear(buf, sizeof buf);
-    secure_clear(&r, sizeof r);
-    secure_clear(&m, sizeof m);
+    clear_u8(msg, sizeof msg);
+    clear_u8(buf, sizeof buf);
+    clear_u8(&r, sizeof r);
+    clear_u8(&m, sizeof m);
     
     return 0;
 }
@@ -262,7 +262,7 @@ int crypto_kem_enc(unsigned char *ct, unsigned char *ss,
 
     randombytes(coins, sizeof coins);
     ret = crypto_kem_enc_derand(ct, ss, pk, coins);
-    secure_clear(coins, sizeof coins);
+    clear_u8(coins, sizeof coins);
     return ret;
 }
 
@@ -288,9 +288,9 @@ int crypto_kem_dec(unsigned char *ss,
                    const unsigned char *sk)
 {
 	uint8_t msg[HASH_H_INBYTES];
+	uint8_t buf0[HASH_G_INBYTES];
 	uint8_t buf1[HASH_G_INBYTES];
-	uint8_t buf2[HASH_G_INBYTES];
-	uint8_t buf3[HASH_H_OUTBYTES];
+	uint8_t buf2[HASH_H_OUTBYTES];
 	
 	int8_t fail = 1;
 	
@@ -300,7 +300,7 @@ int crypto_kem_dec(unsigned char *ss,
 	   poly_frombytes(&f, sk) ||
 	   poly_frombytes(&hinv, sk + NTRUPLUS_POLYBYTES))
 	{
-		secure_clear(ss, NTRUPLUS_SSBYTES);
+		clear_u8(ss, NTRUPLUS_SSBYTES);
 
 		goto cleanup;
 	}
@@ -313,34 +313,34 @@ int crypto_kem_dec(unsigned char *ss,
 	poly_ntt(&f);
 	poly_sub(&c, &c, &f);
 	poly_basemul(&f, &c, &hinv);
-	poly_tobytes(buf1, &f);
+	poly_tobytes(buf0, &f);
 	
-	hash_g(buf2, buf1);
-	fail = poly_sotp_decode(msg, &m, buf2);
+	hash_g(buf1, buf0);
+	fail = poly_sotp_decode(msg, &m, buf1);
 	
 	for (int i = 0; i < HASH_F_OUTBYTES; i++)
 		msg[i + NTRUPLUS_N / 8] = sk[i + 2 * NTRUPLUS_POLYBYTES]; 
 
-	hash_h(buf3, msg);
+	hash_h(buf2, msg);
 	
-	poly_cbd1(&f, buf3 + NTRUPLUS_SSBYTES);
+	poly_cbd1(&f, buf2 + NTRUPLUS_SSBYTES);
 	poly_ntt(&f);
-	poly_tobytes(buf2, &f);
+	poly_tobytes(buf1, &f);
 	
-	fail |= verify(buf1, buf2, NTRUPLUS_POLYBYTES);
+	fail |= verify(buf0, buf1, NTRUPLUS_POLYBYTES);
 	
 	for(int i = 0; i < NTRUPLUS_SSBYTES; i++)
-		ss[i] = buf3[i] & ~(-fail);
+		ss[i] = buf2[i] & ~(-fail);
 
 cleanup:
-	secure_clear(msg, sizeof msg);
-	secure_clear(buf1, sizeof buf1);
-	secure_clear(buf2, sizeof buf2);
-	secure_clear(buf3, sizeof buf3);
-	secure_clear(&c, sizeof c);
-	secure_clear(&f, sizeof f);
-	secure_clear(&hinv, sizeof hinv);
-	secure_clear(&m, sizeof m);
+	clear_u8(msg, sizeof msg);
+	clear_u8(buf0, sizeof buf0);
+	clear_u8(buf1, sizeof buf1);
+	clear_u8(buf2, sizeof buf2);
+	clear_u8(&c, sizeof c);
+	clear_u8(&f, sizeof f);
+	clear_u8(&hinv, sizeof hinv);
+	clear_u8(&m, sizeof m);
 
 	return fail;
 }

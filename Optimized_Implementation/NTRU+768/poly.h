@@ -4,6 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include "params.h"
+#include "util.h"
 
 /*
  * Elements of R_q = Z_q[X]/(X^n - X^n/2 + 1). Represents polynomial
@@ -15,10 +16,7 @@ typedef struct{
 
 static inline void poly_secure_clear(poly *r)
 {
-    volatile int16_t *p = r->coeffs;
-
-    for(size_t i = 0; i < NTRUPLUS_N; i++)
-        p[i] = 0;
+    clear_i16(r->coeffs, NTRUPLUS_N);
 }
 
 void poly_tobytes(uint8_t r[NTRUPLUS_POLYBYTES], const poly *a);

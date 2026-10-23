@@ -97,19 +97,19 @@ int poly_frombytes(poly *r, const uint8_t a[NTRUPLUS_POLYBYTES])
 **************************************************/
 void poly_cbd1(poly *r, const unsigned char buf[NTRUPLUS_N/4])
 {
-	uint8_t t1, t2;
+	uint8_t t0, t1;
 
 	for(size_t i = 0; i < NTRUPLUS_N / 8; i++)
 	{
-		t1 = buf[i];
-		t2 = buf[i + NTRUPLUS_N / 8];
+		t0 = buf[i];
+		t1 = buf[i + NTRUPLUS_N / 8];
 
 		for(size_t j = 0; j < 8; j++)
 		{
-			r->coeffs[8*i + j] = (t1 & 0x1) - (t2 & 0x1);
+			r->coeffs[8*i + j] = (t0 & 0x1) - (t1 & 0x1);
 
-			t1 >>= 1;   
-			t2 >>= 1;
+			t0 >>= 1;
+			t1 >>= 1;
 		}
 	}
 }
@@ -154,30 +154,30 @@ void poly_sotp_encode(poly *r, const uint8_t msg[NTRUPLUS_N/8], const uint8_t bu
 **************************************************/
 int poly_sotp_decode(uint8_t msg[NTRUPLUS_N/8], const poly *a, const uint8_t buf[NTRUPLUS_N/4])
 {
-	uint8_t t1, t2, t3;
-	uint16_t t4;
+	uint8_t t0, t1, t2;
+	uint16_t t3;
 	uint32_t r = 0;
 	volatile uint8_t mask;
 
 	for(size_t i = 0; i < NTRUPLUS_N / 8; i++)
 	{
-		t1 = buf[i                 ];
-		t2 = buf[i + NTRUPLUS_N / 8];
-		t3 = 0;
+		t0 = buf[i                 ];
+		t1 = buf[i + NTRUPLUS_N / 8];
+		t2 = 0;
 
 		for(int j = 0; j < 8; j++)
 		{
-			t4 = t2 & 0x1;
-			t4 += a->coeffs[8*i + j];
-			r |= t4;
-			t4 = (t4 ^ t1) & 0x1;
-			t3 ^= (uint8_t)(t4 << j);
+			t3 = t1 & 0x1;
+			t3 += a->coeffs[8*i + j];
+			r |= t3;
+			t3 = (t3 ^ t0) & 0x1;
+			t2 ^= (uint8_t)(t3 << j);
 
+			t0 >>= 1;
 			t1 >>= 1;
-			t2 >>= 1;
 		}
 
-		msg[i] = t3;
+		msg[i] = t2;
 	}
 
 	r = r >> 1;

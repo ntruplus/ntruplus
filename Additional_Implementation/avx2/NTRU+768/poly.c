@@ -150,48 +150,48 @@ static inline int fqinv_batch(__m256i *restrict r)
     mask_zero0 = _mm256_or_si256(mask_zero0, mask_zero2);
     mask_zero0 = _mm256_or_si256(mask_zero0, mask_zero4);
     if (!_mm256_testz_si256(mask_zero0, mask_zero0)) {
-        secure_clear(pc, sizeof pc);
-        secure_clear(R, sizeof R);
+        clear_u8(pc, sizeof pc);
+        clear_u8(R, sizeof R);
         return 1;
     }
 
     // product_chain - level 1
-    __m256i r1[6];
+    __m256i r0[6];
 
-    r1[0] = pc[off0 + chunk - 1];
-    r1[1] = pc[off1 + chunk - 1];
-    r1[2] = pc[off2 + chunk - 1];
-    r1[3] = pc[off3 + chunk - 1];
-    r1[4] = pc[off4 + chunk - 1];
-    r1[5] = pc[off5 + chunk - 1];
+    r0[0] = pc[off0 + chunk - 1];
+    r0[1] = pc[off1 + chunk - 1];
+    r0[2] = pc[off2 + chunk - 1];
+    r0[3] = pc[off3 + chunk - 1];
+    r0[4] = pc[off4 + chunk - 1];
+    r0[5] = pc[off5 + chunk - 1];
 
-    __m256i R1[6];
+    __m256i R0[6];
+
+    R0[0] = _mm256_mullo_epi16(r0[0], qinv);
+    R0[1] = _mm256_mullo_epi16(r0[1], qinv);
+    R0[2] = _mm256_mullo_epi16(r0[2], qinv);
+    R0[3] = _mm256_mullo_epi16(r0[3], qinv);
+    R0[4] = _mm256_mullo_epi16(r0[4], qinv);
+    R0[5] = _mm256_mullo_epi16(r0[5], qinv);
+
+    __m256i r1[3];
+
+    r1[0] = fqmul(r0[0], r0[1], R0[1], q);
+    r1[1] = fqmul(r0[2], r0[3], R0[3], q);
+    r1[2] = fqmul(r0[4], r0[5], R0[5], q);
+
+    __m256i R1[3];
 
     R1[0] = _mm256_mullo_epi16(r1[0], qinv);
     R1[1] = _mm256_mullo_epi16(r1[1], qinv);
     R1[2] = _mm256_mullo_epi16(r1[2], qinv);
-    R1[3] = _mm256_mullo_epi16(r1[3], qinv);
-    R1[4] = _mm256_mullo_epi16(r1[4], qinv);
-    R1[5] = _mm256_mullo_epi16(r1[5], qinv);
-
-    __m256i r2[3];
-
-    r2[0] = fqmul(r1[0], r1[1], R1[1], q);
-    r2[1] = fqmul(r1[2], r1[3], R1[3], q);
-    r2[2] = fqmul(r1[4], r1[5], R1[5], q);
-
-    __m256i R2[3];
-
-    R2[0] = _mm256_mullo_epi16(r2[0], qinv);
-    R2[1] = _mm256_mullo_epi16(r2[1], qinv);
-    R2[2] = _mm256_mullo_epi16(r2[2], qinv);
 
     // product_chain - level 2
     __m256i pc2[3];
 
-    pc2[0] = r2[0];
-    pc2[1] = fqmul(pc2[0], r2[1], R2[1], q);
-    pc2[2] = fqmul(pc2[1], r2[2], R2[2], q);
+    pc2[0] = r1[0];
+    pc2[1] = fqmul(pc2[0], r1[1], R1[1], q);
+    pc2[2] = fqmul(pc2[1], r1[2], R1[2], q);
 
     __m256i PC2[3];
 
@@ -211,34 +211,34 @@ static inline int fqinv_batch(__m256i *restrict r)
 
     inv1[2] = fqmul(inv, pc2[1], PC2[1], q);
 
-    inv = fqmul(inv, r2[2], R2[2], q);
+    inv = fqmul(inv, r1[2], R1[2], q);
 
     inv1[1] = fqmul(inv, pc2[0], PC2[0], q);
 
-    inv = fqmul(inv, r2[1], R2[1], q);
+    inv = fqmul(inv, r1[1], R1[1], q);
 
     inv1[0] = inv;
-    secure_clear(&inv, sizeof inv);
+    clear_u8(&inv, sizeof inv);
 
     // derive_fqinv - level 1
     __m256i inv0[6];
     __m256i INV[6];
     __m256i tmp[6];
 
-    inv0[1] = fqmul(inv1[0], r1[0], R1[0], q);
-    inv0[0] = fqmul(inv1[0], r1[1], R1[1], q);
-    inv0[3] = fqmul(inv1[1], r1[2], R1[2], q);
-    inv0[2] = fqmul(inv1[1], r1[3], R1[3], q);
-    inv0[5] = fqmul(inv1[2], r1[4], R1[4], q);
-    inv0[4] = fqmul(inv1[2], r1[5], R1[5], q);
+    inv0[1] = fqmul(inv1[0], r0[0], R0[0], q);
+    inv0[0] = fqmul(inv1[0], r0[1], R0[1], q);
+    inv0[3] = fqmul(inv1[1], r0[2], R0[2], q);
+    inv0[2] = fqmul(inv1[1], r0[3], R0[3], q);
+    inv0[5] = fqmul(inv1[2], r0[4], R0[4], q);
+    inv0[4] = fqmul(inv1[2], r0[5], R0[5], q);
 
-    secure_clear(r1, sizeof r1);
-    secure_clear(R1, sizeof R1);
-    secure_clear(r2, sizeof r2);
-    secure_clear(R2, sizeof R2);
-    secure_clear(pc2, sizeof pc2);
-    secure_clear(PC2, sizeof PC2);
-    secure_clear(inv1, sizeof inv1);
+    clear_u8(r0, sizeof r0);
+    clear_u8(R0, sizeof R0);
+    clear_u8(r1, sizeof r1);
+    clear_u8(R1, sizeof R1);
+    clear_u8(pc2, sizeof pc2);
+    clear_u8(PC2, sizeof PC2);
+    clear_u8(inv1, sizeof inv1);
 
     // derive_fqinv - level 0
     for (size_t i = chunk - 1; i > 0; i--)
@@ -272,10 +272,10 @@ static inline int fqinv_batch(__m256i *restrict r)
         inv0[5] = fqmul(inv0[5], tmp[5], R[off5 + i], q);
     }
 
-    secure_clear(pc, sizeof pc);
-    secure_clear(R, sizeof R);
-    secure_clear(INV, sizeof INV);
-    secure_clear(tmp, sizeof tmp);
+    clear_u8(pc, sizeof pc);
+    clear_u8(R, sizeof R);
+    clear_u8(INV, sizeof INV);
+    clear_u8(tmp, sizeof tmp);
 
     r[off0] = inv0[0];
     r[off1] = inv0[1];
@@ -284,7 +284,7 @@ static inline int fqinv_batch(__m256i *restrict r)
     r[off4] = inv0[4];
     r[off5] = inv0[5];
 
-    secure_clear(inv0, sizeof inv0);
+    clear_u8(inv0, sizeof inv0);
 
     return 0;
 }
@@ -342,12 +342,12 @@ int poly_baseinv(poly *r, const poly *a)
     {
         for (size_t j = 0; j < NTRUPLUS_N; ++j)
             r->coeffs[j] = 0;
-        secure_clear(den, sizeof den);
+        clear_u8(den, sizeof den);
         return 1;
     }
 
     poly_baseinv_2(r, den);
-    secure_clear(den, sizeof den);
+    clear_u8(den, sizeof den);
 
     return 0;
 }

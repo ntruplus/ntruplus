@@ -140,5 +140,5 @@ void shake256(uint8_t *output, size_t outlen, const uint8_t *input,
     shake256_absorb(&state, input, inlen);
     shake256_finalize(&state);
     shake256_squeeze(output, outlen, &state);
-    secure_clear(&state, sizeof(state));
+    clear_u8(&state, sizeof(state));
 }

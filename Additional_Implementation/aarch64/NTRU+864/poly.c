@@ -122,7 +122,7 @@ static inline int poly_fqinv_batch(int16x8_t *r, int16x8_t con)
     if (!vminvq_u16(vreinterpretq_u16_s16(x0)) ||
         !vminvq_u16(vreinterpretq_u16_s16(x1)) ||
         !vminvq_u16(vreinterpretq_u16_s16(x2))) {
-        secure_clear(t, sizeof t);
+        clear_u8(t, sizeof t);
         return 1;
     }
 
@@ -153,7 +153,7 @@ static inline int poly_fqinv_batch(int16x8_t *r, int16x8_t con)
     r[off1] = inv1;
     r[off2] = inv2;
 
-    secure_clear(t, sizeof t);
+    clear_u8(t, sizeof t);
     return 0;
 }
 
@@ -212,12 +212,12 @@ int poly_baseinv(poly *r, const poly *a)
         for (int i = 0; i < NTRUPLUS_N; i++)
             r->coeffs[i] = 0;
 
-        secure_clear(den, sizeof den);
+        clear_u8(den, sizeof den);
         return 1;
     }
 
     poly_baseinv_2(r, den, con);
-    secure_clear(den, sizeof den);
+    clear_u8(den, sizeof den);
 
     return 0;
 }

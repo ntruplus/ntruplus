@@ -254,19 +254,19 @@ int poly_frombytes(poly *r, const uint8_t a[NTRUPLUS_POLYBYTES])
 **************************************************/
 void poly_cbd1(poly *r, const uint8_t buf[NTRUPLUS_N/4])
 {
-	uint8_t t1, t2;
+	uint8_t t0, t1;
 
 	for(size_t i = 0; i < NTRUPLUS_N/8; i++)
 	{
-		t1 = buf[i];
-		t2 = buf[i + NTRUPLUS_N/8];
+		t0 = buf[i];
+		t1 = buf[i + NTRUPLUS_N/8];
 
 		for(size_t j = 0; j < 8; j++)
 		{
-			r->coeffs[8*i + j] = (t1 & 0x1) - (t2 & 0x1);
+			r->coeffs[8*i + j] = (t0 & 0x1) - (t1 & 0x1);
 
+			t0 >>= 1;
 			t1 >>= 1;
-			t2 >>= 1;
 		}
 	}
 }
@@ -315,14 +315,14 @@ void poly_sotp_encode(poly *r, const uint8_t msg[NTRUPLUS_N/8], const uint8_t bu
 {
 	for(size_t i = 0; i < NTRUPLUS_N/8; i++)
 	{
-		uint8_t t1 = buf[i] ^ msg[i];
-		uint8_t t2 = buf[i + NTRUPLUS_N/8];
+		uint8_t t0 = buf[i] ^ msg[i];
+		uint8_t t1 = buf[i + NTRUPLUS_N/8];
 
 		for(size_t j = 0; j < 8; j++)
 		{
-			r->coeffs[8*i + j] = (t1 & 0x1) - (t2 & 0x1);
+			r->coeffs[8*i + j] = (t0 & 0x1) - (t1 & 0x1);
+			t0 >>= 1;
 			t1 >>= 1;
-			t2 >>= 1;
 		}
 	}
 }
@@ -408,13 +408,13 @@ static inline void ntt(int16_t r[NTRUPLUS_N])
 
 		for(int i = 0; i < 144; i++)
 		{
-			const int16_t t1 = plantard_mul(zeta0, ri[i + 144]);
-			const int16_t t2 = plantard_mul(zeta1, ri[i + 288]);
-			const int16_t t3 = plantard_mul(NTRUPLUS_OMEGA, t1 - t2);
+			const int16_t t0 = plantard_mul(zeta0, ri[i + 144]);
+			const int16_t t1 = plantard_mul(zeta1, ri[i + 288]);
+			const int16_t t2 = plantard_mul(NTRUPLUS_OMEGA, t0 - t1);
 
-			ri[i + 288] = ri[i] - t1 - t3;
-			ri[i + 144] = ri[i] - t2 + t3;
-			ri[i]       = ri[i] + t1 + t2;
+			ri[i + 288] = ri[i] - t0 - t2;
+			ri[i + 144] = ri[i] - t1 + t2;
+			ri[i]       = ri[i] + t0 + t1;
 		}
 	}
 
@@ -587,9 +587,9 @@ void poly_ntt(poly *r)
 **************************************************/
 static inline void invntt_scaled(int16_t r[NTRUPLUS_N])
 {
-	int16_t t1,t2,t3;
+	int32_t t0, t1, t2;
 	uint32_t zeta[7];
-	int16_t v[8];
+	int32_t v[8];
 
 	for(int j = 0; j < 36; j++)
 	{
@@ -608,53 +608,53 @@ static inline void invntt_scaled(int16_t r[NTRUPLUS_N])
 				v[k] = r[3*k+i+24*j];
 			}
 
-			t1 = v[1];
-			v[1] = plantard_mul(zeta[0], t1 - v[0]);
-			v[0] = v[0] + t1;
+			t0 = v[1];
+			v[1] = plantard_mul(zeta[0], t0 - v[0]);
+			v[0] = v[0] + t0;
 
-			t1 = v[3];
-			v[3] = plantard_mul(zeta[1], t1 - v[2]);
-			v[2] = v[2] + t1;
+			t0 = v[3];
+			v[3] = plantard_mul(zeta[1], t0 - v[2]);
+			v[2] = v[2] + t0;
 
-			t1 = v[5];
-			v[5] = plantard_mul(zeta[2], t1 - v[4]);
-			v[4] = v[4] + t1;
+			t0 = v[5];
+			v[5] = plantard_mul(zeta[2], t0 - v[4]);
+			v[4] = v[4] + t0;
 
-			t1 = v[7];
-			v[7] = plantard_mul(zeta[3], t1 - v[6]);
-			v[6] = v[6] + t1;
+			t0 = v[7];
+			v[7] = plantard_mul(zeta[3], t0 - v[6]);
+			v[6] = v[6] + t0;
 
-			t1 = v[2];
-			v[2] = plantard_mul(zeta[4], t1 - v[0]);
-			v[0] = v[0] + t1;
+			t0 = v[2];
+			v[2] = plantard_mul(zeta[4], t0 - v[0]);
+			v[0] = v[0] + t0;
 
-			t1 = v[3];
-			v[3] = plantard_mul(zeta[4], t1 - v[1]);
-			v[1] = v[1] + t1;
+			t0 = v[3];
+			v[3] = plantard_mul(zeta[4], t0 - v[1]);
+			v[1] = v[1] + t0;
 
-			t1 = v[6];
-			v[6] = plantard_mul(zeta[5], t1 - v[4]);
-			v[4] = v[4] + t1;
+			t0 = v[6];
+			v[6] = plantard_mul(zeta[5], t0 - v[4]);
+			v[4] = v[4] + t0;
 
-			t1 = v[7];
-			v[7] = plantard_mul(zeta[5], t1 - v[5]);
-			v[5] = v[5] + t1;
+			t0 = v[7];
+			v[7] = plantard_mul(zeta[5], t0 - v[5]);
+			v[5] = v[5] + t0;
 
-			t1 = v[4];
-			v[4] = plantard_mul(zeta[6], t1 - v[0]);
-			v[0] = v[0] + t1;
+			t0 = v[4];
+			v[4] = plantard_mul(zeta[6], t0 - v[0]);
+			v[0] = v[0] + t0;
 
-			t1 = v[5];
-			v[5] = plantard_mul(zeta[6], t1 - v[1]);
-			v[1] = v[1] + t1;
+			t0 = v[5];
+			v[5] = plantard_mul(zeta[6], t0 - v[1]);
+			v[1] = v[1] + t0;
 
-			t1 = v[6];
-			v[6] = plantard_mul(zeta[6], t1 - v[2]);
-			v[2] = v[2] + t1;
+			t0 = v[6];
+			v[6] = plantard_mul(zeta[6], t0 - v[2]);
+			v[2] = v[2] + t0;
 
-			t1 = v[7];
-			v[7] = plantard_mul(zeta[6], t1 - v[3]);
-			v[3] = v[3] + t1;
+			t0 = v[7];
+			v[7] = plantard_mul(zeta[6], t0 - v[3]);
+			v[3] = v[3] + t0;
 
 			for(int k = 0; k < 8; k++)
 			{
@@ -678,31 +678,31 @@ static inline void invntt_scaled(int16_t r[NTRUPLUS_N])
 				v[k] = r[24*k+i+144*j];
 			}
 
-			t1 = v[1];
-			v[1] = plantard_mul(zeta[0], t1 - v[0]);
-			v[0] = v[0] + t1;
+			t0 = v[1];
+			v[1] = plantard_mul(zeta[0], t0 - v[0]);
+			v[0] = (int16_t)(v[0] + t0);
 
-			t1 = v[3];
-			v[3] = plantard_mul(zeta[1], t1 - v[2]);
-			v[2] = v[2] + t1;
+			t0 = v[3];
+			v[3] = plantard_mul(zeta[1], t0 - v[2]);
+			v[2] = (int16_t)(v[2] + t0);
 
-			t1 = v[5];
-			v[5] = plantard_mul(zeta[2], t1 - v[4]);
-			v[4] = v[4] + t1;
+			t0 = v[5];
+			v[5] = plantard_mul(zeta[2], t0 - v[4]);
+			v[4] = (int16_t)(v[4] + t0);
 
-			t1 = plantard_mul(NTRUPLUS_OMEGA, v[2] - v[0]);
-			t2 = plantard_mul(zeta[3], v[4] - v[0] + t1);
-			t3 = plantard_mul(zeta[4], v[4] - v[2] - t1);
+			t0 = plantard_mul(NTRUPLUS_OMEGA, v[2] - v[0]);
+			t1 = plantard_mul(zeta[3], v[4] - v[0] + t0);
+			t2 = plantard_mul(zeta[4], v[4] - v[2] - t0);
 			v[0] = plantard_mul((int32_t)v[0] + (int32_t)v[2] + (int32_t)v[4], NTRUPLUS_R);
-			v[2] = t2;
-			v[4] = t3;
+			v[2] = t1;
+			v[4] = t2;
 
-			t1 = plantard_mul(NTRUPLUS_OMEGA, v[3] - v[1]);
-			t2 = plantard_mul(zeta[3], v[5] - v[1] + t1);
-			t3 = plantard_mul(zeta[4], v[5] - v[3] - t1);
+			t0 = plantard_mul(NTRUPLUS_OMEGA, v[3] - v[1]);
+			t1 = plantard_mul(zeta[3], v[5] - v[1] + t0);
+			t2 = plantard_mul(zeta[4], v[5] - v[3] - t0);
 			v[1] = plantard_mul((int32_t)v[1] + (int32_t)v[3] + (int32_t)v[5], NTRUPLUS_R);
-			v[3] = t2;
-			v[5] = t3;
+			v[3] = t1;
+			v[5] = t2;
 
 			for(int k = 0; k < 6; k++)
 			{
@@ -723,34 +723,34 @@ static inline void invntt_scaled(int16_t r[NTRUPLUS_N])
 			v[i] = r[144*i+j];
 		}
 
-		t1 = plantard_mul(NTRUPLUS_OMEGA, v[1] - v[0]);
-		t2 = plantard_mul(zeta[0], v[2] - v[0] + t1);
-		t3 = plantard_mul(zeta[1], v[2] - v[1] - t1);
+		t0 = plantard_mul(NTRUPLUS_OMEGA, v[1] - v[0]);
+		t1 = plantard_mul(zeta[0], v[2] - v[0] + t0);
+		t2 = plantard_mul(zeta[1], v[2] - v[1] - t0);
 		v[0] = v[0] + v[1] + v[2];
-		v[1] = t2;
-		v[2] = t3;
+		v[1] = t1;
+		v[2] = t2;
 
-		t1 = plantard_mul(NTRUPLUS_OMEGA, v[4] - v[3]);
-		t2 = plantard_mul(zeta[2], v[5] - v[3] + t1);
-		t3 = plantard_mul(zeta[3], v[5] - v[4] - t1);
+		t0 = plantard_mul(NTRUPLUS_OMEGA, v[4] - v[3]);
+		t1 = plantard_mul(zeta[2], v[5] - v[3] + t0);
+		t2 = plantard_mul(zeta[3], v[5] - v[4] - t0);
 		v[3] = v[3] + v[4] + v[5];
-		v[4] = t2;
-		v[5] = t3;
+		v[4] = t1;
+		v[5] = t2;
 
-		t1 = v[0] + v[3];
-		t2 = plantard_mul(NTRUPLUS_ZMINUSZ5INV, v[0] - v[3]);
-		v[0] = plantard_mul(NTRUPLUS_NINV, t1 - t2);
-		v[3] = plantard_mul(NTRUPLUS_2NINV, t2);
+		t0 = v[0] + v[3];
+		t1 = plantard_mul(NTRUPLUS_ZMINUSZ5INV, v[0] - v[3]);
+		v[0] = plantard_mul(NTRUPLUS_NINV, t0 - t1);
+		v[3] = plantard_mul(NTRUPLUS_2NINV, t1);
 
-		t1 = v[1] + v[4];
-		t2 = plantard_mul(NTRUPLUS_ZMINUSZ5INV, v[1] - v[4]);
-		v[1] = plantard_mul(NTRUPLUS_NINV, t1 - t2);
-		v[4] = plantard_mul(NTRUPLUS_2NINV, t2);
+		t0 = v[1] + v[4];
+		t1 = plantard_mul(NTRUPLUS_ZMINUSZ5INV, v[1] - v[4]);
+		v[1] = plantard_mul(NTRUPLUS_NINV, t0 - t1);
+		v[4] = plantard_mul(NTRUPLUS_2NINV, t1);
 
-		t1 = v[2] + v[5];
-		t2 = plantard_mul(NTRUPLUS_ZMINUSZ5INV, v[2] - v[5]);
-		v[2] = plantard_mul(NTRUPLUS_NINV, t1 - t2);
-		v[5] = plantard_mul(NTRUPLUS_2NINV, t2);
+		t0 = v[2] + v[5];
+		t1 = plantard_mul(NTRUPLUS_ZMINUSZ5INV, v[2] - v[5]);
+		v[2] = plantard_mul(NTRUPLUS_NINV, t0 - t1);
+		v[5] = plantard_mul(NTRUPLUS_2NINV, t1);
 
 		for(int i = 0; i < 6; i++)
 		{
@@ -758,7 +758,7 @@ static inline void invntt_scaled(int16_t r[NTRUPLUS_N])
 		}
 	}
 
-	secure_clear(v, sizeof v);
+	clear_i32(v, sizeof v/sizeof v[0]);
 }
 
 /*************************************************
@@ -874,22 +874,6 @@ static inline int16_t fqinv(int16_t a)
 	return plantard_reduce_acc(t0*T);   // 110101111111
 }
 
-static inline void clear_i16(int16_t *p, size_t n)
-{
-    volatile int16_t *v = p;
-
-    while(n-- > 0)
-        *v++ = 0;
-}
-
-static inline void clear_u32(uint32_t *p, size_t n)
-{
-    volatile uint32_t *v = p;
-
-    while(n-- > 0)
-        *v++ = 0;
-}
-
 /*************************************************
 * Name:        fqinv_batch
 *
@@ -949,52 +933,52 @@ static inline void fqinv_batch(int16_t *r)
 	}
 
 	// product chain - level 1
-	int16_t  r1[8];
-	uint32_t R1[8];
+	int16_t  r0[8];
+	uint32_t R0[8];
 
-	r1[0] = pc0[off0 + chunk - 1];
-	r1[1] = pc0[off1 + chunk - 1];
-	r1[2] = pc0[off2 + chunk - 1];
-	r1[3] = pc0[off3 + chunk - 1];
-	r1[4] = pc0[off4 + chunk - 1];
-	r1[5] = pc0[off5 + chunk - 1];
-	r1[6] = pc0[off6 + chunk - 1];
-	r1[7] = pc0[off7 + chunk - 1];
+	r0[0] = pc0[off0 + chunk - 1];
+	r0[1] = pc0[off1 + chunk - 1];
+	r0[2] = pc0[off2 + chunk - 1];
+	r0[3] = pc0[off3 + chunk - 1];
+	r0[4] = pc0[off4 + chunk - 1];
+	r0[5] = pc0[off5 + chunk - 1];
+	r0[6] = pc0[off6 + chunk - 1];
+	r0[7] = pc0[off7 + chunk - 1];
+
+	R0[0] = (uint32_t)r0[0] * NTRUPLUS_QINV;
+	R0[1] = (uint32_t)r0[1] * NTRUPLUS_QINV;
+	R0[2] = (uint32_t)r0[2] * NTRUPLUS_QINV;
+	R0[3] = (uint32_t)r0[3] * NTRUPLUS_QINV;
+	R0[4] = (uint32_t)r0[4] * NTRUPLUS_QINV;
+	R0[5] = (uint32_t)r0[5] * NTRUPLUS_QINV;
+	R0[6] = (uint32_t)r0[6] * NTRUPLUS_QINV;
+	R0[7] = (uint32_t)r0[7] * NTRUPLUS_QINV;
+
+	int16_t  r1[4];
+	uint32_t R1[4];
+
+	r1[0] = plantard_mul(r0[0], R0[1]);
+	r1[1] = plantard_mul(r0[2], R0[3]);
+	r1[2] = plantard_mul(r0[4], R0[5]);
+	r1[3] = plantard_mul(r0[6], R0[7]);
 
 	R1[0] = (uint32_t)r1[0] * NTRUPLUS_QINV;
 	R1[1] = (uint32_t)r1[1] * NTRUPLUS_QINV;
 	R1[2] = (uint32_t)r1[2] * NTRUPLUS_QINV;
 	R1[3] = (uint32_t)r1[3] * NTRUPLUS_QINV;
-	R1[4] = (uint32_t)r1[4] * NTRUPLUS_QINV;
-	R1[5] = (uint32_t)r1[5] * NTRUPLUS_QINV;
-	R1[6] = (uint32_t)r1[6] * NTRUPLUS_QINV;
-	R1[7] = (uint32_t)r1[7] * NTRUPLUS_QINV;
 
-	int16_t  r2[4];
-	uint32_t R2[4];
+	// product chain - level 2
+	int16_t  r2[2];
+	uint32_t R2[2];
 
 	r2[0] = plantard_mul(r1[0], R1[1]);
 	r2[1] = plantard_mul(r1[2], R1[3]);
-	r2[2] = plantard_mul(r1[4], R1[5]);
-	r2[3] = plantard_mul(r1[6], R1[7]);
 
 	R2[0] = (uint32_t)r2[0] * NTRUPLUS_QINV;
 	R2[1] = (uint32_t)r2[1] * NTRUPLUS_QINV;
-	R2[2] = (uint32_t)r2[2] * NTRUPLUS_QINV;
-	R2[3] = (uint32_t)r2[3] * NTRUPLUS_QINV;
-
-	// product chain - level 2
-	int16_t  r3[2];
-	uint32_t R3[2];
-
-	r3[0] = plantard_mul(r2[0], R2[1]);
-	r3[1] = plantard_mul(r2[2], R2[3]);
-
-	R3[0] = (uint32_t)r3[0] * NTRUPLUS_QINV;
-	R3[1] = (uint32_t)r3[1] * NTRUPLUS_QINV;
 
 	// product chain - level 3
-	int16_t inv = plantard_mul(r3[0], R3[1]);
+	int16_t inv = plantard_mul(r2[0], R2[1]);
 
 	//fqinv
 	inv = fqinv(inv);
@@ -1002,43 +986,43 @@ static inline void fqinv_batch(int16_t *r)
 	// derive_fqinv - level 3
 	int16_t inv2[2];
 
-	inv2[1] = plantard_mul(inv, R3[0]);
+	inv2[1] = plantard_mul(inv, R2[0]);
 
-	inv2[0] = plantard_mul(inv, R3[1]);
+	inv2[0] = plantard_mul(inv, R2[1]);
 
 	clear_i16(&inv, 1);
-	clear_i16(r3, sizeof r3/sizeof r3[0]);
-	clear_u32(R3, sizeof R3/sizeof R3[0]);
+	clear_i16(r2, sizeof r2/sizeof r2[0]);
+	clear_u32(R2, sizeof R2/sizeof R2[0]);
 
 	// derive_fqinv - level 2
 	int16_t inv1[4];
 
-	inv1[1] = plantard_mul(inv2[0], R2[0]);
-	inv1[3] = plantard_mul(inv2[1], R2[2]);
+	inv1[1] = plantard_mul(inv2[0], R1[0]);
+	inv1[3] = plantard_mul(inv2[1], R1[2]);
 
-	inv1[0] = plantard_mul(inv2[0], R2[1]);
-	inv1[2] = plantard_mul(inv2[1], R2[3]);
+	inv1[0] = plantard_mul(inv2[0], R1[1]);
+	inv1[2] = plantard_mul(inv2[1], R1[3]);
 
 	clear_i16(inv2, sizeof inv2/sizeof inv2[0]);
-	clear_i16(r2, sizeof r2/sizeof r2[0]);
-	clear_u32(R2, sizeof R2/sizeof R2[0]);
+	clear_i16(r1, sizeof r1/sizeof r1[0]);
+	clear_u32(R1, sizeof R1/sizeof R1[0]);
 
 	// derive_fqinv - level 1
 	int16_t inv0[8];
 
-	inv0[1] = plantard_mul(inv1[0], R1[0]);
-	inv0[3] = plantard_mul(inv1[1], R1[2]);
-	inv0[5] = plantard_mul(inv1[2], R1[4]);
-	inv0[7] = plantard_mul(inv1[3], R1[6]);
+	inv0[1] = plantard_mul(inv1[0], R0[0]);
+	inv0[3] = plantard_mul(inv1[1], R0[2]);
+	inv0[5] = plantard_mul(inv1[2], R0[4]);
+	inv0[7] = plantard_mul(inv1[3], R0[6]);
 
-	inv0[0] = plantard_mul(inv1[0], R1[1]);
-	inv0[2] = plantard_mul(inv1[1], R1[3]);
-	inv0[4] = plantard_mul(inv1[2], R1[5]);
-	inv0[6] = plantard_mul(inv1[3], R1[7]);
+	inv0[0] = plantard_mul(inv1[0], R0[1]);
+	inv0[2] = plantard_mul(inv1[1], R0[3]);
+	inv0[4] = plantard_mul(inv1[2], R0[5]);
+	inv0[6] = plantard_mul(inv1[3], R0[7]);
 
 	clear_i16(inv1, sizeof inv1/sizeof inv1[0]);
-	clear_i16(r1, sizeof r1/sizeof r1[0]);
-	clear_u32(R1, sizeof R1/sizeof R1[0]);
+	clear_i16(r0, sizeof r0/sizeof r0[0]);
+	clear_u32(R0, sizeof R0/sizeof R0[0]);
 
 	for(int i = chunk - 1; i > 0; i--)
 	{
@@ -1118,7 +1102,7 @@ int poly_baseinv(poly *r, const poly *a)
 	if (fail)
 	{
 		memset(r->coeffs, 0, NTRUPLUS_N*sizeof(int16_t));
-		secure_clear(den, sizeof den);
+		clear_i16(den, sizeof den/sizeof den[0]);
 		return 1;
 	}
 
@@ -1127,7 +1111,7 @@ int poly_baseinv(poly *r, const poly *a)
 	for(int i = 0; i < NTRUPLUS_N/NTRUPLUS_D; i++)
 		baseinv_2(r->coeffs + NTRUPLUS_D*i, den + i);
 
-	secure_clear(den, sizeof den);
+	clear_i16(den, sizeof den/sizeof den[0]);
 
 	return 0;
 }

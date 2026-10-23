@@ -15,7 +15,7 @@
 #include <windows.h>
 #endif
 
-static inline void secure_clear(void *v, size_t len)
+static inline void clear_u8(void *v, size_t len)
 {
 #if defined(_WIN32)
     SecureZeroMemory(v, len);
