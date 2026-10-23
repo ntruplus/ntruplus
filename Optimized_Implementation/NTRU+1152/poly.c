@@ -290,41 +290,30 @@ void poly_sotp_encode(poly *r, const uint8_t msg[NTRUPLUS_N/8], const uint8_t bu
 **************************************************/
 int poly_sotp_decode(uint8_t msg[NTRUPLUS_N/8], const poly *a, const uint8_t buf[NTRUPLUS_N/4])
 {
-	uint8_t t1, t2, t3;
-	uint16_t t4;
-	uint32_t r = 0;
-	volatile uint8_t mask;
-
-	for(size_t i = 0; i < NTRUPLUS_N/8; i++)
-	{
-		t1 = buf[i];
-		t2 = buf[i + NTRUPLUS_N/8];
-		t3 = 0;
-
-		for(size_t j = 0; j < 8; j++)
-		{
-			t4 = t2 & 0x1;
-			t4 += a->coeffs[8*i + j];
-			r |= t4;
-			t4 = (t4 ^ t1) & 0x1;
-			t3 ^= (uint8_t)(t4 << j);
-
-			t1 >>= 1;
-			t2 >>= 1;
-		}
-
-		msg[i] = t3;
-	}
-
-	r = r >> 1;
-	r = (-(uint32_t)r) >> 31;
-
-	mask = (uint8_t)(r - 1);
-
-	for(size_t i = 0; i < NTRUPLUS_N/8; i++)
-		msg[i] &= mask;
-
-	return r;
+    uint8_t t0, t1;
+    uint16_t t2;
+    uint32_t fail = 0;
+    volatile uint8_t mask;
+    for(size_t i = 0; i < NTRUPLUS_N/8; i++)
+    {
+        t0 = buf[i + NTRUPLUS_N/8];
+        t1 = 0;
+        for(size_t j = 0; j < 8; j++)
+        {
+            t2 = t0 & 0x1;
+            t2 += a->coeffs[8*i + j];
+            fail |= t2;
+            t1 ^= (uint8_t)(t2 << j);
+            t0 >>= 1;
+        }
+        msg[i] = t1 ^ buf[i];
+    }
+    fail >>= 1;
+    fail = (-fail) >> 31;
+    mask = (uint8_t)(fail - 1);
+    for(size_t i = 0; i < NTRUPLUS_N/8; i++)
+        msg[i] &= mask;
+    return fail;
 }
 
 /*************************************************
