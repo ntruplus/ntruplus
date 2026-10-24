@@ -40,20 +40,29 @@ static inline int16x8_t fqmul(int16x8_t x, int16x8_t y, int16x8_t con)
     return vhsubq_s16(h, t);
 }
 
-/* yqinv = y * QINV mod 2^16 is reused across multiple products. */
+/*************************************************
+* Name:        fqmul_precomp
+*
+* Description: Computes SIMD Montgomery products with a precomputed
+*              factor using Algorithm 12 of [BHK+21]. R = 2^16.
+*
+* Arguments:   - int16x8_t x: input lanes in [-q+1,q-1]
+*              - int16x8_t y: input lanes in [-q+1,q-1]
+*              - int16x8_t yqinv: y*q^-1 mod R
+*              - int16x8_t con: constants with con[0] = q
+*
+* Returns:     lane-wise representatives of x*y*R^-1 modulo q
+*              in [-1910,1910]
+**************************************************/
 static inline int16x8_t fqmul_precomp(int16x8_t x, int16x8_t y,
                                      int16x8_t yqinv, int16x8_t con)
 {
-    int32x4_t l, h;
-    const int16x8_t t = vmulq_s16(x, yqinv);
+    const int16x8_t h = vqdmulhq_s16(x, y);
+    int16x8_t t = vmulq_s16(x, yqinv);
 
-    l  = vmull_s16(vget_low_s16(x), vget_low_s16(y));
-    h  = vmull_high_s16(x, y);
+    t = vqdmulhq_laneq_s16(t, con, 0);
 
-    l  = vmlal_lane_s16(l, vget_low_s16(t), vget_low_s16(con), 0);
-    h  = vmlal_high_lane_s16(h, t, vget_low_s16(con), 0);
-
-    return vuzp2q_s16(vreinterpretq_s16_s32(l), vreinterpretq_s16_s32(h));
+    return vhsubq_s16(h, t);
 }
 
 /*************************************************
@@ -190,7 +199,7 @@ static inline void poly_baseinv_2(poly *r, const int16x8_t *den, int16x8_t con)
     {
         const int16x8_t pden = den[i];
         const int16x8_t mden = vnegq_s16(pden);
-        const int16x8_t pden_qinv = vmulq_laneq_s16(pden, con, 2);
+        const int16x8_t pden_qinv = vmulq_laneq_s16(pden, con, 7);
         const int16x8_t mden_qinv = vnegq_s16(pden_qinv);
 
         const int offset = i * 32;
