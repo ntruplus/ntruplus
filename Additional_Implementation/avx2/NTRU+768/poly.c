@@ -149,7 +149,10 @@ static inline int fqinv_batch(__m256i *restrict r)
     mask_zero4 = _mm256_or_si256(mask_zero4, mask_zero5);
     mask_zero0 = _mm256_or_si256(mask_zero0, mask_zero2);
     mask_zero0 = _mm256_or_si256(mask_zero0, mask_zero4);
-    if (!_mm256_testz_si256(mask_zero0, mask_zero0)) {
+    int fail = !_mm256_testz_si256(mask_zero0, mask_zero0);
+    ntruplus_declassify(&fail, sizeof fail);
+
+    if (fail) {
         clear_u8(pc, sizeof pc);
         clear_u8(R, sizeof R);
         return 1;
@@ -338,18 +341,20 @@ int poly_baseinv(poly *r, const poly *a)
 
     poly_baseinv_1(r, den, a);
 
-    if(fqinv_batch(den))
+    const int fail = fqinv_batch(den);
+
+    if (fail)
     {
-        for (size_t j = 0; j < NTRUPLUS_N; ++j)
-            r->coeffs[j] = 0;
-        clear_u8(den, sizeof den);
-        return 1;
+        clear_u8(r->coeffs, sizeof r->coeffs);
+    }
+    else
+    {
+        poly_baseinv_2(r, den);
     }
 
-    poly_baseinv_2(r, den);
     clear_u8(den, sizeof den);
 
-    return 0;
+    return fail;
 }
 
 /*************************************************

@@ -8,12 +8,13 @@
 #include "fips202/fips202.h"
 #include "randombytes.h"
 
-#ifdef NTRUPLUS_SUPERCOP
-#include "crypto_declassify.h"
-#define ntruplus_declassify crypto_declassify
-#else
-#define ntruplus_declassify(x, xlen) ((void)(x), (void)(xlen))
-#endif
+/* Only encoding validity is public; decoded coefficients remain secret. */
+static inline int declassify_poly_frombytes(poly *r, const uint8_t *a)
+{
+    int fail = poly_frombytes(r, a);
+    ntruplus_declassify(&fail, sizeof fail);
+    return fail;
+}
 
 /*************************************************
 * Name:        verify
@@ -297,9 +298,9 @@ int crypto_kem_dec(unsigned char *ss, const unsigned char *ct,
     poly r0, r1;
     poly m0, m1;
 
-    if(poly_frombytes(&c, ct) ||
-       poly_frombytes(&f, sk) ||
-       poly_frombytes(&hinv, sk + NTRUPLUS_POLYBYTES))
+    if(declassify_poly_frombytes(&c, ct) ||
+       declassify_poly_frombytes(&f, sk) ||
+       declassify_poly_frombytes(&hinv, sk + NTRUPLUS_POLYBYTES))
     {
         clear_u8(ss, NTRUPLUS_SSBYTES);
 

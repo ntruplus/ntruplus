@@ -4,6 +4,13 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#ifdef NTRUPLUS_SUPERCOP
+#include "crypto_declassify.h"
+#define ntruplus_declassify crypto_declassify
+#else
+#define ntruplus_declassify(x, xlen) ((void)(x), (void)(xlen))
+#endif
+
 static inline void clear_u8(void *p, size_t n)
 {
     volatile uint8_t *v = p;

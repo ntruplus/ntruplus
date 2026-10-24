@@ -15,6 +15,13 @@
 #include <windows.h>
 #endif
 
+#ifdef NTRUPLUS_SUPERCOP
+#include "crypto_declassify.h"
+#define ntruplus_declassify crypto_declassify
+#else
+#define ntruplus_declassify(x, xlen) ((void)(x), (void)(xlen))
+#endif
+
 static inline void clear_u8(void *v, size_t len)
 {
 #if defined(_WIN32)

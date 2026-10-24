@@ -1099,21 +1099,23 @@ int poly_baseinv(poly *r, const poly *a)
 		fail |= baseinv_1(ri, den + 2*i, ai, zetas[144 + i]);
 	}
 
+	ntruplus_declassify(&fail, sizeof fail);
+
 	if (fail)
 	{
-		memset(r->coeffs, 0, NTRUPLUS_N*sizeof(int16_t));
-		clear_i16(den, sizeof den/sizeof den[0]);
-		return 1;
+		clear_i16(r->coeffs, NTRUPLUS_N);
 	}
+	else
+	{
+		fqinv_batch(den);
 
-	fqinv_batch(den);
-
-	for(int i = 0; i < NTRUPLUS_N/NTRUPLUS_D; i++)
-		baseinv_2(r->coeffs + NTRUPLUS_D*i, den + i);
+		for(int i = 0; i < NTRUPLUS_N/NTRUPLUS_D; i++)
+			baseinv_2(r->coeffs + NTRUPLUS_D*i, den + i);
+	}
 
 	clear_i16(den, sizeof den/sizeof den[0]);
 
-	return 0;
+	return fail;
 }
 
 /*************************************************

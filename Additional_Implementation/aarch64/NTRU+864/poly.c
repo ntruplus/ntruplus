@@ -119,9 +119,12 @@ static inline int poly_fqinv_batch(int16x8_t *r, int16x8_t con)
     const int16x8_t x1 = t[off1 + chunk - 1];
     const int16x8_t x2 = t[off2 + chunk - 1];
 
-    if (!vminvq_u16(vreinterpretq_u16_s16(x0)) ||
-        !vminvq_u16(vreinterpretq_u16_s16(x1)) ||
-        !vminvq_u16(vreinterpretq_u16_s16(x2))) {
+    int fail = !vminvq_u16(vreinterpretq_u16_s16(x0)) |
+               !vminvq_u16(vreinterpretq_u16_s16(x1)) |
+               !vminvq_u16(vreinterpretq_u16_s16(x2));
+    ntruplus_declassify(&fail, sizeof fail);
+
+    if (fail) {
         clear_u8(t, sizeof t);
         return 1;
     }
@@ -207,17 +210,17 @@ int poly_baseinv(poly *r, const poly *a)
 
     poly_baseinv_1(r, den, a);
 
-    if (poly_fqinv_batch(den, con))
-    {
-        for (int i = 0; i < NTRUPLUS_N; i++)
-            r->coeffs[i] = 0;
+    const int fail = poly_fqinv_batch(den, con);
 
-        clear_u8(den, sizeof den);
-        return 1;
+    if (fail)
+    {
+        clear_u8(r->coeffs, sizeof r->coeffs);
+    }
+    else
+    {
+        poly_baseinv_2(r, den, con);
     }
 
-    poly_baseinv_2(r, den, con);
     clear_u8(den, sizeof den);
-
-    return 0;
+    return fail;
 }

@@ -1,3 +1,4 @@
+#include "util.h"
 #include <stdint.h>
 #include "params.h"
 #include "ntt.h"
@@ -310,7 +311,10 @@ int baseinv(int16_t r[4], const int16_t a[4], const int16_t zeta)
 	
 	t3 = montgomery_reduce(t0*t0 - t1*t2);  // R^-3
 
-	if (t3 == 0) return 1;
+	int fail = (t3 == 0);
+	ntruplus_declassify(&fail, sizeof fail);
+
+	if (fail) return 1;
 
 	r[0] = montgomery_reduce(a[0]*t0 + a[2]*t2); // R^-2
 	r[1] = montgomery_reduce(a[3]*t2 + a[1]*t0); // R^-2
