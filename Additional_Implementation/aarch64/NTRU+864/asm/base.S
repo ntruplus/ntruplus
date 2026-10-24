@@ -46,7 +46,7 @@ _poly_basemul:
     mov counter, #1728
 
 _looptop_pair:
-    ldp q1, q2, [zetas_ptr], #112
+    ldp q1, q2, [zetas_ptr], #64
 
 _looptop:
     /* Read both inputs before storing the output block. */
@@ -180,7 +180,7 @@ _poly_basemul_scale:
     mov counter, #1728
 
 _looptop_scale_pair:
-    ldp q1, q2, [zetas_ptr], #112
+    ldp q1, q2, [zetas_ptr], #64
 
 _looptop_scale:
     /* Read both inputs before storing the output block. */
@@ -304,7 +304,7 @@ _poly_basemul_add:
     mov counter, #1728
 
 _looptop_add_pair:
-    ldp q1, q2, [zetas_ptr], #112
+    ldp q1, q2, [zetas_ptr], #64
 
 _looptop_add:
     /* Read both inputs before storing the output block. */
@@ -453,7 +453,7 @@ _poly_baseinv_1:
     mov counter, #1728
 
 _looptop_baseinv_1_pair:
-    ldp q1, q2, [zetas_ptr], #112
+    ldp q1, q2, [zetas_ptr], #64
 
 _looptop_baseinv_1:
     ld1 {v3.8h - v5.8h}, [src], #48

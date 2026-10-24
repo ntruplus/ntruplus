@@ -165,5 +165,11 @@ const int16_t zetas_inv[618] __attribute__((aligned(16))) = {
 
 /* Common arithmetic constants for base multiplication and inversion. */
 const int16_t consts_base[8] __attribute__((aligned(16))) = {
-      3457,  19412, -12929,   -147,  -1393,  -1571, -14891,  12929
+      3457,      9, -12929,   -147,  -1393,  -1571, -14891,  12929
+};
+
+/* Low/high byte indices repeat each compact factor across four lanes. */
+const uint8_t consts_shuffle[32] __attribute__((aligned(16))) = {
+    8, 9, 8, 9, 8, 9, 8, 9, 12, 13, 12, 13, 12, 13, 12, 13,
+    10, 11, 10, 11, 10, 11, 10, 11, 14, 15, 14, 15, 14, 15, 14, 15
 };

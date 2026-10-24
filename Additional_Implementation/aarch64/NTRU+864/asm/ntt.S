@@ -423,10 +423,15 @@ _looptop_012:
 
     mov counter, #1728
 
+    # Masks expand two level-4 factors to four lanes each.
+    load_address src, consts_shuffle
+    ldp q30, q31, [src]
+
 _looptop_3456:
-    # v0-v2: constants; v4-v15: coefficient banks; v16-v24: temporaries.
-    #load zetas
-    ld1 {v0.8h}, [zetas_ptr], #16
+    # v0-v3: compact twiddles; v4-v15: coefficient banks.
+    # v16-v24: temporaries; v25-v26: expanded factors; v30-v31: masks.
+    #load compact zetas
+    ld1 {v0.8h - v3.8h}, [zetas_ptr], #64
 
     #load coefficients
     ldr q4, [dst, #0*16]
@@ -445,6 +450,10 @@ _looptop_3456:
     sqrdmulh v7.8h, v7.8h, v0.h[3]
     sqrdmulh v8.8h, v8.8h, v0.h[3]
     sqrdmulh v9.8h, v9.8h, v0.h[3]
+
+    # Expand compact level-4 twiddle pairs.
+    tbl v25.16b, {v0.16b}, v30.16b
+    tbl v26.16b, {v0.16b}, v31.16b
 
     mls v10.8h, v7.8h, v0.h[0]
     mls v11.8h, v8.8h, v0.h[0]
@@ -469,17 +478,19 @@ _looptop_3456:
     trn2 v15.2d, v6.2d, v9.2d
 
     #level 4
-    #load
-    ld1 {v1.8h - v2.8h}, [zetas_ptr], #32
 
     #mul
-    mul v16.8h, v13.8h, v1.8h
-    mul v17.8h, v14.8h, v1.8h
-    mul v18.8h, v15.8h, v1.8h
+    mul v16.8h, v13.8h, v25.8h
+    mul v17.8h, v14.8h, v25.8h
+    mul v18.8h, v15.8h, v25.8h
 
-    sqrdmulh v13.8h, v13.8h, v2.8h
-    sqrdmulh v14.8h, v14.8h, v2.8h
-    sqrdmulh v15.8h, v15.8h, v2.8h
+    sqrdmulh v13.8h, v13.8h, v26.8h
+    sqrdmulh v14.8h, v14.8h, v26.8h
+    sqrdmulh v15.8h, v15.8h, v26.8h
+
+    # Expand compact level-5 twiddle pairs.
+    trn1 v25.8h, v1.8h, v1.8h
+    trn2 v26.8h, v1.8h, v1.8h
 
     mls v16.8h, v13.8h, v0.h[0]
     mls v17.8h, v14.8h, v0.h[0]
@@ -504,17 +515,15 @@ _looptop_3456:
     trn2 v15.4s, v6.4s, v9.4s
 
     #level 5
-    #load
-    ld1 {v1.8h - v2.8h}, [zetas_ptr], #32
 
     #mul
-    mul v16.8h, v13.8h, v1.8h
-    mul v17.8h, v14.8h, v1.8h
-    mul v18.8h, v15.8h, v1.8h
+    mul v16.8h, v13.8h, v25.8h
+    mul v17.8h, v14.8h, v25.8h
+    mul v18.8h, v15.8h, v25.8h
 
-    sqrdmulh v13.8h, v13.8h, v2.8h
-    sqrdmulh v14.8h, v14.8h, v2.8h
-    sqrdmulh v15.8h, v15.8h, v2.8h
+    sqrdmulh v13.8h, v13.8h, v26.8h
+    sqrdmulh v14.8h, v14.8h, v26.8h
+    sqrdmulh v15.8h, v15.8h, v26.8h
 
     mls v16.8h, v13.8h, v0.h[0]
     mls v17.8h, v14.8h, v0.h[0]
@@ -539,17 +548,14 @@ _looptop_3456:
     trn2 v15.8h, v6.8h, v9.8h
 
     #level 6
-    #load
-    ld1 {v1.8h - v2.8h}, [zetas_ptr], #32
-
     #mul
-    mul v16.8h, v13.8h, v1.8h
-    mul v17.8h, v14.8h, v1.8h
-    mul v18.8h, v15.8h, v1.8h
+    mul v16.8h, v13.8h, v2.8h
+    mul v17.8h, v14.8h, v2.8h
+    mul v18.8h, v15.8h, v2.8h
 
-    sqrdmulh v13.8h, v13.8h, v2.8h
-    sqrdmulh v14.8h, v14.8h, v2.8h
-    sqrdmulh v15.8h, v15.8h, v2.8h
+    sqrdmulh v13.8h, v13.8h, v3.8h
+    sqrdmulh v14.8h, v14.8h, v3.8h
+    sqrdmulh v15.8h, v15.8h, v3.8h
 
     mls v16.8h, v13.8h, v0.h[0]
     mls v17.8h, v14.8h, v0.h[0]
@@ -631,25 +637,38 @@ _poly_invntt_scale:
     zetas_ptr .req x2
     counter   .req x8
 
+    load_address src, consts_shuffle
+    ldp q30, q31, [src]
+
+    # Inverse level-4 pairs start four bytes earlier.
+    movi v29.16b, #4
+
+    sub v30.16b, v30.16b, v29.16b
+    sub v31.16b, v31.16b, v29.16b
+
     mov src, dst
     load_address zetas_ptr, zetas_inv
 
     mov counter, #1728
 
 _looptop_6543:
-    # v0-v2: constants; v4-v15: coefficient banks; v16-v21: temporaries.
+    # v0-v3: compact twiddles; v4-v15: coefficient banks.
+    # v16-v21: temporaries; v22-v24: factor temporaries; v30-v31: masks.
     #zetas
-    ld1 {v0.8h}, [zetas_ptr], #16
+    ld1 {v0.8h - v3.8h}, [zetas_ptr], #64
 
     #load
     ld1 {v4.8h - v6.8h}, [src], #48
     ld1 {v7.8h - v9.8h}, [src], #48
 
+    # Expand compact level-5 twiddle pairs.
+    ext v22.16b, v0.16b, v1.16b, #4
+
+    trn1 v23.8h, v22.8h, v22.8h
+    trn2 v24.8h, v22.8h, v22.8h
+
     # Input range: [-3456,3456].
     #level 6
-    #load
-    ld1 {v1.8h - v2.8h}, [zetas_ptr], #32
-
     #update
     sub v10.8h, v7.8h, v4.8h
     sub v11.8h, v8.8h, v5.8h
@@ -660,13 +679,13 @@ _looptop_6543:
     add v6.8h, v6.8h, v9.8h
 
     #mul
-    mul v7.8h, v10.8h, v1.8h
-    mul v8.8h, v11.8h, v1.8h
-    mul v9.8h, v12.8h, v1.8h
+    mul v7.8h, v10.8h, v2.8h
+    mul v8.8h, v11.8h, v2.8h
+    mul v9.8h, v12.8h, v2.8h
 
-    sqrdmulh v10.8h, v10.8h, v2.8h
-    sqrdmulh v11.8h, v11.8h, v2.8h
-    sqrdmulh v12.8h, v12.8h, v2.8h
+    sqrdmulh v10.8h, v10.8h, v3.8h
+    sqrdmulh v11.8h, v11.8h, v3.8h
+    sqrdmulh v12.8h, v12.8h, v3.8h
 
     mls v7.8h, v10.8h, v0.h[0]
     mls v8.8h, v11.8h, v0.h[0]
@@ -682,8 +701,6 @@ _looptop_6543:
     trn2 v15.8h, v8.8h, v9.8h
 
     #level 5
-    #load
-    ld1 {v1.8h - v2.8h}, [zetas_ptr], #32
 
     #update
     sub v16.8h, v13.8h, v10.8h
@@ -695,13 +712,17 @@ _looptop_6543:
     add v6.8h, v15.8h, v12.8h
 
     #mul
-    mul v7.8h, v16.8h, v1.8h
-    mul v8.8h, v17.8h, v1.8h
-    mul v9.8h, v18.8h, v1.8h
+    mul v7.8h, v16.8h, v23.8h
+    mul v8.8h, v17.8h, v23.8h
+    mul v9.8h, v18.8h, v23.8h
 
-    sqrdmulh v16.8h, v16.8h, v2.8h
-    sqrdmulh v17.8h, v17.8h, v2.8h
-    sqrdmulh v18.8h, v18.8h, v2.8h
+    sqrdmulh v16.8h, v16.8h, v24.8h
+    sqrdmulh v17.8h, v17.8h, v24.8h
+    sqrdmulh v18.8h, v18.8h, v24.8h
+
+    # Expand compact level-4 twiddle pairs.
+    tbl v23.16b, {v1.16b}, v30.16b
+    tbl v24.16b, {v1.16b}, v31.16b
 
     mls v7.8h, v16.8h, v0.h[0]
     mls v8.8h, v17.8h, v0.h[0]
@@ -717,8 +738,6 @@ _looptop_6543:
     trn2 v15.4s, v8.4s, v9.4s
 
     #level 4
-    #load
-    ld1 {v1.8h - v2.8h}, [zetas_ptr], #32
 
     #update
     sub v16.8h, v13.8h, v10.8h
@@ -730,13 +749,13 @@ _looptop_6543:
     add v6.8h, v15.8h, v12.8h
 
     #mul
-    mul v7.8h, v16.8h, v1.8h
-    mul v8.8h, v17.8h, v1.8h
-    mul v9.8h, v18.8h, v1.8h
+    mul v7.8h, v16.8h, v23.8h
+    mul v8.8h, v17.8h, v23.8h
+    mul v9.8h, v18.8h, v23.8h
 
-    sqrdmulh v16.8h, v16.8h, v2.8h
-    sqrdmulh v17.8h, v17.8h, v2.8h
-    sqrdmulh v18.8h, v18.8h, v2.8h
+    sqrdmulh v16.8h, v16.8h, v24.8h
+    sqrdmulh v17.8h, v17.8h, v24.8h
+    sqrdmulh v18.8h, v18.8h, v24.8h
 
     mls v7.8h, v16.8h, v0.h[0]
     mls v8.8h, v17.8h, v0.h[0]
@@ -772,13 +791,13 @@ _looptop_6543:
     add v6.8h, v15.8h, v12.8h
 
     #mul
-    mul v7.8h, v16.8h, v0.h[2]
-    mul v8.8h, v17.8h, v0.h[2]
-    mul v9.8h, v18.8h, v0.h[2]
+    mul v7.8h, v16.8h, v1.h[6]
+    mul v8.8h, v17.8h, v1.h[6]
+    mul v9.8h, v18.8h, v1.h[6]
 
-    sqrdmulh v16.8h, v16.8h, v0.h[3]
-    sqrdmulh v17.8h, v17.8h, v0.h[3]
-    sqrdmulh v18.8h, v18.8h, v0.h[3]
+    sqrdmulh v16.8h, v16.8h, v1.h[7]
+    sqrdmulh v17.8h, v17.8h, v1.h[7]
+    sqrdmulh v18.8h, v18.8h, v1.h[7]
 
     mls v7.8h, v16.8h, v0.h[0]
     mls v8.8h, v17.8h, v0.h[0]
