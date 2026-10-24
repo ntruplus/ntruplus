@@ -14,14 +14,14 @@
 poly_cbd1:
 _poly_cbd1:
 
-    dst       .req x0
-    src       .req x1
-    counter   .req x8
-    taildst   .req x9
+    dst     .req x0
+    src     .req x1
+    counter .req x8
+    taildst .req x9
 
-    movi    v0.16b, #0x55
-    movi    v1.16b, #0x03
-    movi    v2.16b, #0x01
+    movi v0.16b, #0x55
+    movi v1.16b, #0x03
+    movi v2.16b, #0x01
 
     #load
     ldr q20, [src, #92]
@@ -30,27 +30,27 @@ _poly_cbd1:
     ushr v17.16b, v20.16b, #1
     ushr v18.16b, v16.16b, #1
 
-    and  v3.16b,  v20.16b, v0.16b
-    and v4.16b,  v16.16b, v0.16b
-    and v5.16b,  v17.16b, v0.16b
-    and v6.16b,  v18.16b, v0.16b
+    and v3.16b, v20.16b, v0.16b
+    and v4.16b, v16.16b, v0.16b
+    and v5.16b, v17.16b, v0.16b
+    and v6.16b, v18.16b, v0.16b
 
-    add  v3.16b,  v3.16b, v0.16b
+    add v3.16b, v3.16b, v0.16b
     add v5.16b, v5.16b, v0.16b
 
-    sub v20.16b,  v3.16b, v4.16b
+    sub v20.16b, v3.16b, v4.16b
     sub v16.16b, v5.16b, v6.16b
 
     ushr v17.16b, v20.16b, #2
     ushr v18.16b, v16.16b, #2
 
     #extract 1
-    and  v3.16b, v20.16b, v1.16b
+    and v3.16b, v20.16b, v1.16b
     and v4.16b, v16.16b, v1.16b
     and v5.16b, v17.16b, v1.16b
     and v6.16b, v18.16b, v1.16b
 
-    sub  v3.16b,  v3.16b, v2.16b
+    sub v3.16b, v3.16b, v2.16b
     sub v4.16b, v4.16b, v2.16b
     sub v5.16b, v5.16b, v2.16b
     sub v6.16b, v6.16b, v2.16b
@@ -61,25 +61,25 @@ _poly_cbd1:
     ushr v18.16b, v18.16b, #4
 
     #extract 2
-    and v7.16b, v20.16b, v1.16b
+    and  v7.16b, v20.16b, v1.16b
     and v20.16b, v16.16b, v1.16b
     and v21.16b, v17.16b, v1.16b
     and v22.16b, v18.16b, v1.16b
 
-    sub v7.16b, v7.16b, v2.16b
+    sub  v7.16b,  v7.16b, v2.16b
     sub v20.16b, v20.16b, v2.16b
     sub v21.16b, v21.16b, v2.16b
     sub v22.16b, v22.16b, v2.16b
 
     #shuffles
-    trn1 v23.16b,  v3.16b, v4.16b
-    trn1 v24.16b, v5.16b, v6.16b
-    trn1 v25.16b, v7.16b, v20.16b
+    trn1 v23.16b,  v3.16b,  v4.16b
+    trn1 v24.16b,  v5.16b,  v6.16b
+    trn1 v25.16b,  v7.16b, v20.16b
     trn1 v26.16b, v21.16b, v22.16b
 
-    trn2 v27.16b,  v3.16b, v4.16b
-    trn2 v16.16b, v5.16b, v6.16b
-    trn2 v17.16b, v7.16b, v20.16b
+    trn2 v27.16b,  v3.16b,  v4.16b
+    trn2 v16.16b,  v5.16b,  v6.16b
+    trn2 v17.16b,  v7.16b, v20.16b
     trn2 v18.16b, v21.16b, v22.16b
 
     trn1 v19.8h, v23.8h, v24.8h
@@ -90,38 +90,38 @@ _poly_cbd1:
     trn2 v31.8h, v23.8h, v24.8h
     trn2 v21.8h, v25.8h, v26.8h
     trn2 v22.8h, v27.8h, v16.8h
-    trn2  v20.8h, v17.8h, v18.8h
+    trn2 v20.8h, v17.8h, v18.8h
 
     trn1 v16.4s, v19.4s, v28.4s
     trn1 v17.4s, v29.4s, v30.4s
     trn1 v18.4s, v31.4s, v21.4s
-    trn1 v3.4s, v22.4s,  v20.4s
+    trn1  v3.4s, v22.4s, v20.4s
 
     trn2 v4.4s, v19.4s, v28.4s
     trn2 v5.4s, v29.4s, v30.4s
     trn2 v6.4s, v31.4s, v21.4s
-    trn2 v7.4s, v22.4s,  v20.4s
+    trn2 v7.4s, v22.4s, v20.4s
 
     #expand
-    sshll  v20.8h, v16.8b, #0
-    sshll  v21.8h, v17.8b, #0
-    sshll  v22.8h, v18.8b, #0
-    sshll  v23.8h, v3.8b, #0
+    sshll v20.8h, v16.8b, #0
+    sshll v21.8h, v17.8b, #0
+    sshll v22.8h, v18.8b, #0
+    sshll v23.8h,  v3.8b, #0
 
-    sshll  v24.8h, v4.8b, #0
-    sshll  v25.8h, v5.8b, #0
-    sshll  v26.8h, v6.8b, #0
-    sshll  v27.8h, v7.8b, #0
+    sshll v24.8h, v4.8b, #0
+    sshll v25.8h, v5.8b, #0
+    sshll v26.8h, v6.8b, #0
+    sshll v27.8h, v7.8b, #0
 
-    sshll2  v16.8h, v16.16b, #0
-    sshll2  v17.8h, v17.16b, #0
-    sshll2  v18.8h, v18.16b, #0
-    sshll2  v19.8h, v3.16b, #0
+    sshll2 v16.8h, v16.16b, #0
+    sshll2 v17.8h, v17.16b, #0
+    sshll2 v18.8h, v18.16b, #0
+    sshll2 v19.8h,  v3.16b, #0
 
-    sshll2  v28.8h, v4.16b, #0
-    sshll2  v29.8h, v5.16b, #0
-    sshll2  v30.8h, v6.16b, #0
-    sshll2  v31.8h, v7.16b, #0
+    sshll2 v28.8h, v4.16b, #0
+    sshll2 v29.8h, v5.16b, #0
+    sshll2 v30.8h, v6.16b, #0
+    sshll2 v31.8h, v7.16b, #0
 
     add taildst, dst, #1472
 
@@ -141,27 +141,27 @@ _loop_cbd:
     ushr v17.16b, v20.16b, #1
     ushr v18.16b, v16.16b, #1
 
-    and  v3.16b,  v20.16b, v0.16b
-    and v4.16b,  v16.16b, v0.16b
-    and v5.16b,  v17.16b, v0.16b
-    and v6.16b,  v18.16b, v0.16b
+    and v3.16b, v20.16b, v0.16b
+    and v4.16b, v16.16b, v0.16b
+    and v5.16b, v17.16b, v0.16b
+    and v6.16b, v18.16b, v0.16b
 
-    add  v3.16b,  v3.16b, v0.16b
+    add v3.16b, v3.16b, v0.16b
     add v5.16b, v5.16b, v0.16b
 
-    sub v20.16b,  v3.16b, v4.16b
+    sub v20.16b, v3.16b, v4.16b
     sub v16.16b, v5.16b, v6.16b
 
     ushr v17.16b, v20.16b, #2
     ushr v18.16b, v16.16b, #2
 
     #extract 1
-    and  v3.16b, v20.16b, v1.16b
+    and v3.16b, v20.16b, v1.16b
     and v4.16b, v16.16b, v1.16b
     and v5.16b, v17.16b, v1.16b
     and v6.16b, v18.16b, v1.16b
 
-    sub  v3.16b,  v3.16b, v2.16b
+    sub v3.16b, v3.16b, v2.16b
     sub v4.16b, v4.16b, v2.16b
     sub v5.16b, v5.16b, v2.16b
     sub v6.16b, v6.16b, v2.16b
@@ -172,25 +172,25 @@ _loop_cbd:
     ushr v18.16b, v18.16b, #4
 
     #extract 2
-    and v7.16b, v20.16b, v1.16b
+    and  v7.16b, v20.16b, v1.16b
     and v20.16b, v16.16b, v1.16b
     and v21.16b, v17.16b, v1.16b
     and v22.16b, v18.16b, v1.16b
 
-    sub v7.16b, v7.16b, v2.16b
+    sub  v7.16b,  v7.16b, v2.16b
     sub v20.16b, v20.16b, v2.16b
     sub v21.16b, v21.16b, v2.16b
     sub v22.16b, v22.16b, v2.16b
 
     #shuffles
-    trn1 v23.16b,  v3.16b, v4.16b
-    trn1 v24.16b, v5.16b, v6.16b
-    trn1 v25.16b, v7.16b, v20.16b
+    trn1 v23.16b,  v3.16b,  v4.16b
+    trn1 v24.16b,  v5.16b,  v6.16b
+    trn1 v25.16b,  v7.16b, v20.16b
     trn1 v26.16b, v21.16b, v22.16b
 
-    trn2 v27.16b,  v3.16b, v4.16b
-    trn2 v16.16b, v5.16b, v6.16b
-    trn2 v17.16b, v7.16b, v20.16b
+    trn2 v27.16b,  v3.16b,  v4.16b
+    trn2 v16.16b,  v5.16b,  v6.16b
+    trn2 v17.16b,  v7.16b, v20.16b
     trn2 v18.16b, v21.16b, v22.16b
 
     trn1 v19.8h, v23.8h, v24.8h
@@ -201,38 +201,38 @@ _loop_cbd:
     trn2 v31.8h, v23.8h, v24.8h
     trn2 v21.8h, v25.8h, v26.8h
     trn2 v22.8h, v27.8h, v16.8h
-    trn2  v20.8h, v17.8h, v18.8h
+    trn2 v20.8h, v17.8h, v18.8h
 
     trn1 v16.4s, v19.4s, v28.4s
     trn1 v17.4s, v29.4s, v30.4s
     trn1 v18.4s, v31.4s, v21.4s
-    trn1 v3.4s, v22.4s,  v20.4s
+    trn1  v3.4s, v22.4s, v20.4s
 
     trn2 v4.4s, v19.4s, v28.4s
     trn2 v5.4s, v29.4s, v30.4s
     trn2 v6.4s, v31.4s, v21.4s
-    trn2 v7.4s, v22.4s,  v20.4s
+    trn2 v7.4s, v22.4s, v20.4s
 
     #expand
-    sshll  v20.8h, v16.8b, #0
-    sshll  v21.8h, v17.8b, #0
-    sshll  v22.8h, v18.8b, #0
-    sshll  v23.8h, v3.8b, #0
+    sshll v20.8h, v16.8b, #0
+    sshll v21.8h, v17.8b, #0
+    sshll v22.8h, v18.8b, #0
+    sshll v23.8h,  v3.8b, #0
 
-    sshll  v24.8h, v4.8b, #0
-    sshll  v25.8h, v5.8b, #0
-    sshll  v26.8h, v6.8b, #0
-    sshll  v27.8h, v7.8b, #0
+    sshll v24.8h, v4.8b, #0
+    sshll v25.8h, v5.8b, #0
+    sshll v26.8h, v6.8b, #0
+    sshll v27.8h, v7.8b, #0
 
-    sshll2  v16.8h, v16.16b, #0
-    sshll2  v17.8h, v17.16b, #0
-    sshll2  v18.8h, v18.16b, #0
-    sshll2  v19.8h, v3.16b, #0
+    sshll2 v16.8h, v16.16b, #0
+    sshll2 v17.8h, v17.16b, #0
+    sshll2 v18.8h, v18.16b, #0
+    sshll2 v19.8h,  v3.16b, #0
 
-    sshll2  v28.8h, v4.16b, #0
-    sshll2  v29.8h, v5.16b, #0
-    sshll2  v30.8h, v6.16b, #0
-    sshll2  v31.8h, v7.16b, #0
+    sshll2 v28.8h, v4.16b, #0
+    sshll2 v29.8h, v5.16b, #0
+    sshll2 v30.8h, v6.16b, #0
+    sshll2 v31.8h, v7.16b, #0
 
     #store
     st1 {v20.8h - v23.8h}, [dst], #64
@@ -243,10 +243,10 @@ _loop_cbd:
     subs counter, counter, #256
     b.ne _loop_cbd
 
-    .unreq    dst
-    .unreq    src
-    .unreq    counter
-    .unreq    taildst
+    .unreq dst
+    .unreq src
+    .unreq counter
+    .unreq taildst
 
 
     ret
@@ -267,14 +267,14 @@ _loop_cbd:
 poly_cbd1_triple:
 _poly_cbd1_triple:
 
-    dst       .req x0
-    src       .req x1
-    counter   .req x8
-    taildst   .req x9
+    dst     .req x0
+    src     .req x1
+    counter .req x8
+    taildst .req x9
 
-    movi    v0.16b, #0x55
-    movi    v1.16b, #0x03
-    movi    v2.16b, #0x01
+    movi v0.16b, #0x55
+    movi v1.16b, #0x03
+    movi v2.16b, #0x01
 
     #load
     ldr q20, [src, #92]
@@ -283,27 +283,27 @@ _poly_cbd1_triple:
     ushr v17.16b, v20.16b, #1
     ushr v18.16b, v16.16b, #1
 
-    and  v3.16b,  v20.16b, v0.16b
-    and v4.16b,  v16.16b, v0.16b
-    and v5.16b,  v17.16b, v0.16b
-    and v6.16b,  v18.16b, v0.16b
+    and v3.16b, v20.16b, v0.16b
+    and v4.16b, v16.16b, v0.16b
+    and v5.16b, v17.16b, v0.16b
+    and v6.16b, v18.16b, v0.16b
 
-    add  v3.16b,  v3.16b, v0.16b
+    add v3.16b, v3.16b, v0.16b
     add v5.16b, v5.16b, v0.16b
 
-    sub v20.16b,  v3.16b, v4.16b
+    sub v20.16b, v3.16b, v4.16b
     sub v16.16b, v5.16b, v6.16b
 
     ushr v17.16b, v20.16b, #2
     ushr v18.16b, v16.16b, #2
 
     #extract 1
-    and  v3.16b, v20.16b, v1.16b
+    and v3.16b, v20.16b, v1.16b
     and v4.16b, v16.16b, v1.16b
     and v5.16b, v17.16b, v1.16b
     and v6.16b, v18.16b, v1.16b
 
-    sub  v3.16b,  v3.16b, v2.16b
+    sub v3.16b, v3.16b, v2.16b
     sub v4.16b, v4.16b, v2.16b
     sub v5.16b, v5.16b, v2.16b
     sub v6.16b, v6.16b, v2.16b
@@ -314,25 +314,25 @@ _poly_cbd1_triple:
     ushr v18.16b, v18.16b, #4
 
     #extract 2
-    and v7.16b, v20.16b, v1.16b
+    and  v7.16b, v20.16b, v1.16b
     and v20.16b, v16.16b, v1.16b
     and v21.16b, v17.16b, v1.16b
     and v22.16b, v18.16b, v1.16b
 
-    sub v7.16b, v7.16b, v2.16b
+    sub  v7.16b,  v7.16b, v2.16b
     sub v20.16b, v20.16b, v2.16b
     sub v21.16b, v21.16b, v2.16b
     sub v22.16b, v22.16b, v2.16b
 
     #shuffles
-    trn1 v23.16b,  v3.16b, v4.16b
-    trn1 v24.16b, v5.16b, v6.16b
-    trn1 v25.16b, v7.16b, v20.16b
+    trn1 v23.16b,  v3.16b,  v4.16b
+    trn1 v24.16b,  v5.16b,  v6.16b
+    trn1 v25.16b,  v7.16b, v20.16b
     trn1 v26.16b, v21.16b, v22.16b
 
-    trn2 v27.16b,  v3.16b, v4.16b
-    trn2 v16.16b, v5.16b, v6.16b
-    trn2 v17.16b, v7.16b, v20.16b
+    trn2 v27.16b,  v3.16b,  v4.16b
+    trn2 v16.16b,  v5.16b,  v6.16b
+    trn2 v17.16b,  v7.16b, v20.16b
     trn2 v18.16b, v21.16b, v22.16b
 
     trn1 v19.8h, v23.8h, v24.8h
@@ -343,48 +343,48 @@ _poly_cbd1_triple:
     trn2 v31.8h, v23.8h, v24.8h
     trn2 v21.8h, v25.8h, v26.8h
     trn2 v22.8h, v27.8h, v16.8h
-    trn2  v20.8h, v17.8h, v18.8h
+    trn2 v20.8h, v17.8h, v18.8h
 
     trn1 v16.4s, v19.4s, v28.4s
     trn1 v17.4s, v29.4s, v30.4s
     trn1 v18.4s, v31.4s, v21.4s
-    trn1 v3.4s, v22.4s,  v20.4s
+    trn1  v3.4s, v22.4s, v20.4s
 
     trn2 v4.4s, v19.4s, v28.4s
     trn2 v5.4s, v29.4s, v30.4s
     trn2 v6.4s, v31.4s, v21.4s
-    trn2 v7.4s, v22.4s,  v20.4s
+    trn2 v7.4s, v22.4s, v20.4s
 
     #triple
     mul v16.16b, v16.16b, v1.16b
     mul v17.16b, v17.16b, v1.16b
     mul v18.16b, v18.16b, v1.16b
-    mul v3.16b, v3.16b, v1.16b
-    mul v4.16b, v4.16b, v1.16b
-    mul v5.16b, v5.16b, v1.16b
-    mul v6.16b, v6.16b, v1.16b
-    mul v7.16b, v7.16b, v1.16b
+    mul  v3.16b,  v3.16b, v1.16b
+    mul  v4.16b,  v4.16b, v1.16b
+    mul  v5.16b,  v5.16b, v1.16b
+    mul  v6.16b,  v6.16b, v1.16b
+    mul  v7.16b,  v7.16b, v1.16b
 
     #expand
-    sshll  v20.8h, v16.8b, #0
-    sshll  v21.8h, v17.8b, #0
-    sshll  v22.8h, v18.8b, #0
-    sshll  v23.8h, v3.8b, #0
+    sshll v20.8h, v16.8b, #0
+    sshll v21.8h, v17.8b, #0
+    sshll v22.8h, v18.8b, #0
+    sshll v23.8h,  v3.8b, #0
 
-    sshll  v24.8h, v4.8b, #0
-    sshll  v25.8h, v5.8b, #0
-    sshll  v26.8h, v6.8b, #0
-    sshll  v27.8h, v7.8b, #0
+    sshll v24.8h, v4.8b, #0
+    sshll v25.8h, v5.8b, #0
+    sshll v26.8h, v6.8b, #0
+    sshll v27.8h, v7.8b, #0
 
-    sshll2  v16.8h, v16.16b, #0
-    sshll2  v17.8h, v17.16b, #0
-    sshll2  v18.8h, v18.16b, #0
-    sshll2  v19.8h, v3.16b, #0
+    sshll2 v16.8h, v16.16b, #0
+    sshll2 v17.8h, v17.16b, #0
+    sshll2 v18.8h, v18.16b, #0
+    sshll2 v19.8h,  v3.16b, #0
 
-    sshll2  v28.8h, v4.16b, #0
-    sshll2  v29.8h, v5.16b, #0
-    sshll2  v30.8h, v6.16b, #0
-    sshll2  v31.8h, v7.16b, #0
+    sshll2 v28.8h, v4.16b, #0
+    sshll2 v29.8h, v5.16b, #0
+    sshll2 v30.8h, v6.16b, #0
+    sshll2 v31.8h, v7.16b, #0
 
     add taildst, dst, #1472
 
@@ -404,27 +404,27 @@ _loop_cbd_triple:
     ushr v17.16b, v20.16b, #1
     ushr v18.16b, v16.16b, #1
 
-    and  v3.16b,  v20.16b, v0.16b
-    and v4.16b,  v16.16b, v0.16b
-    and v5.16b,  v17.16b, v0.16b
-    and v6.16b,  v18.16b, v0.16b
+    and v3.16b, v20.16b, v0.16b
+    and v4.16b, v16.16b, v0.16b
+    and v5.16b, v17.16b, v0.16b
+    and v6.16b, v18.16b, v0.16b
 
-    add  v3.16b,  v3.16b, v0.16b
+    add v3.16b, v3.16b, v0.16b
     add v5.16b, v5.16b, v0.16b
 
-    sub v20.16b,  v3.16b, v4.16b
+    sub v20.16b, v3.16b, v4.16b
     sub v16.16b, v5.16b, v6.16b
 
     ushr v17.16b, v20.16b, #2
     ushr v18.16b, v16.16b, #2
 
     #extract 1
-    and  v3.16b, v20.16b, v1.16b
+    and v3.16b, v20.16b, v1.16b
     and v4.16b, v16.16b, v1.16b
     and v5.16b, v17.16b, v1.16b
     and v6.16b, v18.16b, v1.16b
 
-    sub  v3.16b,  v3.16b, v2.16b
+    sub v3.16b, v3.16b, v2.16b
     sub v4.16b, v4.16b, v2.16b
     sub v5.16b, v5.16b, v2.16b
     sub v6.16b, v6.16b, v2.16b
@@ -435,25 +435,25 @@ _loop_cbd_triple:
     ushr v18.16b, v18.16b, #4
 
     #extract 2
-    and v7.16b, v20.16b, v1.16b
+    and  v7.16b, v20.16b, v1.16b
     and v20.16b, v16.16b, v1.16b
     and v21.16b, v17.16b, v1.16b
     and v22.16b, v18.16b, v1.16b
 
-    sub v7.16b, v7.16b, v2.16b
+    sub  v7.16b,  v7.16b, v2.16b
     sub v20.16b, v20.16b, v2.16b
     sub v21.16b, v21.16b, v2.16b
     sub v22.16b, v22.16b, v2.16b
 
     #shuffles
-    trn1 v23.16b,  v3.16b, v4.16b
-    trn1 v24.16b, v5.16b, v6.16b
-    trn1 v25.16b, v7.16b, v20.16b
+    trn1 v23.16b,  v3.16b,  v4.16b
+    trn1 v24.16b,  v5.16b,  v6.16b
+    trn1 v25.16b,  v7.16b, v20.16b
     trn1 v26.16b, v21.16b, v22.16b
 
-    trn2 v27.16b,  v3.16b, v4.16b
-    trn2 v16.16b, v5.16b, v6.16b
-    trn2 v17.16b, v7.16b, v20.16b
+    trn2 v27.16b,  v3.16b,  v4.16b
+    trn2 v16.16b,  v5.16b,  v6.16b
+    trn2 v17.16b,  v7.16b, v20.16b
     trn2 v18.16b, v21.16b, v22.16b
 
     trn1 v19.8h, v23.8h, v24.8h
@@ -464,48 +464,48 @@ _loop_cbd_triple:
     trn2 v31.8h, v23.8h, v24.8h
     trn2 v21.8h, v25.8h, v26.8h
     trn2 v22.8h, v27.8h, v16.8h
-    trn2  v20.8h, v17.8h, v18.8h
+    trn2 v20.8h, v17.8h, v18.8h
 
     trn1 v16.4s, v19.4s, v28.4s
     trn1 v17.4s, v29.4s, v30.4s
     trn1 v18.4s, v31.4s, v21.4s
-    trn1 v3.4s, v22.4s,  v20.4s
+    trn1  v3.4s, v22.4s, v20.4s
 
     trn2 v4.4s, v19.4s, v28.4s
     trn2 v5.4s, v29.4s, v30.4s
     trn2 v6.4s, v31.4s, v21.4s
-    trn2 v7.4s, v22.4s,  v20.4s
+    trn2 v7.4s, v22.4s, v20.4s
 
     #triple
     mul v16.16b, v16.16b, v1.16b
     mul v17.16b, v17.16b, v1.16b
     mul v18.16b, v18.16b, v1.16b
-    mul v3.16b, v3.16b, v1.16b
-    mul v4.16b, v4.16b, v1.16b
-    mul v5.16b, v5.16b, v1.16b
-    mul v6.16b, v6.16b, v1.16b
-    mul v7.16b, v7.16b, v1.16b
+    mul  v3.16b,  v3.16b, v1.16b
+    mul  v4.16b,  v4.16b, v1.16b
+    mul  v5.16b,  v5.16b, v1.16b
+    mul  v6.16b,  v6.16b, v1.16b
+    mul  v7.16b,  v7.16b, v1.16b
 
     #expand
-    sshll  v20.8h, v16.8b, #0
-    sshll  v21.8h, v17.8b, #0
-    sshll  v22.8h, v18.8b, #0
-    sshll  v23.8h, v3.8b, #0
+    sshll v20.8h, v16.8b, #0
+    sshll v21.8h, v17.8b, #0
+    sshll v22.8h, v18.8b, #0
+    sshll v23.8h,  v3.8b, #0
 
-    sshll  v24.8h, v4.8b, #0
-    sshll  v25.8h, v5.8b, #0
-    sshll  v26.8h, v6.8b, #0
-    sshll  v27.8h, v7.8b, #0
+    sshll v24.8h, v4.8b, #0
+    sshll v25.8h, v5.8b, #0
+    sshll v26.8h, v6.8b, #0
+    sshll v27.8h, v7.8b, #0
 
-    sshll2  v16.8h, v16.16b, #0
-    sshll2  v17.8h, v17.16b, #0
-    sshll2  v18.8h, v18.16b, #0
-    sshll2  v19.8h, v3.16b, #0
+    sshll2 v16.8h, v16.16b, #0
+    sshll2 v17.8h, v17.16b, #0
+    sshll2 v18.8h, v18.16b, #0
+    sshll2 v19.8h,  v3.16b, #0
 
-    sshll2  v28.8h, v4.16b, #0
-    sshll2  v29.8h, v5.16b, #0
-    sshll2  v30.8h, v6.16b, #0
-    sshll2  v31.8h, v7.16b, #0
+    sshll2 v28.8h, v4.16b, #0
+    sshll2 v29.8h, v5.16b, #0
+    sshll2 v30.8h, v6.16b, #0
+    sshll2 v31.8h, v7.16b, #0
 
     #store
     st1 {v20.8h - v23.8h}, [dst], #64
@@ -516,10 +516,10 @@ _loop_cbd_triple:
     subs counter, counter, #256
     b.ne _loop_cbd_triple
 
-    .unreq    dst
-    .unreq    src
-    .unreq    counter
-    .unreq    taildst
+    .unreq dst
+    .unreq src
+    .unreq counter
+    .unreq taildst
 
 
     ret
@@ -541,20 +541,20 @@ _loop_cbd_triple:
 .global _poly_sotp_encode
 poly_sotp_encode:
 _poly_sotp_encode:
-    stp d8,  d9,  [sp, #-64]!
+    stp  d8,  d9, [sp, #-64]!
     stp d10, d11, [sp, #16]
     stp d12, d13, [sp, #32]
     stp d14, d15, [sp, #48]
 
-    dst       .req x0
-    src1      .req x1
-    src2      .req x2
-    counter   .req x8
-    taildst   .req x9
+    dst     .req x0
+    src1    .req x1
+    src2    .req x2
+    counter .req x8
+    taildst .req x9
 
-    movi    v0.16b, #0x55
-    movi    v1.16b, #0x03
-    movi    v2.16b, #0x01
+    movi v0.16b, #0x55
+    movi v1.16b, #0x03
+    movi v2.16b, #0x01
 
     #load
     ldr q4, [src1, #92]
@@ -567,10 +567,10 @@ _poly_sotp_encode:
     ushr v7.16b, v5.16b, #1
     ushr v8.16b, v6.16b, #1
 
-    and  v9.16b,  v5.16b, v0.16b
-    and v10.16b,  v6.16b, v0.16b
-    and v11.16b,  v7.16b, v0.16b
-    and v12.16b,  v8.16b, v0.16b
+    and  v9.16b, v5.16b, v0.16b
+    and v10.16b, v6.16b, v0.16b
+    and v11.16b, v7.16b, v0.16b
+    and v12.16b, v8.16b, v0.16b
 
     add  v9.16b,  v9.16b, v0.16b
     add v11.16b, v11.16b, v0.16b
@@ -640,25 +640,25 @@ _poly_sotp_encode:
     trn2 v13.4s, v31.4s,  v5.4s
 
     #expand
-    sshll  v14.8h, v6.8b, #0
-    sshll  v15.8h, v7.8b, #0
-    sshll  v16.8h, v8.8b, #0
-    sshll  v17.8h, v9.8b, #0
+    sshll v14.8h, v6.8b, #0
+    sshll v15.8h, v7.8b, #0
+    sshll v16.8h, v8.8b, #0
+    sshll v17.8h, v9.8b, #0
 
-    sshll  v18.8h, v10.8b, #0
-    sshll  v19.8h, v11.8b, #0
-    sshll  v20.8h, v12.8b, #0
-    sshll  v21.8h, v13.8b, #0
+    sshll v18.8h, v10.8b, #0
+    sshll v19.8h, v11.8b, #0
+    sshll v20.8h, v12.8b, #0
+    sshll v21.8h, v13.8b, #0
 
-    sshll2  v22.8h, v6.16b, #0
-    sshll2  v23.8h, v7.16b, #0
-    sshll2  v24.8h, v8.16b, #0
-    sshll2  v25.8h, v9.16b, #0
+    sshll2 v22.8h, v6.16b, #0
+    sshll2 v23.8h, v7.16b, #0
+    sshll2 v24.8h, v8.16b, #0
+    sshll2 v25.8h, v9.16b, #0
 
-    sshll2  v26.8h, v10.16b, #0
-    sshll2  v27.8h, v11.16b, #0
-    sshll2  v28.8h, v12.16b, #0
-    sshll2  v29.8h, v13.16b, #0
+    sshll2 v26.8h, v10.16b, #0
+    sshll2 v27.8h, v11.16b, #0
+    sshll2 v28.8h, v12.16b, #0
+    sshll2 v29.8h, v13.16b, #0
 
     add taildst, dst, #1472
 
@@ -682,10 +682,10 @@ _loop_sotp_encode:
     ushr v7.16b, v5.16b, #1
     ushr v8.16b, v6.16b, #1
 
-    and  v9.16b,  v5.16b, v0.16b
-    and v10.16b,  v6.16b, v0.16b
-    and v11.16b,  v7.16b, v0.16b
-    and v12.16b,  v8.16b, v0.16b
+    and  v9.16b, v5.16b, v0.16b
+    and v10.16b, v6.16b, v0.16b
+    and v11.16b, v7.16b, v0.16b
+    and v12.16b, v8.16b, v0.16b
 
     add  v9.16b,  v9.16b, v0.16b
     add v11.16b, v11.16b, v0.16b
@@ -755,25 +755,25 @@ _loop_sotp_encode:
     trn2 v13.4s, v31.4s,  v5.4s
 
     #expand
-    sshll  v14.8h, v6.8b, #0
-    sshll  v15.8h, v7.8b, #0
-    sshll  v16.8h, v8.8b, #0
-    sshll  v17.8h, v9.8b, #0
+    sshll v14.8h, v6.8b, #0
+    sshll v15.8h, v7.8b, #0
+    sshll v16.8h, v8.8b, #0
+    sshll v17.8h, v9.8b, #0
 
-    sshll  v18.8h, v10.8b, #0
-    sshll  v19.8h, v11.8b, #0
-    sshll  v20.8h, v12.8b, #0
-    sshll  v21.8h, v13.8b, #0
+    sshll v18.8h, v10.8b, #0
+    sshll v19.8h, v11.8b, #0
+    sshll v20.8h, v12.8b, #0
+    sshll v21.8h, v13.8b, #0
 
-    sshll2  v22.8h, v6.16b, #0
-    sshll2  v23.8h, v7.16b, #0
-    sshll2  v24.8h, v8.16b, #0
-    sshll2  v25.8h, v9.16b, #0
+    sshll2 v22.8h, v6.16b, #0
+    sshll2 v23.8h, v7.16b, #0
+    sshll2 v24.8h, v8.16b, #0
+    sshll2 v25.8h, v9.16b, #0
 
-    sshll2  v26.8h, v10.16b, #0
-    sshll2  v27.8h, v11.16b, #0
-    sshll2  v28.8h, v12.16b, #0
-    sshll2  v29.8h, v13.16b, #0
+    sshll2 v26.8h, v10.16b, #0
+    sshll2 v27.8h, v11.16b, #0
+    sshll2 v28.8h, v12.16b, #0
+    sshll2 v29.8h, v13.16b, #0
 
     #store
     st1 {v14.8h - v17.8h}, [dst], #64
@@ -784,16 +784,16 @@ _loop_sotp_encode:
     subs counter, counter, #256
     b.ne _loop_sotp_encode
 
-    .unreq    dst
-    .unreq    src1
-    .unreq    src2
-    .unreq    counter
-    .unreq    taildst
+    .unreq dst
+    .unreq src1
+    .unreq src2
+    .unreq counter
+    .unreq taildst
 
     ldp d10, d11, [sp, #16]
     ldp d12, d13, [sp, #32]
     ldp d14, d15, [sp, #48]
-    ldp d8,  d9,  [sp], #64
+    ldp  d8,  d9, [sp], #64
 
     ret
 
@@ -814,7 +814,7 @@ _loop_sotp_encode:
 .global _poly_sotp_decode
 poly_sotp_decode:
 _poly_sotp_decode:
-    stp d8,  d9,  [sp, #-64]!
+    stp  d8,  d9, [sp, #-64]!
     stp d10, d11, [sp, #16]
     stp d12, d13, [sp, #32]
     stp d14, d15, [sp, #48]
@@ -829,11 +829,11 @@ _poly_sotp_decode:
     mov dst_start, dst
 
     #load
-    movi    v0.16b, #0x55
-    movi    v1.16b, #0x01
+    movi v0.16b, #0x55
+    movi v1.16b, #0x01
 
     #global error
-    movi    v3.16b, #0xff
+    movi v3.16b, #0xff
 
     add tailsrc, src1, #1472
 
@@ -843,15 +843,15 @@ _poly_sotp_decode:
     ld1 {v13.8h - v16.8h}, [tailsrc], #64
     ld1 {v17.8h - v20.8h}, [tailsrc], #64
 
-    sqxtn  v21.8b, v5.8h
-    sqxtn  v22.8b, v6.8h
-    sqxtn  v23.8b, v7.8h
-    sqxtn  v24.8b, v8.8h
+    sqxtn v21.8b, v5.8h
+    sqxtn v22.8b, v6.8h
+    sqxtn v23.8b, v7.8h
+    sqxtn v24.8b, v8.8h
 
-    sqxtn  v25.8b,  v9.8h
-    sqxtn  v26.8b, v10.8h
-    sqxtn  v27.8b, v11.8h
-    sqxtn  v28.8b, v12.8h
+    sqxtn v25.8b,  v9.8h
+    sqxtn v26.8b, v10.8h
+    sqxtn v27.8b, v11.8h
+    sqxtn v28.8b, v12.8h
 
     sqxtn2 v21.16b, v13.8h
     sqxtn2 v22.16b, v14.8h
@@ -864,15 +864,15 @@ _poly_sotp_decode:
     sqxtn2 v28.16b, v20.8h
 
     #shuffles
-    trn1  v29.4s, v21.4s, v25.4s
-    trn2  v30.4s, v21.4s, v25.4s
-    trn1  v31.4s, v22.4s, v26.4s
-    trn2   v5.4s, v22.4s, v26.4s
+    trn1 v29.4s, v21.4s, v25.4s
+    trn2 v30.4s, v21.4s, v25.4s
+    trn1 v31.4s, v22.4s, v26.4s
+    trn2  v5.4s, v22.4s, v26.4s
 
-    trn1  v6.4s, v23.4s, v27.4s
-    trn2  v7.4s, v23.4s, v27.4s
-    trn1  v8.4s, v24.4s, v28.4s
-    trn2  v9.4s, v24.4s, v28.4s
+    trn1 v6.4s, v23.4s, v27.4s
+    trn2 v7.4s, v23.4s, v27.4s
+    trn1 v8.4s, v24.4s, v28.4s
+    trn2 v9.4s, v24.4s, v28.4s
 
     trn1 v10.8h, v29.8h, v6.8h
     trn2 v11.8h, v29.8h, v6.8h
@@ -963,15 +963,15 @@ _loop_sotp_decode:
     ld1 {v13.8h - v16.8h}, [src1], #64
     ld1 {v17.8h - v20.8h}, [src1], #64
 
-    sqxtn  v21.8b, v5.8h
-    sqxtn  v22.8b, v6.8h
-    sqxtn  v23.8b, v7.8h
-    sqxtn  v24.8b, v8.8h
+    sqxtn v21.8b, v5.8h
+    sqxtn v22.8b, v6.8h
+    sqxtn v23.8b, v7.8h
+    sqxtn v24.8b, v8.8h
 
-    sqxtn  v25.8b,  v9.8h
-    sqxtn  v26.8b, v10.8h
-    sqxtn  v27.8b, v11.8h
-    sqxtn  v28.8b, v12.8h
+    sqxtn v25.8b,  v9.8h
+    sqxtn v26.8b, v10.8h
+    sqxtn v27.8b, v11.8h
+    sqxtn v28.8b, v12.8h
 
     sqxtn2 v21.16b, v13.8h
     sqxtn2 v22.16b, v14.8h
@@ -984,15 +984,15 @@ _loop_sotp_decode:
     sqxtn2 v28.16b, v20.8h
 
     #shuffles
-    trn1  v29.4s, v21.4s, v25.4s
-    trn2  v30.4s, v21.4s, v25.4s
-    trn1  v31.4s, v22.4s, v26.4s
-    trn2   v5.4s, v22.4s, v26.4s
+    trn1 v29.4s, v21.4s, v25.4s
+    trn2 v30.4s, v21.4s, v25.4s
+    trn1 v31.4s, v22.4s, v26.4s
+    trn2  v5.4s, v22.4s, v26.4s
 
-    trn1  v6.4s, v23.4s, v27.4s
-    trn2  v7.4s, v23.4s, v27.4s
-    trn1  v8.4s, v24.4s, v28.4s
-    trn2  v9.4s, v24.4s, v28.4s
+    trn1 v6.4s, v23.4s, v27.4s
+    trn2 v7.4s, v23.4s, v27.4s
+    trn1 v8.4s, v24.4s, v28.4s
+    trn2 v9.4s, v24.4s, v28.4s
 
     trn1 v10.8h, v29.8h, v6.8h
     trn2 v11.8h, v29.8h, v6.8h
@@ -1080,7 +1080,7 @@ _loop_sotp_decode:
     bic v3.16b, v0.16b, v3.16b
 
     umaxv h3, v3.8h
-    umov  w0, v3.h[0]
+    umov w0, v3.h[0]
     cmp w0, #0
     cset x0, ne
 
@@ -1109,15 +1109,15 @@ _loop_sotp_decode:
     and v4.16b, v4.16b, v5.16b
     str q4, [dst_start, #92]
 
-    .unreq    dst
-    .unreq    src1
-    .unreq    src2
-    .unreq    counter
-    .unreq    tailsrc
-    .unreq    dst_start
+    .unreq dst
+    .unreq src1
+    .unreq src2
+    .unreq counter
+    .unreq tailsrc
+    .unreq dst_start
     ldp d10, d11, [sp, #16]
     ldp d12, d13, [sp, #32]
     ldp d14, d15, [sp, #48]
-    ldp d8,  d9,  [sp], #64
+    ldp  d8,  d9, [sp], #64
 
     ret
