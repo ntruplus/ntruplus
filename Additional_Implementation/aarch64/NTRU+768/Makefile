@@ -4,8 +4,8 @@ CFLAGS += -Wall -Wextra -Wpedantic -Wmissing-prototypes -Wredundant-decls \
 NISTFLAGS += -Wno-unused-result -Wa,--noexecstack -O3 -fomit-frame-pointer
 RM = /bin/rm -f
 
-SOURCES= kem.c symmetric.c poly.c asm/add.s asm/ntt.s asm/base.s asm/crepmod3.s asm/pack.s asm/cbd.s
-HEADERS= api.h params.h poly.h symmetric.h util.h
+SOURCES= kem.c symmetric.c poly.c asm/add.s asm/ntt.S asm/base.S consts.c asm/crepmod3.s asm/pack.s asm/cbd.s
+HEADERS= api.h params.h poly.h symmetric.h util.h consts.h
 
 
 HAS_SHAKE256_ASM := 1

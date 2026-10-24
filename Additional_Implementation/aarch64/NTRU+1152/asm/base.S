@@ -1,14 +1,16 @@
-/*
- * References:
- *
- * [BHK+21] Hanno Becker, Vincent Hwang, Matthias J. Kannwischer,
- * Bo-Yin Yang, and Shang-Yi Yang,
- * "Neon NTT: Faster Dilithium, Kyber, and Saber
- * on Cortex-A72 and Apple M1", IACR Transactions on Cryptographic
- * Hardware and Embedded Systems, 2022(1), pp. 221-244.
- * https://doi.org/10.46586/tches.v2022.i1.221-244
- * Algorithms 10 and 14 are used in the product blocks below.
- */
+#include "consts.h"
+
+/* References are listed in ntt.S. */
+
+.macro load_address dst, sym, offset=0
+#ifdef __APPLE__
+    adrp \dst, _\sym+\offset@PAGE
+    add \dst, \dst, _\sym+\offset@PAGEOFF
+#else
+    adrp \dst, \sym+\offset
+    add \dst, \dst, :lo12:\sym+\offset
+#endif
+.endm
 
 /*************************************************
 * Name:        poly_basemul
@@ -35,15 +37,18 @@ _poly_basemul:
     zetas_ptr .req x3
     counter   .req x8
 
-    adr zetas_ptr, zetas_mul
+    load_address zetas_ptr, consts_base
 
-    ld1 {v0.8h}, [zetas_ptr], #16
+    ld1 {v0.8h}, [zetas_ptr]
 
-    mov counter, #1536
+    load_address zetas_ptr, zetas, ZETAS_MUL_OFFSET
 
-_looptop_pretwist:
-    ld1 {v1.8h, v2.8h}, [zetas_ptr], #32
+    mov counter, #2304
 
+_looptop_pair:
+    ldp q1, q2, [zetas_ptr], #64
+
+_looptop:
     /* Read both inputs before storing either output half. */
     ld1 { v4.8h -  v7.8h}, [src1], #64
     ld1 {v16.8h - v19.8h}, [src2], #64
@@ -51,7 +56,7 @@ _looptop_pretwist:
     /*
      * Barrett multiplication: Algorithm 10 of [BHK+21].
      * v20 = zeta*b1, v21 = zeta*b2, v22 = zeta*b3, with no R factor.
-     * |pre-twist| <= 2085; |corrected accumulator| <= 304437252.
+     * |Barrett product| <= 2074; |corrected accumulator| <= 304437252.
      */
     mul v20.8h, v17.8h, v1.8h
     mul v21.8h, v18.8h, v1.8h
@@ -162,7 +167,16 @@ _looptop_pretwist:
     st1 {v27.8h, v28.8h}, [dst], #32
 
     subs counter, counter, #64
-    b.ne _looptop_pretwist
+    /* The public counter selects the +zeta/-zeta block order. */
+    tbz counter, #6, _looptop_pair_check
+
+    /* Negate zeta and its Barrett factor to reuse them for the next -zeta block. */
+    neg v1.8h, v1.8h
+    neg v2.8h, v2.8h
+    b _looptop
+
+_looptop_pair_check:
+    b.ne _looptop_pair
 
     .unreq dst
     .unreq src1
@@ -199,15 +213,18 @@ _poly_basemul_scale:
     zetas_ptr .req x3
     counter   .req x8
 
-    adr zetas_ptr, zetas_mul
+    load_address zetas_ptr, consts_base
 
-    ld1 {v0.8h}, [zetas_ptr], #16
+    ld1 {v0.8h}, [zetas_ptr]
 
-    mov counter, #1536
+    load_address zetas_ptr, zetas, ZETAS_MUL_OFFSET
 
-_looptop_pretwist_scale:
-    ld1 {v1.8h, v2.8h}, [zetas_ptr], #32
+    mov counter, #2304
 
+_looptop_scale_pair:
+    ldp q1, q2, [zetas_ptr], #64
+
+_looptop_scale:
     /* Read both inputs before storing either output half. */
     ld1 { v4.8h -  v7.8h}, [src1], #64
     ld1 {v16.8h - v19.8h}, [src2], #64
@@ -215,7 +232,7 @@ _looptop_pretwist_scale:
     /*
      * Barrett multiplication: Algorithm 10 of [BHK+21].
      * v20 = zeta*b1, v21 = zeta*b2, v22 = zeta*b3, with no R factor.
-     * |pre-twist| <= 1899; |corrected accumulator| <= 161054720.
+     * |Barrett product| <= 1904; |corrected accumulator| <= 161054720.
      */
     mul v20.8h, v17.8h, v1.8h
     mul v21.8h, v18.8h, v1.8h
@@ -306,7 +323,16 @@ _looptop_pretwist_scale:
     st1 {v29.8h, v30.8h}, [dst], #32
 
     subs counter, counter, #64
-    b.ne _looptop_pretwist_scale
+    /* The public counter selects the +zeta/-zeta block order. */
+    tbz counter, #6, _looptop_scale_pair_check
+
+    /* Negate zeta and its Barrett factor to reuse them for the next -zeta block. */
+    neg v1.8h, v1.8h
+    neg v2.8h, v2.8h
+    b _looptop_scale
+
+_looptop_scale_pair_check:
+    b.ne _looptop_scale_pair
 
     .unreq dst
     .unreq src1
@@ -346,15 +372,18 @@ _poly_basemul_add:
     zetas_ptr .req x4
     counter   .req x8
 
-    adr zetas_ptr, zetas_mul
+    load_address zetas_ptr, consts_base
 
-    ld1 {v0.8h}, [zetas_ptr], #16
+    ld1 {v0.8h}, [zetas_ptr]
 
-    mov counter, #1536
+    load_address zetas_ptr, zetas, ZETAS_MUL_OFFSET
 
-_looptop_pretwist_add:
-    ld1 {v1.8h, v2.8h}, [zetas_ptr], #32
+    mov counter, #2304
 
+_looptop_add_pair:
+    ldp q1, q2, [zetas_ptr], #64
+
+_looptop_add:
     /* Read both inputs before storing either output half. */
     ld1 { v4.8h -  v7.8h}, [src1], #64
     ld1 {v16.8h - v19.8h}, [src2], #64
@@ -362,7 +391,7 @@ _looptop_pretwist_add:
     /*
      * Barrett multiplication: Algorithm 10 of [BHK+21].
      * v20 = zeta*b1, v21 = zeta*b2, v22 = zeta*b3, with no R factor.
-     * |pre-twist| <= 2085; |corrected accumulator| <= 304437252.
+     * |Barrett product| <= 2074; |corrected accumulator| <= 304437252.
      */
     mul v20.8h, v17.8h, v1.8h
     mul v21.8h, v18.8h, v1.8h
@@ -483,7 +512,16 @@ _looptop_pretwist_add:
     st1 {v27.8h, v28.8h}, [dst], #32
 
     subs counter, counter, #64
-    b.ne _looptop_pretwist_add
+    /* The public counter selects the +zeta/-zeta block order. */
+    tbz counter, #6, _looptop_add_pair_check
+
+    /* Negate zeta and its Barrett factor to reuse them for the next -zeta block. */
+    neg v1.8h, v1.8h
+    neg v2.8h, v2.8h
+    b _looptop_add
+
+_looptop_add_pair_check:
+    b.ne _looptop_add_pair
 
     .unreq dst
     .unreq src1
@@ -521,22 +559,25 @@ _poly_baseinv_1:
     zetas_ptr .req x3
     counter   .req x8
 
-    adr zetas_ptr, zetas_mul
+    load_address zetas_ptr, consts_base
 
-    ld1 {v0.8h}, [zetas_ptr], #16
+    ld1 {v0.8h}, [zetas_ptr]
 
-    mov counter, #1536
+    load_address zetas_ptr, zetas, ZETAS_MUL_OFFSET
+
+    mov counter, #2304
+
+_looptop_baseinv_1_pair:
+    ldp q1, q2, [zetas_ptr], #64
 
 _looptop_baseinv_1:
-    ld1 {v1.8h, v2.8h}, [zetas_ptr], #32
-
     ld1 {v3.8h - v6.8h}, [src], #64
 
     /*
-     * Barrett pre-twist: Algorithm 10 of [BHK+21].
+     * Barrett multiplication: Algorithm 10 of [BHK+21].
      * Accumulated Montgomery products: Algorithm 14 of [BHK+21].
      * t0 = a2*zeta, t1 = a3*zeta (mod q).
-     * |t0|,|t1| <= 1899; |corrected accumulator| <= 155670271.
+     * |t0|,|t1| <= 1904; |corrected accumulator| <= 155687551.
      */
     sqrdmulh v17.8h, v5.8h, v2.8h
     sqrdmulh v18.8h, v6.8h, v2.8h
@@ -653,7 +694,16 @@ _looptop_baseinv_1:
     st1 {v27.8h, v28.8h}, [dst], #32
 
     subs counter, counter, #64
-    b.ne _looptop_baseinv_1
+    /* The public counter selects the +zeta/-zeta block order. */
+    tbz counter, #6, _looptop_baseinv_1_pair_check
+
+    /* Negate zeta and its Barrett factor to reuse them for the next -zeta block. */
+    neg v1.8h, v1.8h
+    neg v2.8h, v2.8h
+    b _looptop_baseinv_1
+
+_looptop_baseinv_1_pair_check:
+    b.ne _looptop_baseinv_1_pair
 
     .unreq dst
     .unreq den
@@ -661,60 +711,3 @@ _looptop_baseinv_1:
     .unreq zetas_ptr
     .unreq counter
     ret
-
-/*
- * Barrett twiddles: Algorithm 10 of [BHK+21].
- * After the common constants, each block contains centered zeta followed
- * by round(2^15*zeta/q). Base multiplication and inversion share them.
- */
-.align 4
-zetas_mul:
-    .hword 0x0d81, 0x4bd4, 0xcd7f, 0xff6d, 0xfa8f, 0xf9dd, 0xc5d5, 0x3281
-    .hword 0x0016, 0x06ad, 0xfeed, 0x0454, 0x0162, 0xf940, 0xfc38, 0x035a
-    .hword 0x00d1, 0x3f47, 0xf5d1, 0x2906, 0x0d1b, 0xc005, 0xdc29, 0x1fc5
-    .hword 0xffea, 0xf953, 0x0113, 0xfbac, 0xfe9e, 0x06c0, 0x03c8, 0xfca6
-    .hword 0xff2f, 0xc0b9, 0x0a2f, 0xd6fa, 0xf2e5, 0x3ffb, 0x23d7, 0xe03b
-    .hword 0x04c5, 0xff26, 0x0126, 0xfd24, 0xfbb9, 0x037c, 0x0634, 0xfcf5
-    .hword 0x2d36, 0xf7ee, 0x0ae3, 0xe4e6, 0xd775, 0x2107, 0x3acc, 0xe328
-    .hword 0xfb3b, 0x00da, 0xfeda, 0x02dc, 0x0447, 0xfc84, 0xf9cc, 0x030b
-    .hword 0xd2ca, 0x0812, 0xf51d, 0x1b1a, 0x288b, 0xdef9, 0xc534, 0x1cd8
-    .hword 0x03fe, 0xfbd9, 0x041d, 0x04a4, 0x01a1, 0xfa91, 0xffe5, 0xf9a6
-    .hword 0x25d7, 0xd8a4, 0x26fd, 0x2bfd, 0x0f71, 0xcc7f, 0xff00, 0xc3cc
-    .hword 0xfc02, 0x0427, 0xfbe3, 0xfb5c, 0xfe5f, 0x056f, 0x001b, 0x065a
-    .hword 0xda29, 0x275c, 0xd903, 0xd403, 0xf08f, 0x3381, 0x0100, 0x3c34
-    .hword 0x0581, 0x05dd, 0x0579, 0x00fb, 0x02a1, 0x0246, 0x00e6, 0xfe97
-    .hword 0x342c, 0x3794, 0x33e0, 0x094b, 0x18eb, 0x158d, 0x0884, 0xf2a2
-    .hword 0xfa7f, 0xfa23, 0xfa87, 0xff05, 0xfd5f, 0xfdba, 0xff1a, 0x0169
-    .hword 0xcbd4, 0xc86c, 0xcc20, 0xf6b5, 0xe715, 0xea73, 0xf77c, 0x0d5e
-    .hword 0xf9f2, 0x05fb, 0xfaa9, 0xff84, 0x05b2, 0x0563, 0xfc54, 0xf96f
-    .hword 0xc69c, 0x38b0, 0xcd63, 0xfb69, 0x35fc, 0x330f, 0xdd32, 0xc1c2
-    .hword 0x060e, 0xfa05, 0x0557, 0x007c, 0xfa4e, 0xfa9d, 0x03ac, 0x0691
-    .hword 0x3964, 0xc750, 0x329d, 0x0497, 0xca04, 0xccf1, 0x22ce, 0x3e3e
-    .hword 0x0190, 0x0112, 0xf9f9, 0x0020, 0x0580, 0xfb20, 0xfec5, 0xf96b
-    .hword 0x0ecf, 0x0a25, 0xc6de, 0x012f, 0x3422, 0xd1cb, 0xf456, 0xc19c
-    .hword 0xfe70, 0xfeee, 0x0607, 0xffe0, 0xfa80, 0x04e0, 0x013b, 0x0695
-    .hword 0xf131, 0xf5db, 0x3922, 0xfed1, 0xcbde, 0x2e35, 0x0baa, 0x3e64
-    .hword 0xfd0d, 0xfaf1, 0x031b, 0x0277, 0x006c, 0xfe66, 0xfaba, 0x0684
-    .hword 0xe40c, 0xd00d, 0x1d70, 0x175d, 0x0400, 0xf0d2, 0xce04, 0x3dc3
-    .hword 0x02f3, 0x050f, 0xfce5, 0xfd89, 0xff94, 0x019a, 0x0546, 0xf97c
-    .hword 0x1bf4, 0x2ff3, 0xe290, 0xe8a3, 0xfc00, 0x0f2e, 0x31fc, 0xc23d
-    .hword 0x051e, 0xfc14, 0x038e, 0xfb02, 0xfc68, 0x05a4, 0x0469, 0xfd03
-    .hword 0x3081, 0xdad3, 0x21b2, 0xd0ae, 0xddf0, 0x3577, 0x29cd, 0xe3ad
-    .hword 0xfae2, 0x03ec, 0xfc72, 0x04fe, 0x0398, 0xfa5c, 0xfb97, 0x02fd
-    .hword 0xcf7f, 0x252d, 0xde4e, 0x2f52, 0x2210, 0xca89, 0xd633, 0x1c53
-    .hword 0xfa5a, 0x01f0, 0x0316, 0x02ca, 0x012f, 0xff42, 0x0576, 0xfbc6
-    .hword 0xca76, 0x125d, 0x1d40, 0x1a70, 0x0b38, 0xf8f7, 0x33c3, 0xd7f0
-    .hword 0x05a6, 0xfe10, 0xfcea, 0xfd36, 0xfed1, 0x00be, 0xfa8a, 0x043a
-    .hword 0x358a, 0xeda3, 0xe2c0, 0xe590, 0xf4c8, 0x0709, 0xcc3d, 0x2810
-    .hword 0xfd1a, 0xff80, 0xfbb8, 0x0640, 0x04ec, 0xff52, 0x05ff, 0xfafe
-    .hword 0xe487, 0xfb43, 0xd76b, 0x3b3e, 0x2ea7, 0xf98f, 0x38d6, 0xd088
-    .hword 0x02e6, 0x0080, 0x0448, 0xf9c0, 0xfb14, 0x00ae, 0xfa01, 0x0502
-    .hword 0x1b79, 0x04bd, 0x2895, 0xc4c2, 0xd159, 0x0671, 0xc72a, 0x2f78
-    .hword 0xfb68, 0xfdef, 0x0368, 0x0593, 0x0232, 0xfeab, 0xff91, 0xfc65
-    .hword 0xd475, 0xec6a, 0x2049, 0x34d6, 0x14cf, 0xf360, 0xfbe4, 0xddd3
-    .hword 0x0498, 0x0211, 0xfc98, 0xfa6d, 0xfdce, 0x0155, 0x006f, 0x039b
-    .hword 0x2b8b, 0x1396, 0xdfb7, 0xcb2a, 0xeb31, 0x0ca0, 0x041c, 0x222d
-    .hword 0x019f, 0x0019, 0xfffe, 0x0588, 0x004e, 0x0058, 0xfc31, 0xfbb4
-    .hword 0x0f5e, 0x00ed, 0xffed, 0x346e, 0x02e3, 0x0342, 0xdbe6, 0xd745
-    .hword 0xfe61, 0xffe7, 0x0002, 0xfa78, 0xffb2, 0xffa8, 0x03cf, 0x044c
-    .hword 0xf0a2, 0xff13, 0x0013, 0xcb92, 0xfd1d, 0xfcbe, 0x241a, 0x28bb
