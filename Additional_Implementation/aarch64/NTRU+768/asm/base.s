@@ -542,16 +542,8 @@ _looptop_baseinv_1:
      *   Algorithm 12 of [BHK+21]: a3*a3 and standalone t1*zeta.
      *   Algorithm 14 of [BHK+21]: accumulated products.
      */
-    neg v26.8h,  v6.8h  //-a3
-    neg v30.8h, v10.8h  //-a3
-    neg v27.8h,  v5.8h  //-a2
-    neg v31.8h,  v9.8h  //-a2
 
-    shl v26.8h, v26.8h, #1  //-2*a3
-    shl v30.8h, v30.8h, #1  //-2*a3
-    shl v27.8h, v27.8h, #1  //-2*a2
-    shl v31.8h, v31.8h, #1  //-2*a2
-
+    # a_i in [-3456,3456]: SQDMLSL accumulators in [-27126144,39070080].
     smull  v11.4s, v5.4h, v5.4h  //a2*a2
     smull2 v12.4s, v5.8h, v5.8h  //a2*a2
     smull  v13.4s, v9.4h, v9.4h  //a2*a2
@@ -562,10 +554,10 @@ _looptop_baseinv_1:
     mul     v22.8h, v10.8h, v10.8h  //a3*a3
     sqdmulh v17.8h, v10.8h, v10.8h  //a3*a3
 
-    smlal  v11.4s, v4.4h, v26.4h  //-2*a1*a3
-    smlal2 v12.4s, v4.8h, v26.8h  //-2*a1*a3
-    smlal  v13.4s, v8.4h, v30.4h  //-2*a1*a3
-    smlal2 v14.4s, v8.8h, v30.8h  //-2*a1*a3
+    sqdmlsl  v11.4s, v4.4h,  v6.4h  //-2*a1*a3
+    sqdmlsl2 v12.4s, v4.8h,  v6.8h  //-2*a1*a3
+    sqdmlsl  v13.4s, v8.4h, v10.4h  //-2*a1*a3
+    sqdmlsl2 v14.4s, v8.8h, v10.8h  //-2*a1*a3
 
     uzp1 v19.8h, v11.8h, v12.8h
     uzp1 v20.8h, v13.8h, v14.8h
@@ -607,10 +599,10 @@ _looptop_baseinv_1:
     smlal  v13.4s, v7.4h, v7.4h  //a0*a0
     smlal2 v14.4s, v7.8h, v7.8h  //a0*a0
 
-    smlal  v15.4s, v3.4h, v27.4h  //-2*a0*a2
-    smlal2 v16.4s, v3.8h, v27.8h  //-2*a0*a2
-    smlal  v17.4s, v7.4h, v31.4h  //-2*a0*a2
-    smlal2 v18.4s, v7.8h, v31.8h  //-2*a0*a2
+    sqdmlsl  v15.4s, v3.4h, v5.4h  //-2*a0*a2
+    sqdmlsl2 v16.4s, v3.8h, v5.8h  //-2*a0*a2
+    sqdmlsl  v17.4s, v7.4h, v9.4h  //-2*a0*a2
+    sqdmlsl2 v18.4s, v7.8h, v9.8h  //-2*a0*a2
 
     uzp1 v19.8h, v11.8h, v12.8h
     uzp1 v20.8h, v13.8h, v14.8h
@@ -650,18 +642,15 @@ _looptop_baseinv_1:
     shsub v26.8h, v11.8h, v19.8h  //t2
     shsub v30.8h, v13.8h, v20.8h  //t2
 
-    neg v27.8h, v25.8h  //-t1
-    neg v31.8h, v29.8h  //-t1
-
     smull  v11.4s, v24.4h, v24.4h  //t0*t0
     smull2 v12.4s, v24.8h, v24.8h  //t0*t0
     smull  v13.4s, v28.4h, v28.4h  //t0*t0
     smull2 v14.4s, v28.8h, v28.8h  //t0*t0
 
-    smlal  v11.4s, v27.4h, v26.4h  //-t1*t2
-    smlal2 v12.4s, v27.8h, v26.8h  //-t1*t2
-    smlal  v13.4s, v31.4h, v30.4h  //-t1*t2
-    smlal2 v14.4s, v31.8h, v30.8h  //-t1*t2
+    smlsl  v11.4s, v25.4h, v26.4h  //-t1*t2
+    smlsl2 v12.4s, v25.8h, v26.8h  //-t1*t2
+    smlsl  v13.4s, v29.4h, v30.4h  //-t1*t2
+    smlsl2 v14.4s, v29.8h, v30.8h  //-t1*t2
 
     uzp1 v19.8h, v11.8h, v12.8h
     uzp1 v20.8h, v13.8h, v14.8h

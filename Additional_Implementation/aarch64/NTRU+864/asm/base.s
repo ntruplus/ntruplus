@@ -455,8 +455,6 @@ _looptop_baseinv_1:
      *   Algorithm 12 of [BHK+21]: a1*a2 and a2*a2.
      *   Algorithm 14 of [BHK+21]: accumulated products.
      */
-    neg v30.8h, v3.8h  //-a0
-    neg v31.8h, v6.8h  //-a0
 
     mul     v24.8h, v4.8h, v5.8h  //a1*a2
     sqdmulh  v9.8h, v4.8h, v5.8h  //a1*a2
@@ -473,10 +471,10 @@ _looptop_baseinv_1:
     smull  v19.4s, v7.4h, v7.4h  //a1*a1
     smull2 v20.4s, v7.8h, v7.8h  //a1*a1
 
-    smlal  v17.4s, v30.4h, v5.4h  //-a0*a2
-    smlal2 v18.4s, v30.8h, v5.8h  //-a0*a2
-    smlal  v19.4s, v31.4h, v8.4h  //-a0*a2
-    smlal2 v20.4s, v31.8h, v8.8h  //-a0*a2
+    smlsl  v17.4s, v3.4h, v5.4h  //-a0*a2
+    smlsl2 v18.4s, v3.8h, v5.8h  //-a0*a2
+    smlsl  v19.4s, v6.4h, v8.4h  //-a0*a2
+    smlsl2 v20.4s, v6.8h, v8.8h  //-a0*a2
 
     uzp1 v28.8h, v17.8h, v18.8h
     uzp1 v29.8h, v19.8h, v20.8h
@@ -519,10 +517,10 @@ _looptop_baseinv_1:
     smull  v15.4s, v27.4h, v2.4h  //r[1]*zeta
     smull2 v16.4s, v27.8h, v2.8h  //r[1]*zeta
 
-    smlal  v13.4s, v30.4h, v4.4h  //-a0*a1
-    smlal2 v14.4s, v30.8h, v4.8h  //-a0*a1
-    smlal  v15.4s, v31.4h, v7.4h  //-a0*a1
-    smlal2 v16.4s, v31.8h, v7.8h  //-a0*a1
+    smlsl  v13.4s, v3.4h, v4.4h  //-a0*a1
+    smlsl2 v14.4s, v3.8h, v4.8h  //-a0*a1
+    smlsl  v15.4s, v6.4h, v7.4h  //-a0*a1
+    smlsl2 v16.4s, v6.8h, v7.8h  //-a0*a1
 
     uzp1 v24.8h,  v9.8h, v10.8h
     uzp1 v25.8h, v11.8h, v12.8h
