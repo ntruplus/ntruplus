@@ -4,7 +4,16 @@
 unsigned long long countergap;
 #define TEST_LOOP_COUNT 100000
 
-#if defined(__aarch64__)
+#if defined(__APPLE__) && defined(__MACH__)
+#include <stdint.h>
+#include <mach/mach_time.h>
+
+static inline uint64_t counter(void)
+{
+    return mach_absolute_time();
+}
+
+#elif defined(__aarch64__)
 #include <stdint.h>
 
 static inline uint64_t counter(void)

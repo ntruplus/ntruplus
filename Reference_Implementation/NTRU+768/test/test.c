@@ -7,7 +7,7 @@
 #include "symmetric.h"
 #include "counter.h"
 
-#if defined(__aarch64__)
+#if (defined(__APPLE__) && defined(__MACH__)) || defined(__aarch64__)
 #define COUNTER_UNIT_STR "ticks"
 #elif defined(__x86_64__) || defined(__i386__)
 #define COUNTER_UNIT_STR "cycles"
