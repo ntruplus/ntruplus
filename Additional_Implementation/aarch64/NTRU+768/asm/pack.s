@@ -30,29 +30,16 @@ _poly_frombytes:
     mov counter, #1536
 
 _loop_frombytes:
-    ld1 {v1.8h - v3.8h}, [src], #48
-    ld1 {v4.8h - v6.8h}, [src], #48
+    ld3 {v1.8h - v3.8h}, [src], #48
+    ld3 {v4.8h - v6.8h}, [src], #48
 
-    trn1  v7.2d, v1.2d, v4.2d
-    trn2  v8.2d, v1.2d, v4.2d
-    trn1  v9.2d, v2.2d, v5.2d
-    trn2 v10.2d, v2.2d, v5.2d
-    trn1 v11.2d, v3.2d, v6.2d
-    trn2 v12.2d, v3.2d, v6.2d
-
-    trn1 v13.4s, v7.4s, v10.4s
-    trn2 v14.4s, v7.4s, v10.4s
-    trn1 v15.4s, v8.4s, v11.4s
-    trn2 v16.4s, v8.4s, v11.4s
-    trn1 v17.4s, v9.4s, v12.4s
-    trn2 v18.4s, v9.4s, v12.4s
-
-    trn1 v19.8h, v13.8h, v16.8h
-    trn2 v20.8h, v13.8h, v16.8h
-    trn1 v21.8h, v14.8h, v17.8h
-    trn2 v22.8h, v14.8h, v17.8h
-    trn1 v23.8h, v15.8h, v18.8h
-    trn2 v24.8h, v15.8h, v18.8h
+    # Separate the packed words for coefficients 0..3 and 4..7.
+    uzp1 v19.8h, v1.8h, v4.8h
+    uzp1 v20.8h, v2.8h, v5.8h
+    uzp1 v21.8h, v3.8h, v6.8h
+    uzp2 v22.8h, v1.8h, v4.8h
+    uzp2 v23.8h, v2.8h, v5.8h
+    uzp2 v24.8h, v3.8h, v6.8h
 
     ushr v25.8h, v19.8h, #12
     sli  v25.8h, v20.8h, #4
@@ -186,30 +173,16 @@ _loop_tobytes:
     ushr v12.8h, v7.8h, #8
     sli  v12.8h, v8.8h, #4
 
-    trn1 v25.8h,  v1.8h,  v9.8h
-    trn1 v26.8h, v10.8h,  v5.8h
-    trn1 v27.8h, v11.8h, v12.8h
-    trn2 v28.8h,  v1.8h,  v9.8h
-    trn2 v29.8h, v10.8h,  v5.8h
-    trn2 v30.8h, v11.8h, v12.8h
+    # Interleave the two groups of three packed halfword streams.
+    zip1 v25.8h,  v1.8h,  v5.8h
+    zip1 v26.8h,  v9.8h, v11.8h
+    zip1 v27.8h, v10.8h, v12.8h
+    zip2 v28.8h,  v1.8h,  v5.8h
+    zip2 v29.8h,  v9.8h, v11.8h
+    zip2 v30.8h, v10.8h, v12.8h
 
-    trn1 v1.4s, v25.4s, v26.4s
-    trn1 v2.4s, v27.4s, v28.4s
-    trn1 v3.4s, v29.4s, v30.4s
-    trn2 v4.4s, v25.4s, v26.4s
-    trn2 v5.4s, v27.4s, v28.4s
-    trn2 v6.4s, v29.4s, v30.4s
-
-    trn1  v7.2d, v1.2d, v2.2d
-    trn1  v8.2d, v3.2d, v4.2d
-    trn1  v9.2d, v5.2d, v6.2d
-    trn2 v10.2d, v1.2d, v2.2d
-    trn2 v11.2d, v3.2d, v4.2d
-    trn2 v12.2d, v5.2d, v6.2d
-
-    #store
-    st1 { v7.8h -  v9.8h}, [dst], #48
-    st1 {v10.8h - v12.8h}, [dst], #48
+    st3 {v25.8h - v27.8h}, [dst], #48
+    st3 {v28.8h - v30.8h}, [dst], #48
 
     subs counter, counter, #128
     b.ne _loop_tobytes

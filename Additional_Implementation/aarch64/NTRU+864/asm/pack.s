@@ -18,19 +18,16 @@ _poly_frombytes:
     src     .req x1
     counter .req x8
 
-    adr x2, const_unpack_masks
-    ld1 {v28.16b-v30.16b}, [x2], #48
+    adr x2, const_mask_0fff
     ldr q31, [x2]
     movi v0.8h, #0
 
     mov counter, #1728
 
 _loop_frombytes:
-    ld1 {v16.16b}, [src], #16
-    ldr d17, [src], #8
-    tbl v18.16b, {v16.16b, v17.16b}, v28.16b
-    tbl v19.16b, {v16.16b, v17.16b}, v29.16b
-    tbl v20.16b, {v16.16b, v17.16b}, v30.16b
+    # Deinterleave the first two groups of packed byte triples.
+    ld3 {v18.16b - v20.16b}, [src], #48
+
     uxtl  v21.8h,  v18.8b
     uxtl  v22.8h,  v19.8b
     uxtl  v23.8h,  v20.8b
@@ -41,26 +38,18 @@ _loop_frombytes:
     zip1   v1.8h,  v21.8h,  v22.8h
     zip2   v2.8h,  v21.8h,  v22.8h
 
-    ld1 {v16.16b}, [src], #16
-    ldr d17, [src], #8
-    tbl v18.16b, {v16.16b, v17.16b}, v28.16b
-    tbl v19.16b, {v16.16b, v17.16b}, v29.16b
-    tbl v20.16b, {v16.16b, v17.16b}, v30.16b
-    uxtl  v21.8h,  v18.8b
-    uxtl  v22.8h,  v19.8b
-    uxtl  v23.8h,  v20.8b
-    sli   v21.8h,  v22.8h, #8
-    and  v21.16b, v21.16b, v31.16b
-    ushr  v22.8h,  v22.8h, #4
-    sli   v22.8h,  v23.8h, #4
-    zip1   v3.8h,  v21.8h,  v22.8h
-    zip2   v4.8h,  v21.8h,  v22.8h
+    uxtl2  v21.8h, v18.16b
+    uxtl2  v22.8h, v19.16b
+    uxtl2  v23.8h, v20.16b
+    sli    v21.8h,  v22.8h, #8
+    and   v21.16b, v21.16b, v31.16b
+    ushr   v22.8h,  v22.8h, #4
+    sli    v22.8h,  v23.8h, #4
+    zip1    v3.8h,  v21.8h,  v22.8h
+    zip2    v4.8h,  v21.8h,  v22.8h
 
-    ld1 {v16.16b}, [src], #16
-    ldr d17, [src], #8
-    tbl v18.16b, {v16.16b, v17.16b}, v28.16b
-    tbl v19.16b, {v16.16b, v17.16b}, v29.16b
-    tbl v20.16b, {v16.16b, v17.16b}, v30.16b
+    ld3 {v18.8b - v20.8b}, [src], #24
+
     uxtl  v21.8h,  v18.8b
     uxtl  v22.8h,  v19.8b
     uxtl  v23.8h,  v20.8b
@@ -233,10 +222,7 @@ _loop_tobytes:
 
 
 .align 4
-const_unpack_masks:
-    .byte 0, 3, 6, 9, 12, 15, 18, 21, 255, 255, 255, 255, 255, 255, 255, 255
-    .byte 1, 4, 7, 10, 13, 16, 19, 22, 255, 255, 255, 255, 255, 255, 255, 255
-    .byte 2, 5, 8, 11, 14, 17, 20, 23, 255, 255, 255, 255, 255, 255, 255, 255
+const_mask_0fff:
     .hword 0x0fff, 0x0fff, 0x0fff, 0x0fff
     .hword 0x0fff, 0x0fff, 0x0fff, 0x0fff
 
