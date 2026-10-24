@@ -3,12 +3,19 @@
 #include <arm_neon.h>
 
 /*
+ * References:
+ *
  * [BHK+21] Hanno Becker, Vincent Hwang, Matthias J. Kannwischer,
  * Bo-Yin Yang, and Shang-Yi Yang,
  * "Neon NTT: Faster Dilithium, Kyber, and Saber
  * on Cortex-A72 and Apple M1", IACR Transactions on Cryptographic
  * Hardware and Embedded Systems, 2022(1), pp. 221-244.
  * https://doi.org/10.46586/tches.v2022.i1.221-244
+ *
+ * [KCP26] Jonghyun Kim, Haehyun Cho, and Jong Hwan Park,
+ * "Accelerating NTRU+ Key Generation via Hierarchical Batch Inversion",
+ * Cryptology ePrint Archive, Paper 2026/1191, 2026.
+ * https://eprint.iacr.org/2026/1191
  */
 
 static const int16_t consts[] __attribute__((aligned(16))) = {
@@ -19,7 +26,8 @@ static const int16_t consts[] __attribute__((aligned(16))) = {
 * Name:        fqmul
 *
 * Description: Computes SIMD Montgomery products with R = 2^16.
-*              Uses Algorithm 12 of [BHK+21].
+*
+* Reference:   Algorithm 12 of [BHK+21].
 *
 * Arguments:   - int16x8_t x: input lanes in [-q+1,q-1]
 *              - int16x8_t y: input lanes in [-q+1,q-1]
@@ -43,8 +51,10 @@ static inline int16x8_t fqmul(int16x8_t x, int16x8_t y, int16x8_t con)
 /*************************************************
 * Name:        fqmul_precomp
 *
-* Description: Computes SIMD Montgomery products with a precomputed
-*              factor using Algorithm 12 of [BHK+21]. R = 2^16.
+* Description: Computes SIMD Montgomery products with R = 2^16
+*              using a precomputed factor.
+*
+* Reference:   Algorithm 12 of [BHK+21].
 *
 * Arguments:   - int16x8_t x: input lanes in [-q+1,q-1]
 *              - int16x8_t y: input lanes in [-q+1,q-1]
@@ -113,9 +123,7 @@ static inline int16x8_t fqinv(int16x8_t a, int16x8_t con)
 *              Three independent product and recovery chains expose ILP and
 *              are combined using Montgomery's trick.
 *
-* Reference:   J. Kim, H. Cho, and J. H. Park, "Accelerating NTRU+ Key
-*              Generation via Hierarchical Batch Inversion," IACR ePrint
-*              2026/1191, https://eprint.iacr.org/2026/1191.
+* Reference:   [KCP26].
 *
 * Arguments:   - int16x8_t *r: input/output array of SIMD field elements
 *              - int16x8_t con: vector of arithmetic constants
@@ -223,9 +231,7 @@ static inline void poly_baseinv_2(poly *r, const int16x8_t *den, int16x8_t con)
 *              and poly_baseinv_2 applies the inverses to complete each base
 *              inverse.
 *
-* Reference:   J. Kim, H. Cho, and J. H. Park, "Accelerating NTRU+ Key
-*              Generation via Hierarchical Batch Inversion," IACR ePrint
-*              2026/1191, https://eprint.iacr.org/2026/1191.
+* Reference:   [KCP26].
 *
 * Arguments:   - poly *r:       pointer to output polynomial
 *              - const poly *a: pointer to input polynomial

@@ -5,6 +5,15 @@
 #include "poly.h"
 #include "symmetric.h"
 
+/*
+ * References:
+ *
+ * [KCP26] Jonghyun Kim, Haehyun Cho, and Jong Hwan Park,
+ * "Accelerating NTRU+ Key Generation via Hierarchical Batch Inversion",
+ * Cryptology ePrint Archive, Paper 2026/1191, 2026.
+ * https://eprint.iacr.org/2026/1191
+ */
+
 #define NTRUPLUS_R           0x0012F51Eu
 #define NTRUPLUS_RINVSQ      0x35774C7Fu
 #define NTRUPLUS_RSQ         0xBFCBDDF0u
@@ -879,9 +888,7 @@ static inline int16_t fqinv(int16_t a)
 *              Eight independent product and recovery chains are combined
 *              hierarchically to expose ILP while retaining Montgomery's trick.
 *
-* Reference:   J. Kim, H. Cho, and J. H. Park, "Accelerating NTRU+ Key
-*              Generation via Hierarchical Batch Inversion," IACR ePrint
-*              2026/1191, https://eprint.iacr.org/2026/1191.
+* Reference:   [KCP26].
 *
 * Arguments:   - int16_t *r: input/output array of field elements
 **************************************************/
@@ -1076,9 +1083,7 @@ static inline void baseinv_2(int16_t r[NTRUPLUS_D], int16_t den[1])
 *              base denominators, fqinv_batch inverts them hierarchically,
 *              and baseinv_2 applies the inverses to complete each base inverse.
 *
-* Reference:   J. Kim, H. Cho, and J. H. Park, "Accelerating NTRU+ Key
-*              Generation via Hierarchical Batch Inversion," IACR ePrint
-*              2026/1191, https://eprint.iacr.org/2026/1191.
+* Reference:   [KCP26].
 *
 * Arguments:   - poly *r:       pointer to output polynomial
 *              - const poly *a: pointer to input polynomial

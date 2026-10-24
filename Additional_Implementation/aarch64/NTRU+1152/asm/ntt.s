@@ -1,9 +1,21 @@
+/*
+ * References:
+ *
+ * [BHK+21] Hanno Becker, Vincent Hwang, Matthias J. Kannwischer,
+ * Bo-Yin Yang, and Shang-Yi Yang,
+ * "Neon NTT: Faster Dilithium, Kyber, and Saber
+ * on Cortex-A72 and Apple M1", IACR Transactions on Cryptographic
+ * Hardware and Embedded Systems, 2022(1), pp. 221-244.
+ * https://doi.org/10.46586/tches.v2022.i1.221-244
+ */
+
 /*************************************************
 * Name:        poly_ntt
 *
 * Description: Transforms a polynomial from coefficient representation to
 *              the incomplete NTT representation.
-*              Twiddle products use Algorithm 10 of [BHK+21]; see base.s.
+*
+* Reference:   Algorithm 10 of [BHK+21].
 *
 * Arguments:   - poly *r: pointer to the input/output polynomial;
 *                         input coefficients must lie in [-3,4]
@@ -604,7 +616,8 @@ _looptop_3456:
 * Description: Transforms a polynomial from the incomplete NTT
 *              representation to coefficient representation and applies
 *              the inverse NTT scaling factor.
-*              Twiddle products use Algorithm 10 of [BHK+21]; see base.s.
+*
+* Reference:   Algorithm 10 of [BHK+21].
 *
 * Arguments:   - poly *r: pointer to the input/output polynomial;
 *                         input coefficients must lie in [-q+1,q-1]

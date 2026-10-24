@@ -5,6 +5,15 @@
 #include "poly.h"
 #include "consts.h"
 
+/*
+ * References:
+ *
+ * [KCP26] Jonghyun Kim, Haehyun Cho, and Jong Hwan Park,
+ * "Accelerating NTRU+ Key Generation via Hierarchical Batch Inversion",
+ * Cryptology ePrint Archive, Paper 2026/1191, 2026.
+ * https://eprint.iacr.org/2026/1191
+ */
+
 #define NTRUPLUS_QINV 12929
 
 #define NTRUPLUS_R3          460
@@ -86,9 +95,7 @@ static inline __m256i fqinv(__m256i a)
 *              Six independent product and recovery chains are combined
 *              hierarchically to expose ILP while retaining Montgomery's trick.
 *
-* Reference:   J. Kim, H. Cho, and J. H. Park, "Accelerating NTRU+ Key
-*              Generation via Hierarchical Batch Inversion," IACR ePrint
-*              2026/1191, https://eprint.iacr.org/2026/1191.
+* Reference:   [KCP26].
 *
 * Arguments:   - __m256i *r: input/output array of SIMD field elements
 *
@@ -326,9 +333,7 @@ static inline void poly_baseinv_2(poly *r, const __m256i den[18])
 *              and poly_baseinv_2 applies the inverses to complete each base
 *              inverse.
 *
-* Reference:   J. Kim, H. Cho, and J. H. Park, "Accelerating NTRU+ Key
-*              Generation via Hierarchical Batch Inversion," IACR ePrint
-*              2026/1191, https://eprint.iacr.org/2026/1191.
+* Reference:   [KCP26].
 *
 * Arguments:   - poly *r:       pointer to output polynomial
 *              - const poly *a: pointer to input polynomial

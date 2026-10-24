@@ -1,4 +1,6 @@
 /*
+ * References:
+ *
  * [BHK+21] Hanno Becker, Vincent Hwang, Matthias J. Kannwischer,
  * Bo-Yin Yang, and Shang-Yi Yang,
  * "Neon NTT: Faster Dilithium, Kyber, and Saber
