@@ -18,68 +18,39 @@ _poly_frombytes:
     src     .req x1
     counter .req x8
 
-    adr x2, const_mask_0fff
+    adr x2, const_unpack_masks
+    ld1 {v28.16b - v30.16b}, [x2], #48
     ldr q31, [x2]
     movi v0.8h, #0
 
     mov counter, #1728
 
 _loop_frombytes:
-    # Deinterleave the first two groups of packed byte triples.
-    ld3 {v18.16b - v20.16b}, [src], #48
+    # Deinterleave the first 16 triples and preserve their B/C streams.
+    ld3 {v16.16b - v18.16b}, [src], #48
+    mov v20.16b, v18.16b
+    mov v18.16b, v17.16b
+    ld3 { v21.8b -  v23.8b}, [src], #24
 
-    uxtl  v21.8h,  v18.8b
-    uxtl  v22.8h,  v19.8b
-    uxtl  v23.8h,  v20.8b
-    sli   v21.8h,  v22.8h, #8
-    and  v21.16b, v21.16b, v31.16b
-    ushr  v22.8h,  v22.8h, #4
-    sli   v22.8h,  v23.8h, #4
-    zip1   v1.8h,  v21.8h,  v22.8h
-    zip2   v2.8h,  v21.8h,  v22.8h
+    # Overlap the A/B and B/C tables at v18, which holds the B stream.
+    zip1 v17.2d, v21.2d, v22.2d
+    zip1 v19.2d, v22.2d, v23.2d
 
-    uxtl2  v21.8h, v18.16b
-    uxtl2  v22.8h, v19.16b
-    uxtl2  v23.8h, v20.16b
-    sli    v21.8h,  v22.8h, #8
-    and   v21.16b, v21.16b, v31.16b
-    ushr   v22.8h,  v22.8h, #4
-    sli    v22.8h,  v23.8h, #4
-    zip1    v3.8h,  v21.8h,  v22.8h
-    zip2    v4.8h,  v21.8h,  v22.8h
+    # Gather byte pairs directly in internal NTT order, c[6*k+j].
+    tbl v1.16b, {v16.16b - v18.16b}, v28.16b
+    tbl v2.16b, {v18.16b - v20.16b}, v28.16b
+    tbl v3.16b, {v16.16b - v18.16b}, v29.16b
+    tbl v4.16b, {v18.16b - v20.16b}, v29.16b
+    tbl v5.16b, {v16.16b - v18.16b}, v30.16b
+    tbl v6.16b, {v18.16b - v20.16b}, v30.16b
 
-    ld3 {v18.8b - v20.8b}, [src], #24
+    and v1.16b, v1.16b, v31.16b
+    and v3.16b, v3.16b, v31.16b
+    and v5.16b, v5.16b, v31.16b
 
-    uxtl  v21.8h,  v18.8b
-    uxtl  v22.8h,  v19.8b
-    uxtl  v23.8h,  v20.8b
-    sli   v21.8h,  v22.8h, #8
-    and  v21.16b, v21.16b, v31.16b
-    ushr  v22.8h,  v22.8h, #4
-    sli   v22.8h,  v23.8h, #4
-    zip1   v5.8h,  v21.8h,  v22.8h
-    zip2   v6.8h,  v21.8h,  v22.8h
-
-    trn1 v16.2d, v1.2d, v4.2d
-    trn2 v17.2d, v1.2d, v4.2d
-    trn1 v18.2d, v2.2d, v5.2d
-    trn2 v19.2d, v2.2d, v5.2d
-    trn1 v20.2d, v3.2d, v6.2d
-    trn2 v21.2d, v3.2d, v6.2d
-
-    trn1 v22.4s, v16.4s, v19.4s
-    trn2 v23.4s, v16.4s, v19.4s
-    trn1 v24.4s, v17.4s, v20.4s
-    trn2 v25.4s, v17.4s, v20.4s
-    trn1 v26.4s, v18.4s, v21.4s
-    trn2 v27.4s, v18.4s, v21.4s
-
-    trn1 v1.8h, v22.8h, v25.8h
-    trn2 v2.8h, v22.8h, v25.8h
-    trn1 v3.8h, v23.8h, v26.8h
-    trn2 v4.8h, v23.8h, v26.8h
-    trn1 v5.8h, v24.8h, v27.8h
-    trn2 v6.8h, v24.8h, v27.8h
+    ushr v2.8h, v2.8h, #4
+    ushr v4.8h, v4.8h, #4
+    ushr v6.8h, v6.8h, #4
 
     st1 {v1.8h - v4.8h}, [dst], #64
     st1 {v5.8h - v6.8h}, [dst], #32
@@ -128,7 +99,7 @@ _poly_tobytes:
     adr x2, const_q
     ldr q0, [x2]
     adr x2, const_pack_masks
-    ld1 {v30.16b-v31.16b}, [x2]
+    ld1 {v28.16b - v30.16b}, [x2]
 
     mov counter, #1728
 
@@ -163,53 +134,36 @@ _loop_tobytes:
     mls   v5.8h, v20.8h, v0.h[0]
     mls   v6.8h, v21.8h, v0.h[0]
 
-    trn1 v16.8h, v1.8h, v2.8h
-    trn1 v17.8h, v3.8h, v4.8h
-    trn1 v18.8h, v5.8h, v6.8h
-    trn2 v19.8h, v1.8h, v2.8h
-    trn2 v20.8h, v3.8h, v4.8h
-    trn2 v21.8h, v5.8h, v6.8h
+    # Pack each coefficient pair without changing its lane order.
+    sli  v1.8h, v2.8h, #12
+    ushr v2.8h, v2.8h, #4
+    sli  v3.8h, v4.8h, #12
+    ushr v4.8h, v4.8h, #4
+    sli  v5.8h, v6.8h, #12
+    ushr v6.8h, v6.8h, #4
 
-    trn1 v22.4s, v16.4s, v17.4s
-    trn1 v23.4s, v18.4s, v19.4s
-    trn1 v24.4s, v20.4s, v21.4s
-    trn2 v25.4s, v16.4s, v17.4s
-    trn2 v26.4s, v18.4s, v19.4s
-    trn2 v27.4s, v20.4s, v21.4s
+    # Each 48-byte table contains all three pairs for four coefficient lanes.
+    zip1 v16.2d, v1.2d, v2.2d
+    zip1 v17.2d, v3.2d, v4.2d
+    zip1 v18.2d, v5.2d, v6.2d
+    zip2 v19.2d, v1.2d, v2.2d
+    zip2 v20.2d, v3.2d, v4.2d
+    zip2 v21.2d, v5.2d, v6.2d
 
-    trn1 v1.2d, v22.2d, v23.2d
-    trn1 v2.2d, v24.2d, v25.2d
-    trn1 v3.2d, v26.2d, v27.2d
-    trn2 v4.2d, v22.2d, v23.2d
-    trn2 v5.2d, v24.2d, v25.2d
-    trn2 v6.2d, v26.2d, v27.2d
+    # Select the final 36-byte representation of each four-lane group.
+    tbl v1.16b, {v16.16b - v18.16b}, v28.16b
+    tbl v2.16b, {v16.16b - v18.16b}, v29.16b
+    tbl  v3.8b, {v16.16b - v18.16b},  v30.8b
+    tbl v4.16b, {v19.16b - v21.16b}, v28.16b
+    tbl v5.16b, {v19.16b - v21.16b}, v29.16b
+    tbl  v6.8b, {v19.16b - v21.16b},  v30.8b
 
-    uzp1 v16.8h,  v1.8h, v2.8h
-    uzp2 v17.8h,  v1.8h, v2.8h
-    sli  v16.8h, v17.8h, #12
-    ushr v17.8h, v17.8h, #4
-    tbl v18.16b, {v16.16b, v17.16b}, v30.16b
-    tbl v19.16b, {v16.16b, v17.16b}, v31.16b
-    str q18, [dst], #16
-    str d19, [dst], #8
-
-    uzp1 v16.8h,  v3.8h, v4.8h
-    uzp2 v17.8h,  v3.8h, v4.8h
-    sli  v16.8h, v17.8h, #12
-    ushr v17.8h, v17.8h, #4
-    tbl v18.16b, {v16.16b, v17.16b}, v30.16b
-    tbl v19.16b, {v16.16b, v17.16b}, v31.16b
-    str q18, [dst], #16
-    str d19, [dst], #8
-
-    uzp1 v16.8h,  v5.8h, v6.8h
-    uzp2 v17.8h,  v5.8h, v6.8h
-    sli  v16.8h, v17.8h, #12
-    ushr v17.8h, v17.8h, #4
-    tbl v18.16b, {v16.16b, v17.16b}, v30.16b
-    tbl v19.16b, {v16.16b, v17.16b}, v31.16b
-    str q18, [dst], #16
-    str d19, [dst], #8
+    str q1, [dst], #16
+    str q2, [dst], #16
+    str s3, [dst], #4
+    str q4, [dst], #16
+    str q5, [dst], #16
+    str s6, [dst], #4
 
     subs counter, counter, #96
     b.ne _loop_tobytes
@@ -222,14 +176,18 @@ _loop_tobytes:
 
 
 .align 4
-const_mask_0fff:
+const_unpack_masks:
+    .byte 0, 32, 3, 35, 6, 38, 9, 41, 12, 44, 15, 47, 18, 26, 21, 29
+    .byte 1, 33, 4, 36, 7, 39, 10, 42, 13, 45, 16, 24, 19, 27, 22, 30
+    .byte 2, 34, 5, 37, 8, 40, 11, 43, 14, 46, 17, 25, 20, 28, 23, 31
     .hword 0x0fff, 0x0fff, 0x0fff, 0x0fff
     .hword 0x0fff, 0x0fff, 0x0fff, 0x0fff
 
 .align 4
 const_pack_masks:
-    .byte 0, 1, 16, 2, 3, 18, 4, 5, 20, 6, 7, 22, 8, 9, 24, 10
-    .byte 11, 26, 12, 13, 28, 14, 15, 30, 255, 255, 255, 255, 255, 255, 255, 255
+    .byte 0, 1, 8, 16, 17, 24, 32, 33, 40, 2, 3, 10, 18, 19, 26, 34
+    .byte 35, 42, 4, 5, 12, 20, 21, 28, 36, 37, 44, 6, 7, 14, 22, 23
+    .byte 30, 38, 39, 46, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255
 
 .align 4
 const_q:
