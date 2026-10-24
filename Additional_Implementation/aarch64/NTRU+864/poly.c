@@ -3,7 +3,7 @@
 #include <arm_neon.h>
 
 static const int16_t consts[] __attribute__((aligned(16))) = {
-    0x0d81, 0x4bd4, 0xcd7f, 0xff6d, 0xfa8f, 0xf9dd, 0xc5d5, 0x0000
+    0x0d81, 0x4bd4, 0xcd7f, 0xff6d, 0xfa8f, 0xfd56, 0xe6c0, 0x0000
 };
 
 static inline int16x8_t fqmul(int16x8_t x, int16x8_t y, int16x8_t con)
@@ -39,18 +39,19 @@ static inline int16x8_t fqmul_precomp(int16x8_t x, int16x8_t y,
 }
 
 /*************************************************
-* Name:        fqinv
+* Name:        fqinv_mont
 *
-* Description: Computes SIMD multiplicative inverses in Z_q.
+* Description: Computes R-scaled SIMD multiplicative inverses in Z_q,
+*              where R = 2^16.
 *              The exponent q-2 = 3455 is evaluated using a shortest
 *              addition chain of length 15 (OEIS A003313).
 *
 * Arguments:   - int16x8_t a:   input field elements
 *              - int16x8_t con: vector of arithmetic constants
 *
-* Returns:     lane-wise multiplicative inverses of a
+* Returns:     lane-wise R-scaled multiplicative inverses of a
 **************************************************/
-static inline int16x8_t fqinv(int16x8_t a, int16x8_t con)
+static inline int16x8_t fqinv_mont(int16x8_t a, int16x8_t con)
 {
     int16x8_t t0, t1;
 
@@ -82,7 +83,7 @@ static inline int16x8_t fqinv(int16x8_t a, int16x8_t con)
 /*************************************************
 * Name:        poly_fqinv_batch
 *
-* Description: Inverts batches of SIMD field elements using one vector fqinv.
+* Description: Inverts batches of SIMD field elements using one fqinv_mont.
 *              Three independent product and recovery chains expose ILP and
 *              are combined using Montgomery's trick.
 *
@@ -90,7 +91,7 @@ static inline int16x8_t fqinv(int16x8_t a, int16x8_t con)
 *              Generation via Hierarchical Batch Inversion," IACR ePrint
 *              2026/1191, https://eprint.iacr.org/2026/1191.
 *
-* Arguments:   - int16x8_t *r: input/output array of SIMD field elements
+* Arguments:   - int16x8_t *r: input field elements, replaced by R-scaled inverses
 *              - int16x8_t con: vector of arithmetic constants
 *
 * Returns:     1 if an input is zero; otherwise 0
@@ -127,7 +128,7 @@ static inline int poly_fqinv_batch(int16x8_t *r, int16x8_t con)
     }
 
     const int16x8_t x01 = fqmul(x0, x1, con);
-    const int16x8_t inv012 = fqinv(fqmul(x01, x2, con), con);
+    const int16x8_t inv012 = fqinv_mont(fqmul(x01, x2, con), con);
     const int16x8_t inv01 = fqmul(inv012, x2, con);
 
     int16x8_t inv0 = fqmul(inv01, x1, con);
@@ -184,23 +185,23 @@ static inline void poly_baseinv_2(poly *r, const int16x8_t *den, int16x8_t con)
 }
 
 /*************************************************
-* Name:        poly_baseinv
+* Name:        poly_baseinv_mont
 *
-* Description: Inversion of polynomial in NTT domain. poly_baseinv_1 exposes
-*              all base denominators, poly_fqinv_batch inverts them in batches,
-*              and poly_baseinv_2 applies the inverses to complete each base
-*              inverse.
+* Description: Computes an R-scaled inverse in the NTT domain, where R = 2^16.
+*              poly_baseinv_1 exposes all base denominators, poly_fqinv_batch
+*              inverts them in batches, and poly_baseinv_2 applies the scaled
+*              inverses to complete each base inverse.
 *
 * Reference:   J. Kim, H. Cho, and J. H. Park, "Accelerating NTRU+ Key
 *              Generation via Hierarchical Batch Inversion," IACR ePrint
 *              2026/1191, https://eprint.iacr.org/2026/1191.
 *
-* Arguments:   - poly *r:       pointer to output polynomial
+* Arguments:   - poly *r:       pointer to output polynomial R*a^-1
 *              - const poly *a: pointer to input polynomial
 *
 * Returns:     1 if the polynomial is not invertible; otherwise 0
 **************************************************/
-int poly_baseinv(poly *r, const poly *a)
+int poly_baseinv_mont(poly *r, const poly *a)
 {
     const int16x8_t con = vld1q_s16(consts);
     int16x8_t den[36] __attribute__((aligned(16)));

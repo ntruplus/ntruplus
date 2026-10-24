@@ -150,6 +150,168 @@ _loop_cbd:
     ret
 
 /*************************************************
+* Name:        poly_cbd1_triple
+*
+* Description: Samples a polynomial from the centered binomial distribution
+*              with parameter eta = 1 and multiplies coefficients by 3.
+*
+* Arguments:   - poly *r: pointer to the output polynomial
+*              - const uint8_t *buf: pointer to NTRUPLUS_N/4 input bytes
+*
+* Returns:     none. Output coefficients lie in {-3,0,3}.
+**************************************************/
+.global poly_cbd1_triple
+.global _poly_cbd1_triple
+poly_cbd1_triple:
+_poly_cbd1_triple:
+    stp d8,  d9,  [sp, #-64]!
+    stp d10, d11, [sp, #16]
+    stp d12, d13, [sp, #32]
+    stp d14, d15, [sp, #48]
+
+    dst       .req x0
+    src       .req x1
+    counter   .req x8
+
+    movi    v0.16b, #0x55
+    movi    v1.16b, #0x03
+    movi    v2.16b, #0x01
+
+    mov counter, #1536
+
+_loop_cbd_triple:
+    #load
+    ldr q5, [src], #16
+    ldr q6, [src, #80]
+
+    ushr v7.16b, v5.16b, #1
+    ushr v8.16b, v6.16b, #1
+
+    and  v9.16b,  v5.16b, v0.16b
+    and v10.16b,  v6.16b, v0.16b
+    and v11.16b,  v7.16b, v0.16b
+    and v12.16b,  v8.16b, v0.16b
+
+    add  v9.16b,  v9.16b, v0.16b
+    add v11.16b, v11.16b, v0.16b
+
+    sub v5.16b,  v9.16b, v10.16b
+    sub v6.16b, v11.16b, v12.16b
+
+    ushr v7.16b, v5.16b, #2
+    ushr v8.16b, v6.16b, #2
+
+    #extract 1
+    and  v9.16b, v5.16b, v1.16b
+    and v10.16b, v6.16b, v1.16b
+    and v11.16b, v7.16b, v1.16b
+    and v12.16b, v8.16b, v1.16b
+
+    sub  v9.16b,  v9.16b, v2.16b
+    sub v10.16b, v10.16b, v2.16b
+    sub v11.16b, v11.16b, v2.16b
+    sub v12.16b, v12.16b, v2.16b
+
+    ushr v5.16b, v5.16b, #4
+    ushr v6.16b, v6.16b, #4
+    ushr v7.16b, v7.16b, #4
+    ushr v8.16b, v8.16b, #4
+
+    #extract 2
+    and v13.16b, v5.16b, v1.16b
+    and v14.16b, v6.16b, v1.16b
+    and v15.16b, v7.16b, v1.16b
+    and v16.16b, v8.16b, v1.16b
+
+    sub v13.16b, v13.16b, v2.16b
+    sub v14.16b, v14.16b, v2.16b
+    sub v15.16b, v15.16b, v2.16b
+    sub v16.16b, v16.16b, v2.16b
+
+    #shuffles
+    trn1 v17.16b,  v9.16b, v10.16b
+    trn1 v18.16b, v11.16b, v12.16b
+    trn1 v19.16b, v13.16b, v14.16b
+    trn1 v20.16b, v15.16b, v16.16b
+
+    trn2 v21.16b,  v9.16b, v10.16b
+    trn2 v22.16b, v11.16b, v12.16b
+    trn2 v23.16b, v13.16b, v14.16b
+    trn2 v24.16b, v15.16b, v16.16b
+
+    trn1 v25.8h, v17.8h, v18.8h
+    trn1 v26.8h, v19.8h, v20.8h
+    trn1 v27.8h, v21.8h, v22.8h
+    trn1 v28.8h, v23.8h, v24.8h
+
+    trn2 v29.8h, v17.8h, v18.8h
+    trn2 v30.8h, v19.8h, v20.8h
+    trn2 v31.8h, v21.8h, v22.8h
+    trn2  v5.8h, v23.8h, v24.8h
+
+    trn1 v6.4s, v25.4s, v26.4s
+    trn1 v7.4s, v27.4s, v28.4s
+    trn1 v8.4s, v29.4s, v30.4s
+    trn1 v9.4s, v31.4s,  v5.4s
+
+    trn2 v10.4s, v25.4s, v26.4s
+    trn2 v11.4s, v27.4s, v28.4s
+    trn2 v12.4s, v29.4s, v30.4s
+    trn2 v13.4s, v31.4s,  v5.4s
+
+    #triple
+    mul v6.16b, v6.16b, v1.16b
+    mul v7.16b, v7.16b, v1.16b
+    mul v8.16b, v8.16b, v1.16b
+    mul v9.16b, v9.16b, v1.16b
+    mul v10.16b, v10.16b, v1.16b
+    mul v11.16b, v11.16b, v1.16b
+    mul v12.16b, v12.16b, v1.16b
+    mul v13.16b, v13.16b, v1.16b
+
+    #expand
+    sshll  v14.8h, v6.8b, #0
+    sshll  v15.8h, v7.8b, #0
+    sshll  v16.8h, v8.8b, #0
+    sshll  v17.8h, v9.8b, #0
+
+    sshll  v18.8h, v10.8b, #0
+    sshll  v19.8h, v11.8b, #0
+    sshll  v20.8h, v12.8b, #0
+    sshll  v21.8h, v13.8b, #0
+
+    sshll2  v22.8h, v6.16b, #0
+    sshll2  v23.8h, v7.16b, #0
+    sshll2  v24.8h, v8.16b, #0
+    sshll2  v25.8h, v9.16b, #0
+
+    sshll2  v26.8h, v10.16b, #0
+    sshll2  v27.8h, v11.16b, #0
+    sshll2  v28.8h, v12.16b, #0
+    sshll2  v29.8h, v13.16b, #0
+
+    #store
+    st1 {v14.8h - v17.8h}, [dst], #64
+    st1 {v18.8h - v21.8h}, [dst], #64
+    st1 {v22.8h - v25.8h}, [dst], #64
+    st1 {v26.8h - v29.8h}, [dst], #64
+
+    subs counter, counter, #256
+    b.ne _loop_cbd_triple
+
+    .unreq    dst
+    .unreq    src
+    .unreq    counter
+
+    ldp d10, d11, [sp, #16]
+    ldp d12, d13, [sp, #32]
+    ldp d14, d15, [sp, #48]
+    ldp d8,  d9,  [sp], #64
+
+    ret
+
+
+/*************************************************
 * Name:        poly_sotp_encode
 *
 * Description: Encodes a message using a one-time pad and centered binomial
