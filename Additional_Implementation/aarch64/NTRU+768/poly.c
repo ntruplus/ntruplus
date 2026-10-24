@@ -119,9 +119,11 @@ static inline int poly_fqinv_batch(int16x8_t *r, int16x8_t con)
     const int16x8_t x1 = t[off1 + chunk - 1];
     const int16x8_t x2 = t[off2 + chunk - 1];
 
-    int fail = !vminvq_u16(vreinterpretq_u16_s16(x0)) |
-               !vminvq_u16(vreinterpretq_u16_s16(x1)) |
-               !vminvq_u16(vreinterpretq_u16_s16(x2));
+    const int fail0 = !vminvq_u16(vreinterpretq_u16_s16(x0));
+    const int fail1 = !vminvq_u16(vreinterpretq_u16_s16(x1));
+    const int fail2 = !vminvq_u16(vreinterpretq_u16_s16(x2));
+
+    int fail = fail0 | fail1 | fail2;
     ntruplus_declassify(&fail, sizeof fail);
 
     if (fail) {
