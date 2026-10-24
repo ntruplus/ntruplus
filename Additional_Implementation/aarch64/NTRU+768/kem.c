@@ -45,10 +45,10 @@ static inline int verify(const uint8_t *a, const uint8_t *b, size_t len)
 * Name:        genf_derand
 *
 * Description: Deterministically generates a secret polynomial f and its
-*              R-scaled multiplicative inverse finv in the NTT domain.
+*              multiplicative inverse finv in the NTT domain.
 *
 * Arguments:   - poly *f:     output polynomial f (NTT domain)
-*              - poly *finv:  output R-scaled multiplicative inverse of f
+*              - poly *finv:  output multiplicative inverse of f
 *                              in the NTT domain
 *              - uint8_t *buf: workspace of NTRUPLUS_N/4 bytes
 *              - const uint8_t *coins: 32-byte deterministic seed
@@ -66,17 +66,17 @@ static inline int genf_derand(poly *f, poly *finv,
 
     poly_ntt(f);
 
-    return poly_baseinv_mont(finv, f);
+    return poly_baseinv(finv, f);
 }
 
 /*************************************************
 * Name:        geng_derand
 *
 * Description: Deterministically generates a secret polynomial g and its
-*              R-scaled multiplicative inverse ginv in the NTT domain.
+*              multiplicative inverse ginv in the NTT domain.
 *
 * Arguments:   - poly *g:      output polynomial g (NTT domain)
-*              - poly *ginv:   output R-scaled multiplicative inverse of g
+*              - poly *ginv:   output multiplicative inverse of g
 *                               in the NTT domain
 *              - uint8_t *buf: workspace of NTRUPLUS_N/4 bytes
 *              - const uint8_t *coins: 32-byte deterministic seed
@@ -93,22 +93,22 @@ static inline int geng_derand(poly *g, poly *ginv,
 
     poly_ntt(g);
 
-    return poly_baseinv_mont(ginv, g);
+    return poly_baseinv(ginv, g);
 }
 
 /*************************************************
 * Name:        crypto_kem_keypair_derand
 *
 * Description: Computes the deterministic public and secret key pair from
-*              the secret polynomials f and g and their R-scaled
-*              multiplicative inverses finv and ginv in the NTT domain.
+*              the secret polynomials f and g and their multiplicative
+*              inverses finv and ginv in the NTT domain.
 *
 * Arguments:   - uint8_t *pk:   output public key
 *              - uint8_t *sk:   output secret key
 *              - const poly *f:     secret polynomial f (NTT domain)
-*              - const poly *finv:  R-scaled multiplicative inverse of f (NTT domain)
+*              - const poly *finv:  multiplicative inverse of f (NTT domain)
 *              - const poly *g:     secret polynomial g (NTT domain)
-*              - const poly *ginv:  R-scaled multiplicative inverse of g (NTT domain)
+*              - const poly *ginv:  multiplicative inverse of g (NTT domain)
 *
 * Returns:     void
 **************************************************/
@@ -118,10 +118,10 @@ static inline void crypto_kem_keypair_derand(uint8_t *pk, uint8_t *sk,
 {
     poly h;
 
-    poly_basemul_scale(&h, g, finv);
+    poly_basemul(&h, g, finv);
     poly_tobytes(pk, &h);
 
-    poly_basemul_scale(&h, f, ginv);
+    poly_basemul(&h, f, ginv);
     poly_tobytes(sk, f);
     poly_tobytes(sk + NTRUPLUS_POLYBYTES, &h);
     hash_f(sk + 2 * NTRUPLUS_POLYBYTES, pk);

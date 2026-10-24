@@ -22,7 +22,7 @@ int  poly_sotp_decode(uint8_t msg[NTRUPLUS_N/8], const poly *a, const uint8_t bu
 
 void poly_ntt(poly *r);
 void poly_invntt_scale(poly *r);
-int  poly_baseinv_mont(poly *r, const poly *a);
+int  poly_baseinv(poly *r, const poly *a);
 void poly_basemul(poly *r, const poly *a, const poly *b);
 void poly_basemul_scale(poly *r, const poly *a, const poly *b);
 void poly_basemul_add(poly *r, const poly *a, const poly *b, const poly *c);
