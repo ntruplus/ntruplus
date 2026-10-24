@@ -653,14 +653,21 @@ _poly_invntt_scale:
     counter   .req x8
 
     mov src, dst
-    load_address zetas_ptr, zetas_inv
+    load_address zetas_ptr, zetas, ZETAS_INV_START
 
     mov counter, #2304
 
+    load_address x9, consts_inverse_masks, 32
+    ldr q31, [x9]
+
 _looptop_6543:
-    # v0-v3: constants; v4-v11: coefficients; v12-v31: temporaries.
+    # v0-v3: constants; v4-v11: coefficients; v12-v30: temporaries; v31: mask.
     #load zetas
-    ld1 {v0.8h - v3.8h}, [zetas_ptr], #64
+    ldp q0, q1, [zetas_ptr], #-64
+    ldp q2, q3, [zetas_ptr, #96]
+
+    tbl v2.16b, {v2.16b}, v31.16b
+    tbl v3.16b, {v3.16b}, v31.16b
 
     #load coefficients
     ld1 {v4.8h -  v7.8h}, [src], #64
@@ -737,14 +744,14 @@ _looptop_6543:
     add v10.8h, v11.8h, v10.8h
 
     #mul
-    mul  v5.8h, v12.8h, v0.h[2]
-    mul  v7.8h, v13.8h, v0.h[4]
-    mul  v9.8h, v14.8h, v0.h[6]
+    mul  v5.8h, v12.8h, v1.h[6]
+    mul  v7.8h, v13.8h, v1.h[4]
+    mul  v9.8h, v14.8h, v1.h[2]
     mul v11.8h, v15.8h, v1.h[0]
 
-    sqrdmulh v12.8h, v12.8h, v0.h[3]
-    sqrdmulh v13.8h, v13.8h, v0.h[5]
-    sqrdmulh v14.8h, v14.8h, v0.h[7]
+    sqrdmulh v12.8h, v12.8h, v1.h[7]
+    sqrdmulh v13.8h, v13.8h, v1.h[5]
+    sqrdmulh v14.8h, v14.8h, v1.h[3]
     sqrdmulh v15.8h, v15.8h, v1.h[1]
 
     mls  v5.8h, v12.8h, v0.h[0]
@@ -766,15 +773,15 @@ _looptop_6543:
     add v9.8h, v11.8h, v9.8h
 
     #mul
-    mul  v6.8h, v12.8h, v1.h[2]
-    mul  v7.8h, v13.8h, v1.h[2]
-    mul v10.8h, v14.8h, v1.h[4]
-    mul v11.8h, v15.8h, v1.h[4]
+    mul  v6.8h, v12.8h, v0.h[6]
+    mul  v7.8h, v13.8h, v0.h[6]
+    mul v10.8h, v14.8h, v0.h[4]
+    mul v11.8h, v15.8h, v0.h[4]
 
-    sqrdmulh v12.8h, v12.8h, v1.h[3]
-    sqrdmulh v13.8h, v13.8h, v1.h[3]
-    sqrdmulh v14.8h, v14.8h, v1.h[5]
-    sqrdmulh v15.8h, v15.8h, v1.h[5]
+    sqrdmulh v12.8h, v12.8h, v0.h[7]
+    sqrdmulh v13.8h, v13.8h, v0.h[7]
+    sqrdmulh v14.8h, v14.8h, v0.h[5]
+    sqrdmulh v15.8h, v15.8h, v0.h[5]
 
     mls  v6.8h, v12.8h, v0.h[0]
     mls  v7.8h, v13.8h, v0.h[0]
@@ -786,12 +793,12 @@ _looptop_6543:
     sqrdmulh v28.8h, v4.8h, v0.h[1]
     sqrdmulh v29.8h, v5.8h, v0.h[1]
     sqrdmulh v30.8h, v8.8h, v0.h[1]
-    sqrdmulh v31.8h, v9.8h, v0.h[1]
+    sqrdmulh v16.8h, v9.8h, v0.h[1]
 
     mls v4.8h, v28.8h, v0.h[0]
     mls v5.8h, v29.8h, v0.h[0]
     mls v8.8h, v30.8h, v0.h[0]
-    mls v9.8h, v31.8h, v0.h[0]
+    mls v9.8h, v16.8h, v0.h[0]
 
     # Range after level 4: [-3187,3187].
     #level 3
@@ -807,15 +814,15 @@ _looptop_6543:
     add v7.8h, v11.8h, v7.8h
 
     #mul
-    mul  v8.8h, v12.8h, v1.h[6]
-    mul  v9.8h, v13.8h, v1.h[6]
-    mul v10.8h, v14.8h, v1.h[6]
-    mul v11.8h, v15.8h, v1.h[6]
+    mul  v8.8h, v12.8h, v0.h[2]
+    mul  v9.8h, v13.8h, v0.h[2]
+    mul v10.8h, v14.8h, v0.h[2]
+    mul v11.8h, v15.8h, v0.h[2]
 
-    sqrdmulh v12.8h, v12.8h, v1.h[7]
-    sqrdmulh v13.8h, v13.8h, v1.h[7]
-    sqrdmulh v14.8h, v14.8h, v1.h[7]
-    sqrdmulh v15.8h, v15.8h, v1.h[7]
+    sqrdmulh v12.8h, v12.8h, v0.h[3]
+    sqrdmulh v13.8h, v13.8h, v0.h[3]
+    sqrdmulh v14.8h, v14.8h, v0.h[3]
+    sqrdmulh v15.8h, v15.8h, v0.h[3]
 
     mls  v8.8h, v12.8h, v0.h[0]
     mls  v9.8h, v13.8h, v0.h[0]
@@ -831,9 +838,16 @@ _looptop_6543:
     b.ne _looptop_6543
 
     sub dst, dst, #2304
+    sub zetas_ptr, zetas_ptr, #16
 
     ld1 {v0.8h - v2.8h}, [zetas_ptr], #48
     ld1 {v3.8h - v4.8h}, [zetas_ptr], #32
+
+    load_address zetas_ptr, consts_inv
+    ldr d5, [zetas_ptr], #8
+    # Patch only header pairs unused by subsequent inverse butterflies.
+    ins v0.s[2], v5.s[0]
+    ins v4.s[3], v5.s[1]
 
     mov counter, #128
 
@@ -905,25 +919,25 @@ _looptop_210:
     add v11.8h, v11.8h, v13.8h  //r[i] + r[i + step] + r[i + 2*step]
 
     #mul 2
-    mul  v7.8h, v29.8h, v0.h[6]  //fqmul(zeta2, r[i + 2*step] - r[i + step] - t1);
-    mul v10.8h, v30.8h, v1.h[2]  //fqmul(zeta2, r[i + 2*step] - r[i + step] - t1);
-    mul v13.8h, v31.8h, v1.h[6]  //fqmul(zeta2, r[i + 2*step] - r[i + step] - t1);
+    mul  v7.8h, v29.8h, v4.h[4]  //fqmul(zeta2, r[i + 2*step] - r[i + step] - t1);
+    mul v10.8h, v30.8h, v4.h[0]  //fqmul(zeta2, r[i + 2*step] - r[i + step] - t1);
+    mul v13.8h, v31.8h, v3.h[4]  //fqmul(zeta2, r[i + 2*step] - r[i + step] - t1);
 
-    sqrdmulh v29.8h, v29.8h, v0.h[7]
-    sqrdmulh v30.8h, v30.8h, v1.h[3]
-    sqrdmulh v31.8h, v31.8h, v1.h[7]
+    sqrdmulh v29.8h, v29.8h, v4.h[5]
+    sqrdmulh v30.8h, v30.8h, v4.h[1]
+    sqrdmulh v31.8h, v31.8h, v3.h[5]
 
     mls  v7.8h, v29.8h, v0.h[0]
     mls v10.8h, v30.8h, v0.h[0]
     mls v13.8h, v31.8h, v0.h[0]
 
-    mul  v6.8h, v26.8h, v0.h[4]  //fqmul(zeta1, r[i + 2*step] - r[i]        + t1);
-    mul  v9.8h, v27.8h, v1.h[0]  //fqmul(zeta1, r[i + 2*step] - r[i]        + t1);
-    mul v12.8h, v28.8h, v1.h[4]  //fqmul(zeta1, r[i + 2*step] - r[i]        + t1);
+    mul  v6.8h, v26.8h, v4.h[2]  //fqmul(zeta1, r[i + 2*step] - r[i]        + t1);
+    mul  v9.8h, v27.8h, v3.h[6]  //fqmul(zeta1, r[i + 2*step] - r[i]        + t1);
+    mul v12.8h, v28.8h, v3.h[2]  //fqmul(zeta1, r[i + 2*step] - r[i]        + t1);
 
-    sqrdmulh v26.8h, v26.8h, v0.h[5]
-    sqrdmulh v27.8h, v27.8h, v1.h[1]
-    sqrdmulh v28.8h, v28.8h, v1.h[5]
+    sqrdmulh v26.8h, v26.8h, v4.h[3]
+    sqrdmulh v27.8h, v27.8h, v3.h[7]
+    sqrdmulh v28.8h, v28.8h, v3.h[3]
 
     mls  v6.8h, v26.8h, v0.h[0]
     mls  v9.8h, v27.8h, v0.h[0]
@@ -983,25 +997,25 @@ _looptop_210:
     add v20.8h, v20.8h, v22.8h  //r[i] + r[i + step] + r[i + 2*step]
 
     #mul 2
-    mul v16.8h, v29.8h, v2.h[2]  //fqmul(zeta2, r[i + 2*step] - r[i + step] - t1);
-    mul v19.8h, v30.8h, v2.h[6]  //fqmul(zeta2, r[i + 2*step] - r[i + step] - t1);
-    mul v22.8h, v31.8h, v3.h[2]  //fqmul(zeta2, r[i + 2*step] - r[i + step] - t1);
+    mul v16.8h, v29.8h, v3.h[0]  //fqmul(zeta2, r[i + 2*step] - r[i + step] - t1);
+    mul v19.8h, v30.8h, v2.h[4]  //fqmul(zeta2, r[i + 2*step] - r[i + step] - t1);
+    mul v22.8h, v31.8h, v2.h[0]  //fqmul(zeta2, r[i + 2*step] - r[i + step] - t1);
 
-    sqrdmulh v29.8h, v29.8h, v2.h[3]
-    sqrdmulh v30.8h, v30.8h, v2.h[7]
-    sqrdmulh v31.8h, v31.8h, v3.h[3]
+    sqrdmulh v29.8h, v29.8h, v3.h[1]
+    sqrdmulh v30.8h, v30.8h, v2.h[5]
+    sqrdmulh v31.8h, v31.8h, v2.h[1]
 
     mls v16.8h, v29.8h, v0.h[0]
     mls v19.8h, v30.8h, v0.h[0]
     mls v22.8h, v31.8h, v0.h[0]
 
-    mul v15.8h, v26.8h, v2.h[0]  //fqmul(zeta1, r[i + 2*step] - r[i]        + t1);
-    mul v18.8h, v27.8h, v2.h[4]  //fqmul(zeta1, r[i + 2*step] - r[i]        + t1);
-    mul v21.8h, v28.8h, v3.h[0]  //fqmul(zeta1, r[i + 2*step] - r[i]        + t1);
+    mul v15.8h, v26.8h, v2.h[6]  //fqmul(zeta1, r[i + 2*step] - r[i]        + t1);
+    mul v18.8h, v27.8h, v2.h[2]  //fqmul(zeta1, r[i + 2*step] - r[i]        + t1);
+    mul v21.8h, v28.8h, v1.h[6]  //fqmul(zeta1, r[i + 2*step] - r[i]        + t1);
 
-    sqrdmulh v26.8h, v26.8h, v2.h[1]
-    sqrdmulh v27.8h, v27.8h, v2.h[5]
-    sqrdmulh v28.8h, v28.8h, v3.h[1]
+    sqrdmulh v26.8h, v26.8h, v2.h[7]
+    sqrdmulh v27.8h, v27.8h, v2.h[3]
+    sqrdmulh v28.8h, v28.8h, v1.h[7]
 
     mls v15.8h, v26.8h, v0.h[0]
     mls v18.8h, v27.8h, v0.h[0]
@@ -1062,25 +1076,25 @@ _looptop_210:
     add v7.8h, v7.8h, v13.8h  //r[i] + r[i + step] + r[i + 2*step]
 
     #mul 2
-    mul v11.8h, v29.8h, v3.h[6]  //fqmul(zeta2, r[i + 2*step] - r[i + step] - t1);
-    mul v12.8h, v30.8h, v3.h[6]  //fqmul(zeta2, r[i + 2*step] - r[i + step] - t1);
-    mul v13.8h, v31.8h, v3.h[6]  //fqmul(zeta2, r[i + 2*step] - r[i + step] - t1);
+    mul v11.8h, v29.8h, v1.h[4]  //fqmul(zeta2, r[i + 2*step] - r[i + step] - t1);
+    mul v12.8h, v30.8h, v1.h[4]  //fqmul(zeta2, r[i + 2*step] - r[i + step] - t1);
+    mul v13.8h, v31.8h, v1.h[4]  //fqmul(zeta2, r[i + 2*step] - r[i + step] - t1);
 
-    sqrdmulh v29.8h, v29.8h, v3.h[7]
-    sqrdmulh v30.8h, v30.8h, v3.h[7]
-    sqrdmulh v31.8h, v31.8h, v3.h[7]
+    sqrdmulh v29.8h, v29.8h, v1.h[5]
+    sqrdmulh v30.8h, v30.8h, v1.h[5]
+    sqrdmulh v31.8h, v31.8h, v1.h[5]
 
     mls v11.8h, v29.8h, v0.h[0]
     mls v12.8h, v30.8h, v0.h[0]
     mls v13.8h, v31.8h, v0.h[0]
 
-    mul  v8.8h, v26.8h, v3.h[4]  //fqmul(zeta1, r[i + 2*step] - r[i]        + t1);
-    mul  v9.8h, v27.8h, v3.h[4]  //fqmul(zeta1, r[i + 2*step] - r[i]        + t1);
-    mul v10.8h, v28.8h, v3.h[4]  //fqmul(zeta1, r[i + 2*step] - r[i]        + t1);
+    mul  v8.8h, v26.8h, v1.h[2]  //fqmul(zeta1, r[i + 2*step] - r[i]        + t1);
+    mul  v9.8h, v27.8h, v1.h[2]  //fqmul(zeta1, r[i + 2*step] - r[i]        + t1);
+    mul v10.8h, v28.8h, v1.h[2]  //fqmul(zeta1, r[i + 2*step] - r[i]        + t1);
 
-    sqrdmulh v26.8h, v26.8h, v3.h[5]
-    sqrdmulh v27.8h, v27.8h, v3.h[5]
-    sqrdmulh v28.8h, v28.8h, v3.h[5]
+    sqrdmulh v26.8h, v26.8h, v1.h[3]
+    sqrdmulh v27.8h, v27.8h, v1.h[3]
+    sqrdmulh v28.8h, v28.8h, v1.h[3]
 
     mls  v8.8h, v26.8h, v0.h[0]
     mls  v9.8h, v27.8h, v0.h[0]
@@ -1130,25 +1144,25 @@ _looptop_210:
     add v16.8h, v16.8h, v22.8h  //r[i] + r[i + step] + r[i + 2*step]
 
     #mul 2
-    mul v20.8h, v29.8h, v4.h[2]  //fqmul(zeta2, r[i + 2*step] - r[i + step] - t1);
-    mul v21.8h, v30.8h, v4.h[2]  //fqmul(zeta2, r[i + 2*step] - r[i + step] - t1);
-    mul v22.8h, v31.8h, v4.h[2]  //fqmul(zeta2, r[i + 2*step] - r[i + step] - t1);
+    mul v20.8h, v29.8h, v1.h[0]  //fqmul(zeta2, r[i + 2*step] - r[i + step] - t1);
+    mul v21.8h, v30.8h, v1.h[0]  //fqmul(zeta2, r[i + 2*step] - r[i + step] - t1);
+    mul v22.8h, v31.8h, v1.h[0]  //fqmul(zeta2, r[i + 2*step] - r[i + step] - t1);
 
-    sqrdmulh v29.8h, v29.8h, v4.h[3]
-    sqrdmulh v30.8h, v30.8h, v4.h[3]
-    sqrdmulh v31.8h, v31.8h, v4.h[3]
+    sqrdmulh v29.8h, v29.8h, v1.h[1]
+    sqrdmulh v30.8h, v30.8h, v1.h[1]
+    sqrdmulh v31.8h, v31.8h, v1.h[1]
 
     mls v20.8h, v29.8h, v0.h[0]
     mls v21.8h, v30.8h, v0.h[0]
     mls v22.8h, v31.8h, v0.h[0]
 
-    mul v17.8h, v26.8h, v4.h[0]  //fqmul(zeta1, r[i + 2*step] - r[i]        + t1);
-    mul v18.8h, v27.8h, v4.h[0]  //fqmul(zeta1, r[i + 2*step] - r[i]        + t1);
-    mul v19.8h, v28.8h, v4.h[0]  //fqmul(zeta1, r[i + 2*step] - r[i]        + t1);
+    mul v17.8h, v26.8h, v0.h[6]  //fqmul(zeta1, r[i + 2*step] - r[i]        + t1);
+    mul v18.8h, v27.8h, v0.h[6]  //fqmul(zeta1, r[i + 2*step] - r[i]        + t1);
+    mul v19.8h, v28.8h, v0.h[6]  //fqmul(zeta1, r[i + 2*step] - r[i]        + t1);
 
-    sqrdmulh v26.8h, v26.8h, v4.h[1]
-    sqrdmulh v27.8h, v27.8h, v4.h[1]
-    sqrdmulh v28.8h, v28.8h, v4.h[1]
+    sqrdmulh v26.8h, v26.8h, v0.h[7]
+    sqrdmulh v27.8h, v27.8h, v0.h[7]
+    sqrdmulh v28.8h, v28.8h, v0.h[7]
 
     mls v17.8h, v26.8h, v0.h[0]
     mls v18.8h, v27.8h, v0.h[0]
@@ -1178,37 +1192,37 @@ _looptop_210:
     add v13.8h, v13.8h, v22.8h
 
     #mul 1
-    mul v14.8h, v23.8h, v4.h[4]
-    mul v15.8h, v24.8h, v4.h[4]
-    mul v16.8h, v25.8h, v4.h[4]
+    mul v14.8h, v23.8h, v0.h[4]
+    mul v15.8h, v24.8h, v0.h[4]
+    mul v16.8h, v25.8h, v0.h[4]
 
-    sqrdmulh v23.8h, v23.8h, v4.h[5]
-    sqrdmulh v24.8h, v24.8h, v4.h[5]
-    sqrdmulh v25.8h, v25.8h, v4.h[5]
+    sqrdmulh v23.8h, v23.8h, v0.h[5]
+    sqrdmulh v24.8h, v24.8h, v0.h[5]
+    sqrdmulh v25.8h, v25.8h, v0.h[5]
 
     mls v14.8h, v23.8h, v0.h[0]
     mls v15.8h, v24.8h, v0.h[0]
     mls v16.8h, v25.8h, v0.h[0]
 
-    mul v17.8h, v26.8h, v4.h[4]
-    mul v18.8h, v27.8h, v4.h[4]
-    mul v19.8h, v28.8h, v4.h[4]
+    mul v17.8h, v26.8h, v0.h[4]
+    mul v18.8h, v27.8h, v0.h[4]
+    mul v19.8h, v28.8h, v0.h[4]
 
-    sqrdmulh v26.8h, v26.8h, v4.h[5]
-    sqrdmulh v27.8h, v27.8h, v4.h[5]
-    sqrdmulh v28.8h, v28.8h, v4.h[5]
+    sqrdmulh v26.8h, v26.8h, v0.h[5]
+    sqrdmulh v27.8h, v27.8h, v0.h[5]
+    sqrdmulh v28.8h, v28.8h, v0.h[5]
 
     mls v17.8h, v26.8h, v0.h[0]
     mls v18.8h, v27.8h, v0.h[0]
     mls v19.8h, v28.8h, v0.h[0]
 
-    mul v20.8h, v29.8h, v4.h[4]
-    mul v21.8h, v30.8h, v4.h[4]
-    mul v22.8h, v31.8h, v4.h[4]
+    mul v20.8h, v29.8h, v0.h[4]
+    mul v21.8h, v30.8h, v0.h[4]
+    mul v22.8h, v31.8h, v0.h[4]
 
-    sqrdmulh v29.8h, v29.8h, v4.h[5]
-    sqrdmulh v30.8h, v30.8h, v4.h[5]
-    sqrdmulh v31.8h, v31.8h, v4.h[5]
+    sqrdmulh v29.8h, v29.8h, v0.h[5]
+    sqrdmulh v30.8h, v30.8h, v0.h[5]
+    sqrdmulh v31.8h, v31.8h, v0.h[5]
 
     mls v20.8h, v29.8h, v0.h[0]
     mls v21.8h, v30.8h, v0.h[0]
@@ -1274,6 +1288,7 @@ _looptop_210:
     str q13, [dst, #8*128]
 
     # v5 is free after store 1 and holds the final scale constants.
+
     ldr s5, [zetas_ptr]
 
     sqrdmulh v24.8h, v14.8h, v5.h[1]
