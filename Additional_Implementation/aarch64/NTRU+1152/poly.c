@@ -2,24 +2,42 @@
 #include "poly.h"
 #include <arm_neon.h>
 
+/*
+ * [BHK+21] Hanno Becker, Vincent Hwang, Matthias J. Kannwischer,
+ * Bo-Yin Yang, and Shang-Yi Yang,
+ * "Neon NTT: Faster Dilithium, Kyber, and Saber
+ * on Cortex-A72 and Apple M1", IACR Transactions on Cryptographic
+ * Hardware and Embedded Systems, 2022(1), pp. 221-244.
+ * https://doi.org/10.46586/tches.v2022.i1.221-244
+ */
+
 static const int16_t consts[] __attribute__((aligned(16))) = {
-    0x0d81, 0x4bd4, 0xcd7f, 0xff6d, 0xfa8f, 0xf9dd, 0xc5d5, 0x0000
+    0x0d81, 0x4bd4, 0xcd7f, 0xff6d, 0xfa8f, 0xf9dd, 0xc5d5, 0x3281
 };
 
+/*************************************************
+* Name:        fqmul
+*
+* Description: Computes SIMD Montgomery products with R = 2^16.
+*              Uses Algorithm 12 of [BHK+21].
+*
+* Arguments:   - int16x8_t x: input lanes in [-q+1,q-1]
+*              - int16x8_t y: input lanes in [-q+1,q-1]
+*              - int16x8_t con: constants with con[0] = q and
+*                              con[7] = q^-1 mod R
+*
+* Returns:     lane-wise representatives of x*y*R^-1 modulo q
+*              in [-1910,1910]
+**************************************************/
 static inline int16x8_t fqmul(int16x8_t x, int16x8_t y, int16x8_t con)
 {
-    int32x4_t l, h;
+    const int16x8_t h = vqdmulhq_s16(x, y);
     int16x8_t t = vmulq_s16(x, y);
 
-    l  = vmull_s16(vget_low_s16(x), vget_low_s16(y));
-    h  = vmull_high_s16(x, y);
+    t = vmulq_laneq_s16(t, con, 7);
+    t = vqdmulhq_laneq_s16(t, con, 0);
 
-    t  = vmulq_laneq_s16(t, con, 2);
-
-    l  = vmlal_lane_s16(l, vget_low_s16(t), vget_low_s16(con), 0);
-    h  = vmlal_high_lane_s16(h, t, vget_low_s16(con), 0);
-
-    return vuzp2q_s16(vreinterpretq_s16_s32(l), vreinterpretq_s16_s32(h));
+    return vhsubq_s16(h, t);
 }
 
 /* yqinv = y * QINV mod 2^16 is reused across multiple products. */
