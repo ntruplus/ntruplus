@@ -38,69 +38,64 @@ _looptop:
     ld1 {v4.8h - v7.8h}, [src1], #64
     ld1 {v16.8h - v19.8h}, [src2], #64
 
-    smull   v20.4s, v5.4h, v19.4h //a1*b3
-    smull2  v21.4s, v5.8h, v19.8h //a1*b3
-    smull   v22.4s, v6.4h, v19.4h //a2*b3
-    smull2  v23.4s, v6.8h, v19.8h //a2*b3
-    smull   v24.4s, v7.4h, v19.4h //a3*b3
-    smull2  v25.4s, v7.8h, v19.8h //a3*b3
+    smull   v20.4s, v5.4h, v19.4h   // a1*b3
+    smull2  v21.4s, v5.8h, v19.8h   // a1*b3
+    smull   v22.4s, v6.4h, v19.4h   // a2*b3
+    smull2  v23.4s, v6.8h, v19.8h   // a2*b3
+    mul     v28.8h,  v7.8h, v19.8h  // a3*b3
+    sqdmulh v24.8h,  v7.8h, v19.8h  // a3*b3
+    smlal   v20.4s, v6.4h, v18.4h   // a2*b2
+    smlal2  v21.4s, v6.8h, v18.8h   // a2*b2
+    smlal   v22.4s, v7.4h, v18.4h   // a3*b2
+    smlal2  v23.4s, v7.8h, v18.8h   // a3*b2
 
-    smlal   v20.4s, v6.4h, v18.4h //a2*b2
-    smlal2  v21.4s, v6.8h, v18.8h //a2*b2
-    smlal   v22.4s, v7.4h, v18.4h //a3*b2
-    smlal2  v23.4s, v7.8h, v18.8h //a3*b2
+    smlal   v20.4s, v7.4h, v17.4h   // a3*b1
+    smlal2  v21.4s, v7.8h, v17.8h   // a3*b1
 
-    smlal   v20.4s, v7.4h, v17.4h //a3*b1
-    smlal2  v21.4s, v7.8h, v17.8h //a3*b1
-
-    uzp1    v28.8h, v24.8h, v25.8h
     uzp1    v27.8h, v22.8h, v23.8h
     uzp1    v26.8h, v20.8h, v21.8h
-
-    mul     v28.8h, v28.8h, v0.h[2]
+    mul     v28.8h, v28.8h, v0.h[7]
     mul     v27.8h, v27.8h, v0.h[2]
     mul     v26.8h, v26.8h, v0.h[2]
+    sqdmulh v28.8h, v28.8h, v0.h[0]
 
-    smlal   v24.4s, v28.4h, v0.h[0]
-    smlal2  v25.4s, v28.8h, v0.h[0]
     smlal   v22.4s, v27.4h, v0.h[0]
     smlal2  v23.4s, v27.8h, v0.h[0]
     smlal   v20.4s, v26.4h, v0.h[0]
     smlal2  v21.4s, v26.8h, v0.h[0]
-
-    uzp2    v28.8h, v24.8h, v25.8h
+    shsub   v28.8h, v24.8h, v28.8h
     uzp2    v3.8h, v22.8h, v23.8h
     uzp2    v2.8h, v20.8h, v21.8h
 
-    smull   v26.4s, v7.4h, v16.4h //a3*b0
-    smull2  v27.4s, v7.8h, v16.8h //a3*b0
-    smull   v24.4s, v28.4h, v1.4h //r[2]*zeta
-    smull2  v25.4s, v28.8h, v1.8h //r[2]*zeta
-    smull   v22.4s, v3.4h, v1.4h //r[1]*zeta
-    smull2  v23.4s, v3.8h, v1.8h //r[1]*zeta
-    smull   v20.4s, v2.4h, v1.4h //r[0]*zeta
-    smull2  v21.4s, v2.8h, v1.8h //r[0]*zeta
+    smull   v26.4s, v7.4h, v16.4h   // a3*b0
+    smull2  v27.4s, v7.8h, v16.8h   // a3*b0
+    smull   v24.4s, v28.4h, v1.4h   // r[2]*zeta
+    smull2  v25.4s, v28.8h, v1.8h   // r[2]*zeta
+    smull   v22.4s, v3.4h, v1.4h    // r[1]*zeta
+    smull2  v23.4s, v3.8h, v1.8h    // r[1]*zeta
+    smull   v20.4s, v2.4h, v1.4h    // r[0]*zeta
+    smull2  v21.4s, v2.8h, v1.8h    // r[0]*zeta
 
-    smlal   v26.4s, v4.4h,  v19.4h //a0*b3
-    smlal2  v27.4s, v4.8h,  v19.8h //a0*b3
-    smlal   v24.4s, v4.4h, v18.4h //a0*b2
-    smlal2  v25.4s, v4.8h, v18.8h //a0*b2
-    smlal   v22.4s, v4.4h, v17.4h //a0*b1
-    smlal2  v23.4s, v4.8h, v17.8h //a0*b1
-    smlal   v20.4s, v4.4h, v16.4h //a0*b0
-    smlal2  v21.4s, v4.8h, v16.8h //a0*b0
+    smlal   v26.4s, v4.4h,  v19.4h  // a0*b3
+    smlal2  v27.4s, v4.8h,  v19.8h  // a0*b3
+    smlal   v24.4s, v4.4h, v18.4h   // a0*b2
+    smlal2  v25.4s, v4.8h, v18.8h   // a0*b2
+    smlal   v22.4s, v4.4h, v17.4h   // a0*b1
+    smlal2  v23.4s, v4.8h, v17.8h   // a0*b1
+    smlal   v20.4s, v4.4h, v16.4h   // a0*b0
+    smlal2  v21.4s, v4.8h, v16.8h   // a0*b0
 
-    smlal   v26.4s, v5.4h, v18.4h //a1*b2
-    smlal2  v27.4s, v5.8h, v18.8h //a1*b2
-    smlal   v24.4s, v5.4h, v17.4h //a1*b1
-    smlal2  v25.4s, v5.8h, v17.8h //a1*b1
-    smlal   v22.4s, v5.4h, v16.4h //a1*b0
-    smlal2  v23.4s, v5.8h, v16.8h //a1*b0
+    smlal   v26.4s, v5.4h, v18.4h   // a1*b2
+    smlal2  v27.4s, v5.8h, v18.8h   // a1*b2
+    smlal   v24.4s, v5.4h, v17.4h   // a1*b1
+    smlal2  v25.4s, v5.8h, v17.8h   // a1*b1
+    smlal   v22.4s, v5.4h, v16.4h   // a1*b0
+    smlal2  v23.4s, v5.8h, v16.8h   // a1*b0
 
-    smlal   v26.4s, v6.4h, v17.4h //a2*b1
-    smlal2  v27.4s, v6.8h, v17.8h //a2*b1
-    smlal   v24.4s, v6.4h, v16.4h //a2*b0
-    smlal2  v25.4s, v6.8h, v16.8h //a2*b0
+    smlal   v26.4s, v6.4h, v17.4h   // a2*b1
+    smlal2  v27.4s, v6.8h, v17.8h   // a2*b1
+    smlal   v24.4s, v6.4h, v16.4h   // a2*b0
+    smlal2  v25.4s, v6.8h, v16.8h   // a2*b0
 
     uzp1    v31.8h, v26.8h, v27.8h
     uzp1    v30.8h, v24.8h, v25.8h
@@ -155,7 +150,6 @@ _looptop:
     .unreq    zetas_ptr
     .unreq    counter
 
-
     ret
 
 
@@ -200,69 +194,64 @@ _looptop_scale:
     ld1 {v4.8h - v7.8h}, [src1], #64
     ld1 {v16.8h - v19.8h}, [src2], #64
 
-    smull   v20.4s, v5.4h, v19.4h //a1*b3
-    smull2  v21.4s, v5.8h, v19.8h //a1*b3
-    smull   v22.4s, v6.4h, v19.4h //a2*b3
-    smull2  v23.4s, v6.8h, v19.8h //a2*b3
-    smull   v24.4s, v7.4h, v19.4h //a3*b3
-    smull2  v25.4s, v7.8h, v19.8h //a3*b3
+    smull   v20.4s, v5.4h, v19.4h   // a1*b3
+    smull2  v21.4s, v5.8h, v19.8h   // a1*b3
+    smull   v22.4s, v6.4h, v19.4h   // a2*b3
+    smull2  v23.4s, v6.8h, v19.8h   // a2*b3
+    mul     v28.8h,  v7.8h, v19.8h  // a3*b3
+    sqdmulh v24.8h,  v7.8h, v19.8h  // a3*b3
+    smlal   v20.4s, v6.4h, v18.4h   // a2*b2
+    smlal2  v21.4s, v6.8h, v18.8h   // a2*b2
+    smlal   v22.4s, v7.4h, v18.4h   // a3*b2
+    smlal2  v23.4s, v7.8h, v18.8h   // a3*b2
 
-    smlal   v20.4s, v6.4h, v18.4h //a2*b2
-    smlal2  v21.4s, v6.8h, v18.8h //a2*b2
-    smlal   v22.4s, v7.4h, v18.4h //a3*b2
-    smlal2  v23.4s, v7.8h, v18.8h //a3*b2
+    smlal   v20.4s, v7.4h, v17.4h   // a3*b1
+    smlal2  v21.4s, v7.8h, v17.8h   // a3*b1
 
-    smlal   v20.4s, v7.4h, v17.4h //a3*b1
-    smlal2  v21.4s, v7.8h, v17.8h //a3*b1
-
-    uzp1    v28.8h, v24.8h, v25.8h
     uzp1    v27.8h, v22.8h, v23.8h
     uzp1    v26.8h, v20.8h, v21.8h
-
-    mul     v28.8h, v28.8h, v0.h[2]
+    mul     v28.8h, v28.8h, v0.h[7]
     mul     v27.8h, v27.8h, v0.h[2]
     mul     v26.8h, v26.8h, v0.h[2]
+    sqdmulh v28.8h, v28.8h, v0.h[0]
 
-    smlal   v24.4s, v28.4h, v0.h[0]
-    smlal2  v25.4s, v28.8h, v0.h[0]
     smlal   v22.4s, v27.4h, v0.h[0]
     smlal2  v23.4s, v27.8h, v0.h[0]
     smlal   v20.4s, v26.4h, v0.h[0]
     smlal2  v21.4s, v26.8h, v0.h[0]
-
-    uzp2    v28.8h, v24.8h, v25.8h
+    shsub   v28.8h, v24.8h, v28.8h
     uzp2    v3.8h, v22.8h, v23.8h
     uzp2    v2.8h, v20.8h, v21.8h
 
-    smull   v26.4s, v7.4h, v16.4h //a3*b0
-    smull2  v27.4s, v7.8h, v16.8h //a3*b0
-    smull   v24.4s, v28.4h, v1.4h //r[2]*zeta
-    smull2  v25.4s, v28.8h, v1.8h //r[2]*zeta
-    smull   v22.4s, v3.4h, v1.4h //r[1]*zeta
-    smull2  v23.4s, v3.8h, v1.8h //r[1]*zeta
-    smull   v20.4s, v2.4h, v1.4h //r[0]*zeta
-    smull2  v21.4s, v2.8h, v1.8h //r[0]*zeta
+    smull   v26.4s, v7.4h, v16.4h   // a3*b0
+    smull2  v27.4s, v7.8h, v16.8h   // a3*b0
+    smull   v24.4s, v28.4h, v1.4h   // r[2]*zeta
+    smull2  v25.4s, v28.8h, v1.8h   // r[2]*zeta
+    smull   v22.4s, v3.4h, v1.4h    // r[1]*zeta
+    smull2  v23.4s, v3.8h, v1.8h    // r[1]*zeta
+    smull   v20.4s, v2.4h, v1.4h    // r[0]*zeta
+    smull2  v21.4s, v2.8h, v1.8h    // r[0]*zeta
 
-    smlal   v26.4s, v4.4h,  v19.4h //a0*b3
-    smlal2  v27.4s, v4.8h,  v19.8h //a0*b3
-    smlal   v24.4s, v4.4h, v18.4h //a0*b2
-    smlal2  v25.4s, v4.8h, v18.8h //a0*b2
-    smlal   v22.4s, v4.4h, v17.4h //a0*b1
-    smlal2  v23.4s, v4.8h, v17.8h //a0*b1
-    smlal   v20.4s, v4.4h, v16.4h //a0*b0
-    smlal2  v21.4s, v4.8h, v16.8h //a0*b0
+    smlal   v26.4s, v4.4h,  v19.4h  // a0*b3
+    smlal2  v27.4s, v4.8h,  v19.8h  // a0*b3
+    smlal   v24.4s, v4.4h, v18.4h   // a0*b2
+    smlal2  v25.4s, v4.8h, v18.8h   // a0*b2
+    smlal   v22.4s, v4.4h, v17.4h   // a0*b1
+    smlal2  v23.4s, v4.8h, v17.8h   // a0*b1
+    smlal   v20.4s, v4.4h, v16.4h   // a0*b0
+    smlal2  v21.4s, v4.8h, v16.8h   // a0*b0
 
-    smlal   v26.4s, v5.4h, v18.4h //a1*b2
-    smlal2  v27.4s, v5.8h, v18.8h //a1*b2
-    smlal   v24.4s, v5.4h, v17.4h //a1*b1
-    smlal2  v25.4s, v5.8h, v17.8h //a1*b1
-    smlal   v22.4s, v5.4h, v16.4h //a1*b0
-    smlal2  v23.4s, v5.8h, v16.8h //a1*b0
+    smlal   v26.4s, v5.4h, v18.4h   // a1*b2
+    smlal2  v27.4s, v5.8h, v18.8h   // a1*b2
+    smlal   v24.4s, v5.4h, v17.4h   // a1*b1
+    smlal2  v25.4s, v5.8h, v17.8h   // a1*b1
+    smlal   v22.4s, v5.4h, v16.4h   // a1*b0
+    smlal2  v23.4s, v5.8h, v16.8h   // a1*b0
 
-    smlal   v26.4s, v6.4h, v17.4h //a2*b1
-    smlal2  v27.4s, v6.8h, v17.8h //a2*b1
-    smlal   v24.4s, v6.4h, v16.4h //a2*b0
-    smlal2  v25.4s, v6.8h, v16.8h //a2*b0
+    smlal   v26.4s, v6.4h, v17.4h   // a2*b1
+    smlal2  v27.4s, v6.8h, v17.8h   // a2*b1
+    smlal   v24.4s, v6.4h, v16.4h   // a2*b0
+    smlal2  v25.4s, v6.8h, v16.8h   // a2*b0
 
     uzp1    v31.8h, v26.8h, v27.8h
     uzp1    v30.8h, v24.8h, v25.8h
@@ -300,7 +289,6 @@ _looptop_scale:
     .unreq    src2
     .unreq    zetas_ptr
     .unreq    counter
-
 
     ret
 
@@ -354,69 +342,64 @@ _looptop_add:
     ld1 {v8.8h - v11.8h},  [src2], #64
     ld1 {v12.8h - v15.8h}, [src3], #64
 
-    smull  v16.4s, v5.4h, v11.4h //a1*b3
-    smull2 v17.4s, v5.8h, v11.8h //a1*b3
-    smull  v18.4s, v6.4h, v11.4h //a2*b3
-    smull2 v19.4s, v6.8h, v11.8h //a2*b3
-    smull  v20.4s, v7.4h, v11.4h //a3*b3
-    smull2 v21.4s, v7.8h, v11.8h //a3*b3
+    smull  v16.4s, v5.4h, v11.4h    // a1*b3
+    smull2 v17.4s, v5.8h, v11.8h    // a1*b3
+    smull  v18.4s, v6.4h, v11.4h    // a2*b3
+    smull2 v19.4s, v6.8h, v11.8h    // a2*b3
+    mul     v24.8h,  v7.8h, v11.8h  // a3*b3
+    sqdmulh v20.8h,  v7.8h, v11.8h  // a3*b3
+    smlal  v16.4s, v6.4h, v10.4h    // a2*b2
+    smlal2 v17.4s, v6.8h, v10.8h    // a2*b2
+    smlal  v18.4s, v7.4h, v10.4h    // a3*b2
+    smlal2 v19.4s, v7.8h, v10.8h    // a3*b2
 
-    smlal  v16.4s, v6.4h, v10.4h //a2*b2
-    smlal2 v17.4s, v6.8h, v10.8h //a2*b2
-    smlal  v18.4s, v7.4h, v10.4h //a3*b2
-    smlal2 v19.4s, v7.8h, v10.8h //a3*b2
+    smlal  v16.4s, v7.4h, v9.4h     // a3*b1
+    smlal2 v17.4s, v7.8h, v9.8h     // a3*b1
 
-    smlal  v16.4s, v7.4h, v9.4h //a3*b1
-    smlal2 v17.4s, v7.8h, v9.8h //a3*b1
-
-    uzp1 v24.8h, v20.8h, v21.8h
     uzp1 v23.8h, v18.8h, v19.8h
     uzp1 v22.8h, v16.8h, v17.8h
-
-    mul v24.8h, v24.8h, v0.h[2]
+    mul     v24.8h, v24.8h, v0.h[7]
     mul v23.8h, v23.8h, v0.h[2]
     mul v22.8h, v22.8h, v0.h[2]
+    sqdmulh v24.8h, v24.8h, v0.h[0]
 
-    smlal  v20.4s, v24.4h, v0.h[0]
-    smlal2 v21.4s, v24.8h, v0.h[0]
     smlal  v18.4s, v23.4h, v0.h[0]
     smlal2 v19.4s, v23.8h, v0.h[0]
     smlal  v16.4s, v22.4h, v0.h[0]
     smlal2 v17.4s, v22.8h, v0.h[0]
-
-    uzp2 v30.8h, v20.8h, v21.8h
+    shsub   v30.8h, v20.8h, v24.8h
     uzp2 v29.8h, v18.8h, v19.8h
     uzp2 v28.8h, v16.8h, v17.8h
 
-    smull  v22.4s, v7.4h, v8.4h //a3*b0
-    smull2 v23.4s, v7.8h, v8.8h //a3*b0
-    smull  v20.4s, v30.4h, v1.4h //r[2]*zeta
-    smull2 v21.4s, v30.8h, v1.8h //r[2]*zeta
-    smull  v18.4s, v29.4h, v1.4h //r[1]*zeta
-    smull2 v19.4s, v29.8h, v1.8h //r[1]*zeta
-    smull  v16.4s, v28.4h, v1.4h //r[0]*zeta
-    smull2 v17.4s, v28.8h, v1.8h //r[0]*zeta
+    smull  v22.4s, v7.4h, v8.4h     // a3*b0
+    smull2 v23.4s, v7.8h, v8.8h     // a3*b0
+    smull  v20.4s, v30.4h, v1.4h    // r[2]*zeta
+    smull2 v21.4s, v30.8h, v1.8h    // r[2]*zeta
+    smull  v18.4s, v29.4h, v1.4h    // r[1]*zeta
+    smull2 v19.4s, v29.8h, v1.8h    // r[1]*zeta
+    smull  v16.4s, v28.4h, v1.4h    // r[0]*zeta
+    smull2 v17.4s, v28.8h, v1.8h    // r[0]*zeta
 
-    smlal  v22.4s, v4.4h, v11.4h //a0*b3
-    smlal2 v23.4s, v4.8h, v11.8h //a0*b3
-    smlal  v20.4s, v4.4h, v10.4h //a0*b2
-    smlal2 v21.4s, v4.8h, v10.8h //a0*b2
-    smlal  v18.4s, v4.4h, v9.4h //a0*b1
-    smlal2 v19.4s, v4.8h, v9.8h //a0*b1
-    smlal  v16.4s, v4.4h, v8.4h //a0*b0
-    smlal2 v17.4s, v4.8h, v8.8h //a0*b0
+    smlal  v22.4s, v4.4h, v11.4h    // a0*b3
+    smlal2 v23.4s, v4.8h, v11.8h    // a0*b3
+    smlal  v20.4s, v4.4h, v10.4h    // a0*b2
+    smlal2 v21.4s, v4.8h, v10.8h    // a0*b2
+    smlal  v18.4s, v4.4h, v9.4h     // a0*b1
+    smlal2 v19.4s, v4.8h, v9.8h     // a0*b1
+    smlal  v16.4s, v4.4h, v8.4h     // a0*b0
+    smlal2 v17.4s, v4.8h, v8.8h     // a0*b0
 
-    smlal  v22.4s, v5.4h, v10.4h //a1*b2
-    smlal2 v23.4s, v5.8h, v10.8h //a1*b2
-    smlal  v20.4s, v5.4h, v9.4h //a1*b1
-    smlal2 v21.4s, v5.8h, v9.8h //a1*b1
-    smlal  v18.4s, v5.4h, v8.4h //a1*b0
-    smlal2 v19.4s, v5.8h, v8.8h //a1*b0
+    smlal  v22.4s, v5.4h, v10.4h    // a1*b2
+    smlal2 v23.4s, v5.8h, v10.8h    // a1*b2
+    smlal  v20.4s, v5.4h, v9.4h     // a1*b1
+    smlal2 v21.4s, v5.8h, v9.8h     // a1*b1
+    smlal  v18.4s, v5.4h, v8.4h     // a1*b0
+    smlal2 v19.4s, v5.8h, v8.8h     // a1*b0
 
-    smlal  v22.4s, v6.4h, v9.4h //a2*b1
-    smlal2 v23.4s, v6.8h, v9.8h //a2*b1
-    smlal  v20.4s, v6.4h, v8.4h //a2*b0
-    smlal2 v21.4s, v6.8h, v8.8h //a2*b0
+    smlal  v22.4s, v6.4h, v9.4h     // a2*b1
+    smlal2 v23.4s, v6.8h, v9.8h     // a2*b1
+    smlal  v20.4s, v6.4h, v8.4h     // a2*b0
+    smlal2 v21.4s, v6.8h, v8.8h     // a2*b0
 
     uzp1 v24.8h, v16.8h, v17.8h
     uzp1 v25.8h, v18.8h, v19.8h
@@ -482,7 +465,6 @@ _looptop_add:
     ldp d12, d13, [sp, #32]
     ldp d14, d15, [sp, #48]
     ldp d8,  d9,  [sp], #64
-
     ret
 
 
