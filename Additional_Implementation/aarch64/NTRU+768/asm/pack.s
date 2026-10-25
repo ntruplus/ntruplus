@@ -14,10 +14,6 @@
 .global _poly_frombytes
 poly_frombytes:
 _poly_frombytes:
-    stp  d8,  d9, [sp, #-64]!
-    stp d10, d11, [sp, #16]
-    stp d12, d13, [sp, #32]
-    stp d14, d15, [sp, #48]
 
     dst     .req x0
     src     .req x1
@@ -25,7 +21,7 @@ _poly_frombytes:
 
     adr x2, const_mask_0fff
     ldr q0, [x2]
-    movi v29.8h, #0
+    movi v7.8h, #0
 
     mov counter, #1536
 
@@ -34,43 +30,43 @@ _loop_frombytes:
     ld3 {v4.8h - v6.8h}, [src], #48
 
     # Separate the packed words for coefficients 0..3 and 4..7.
-    uzp1 v19.8h, v1.8h, v4.8h
-    uzp1 v20.8h, v2.8h, v5.8h
-    uzp1 v21.8h, v3.8h, v6.8h
-    uzp2 v22.8h, v1.8h, v4.8h
-    uzp2 v23.8h, v2.8h, v5.8h
-    uzp2 v24.8h, v3.8h, v6.8h
+    uzp1 v26.8h, v1.8h, v4.8h
+    uzp1 v27.8h, v2.8h, v5.8h
+    uzp1 v28.8h, v3.8h, v6.8h
+    uzp2 v29.8h, v1.8h, v4.8h
+    uzp2 v30.8h, v2.8h, v5.8h
+    uzp2 v31.8h, v3.8h, v6.8h
 
-    ushr v25.8h, v19.8h, #12
-    sli  v25.8h, v20.8h, #4
-    ushr v27.8h, v20.8h, #8
-    sli  v27.8h, v21.8h, #8
-    ushr v11.8h, v21.8h, #4
+    ushr  v2.8h, v26.8h, #12
+    sli   v2.8h, v27.8h, #4
+    ushr  v3.8h, v27.8h, #8
+    sli   v3.8h, v28.8h, #8
+    ushr v19.8h, v28.8h, #4
 
-    ushr v30.8h, v22.8h, #12
-    sli  v30.8h, v23.8h, #4
-    ushr  v1.8h, v23.8h, #8
-    sli   v1.8h, v24.8h, #8
-    ushr v15.8h, v24.8h, #4
+    ushr  v4.8h, v29.8h, #12
+    sli   v4.8h, v30.8h, #4
+    ushr  v5.8h, v30.8h, #8
+    sli   v5.8h, v31.8h, #8
+    ushr v23.8h, v31.8h, #4
 
-    and  v8.16b, v19.16b, v0.16b
-    and  v9.16b, v25.16b, v0.16b
-    and v10.16b, v27.16b, v0.16b
-    and v12.16b, v22.16b, v0.16b
-    and v13.16b, v30.16b, v0.16b
-    and v14.16b,  v1.16b, v0.16b
+    and v16.16b, v26.16b, v0.16b
+    and v17.16b,  v2.16b, v0.16b
+    and v18.16b,  v3.16b, v0.16b
+    and v20.16b, v29.16b, v0.16b
+    and v21.16b,  v4.16b, v0.16b
+    and v22.16b,  v5.16b, v0.16b
 
-    st1 { v8.8h - v11.8h}, [dst], #64
-    st1 {v12.8h - v15.8h}, [dst], #64
+    st1 {v16.8h - v19.8h}, [dst], #64
+    st1 {v20.8h - v23.8h}, [dst], #64
 
-    umax v25.8h,  v8.8h,  v9.8h
-    umax v26.8h, v10.8h, v11.8h
-    umax v27.8h, v12.8h, v13.8h
-    umax v28.8h, v14.8h, v15.8h
+    umax v25.8h, v16.8h, v17.8h
+    umax v26.8h, v18.8h, v19.8h
+    umax v27.8h, v20.8h, v21.8h
+    umax v28.8h, v22.8h, v23.8h
     umax v25.8h, v25.8h, v26.8h
     umax v27.8h, v27.8h, v28.8h
     umax v25.8h, v25.8h, v27.8h
-    umax v29.8h, v29.8h, v25.8h
+    umax  v7.8h,  v7.8h, v25.8h
 
     subs counter, counter, #128
     b.ne _loop_frombytes
@@ -79,15 +75,10 @@ _loop_frombytes:
     .unreq src
     .unreq counter
 
-    umaxv h29, v29.8h
-    umov w0, v29.h[0]
+    umaxv h7, v7.8h
+    umov w0, v7.h[0]
     cmp w0, #3457
     cset w0, hs
-
-    ldp d10, d11, [sp, #16]
-    ldp d12, d13, [sp, #32]
-    ldp d14, d15, [sp, #48]
-    ldp  d8,  d9, [sp], #64
 
     ret
 
@@ -108,10 +99,6 @@ _loop_frombytes:
 .global _poly_tobytes
 poly_tobytes:
 _poly_tobytes:
-    stp  d8,  d9, [sp, #-64]!
-    stp d10, d11, [sp, #16]
-    stp d12, d13, [sp, #32]
-    stp d14, d15, [sp, #48]
 
     dst     .req x0
     src     .req x1
@@ -124,65 +111,65 @@ _poly_tobytes:
 
 _loop_tobytes:
     #load
-    ld1 {v1.8h - v4.8h}, [src], #64
-    ld1 {v5.8h - v8.8h}, [src], #64
+    ld1 {v16.8h - v19.8h}, [src], #64
+    ld1 {v20.8h - v23.8h}, [src], #64
 
     # Barrett reduction with round(2^15/q) = 9
-    sqrdmulh v10.8h,  v1.8h, v0.h[1]
-    sqrdmulh v11.8h,  v2.8h, v0.h[1]
-    sqrdmulh v12.8h,  v3.8h, v0.h[1]
-    sqrdmulh v13.8h,  v4.8h, v0.h[1]
-    sqrdmulh v14.8h,  v5.8h, v0.h[1]
-    sqrdmulh v15.8h,  v6.8h, v0.h[1]
-    sqrdmulh v16.8h,  v7.8h, v0.h[1]
-    sqrdmulh v17.8h,  v8.8h, v0.h[1]
-    mls       v1.8h, v10.8h, v0.h[0]
-    mls       v2.8h, v11.8h, v0.h[0]
-    mls       v3.8h, v12.8h, v0.h[0]
-    mls       v4.8h, v13.8h, v0.h[0]
-    mls       v5.8h, v14.8h, v0.h[0]
-    mls       v6.8h, v15.8h, v0.h[0]
-    mls       v7.8h, v16.8h, v0.h[0]
-    mls       v8.8h, v17.8h, v0.h[0]
+    sqrdmulh v25.8h, v16.8h, v0.h[1]
+    sqrdmulh v26.8h, v17.8h, v0.h[1]
+    sqrdmulh v27.8h, v18.8h, v0.h[1]
+    sqrdmulh v28.8h, v19.8h, v0.h[1]
+    sqrdmulh v29.8h, v20.8h, v0.h[1]
+    sqrdmulh v30.8h, v21.8h, v0.h[1]
+    sqrdmulh v31.8h, v22.8h, v0.h[1]
+    sqrdmulh  v7.8h, v23.8h, v0.h[1]
+    mls      v16.8h, v25.8h, v0.h[0]
+    mls      v17.8h, v26.8h, v0.h[0]
+    mls      v18.8h, v27.8h, v0.h[0]
+    mls      v19.8h, v28.8h, v0.h[0]
+    mls      v20.8h, v29.8h, v0.h[0]
+    mls      v21.8h, v30.8h, v0.h[0]
+    mls      v22.8h, v31.8h, v0.h[0]
+    mls      v23.8h,  v7.8h, v0.h[0]
 
-    cmlt  v9.8h,  v1.8h, #0
-    cmlt v10.8h,  v2.8h, #0
-    cmlt v11.8h,  v3.8h, #0
-    cmlt v12.8h,  v4.8h, #0
-    cmlt v13.8h,  v5.8h, #0
-    cmlt v14.8h,  v6.8h, #0
-    cmlt v15.8h,  v7.8h, #0
-    cmlt v16.8h,  v8.8h, #0
-    mls   v1.8h,  v9.8h, v0.h[0]
-    mls   v2.8h, v10.8h, v0.h[0]
-    mls   v3.8h, v11.8h, v0.h[0]
-    mls   v4.8h, v12.8h, v0.h[0]
-    mls   v5.8h, v13.8h, v0.h[0]
-    mls   v6.8h, v14.8h, v0.h[0]
-    mls   v7.8h, v15.8h, v0.h[0]
-    mls   v8.8h, v16.8h, v0.h[0]
+    cmlt v24.8h, v16.8h, #0
+    cmlt v25.8h, v17.8h, #0
+    cmlt v26.8h, v18.8h, #0
+    cmlt v27.8h, v19.8h, #0
+    cmlt v28.8h, v20.8h, #0
+    cmlt v29.8h, v21.8h, #0
+    cmlt v30.8h, v22.8h, #0
+    cmlt v31.8h, v23.8h, #0
+    mls  v16.8h, v24.8h, v0.h[0]
+    mls  v17.8h, v25.8h, v0.h[0]
+    mls  v18.8h, v26.8h, v0.h[0]
+    mls  v19.8h, v27.8h, v0.h[0]
+    mls  v20.8h, v28.8h, v0.h[0]
+    mls  v21.8h, v29.8h, v0.h[0]
+    mls  v22.8h, v30.8h, v0.h[0]
+    mls  v23.8h, v31.8h, v0.h[0]
 
-    sli   v1.8h, v2.8h, #12
-    ushr  v9.8h, v2.8h, #4
-    sli   v9.8h, v3.8h, #8
-    ushr v10.8h, v3.8h, #8
-    sli  v10.8h, v4.8h, #4
-    sli   v5.8h, v6.8h, #12
-    ushr v11.8h, v6.8h, #4
-    sli  v11.8h, v7.8h, #8
-    ushr v12.8h, v7.8h, #8
-    sli  v12.8h, v8.8h, #4
+    sli  v16.8h, v17.8h, #12
+    ushr v24.8h, v17.8h, #4
+    sli  v24.8h, v18.8h, #8
+    ushr v25.8h, v18.8h, #8
+    sli  v25.8h, v19.8h, #4
+    sli  v20.8h, v21.8h, #12
+    ushr v26.8h, v21.8h, #4
+    sli  v26.8h, v22.8h, #8
+    ushr v27.8h, v22.8h, #8
+    sli  v27.8h, v23.8h, #4
 
     # Interleave the two groups of three packed halfword streams.
-    zip1 v25.8h,  v1.8h,  v5.8h
-    zip1 v26.8h,  v9.8h, v11.8h
-    zip1 v27.8h, v10.8h, v12.8h
-    zip2 v28.8h,  v1.8h,  v5.8h
-    zip2 v29.8h,  v9.8h, v11.8h
-    zip2 v30.8h, v10.8h, v12.8h
+    zip1 v1.8h, v16.8h, v20.8h
+    zip1 v2.8h, v24.8h, v26.8h
+    zip1 v3.8h, v25.8h, v27.8h
+    zip2 v4.8h, v16.8h, v20.8h
+    zip2 v5.8h, v24.8h, v26.8h
+    zip2 v6.8h, v25.8h, v27.8h
 
-    st3 {v25.8h - v27.8h}, [dst], #48
-    st3 {v28.8h - v30.8h}, [dst], #48
+    st3 {v1.8h - v3.8h}, [dst], #48
+    st3 {v4.8h - v6.8h}, [dst], #48
 
     subs counter, counter, #128
     b.ne _loop_tobytes
@@ -191,13 +178,7 @@ _loop_tobytes:
     .unreq src
     .unreq counter
 
-    ldp d10, d11, [sp, #16]
-    ldp d12, d13, [sp, #32]
-    ldp d14, d15, [sp, #48]
-    ldp  d8,  d9, [sp], #64
-
     ret
-
 
 .align 4
 const_mask_0fff:
