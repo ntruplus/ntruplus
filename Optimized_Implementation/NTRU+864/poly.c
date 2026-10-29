@@ -953,31 +953,31 @@ static inline void fqinv_batch(int16_t *r)
 		r0[6] = pc0[off6 + chunk - 1];
 		r0[7] = pc0[off7 + chunk - 1];
 
-		const uint32_t r0q1 = (uint32_t)r0[1] * NTRUPLUS_QINV;
-		const uint32_t r0q3 = (uint32_t)r0[3] * NTRUPLUS_QINV;
-		const uint32_t r0q5 = (uint32_t)r0[5] * NTRUPLUS_QINV;
-		const uint32_t r0q7 = (uint32_t)r0[7] * NTRUPLUS_QINV;
+		const uint32_t R01 = (uint32_t)r0[1] * NTRUPLUS_QINV;
+		const uint32_t R03 = (uint32_t)r0[3] * NTRUPLUS_QINV;
+		const uint32_t R05 = (uint32_t)r0[5] * NTRUPLUS_QINV;
+		const uint32_t R07 = (uint32_t)r0[7] * NTRUPLUS_QINV;
 
 		int16_t r1[4];
 
-		r1[0] = plantard_mul(r0[0], r0q1);
-		r1[1] = plantard_mul(r0[2], r0q3);
-		r1[2] = plantard_mul(r0[4], r0q5);
-		r1[3] = plantard_mul(r0[6], r0q7);
+		r1[0] = plantard_mul(r0[0], R01);
+		r1[1] = plantard_mul(r0[2], R03);
+		r1[2] = plantard_mul(r0[4], R05);
+		r1[3] = plantard_mul(r0[6], R07);
 
-		const uint32_t r1q1 = (uint32_t)r1[1] * NTRUPLUS_QINV;
-		const uint32_t r1q3 = (uint32_t)r1[3] * NTRUPLUS_QINV;
+		const uint32_t R11 = (uint32_t)r1[1] * NTRUPLUS_QINV;
+		const uint32_t R13 = (uint32_t)r1[3] * NTRUPLUS_QINV;
 
 		// product chain - level 2
 		int16_t r2[2];
 
-		r2[0] = plantard_mul(r1[0], r1q1);
-		r2[1] = plantard_mul(r1[2], r1q3);
+		r2[0] = plantard_mul(r1[0], R11);
+		r2[1] = plantard_mul(r1[2], R13);
 
-		const uint32_t r2q1 = (uint32_t)r2[1] * NTRUPLUS_QINV;
+		const uint32_t R21 = (uint32_t)r2[1] * NTRUPLUS_QINV;
 
 		// product chain - level 3
-		int16_t inv = plantard_mul(r2[0], r2q1);
+		int16_t inv = plantard_mul(r2[0], R21);
 
 		//fqinv
 		inv = fqinv(inv);
