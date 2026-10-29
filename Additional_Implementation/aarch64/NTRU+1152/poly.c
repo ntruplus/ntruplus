@@ -176,17 +176,22 @@ static inline int poly_fqinv_batch(int16x8_t *r, int16x8_t con)
 
     for (int i = chunk - 1; i > 0; i--)
     {
-        const int16x8_t tmp0 = r[off0 + i];
-        const int16x8_t tmp1 = r[off1 + i];
-        const int16x8_t tmp2 = r[off2 + i];
+        const int16x8_t r0 = r[off0 + i];
+        const int16x8_t r1 = r[off1 + i];
+        const int16x8_t r2 = r[off2 + i];
 
-        r[off0 + i] = fqmul(t[off0 + i - 1], inv0, con);
-        r[off1 + i] = fqmul(t[off1 + i - 1], inv1, con);
-        r[off2 + i] = fqmul(t[off2 + i - 1], inv2, con);
+        /* Reuse each inverse factor for both recovery products. */
+        const int16x8_t INV0 = vmulq_laneq_s16(inv0, con, 7);
+        const int16x8_t INV1 = vmulq_laneq_s16(inv1, con, 7);
+        const int16x8_t INV2 = vmulq_laneq_s16(inv2, con, 7);
 
-        inv0 = fqmul(inv0, tmp0, con);
-        inv1 = fqmul(inv1, tmp1, con);
-        inv2 = fqmul(inv2, tmp2, con);
+        r[off0 + i] = fqmul_precomp(t[off0 + i - 1], inv0, INV0, con);
+        r[off1 + i] = fqmul_precomp(t[off1 + i - 1], inv1, INV1, con);
+        r[off2 + i] = fqmul_precomp(t[off2 + i - 1], inv2, INV2, con);
+
+        inv0 = fqmul_precomp(r0, inv0, INV0, con);
+        inv1 = fqmul_precomp(r1, inv1, INV1, con);
+        inv2 = fqmul_precomp(r2, inv2, INV2, con);
     }
 
     r[off0] = inv0;
