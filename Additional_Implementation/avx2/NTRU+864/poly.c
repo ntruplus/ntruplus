@@ -8,6 +8,11 @@
 /*
  * References:
  *
+ * [Sei18] Gregor Seiler,
+ * "Faster AVX2 optimized NTT multiplication for Ring-LWE lattice cryptography",
+ * Cryptology ePrint Archive, Paper 2018/039, 2018.
+ * https://eprint.iacr.org/2018/039
+ *
  * [KCP26] Jonghyun Kim, Haehyun Cho, and Jong Hwan Park,
  * "Accelerating NTRU+ Key Generation via Hierarchical Batch Inversion",
  * Cryptology ePrint Archive, Paper 2026/1191, 2026.
@@ -43,6 +48,7 @@ int poly_frombytes(poly *r, const uint8_t a[NTRUPLUS_POLYBYTES])
     return fail;
 }
 
+/* Signed Montgomery multiplication with precomputed operand factors [Sei18]. */
 static inline __m256i fqmul(__m256i a, __m256i b, __m256i b_qinv, __m256i q)
 {
     __m256i lo = _mm256_mullo_epi16(a, b_qinv);

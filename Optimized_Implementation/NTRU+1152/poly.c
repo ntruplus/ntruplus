@@ -8,6 +8,12 @@
 /*
  * References:
  *
+ * [HZZ+22] Junhao Huang, Jipeng Zhang, Haosong Zhao, Zhe Liu,
+ * Ray C. C. Cheung, Çetin Kaya Koç, and Donglong Chen,
+ * "Improved Plantard Arithmetic for Lattice-based Cryptography",
+ * Cryptology ePrint Archive, Paper 2022/956, 2022.
+ * https://eprint.iacr.org/2022/956
+ *
  * [KCP26] Jonghyun Kim, Haehyun Cho, and Jong Hwan Park,
  * "Accelerating NTRU+ Key Generation via Hierarchical Batch Inversion",
  * Cryptology ePrint Archive, Paper 2026/1191, 2026.
@@ -919,23 +925,23 @@ static inline void fqinv_batch(int16_t *r)
 	for(int i = 1; i < chunk; i++)
 	{
 		/* Prefix products need only the current precomputed factor. */
-		const uint32_t q0 = (uint32_t)r[off0 + i] * NTRUPLUS_QINV;
-		const uint32_t q1 = (uint32_t)r[off1 + i] * NTRUPLUS_QINV;
-		const uint32_t q2 = (uint32_t)r[off2 + i] * NTRUPLUS_QINV;
-		const uint32_t q3 = (uint32_t)r[off3 + i] * NTRUPLUS_QINV;
-		const uint32_t q4 = (uint32_t)r[off4 + i] * NTRUPLUS_QINV;
-		const uint32_t q5 = (uint32_t)r[off5 + i] * NTRUPLUS_QINV;
-		const uint32_t q6 = (uint32_t)r[off6 + i] * NTRUPLUS_QINV;
-		const uint32_t q7 = (uint32_t)r[off7 + i] * NTRUPLUS_QINV;
+		const uint32_t R0 = (uint32_t)r[off0 + i] * NTRUPLUS_QINV;
+		const uint32_t R1 = (uint32_t)r[off1 + i] * NTRUPLUS_QINV;
+		const uint32_t R2 = (uint32_t)r[off2 + i] * NTRUPLUS_QINV;
+		const uint32_t R3 = (uint32_t)r[off3 + i] * NTRUPLUS_QINV;
+		const uint32_t R4 = (uint32_t)r[off4 + i] * NTRUPLUS_QINV;
+		const uint32_t R5 = (uint32_t)r[off5 + i] * NTRUPLUS_QINV;
+		const uint32_t R6 = (uint32_t)r[off6 + i] * NTRUPLUS_QINV;
+		const uint32_t R7 = (uint32_t)r[off7 + i] * NTRUPLUS_QINV;
 
-		pc0[off0 + i] = plantard_mul(pc0[off0 + i - 1], q0);
-		pc0[off1 + i] = plantard_mul(pc0[off1 + i - 1], q1);
-		pc0[off2 + i] = plantard_mul(pc0[off2 + i - 1], q2);
-		pc0[off3 + i] = plantard_mul(pc0[off3 + i - 1], q3);
-		pc0[off4 + i] = plantard_mul(pc0[off4 + i - 1], q4);
-		pc0[off5 + i] = plantard_mul(pc0[off5 + i - 1], q5);
-		pc0[off6 + i] = plantard_mul(pc0[off6 + i - 1], q6);
-		pc0[off7 + i] = plantard_mul(pc0[off7 + i - 1], q7);
+		pc0[off0 + i] = plantard_mul(pc0[off0 + i - 1], R0);
+		pc0[off1 + i] = plantard_mul(pc0[off1 + i - 1], R1);
+		pc0[off2 + i] = plantard_mul(pc0[off2 + i - 1], R2);
+		pc0[off3 + i] = plantard_mul(pc0[off3 + i - 1], R3);
+		pc0[off4 + i] = plantard_mul(pc0[off4 + i - 1], R4);
+		pc0[off5 + i] = plantard_mul(pc0[off5 + i - 1], R5);
+		pc0[off6 + i] = plantard_mul(pc0[off6 + i - 1], R6);
+		pc0[off7 + i] = plantard_mul(pc0[off7 + i - 1], R7);
 	}
 
 	// product chain - level 1
@@ -986,11 +992,11 @@ static inline void fqinv_batch(int16_t *r)
 		int16_t inv2[2];
 
 		/* Reuse each parent inverse factor for both children. */
-		const uint32_t i2q0 = (uint32_t)inv * NTRUPLUS_QINV;
+		const uint32_t INV = (uint32_t)inv * NTRUPLUS_QINV;
 
-		inv2[1] = plantard_mul(r2[0], i2q0);
+		inv2[1] = plantard_mul(r2[0], INV);
 
-		inv2[0] = plantard_mul(r2[1], i2q0);
+		inv2[0] = plantard_mul(r2[1], INV);
 
 		clear_i16(&inv, 1);
 		clear_i16(r2, sizeof r2/sizeof r2[0]);
@@ -999,14 +1005,14 @@ static inline void fqinv_batch(int16_t *r)
 		int16_t inv1[4];
 
 		/* Reuse each parent inverse factor for both children. */
-		const uint32_t i1q0 = (uint32_t)inv2[0] * NTRUPLUS_QINV;
-		const uint32_t i1q1 = (uint32_t)inv2[1] * NTRUPLUS_QINV;
+		const uint32_t INV20 = (uint32_t)inv2[0] * NTRUPLUS_QINV;
+		const uint32_t INV21 = (uint32_t)inv2[1] * NTRUPLUS_QINV;
 
-		inv1[1] = plantard_mul(r1[0], i1q0);
-		inv1[3] = plantard_mul(r1[2], i1q1);
+		inv1[1] = plantard_mul(r1[0], INV20);
+		inv1[3] = plantard_mul(r1[2], INV21);
 
-		inv1[0] = plantard_mul(r1[1], i1q0);
-		inv1[2] = plantard_mul(r1[3], i1q1);
+		inv1[0] = plantard_mul(r1[1], INV20);
+		inv1[2] = plantard_mul(r1[3], INV21);
 
 		clear_i16(inv2, sizeof inv2/sizeof inv2[0]);
 		clear_i16(r1, sizeof r1/sizeof r1[0]);
@@ -1014,20 +1020,20 @@ static inline void fqinv_batch(int16_t *r)
 		// derive_fqinv - level 1
 
 		/* Reuse each parent inverse factor for both children. */
-		const uint32_t i0q0 = (uint32_t)inv1[0] * NTRUPLUS_QINV;
-		const uint32_t i0q1 = (uint32_t)inv1[1] * NTRUPLUS_QINV;
-		const uint32_t i0q2 = (uint32_t)inv1[2] * NTRUPLUS_QINV;
-		const uint32_t i0q3 = (uint32_t)inv1[3] * NTRUPLUS_QINV;
+		const uint32_t INV10 = (uint32_t)inv1[0] * NTRUPLUS_QINV;
+		const uint32_t INV11 = (uint32_t)inv1[1] * NTRUPLUS_QINV;
+		const uint32_t INV12 = (uint32_t)inv1[2] * NTRUPLUS_QINV;
+		const uint32_t INV13 = (uint32_t)inv1[3] * NTRUPLUS_QINV;
 
-		inv0[1] = plantard_mul(r0[0], i0q0);
-		inv0[3] = plantard_mul(r0[2], i0q1);
-		inv0[5] = plantard_mul(r0[4], i0q2);
-		inv0[7] = plantard_mul(r0[6], i0q3);
+		inv0[1] = plantard_mul(r0[0], INV10);
+		inv0[3] = plantard_mul(r0[2], INV11);
+		inv0[5] = plantard_mul(r0[4], INV12);
+		inv0[7] = plantard_mul(r0[6], INV13);
 
-		inv0[0] = plantard_mul(r0[1], i0q0);
-		inv0[2] = plantard_mul(r0[3], i0q1);
-		inv0[4] = plantard_mul(r0[5], i0q2);
-		inv0[6] = plantard_mul(r0[7], i0q3);
+		inv0[0] = plantard_mul(r0[1], INV10);
+		inv0[2] = plantard_mul(r0[3], INV11);
+		inv0[4] = plantard_mul(r0[5], INV12);
+		inv0[6] = plantard_mul(r0[7], INV13);
 
 		clear_i16(inv1, sizeof inv1/sizeof inv1[0]);
 		clear_i16(r0, sizeof r0/sizeof r0[0]);
@@ -1045,32 +1051,32 @@ static inline void fqinv_batch(int16_t *r)
 		const int16_t r6 = r[off6 + i];
 		const int16_t r7 = r[off7 + i];
 
-		const uint32_t INV0 = (uint32_t)inv0[0] * NTRUPLUS_QINV;
-		const uint32_t INV1 = (uint32_t)inv0[1] * NTRUPLUS_QINV;
-		const uint32_t INV2 = (uint32_t)inv0[2] * NTRUPLUS_QINV;
-		const uint32_t INV3 = (uint32_t)inv0[3] * NTRUPLUS_QINV;
-		const uint32_t INV4 = (uint32_t)inv0[4] * NTRUPLUS_QINV;
-		const uint32_t INV5 = (uint32_t)inv0[5] * NTRUPLUS_QINV;
-		const uint32_t INV6 = (uint32_t)inv0[6] * NTRUPLUS_QINV;
-		const uint32_t INV7 = (uint32_t)inv0[7] * NTRUPLUS_QINV;
+		const uint32_t INV00 = (uint32_t)inv0[0] * NTRUPLUS_QINV;
+		const uint32_t INV01 = (uint32_t)inv0[1] * NTRUPLUS_QINV;
+		const uint32_t INV02 = (uint32_t)inv0[2] * NTRUPLUS_QINV;
+		const uint32_t INV03 = (uint32_t)inv0[3] * NTRUPLUS_QINV;
+		const uint32_t INV04 = (uint32_t)inv0[4] * NTRUPLUS_QINV;
+		const uint32_t INV05 = (uint32_t)inv0[5] * NTRUPLUS_QINV;
+		const uint32_t INV06 = (uint32_t)inv0[6] * NTRUPLUS_QINV;
+		const uint32_t INV07 = (uint32_t)inv0[7] * NTRUPLUS_QINV;
 
-		r[off0 + i] = plantard_mul(pc0[off0 + i - 1], INV0);
-		r[off1 + i] = plantard_mul(pc0[off1 + i - 1], INV1);
-		r[off2 + i] = plantard_mul(pc0[off2 + i - 1], INV2);
-		r[off3 + i] = plantard_mul(pc0[off3 + i - 1], INV3);
-		r[off4 + i] = plantard_mul(pc0[off4 + i - 1], INV4);
-		r[off5 + i] = plantard_mul(pc0[off5 + i - 1], INV5);
-		r[off6 + i] = plantard_mul(pc0[off6 + i - 1], INV6);
-		r[off7 + i] = plantard_mul(pc0[off7 + i - 1], INV7);
+		r[off0 + i] = plantard_mul(pc0[off0 + i - 1], INV00);
+		r[off1 + i] = plantard_mul(pc0[off1 + i - 1], INV01);
+		r[off2 + i] = plantard_mul(pc0[off2 + i - 1], INV02);
+		r[off3 + i] = plantard_mul(pc0[off3 + i - 1], INV03);
+		r[off4 + i] = plantard_mul(pc0[off4 + i - 1], INV04);
+		r[off5 + i] = plantard_mul(pc0[off5 + i - 1], INV05);
+		r[off6 + i] = plantard_mul(pc0[off6 + i - 1], INV06);
+		r[off7 + i] = plantard_mul(pc0[off7 + i - 1], INV07);
 
-		inv0[0] = plantard_mul(r0, INV0);
-		inv0[1] = plantard_mul(r1, INV1);
-		inv0[2] = plantard_mul(r2, INV2);
-		inv0[3] = plantard_mul(r3, INV3);
-		inv0[4] = plantard_mul(r4, INV4);
-		inv0[5] = plantard_mul(r5, INV5);
-		inv0[6] = plantard_mul(r6, INV6);
-		inv0[7] = plantard_mul(r7, INV7);
+		inv0[0] = plantard_mul(r0, INV00);
+		inv0[1] = plantard_mul(r1, INV01);
+		inv0[2] = plantard_mul(r2, INV02);
+		inv0[3] = plantard_mul(r3, INV03);
+		inv0[4] = plantard_mul(r4, INV04);
+		inv0[5] = plantard_mul(r5, INV05);
+		inv0[6] = plantard_mul(r6, INV06);
+		inv0[7] = plantard_mul(r7, INV07);
 	}
 
 	r[off0] = inv0[0];
@@ -1266,19 +1272,6 @@ void poly_sub(poly *r, const poly *a, const poly *b)
 {
 	for(int i = 0; i < NTRUPLUS_N; i++)
 		r->coeffs[i] = a->coeffs[i] - b->coeffs[i];
-}
-
-/*************************************************
-* Name:        poly_triple
-*
-* Description: Multiply polynomial by 3; no modular reduction is performed
-*
-* Arguments: - poly *r: pointer to input/output polynomial
-**************************************************/
-void poly_triple(poly *r)
-{
-	for(int i = 0; i < NTRUPLUS_N; i++)
-		r->coeffs[i] *= 3;
 }
 
 /*************************************************
