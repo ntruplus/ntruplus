@@ -901,17 +901,18 @@ static inline int16_t fqinv(int16_t a)
 **************************************************/
 static inline void fqinv_batch(int16_t *r)
 {
-	const int chunk = NTRUPLUS_N/(NTRUPLUS_D * 8);
-	const int off0  = 0 * chunk;
-	const int off1  = 1 * chunk;
-	const int off2  = 2 * chunk;
-	const int off3  = 3 * chunk;
-	const int off4  = 4 * chunk;
-	const int off5  = 5 * chunk;
-	const int off6  = 6 * chunk;
-	const int off7  = 7 * chunk;
+	const int chunk = NTRUPLUS_N / (NTRUPLUS_D * 8);
 
-	int16_t pc0[NTRUPLUS_N/NTRUPLUS_D];
+	const int off0 = 0 * chunk;
+	const int off1 = 1 * chunk;
+	const int off2 = 2 * chunk;
+	const int off3 = 3 * chunk;
+	const int off4 = 4 * chunk;
+	const int off5 = 5 * chunk;
+	const int off6 = 6 * chunk;
+	const int off7 = 7 * chunk;
+
+	int16_t pc0[NTRUPLUS_N / NTRUPLUS_D];
 
 	pc0[off0] = r[off0];
 	pc0[off1] = r[off1];
@@ -922,9 +923,8 @@ static inline void fqinv_batch(int16_t *r)
 	pc0[off6] = r[off6];
 	pc0[off7] = r[off7];
 
-	for(int i = 1; i < chunk; i++)
+	for (int i = 1; i < chunk; i++)
 	{
-		/* Prefix products need only the current precomputed factor. */
 		const uint32_t R0 = (uint32_t)r[off0 + i] * NTRUPLUS_QINV;
 		const uint32_t R1 = (uint32_t)r[off1 + i] * NTRUPLUS_QINV;
 		const uint32_t R2 = (uint32_t)r[off2 + i] * NTRUPLUS_QINV;
@@ -944,104 +944,82 @@ static inline void fqinv_batch(int16_t *r)
 		pc0[off7 + i] = plantard_mul(pc0[off7 + i - 1], R7);
 	}
 
-	// product chain - level 1
+	/* Product tree: stride 4 -> 2 -> 1. */
 	int16_t inv0[8];
 
 	{
-		int16_t r0[8];
+		inv0[0] = pc0[off0 + chunk - 1];
+		inv0[1] = pc0[off1 + chunk - 1];
+		inv0[2] = pc0[off2 + chunk - 1];
+		inv0[3] = pc0[off3 + chunk - 1];
+		inv0[4] = pc0[off4 + chunk - 1];
+		inv0[5] = pc0[off5 + chunk - 1];
+		inv0[6] = pc0[off6 + chunk - 1];
+		inv0[7] = pc0[off7 + chunk - 1];
 
-		r0[0] = pc0[off0 + chunk - 1];
-		r0[1] = pc0[off1 + chunk - 1];
-		r0[2] = pc0[off2 + chunk - 1];
-		r0[3] = pc0[off3 + chunk - 1];
-		r0[4] = pc0[off4 + chunk - 1];
-		r0[5] = pc0[off5 + chunk - 1];
-		r0[6] = pc0[off6 + chunk - 1];
-		r0[7] = pc0[off7 + chunk - 1];
-
-		const uint32_t R01 = (uint32_t)r0[1] * NTRUPLUS_QINV;
-		const uint32_t R03 = (uint32_t)r0[3] * NTRUPLUS_QINV;
-		const uint32_t R05 = (uint32_t)r0[5] * NTRUPLUS_QINV;
-		const uint32_t R07 = (uint32_t)r0[7] * NTRUPLUS_QINV;
+		const uint32_t R04 = (uint32_t)inv0[4] * NTRUPLUS_QINV;
+		const uint32_t R05 = (uint32_t)inv0[5] * NTRUPLUS_QINV;
+		const uint32_t R06 = (uint32_t)inv0[6] * NTRUPLUS_QINV;
+		const uint32_t R07 = (uint32_t)inv0[7] * NTRUPLUS_QINV;
 
 		int16_t r1[4];
 
-		r1[0] = plantard_mul(r0[0], R01);
-		r1[1] = plantard_mul(r0[2], R03);
-		r1[2] = plantard_mul(r0[4], R05);
-		r1[3] = plantard_mul(r0[6], R07);
+		r1[0] = plantard_mul(inv0[0], R04);
+		r1[1] = plantard_mul(inv0[1], R05);
+		r1[2] = plantard_mul(inv0[2], R06);
+		r1[3] = plantard_mul(inv0[3], R07);
 
-		const uint32_t R11 = (uint32_t)r1[1] * NTRUPLUS_QINV;
+		const uint32_t R12 = (uint32_t)r1[2] * NTRUPLUS_QINV;
 		const uint32_t R13 = (uint32_t)r1[3] * NTRUPLUS_QINV;
 
-		// product chain - level 2
 		int16_t r2[2];
 
-		r2[0] = plantard_mul(r1[0], R11);
-		r2[1] = plantard_mul(r1[2], R13);
+		r2[0] = plantard_mul(r1[0], R12);
+		r2[1] = plantard_mul(r1[1], R13);
 
 		const uint32_t R21 = (uint32_t)r2[1] * NTRUPLUS_QINV;
 
-		// product chain - level 3
 		int16_t inv = plantard_mul(r2[0], R21);
 
-		//fqinv
 		inv = fqinv(inv);
 
-		// derive_fqinv - level 3
-		int16_t inv2[2];
-
-		/* Reuse each parent inverse factor for both children. */
 		const uint32_t INV = (uint32_t)inv * NTRUPLUS_QINV;
 
-		inv2[1] = plantard_mul(r2[0], INV);
-
-		inv2[0] = plantard_mul(r2[1], INV);
+		r2[0] = plantard_mul(r2[0], INV);
+		r2[1] = plantard_mul(r2[1], INV);
 
 		clear_i16(&inv, 1);
-		clear_i16(r2, sizeof r2/sizeof r2[0]);
 
-		// derive_fqinv - level 2
-		int16_t inv1[4];
+		const uint32_t INV20 = (uint32_t)r2[1] * NTRUPLUS_QINV;
+		const uint32_t INV21 = (uint32_t)r2[0] * NTRUPLUS_QINV;
 
-		/* Reuse each parent inverse factor for both children. */
-		const uint32_t INV20 = (uint32_t)inv2[0] * NTRUPLUS_QINV;
-		const uint32_t INV21 = (uint32_t)inv2[1] * NTRUPLUS_QINV;
+		r1[0] = plantard_mul(r1[0], INV20);
+		r1[2] = plantard_mul(r1[2], INV20);
 
-		inv1[1] = plantard_mul(r1[0], INV20);
-		inv1[3] = plantard_mul(r1[2], INV21);
+		r1[1] = plantard_mul(r1[1], INV21);
+		r1[3] = plantard_mul(r1[3], INV21);
 
-		inv1[0] = plantard_mul(r1[1], INV20);
-		inv1[2] = plantard_mul(r1[3], INV21);
+		const uint32_t INV10 = (uint32_t)r1[2] * NTRUPLUS_QINV;
+		const uint32_t INV11 = (uint32_t)r1[3] * NTRUPLUS_QINV;
+		const uint32_t INV12 = (uint32_t)r1[0] * NTRUPLUS_QINV;
+		const uint32_t INV13 = (uint32_t)r1[1] * NTRUPLUS_QINV;
 
-		clear_i16(inv2, sizeof inv2/sizeof inv2[0]);
-		clear_i16(r1, sizeof r1/sizeof r1[0]);
+		inv0[0] = plantard_mul(inv0[0], INV10);
+		inv0[1] = plantard_mul(inv0[1], INV11);
+		inv0[2] = plantard_mul(inv0[2], INV12);
+		inv0[3] = plantard_mul(inv0[3], INV13);
 
-		// derive_fqinv - level 1
+		inv0[4] = plantard_mul(inv0[4], INV10);
+		inv0[5] = plantard_mul(inv0[5], INV11);
+		inv0[6] = plantard_mul(inv0[6], INV12);
+		inv0[7] = plantard_mul(inv0[7], INV13);
 
-		/* Reuse each parent inverse factor for both children. */
-		const uint32_t INV10 = (uint32_t)inv1[0] * NTRUPLUS_QINV;
-		const uint32_t INV11 = (uint32_t)inv1[1] * NTRUPLUS_QINV;
-		const uint32_t INV12 = (uint32_t)inv1[2] * NTRUPLUS_QINV;
-		const uint32_t INV13 = (uint32_t)inv1[3] * NTRUPLUS_QINV;
-
-		inv0[1] = plantard_mul(r0[0], INV10);
-		inv0[3] = plantard_mul(r0[2], INV11);
-		inv0[5] = plantard_mul(r0[4], INV12);
-		inv0[7] = plantard_mul(r0[6], INV13);
-
-		inv0[0] = plantard_mul(r0[1], INV10);
-		inv0[2] = plantard_mul(r0[3], INV11);
-		inv0[4] = plantard_mul(r0[5], INV12);
-		inv0[6] = plantard_mul(r0[7], INV13);
-
-		clear_i16(inv1, sizeof inv1/sizeof inv1[0]);
-		clear_i16(r0, sizeof r0/sizeof r0[0]);
+		clear_i16(r1, sizeof r1 / sizeof r1[0]);
+		clear_i16(r2, sizeof r2 / sizeof r2[0]);
 	}
 
-	for(int i = chunk - 1; i > 0; i--)
+	for (int i = chunk - 1; i > 0; i--)
 	{
-		/* Reuse inv*qinv for both recovery products, retaining the input. */
 		const int16_t r0 = r[off0 + i];
 		const int16_t r1 = r[off1 + i];
 		const int16_t r2 = r[off2 + i];
@@ -1051,45 +1029,49 @@ static inline void fqinv_batch(int16_t *r)
 		const int16_t r6 = r[off6 + i];
 		const int16_t r7 = r[off7 + i];
 
-		const uint32_t INV00 = (uint32_t)inv0[0] * NTRUPLUS_QINV;
-		const uint32_t INV01 = (uint32_t)inv0[1] * NTRUPLUS_QINV;
-		const uint32_t INV02 = (uint32_t)inv0[2] * NTRUPLUS_QINV;
-		const uint32_t INV03 = (uint32_t)inv0[3] * NTRUPLUS_QINV;
-		const uint32_t INV04 = (uint32_t)inv0[4] * NTRUPLUS_QINV;
-		const uint32_t INV05 = (uint32_t)inv0[5] * NTRUPLUS_QINV;
-		const uint32_t INV06 = (uint32_t)inv0[6] * NTRUPLUS_QINV;
-		const uint32_t INV07 = (uint32_t)inv0[7] * NTRUPLUS_QINV;
+		const uint32_t INV00 = (uint32_t)inv0[4] * NTRUPLUS_QINV;
+		const uint32_t INV01 = (uint32_t)inv0[5] * NTRUPLUS_QINV;
+		const uint32_t INV02 = (uint32_t)inv0[6] * NTRUPLUS_QINV;
+		const uint32_t INV03 = (uint32_t)inv0[7] * NTRUPLUS_QINV;
+
+		const uint32_t INV04 = (uint32_t)inv0[0] * NTRUPLUS_QINV;
+		const uint32_t INV05 = (uint32_t)inv0[1] * NTRUPLUS_QINV;
+		const uint32_t INV06 = (uint32_t)inv0[2] * NTRUPLUS_QINV;
+		const uint32_t INV07 = (uint32_t)inv0[3] * NTRUPLUS_QINV;
 
 		r[off0 + i] = plantard_mul(pc0[off0 + i - 1], INV00);
 		r[off1 + i] = plantard_mul(pc0[off1 + i - 1], INV01);
 		r[off2 + i] = plantard_mul(pc0[off2 + i - 1], INV02);
 		r[off3 + i] = plantard_mul(pc0[off3 + i - 1], INV03);
+
 		r[off4 + i] = plantard_mul(pc0[off4 + i - 1], INV04);
 		r[off5 + i] = plantard_mul(pc0[off5 + i - 1], INV05);
 		r[off6 + i] = plantard_mul(pc0[off6 + i - 1], INV06);
 		r[off7 + i] = plantard_mul(pc0[off7 + i - 1], INV07);
 
-		inv0[0] = plantard_mul(r0, INV00);
-		inv0[1] = plantard_mul(r1, INV01);
-		inv0[2] = plantard_mul(r2, INV02);
-		inv0[3] = plantard_mul(r3, INV03);
-		inv0[4] = plantard_mul(r4, INV04);
-		inv0[5] = plantard_mul(r5, INV05);
-		inv0[6] = plantard_mul(r6, INV06);
-		inv0[7] = plantard_mul(r7, INV07);
+		inv0[4] = plantard_mul(r0, INV00);
+		inv0[5] = plantard_mul(r1, INV01);
+		inv0[6] = plantard_mul(r2, INV02);
+		inv0[7] = plantard_mul(r3, INV03);
+
+		inv0[0] = plantard_mul(r4, INV04);
+		inv0[1] = plantard_mul(r5, INV05);
+		inv0[2] = plantard_mul(r6, INV06);
+		inv0[3] = plantard_mul(r7, INV07);
 	}
 
-	r[off0] = inv0[0];
-	r[off1] = inv0[1];
-	r[off2] = inv0[2];
-	r[off3] = inv0[3];
-	r[off4] = inv0[4];
-	r[off5] = inv0[5];
-	r[off6] = inv0[6];
-	r[off7] = inv0[7];
+	r[off0] = inv0[4];
+	r[off1] = inv0[5];
+	r[off2] = inv0[6];
+	r[off3] = inv0[7];
 
-	clear_i16(pc0, sizeof pc0/sizeof pc0[0]);
-	clear_i16(inv0, sizeof inv0/sizeof inv0[0]);
+	r[off4] = inv0[0];
+	r[off5] = inv0[1];
+	r[off6] = inv0[2];
+	r[off7] = inv0[3];
+
+	clear_i16(pc0,  sizeof pc0 / sizeof pc0[0]);
+	clear_i16(inv0, sizeof inv0 / sizeof inv0[0]);
 }
 
 static inline void baseinv_2(int16_t r[NTRUPLUS_D], int16_t den[1])
