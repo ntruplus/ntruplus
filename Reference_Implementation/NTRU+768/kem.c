@@ -8,14 +8,6 @@
 #include "fips202/fips202.h"
 #include "randombytes.h"
 
-/* Only encoding validity is public; decoded coefficients remain secret. */
-static inline int declassify_poly_frombytes(poly *r, const uint8_t *a)
-{
-    int fail = poly_frombytes(r, a);
-    ntruplus_declassify(&fail, sizeof fail);
-    return fail;
-}
-
 /*************************************************
 * Name:        verify
 *
@@ -124,8 +116,8 @@ static inline void crypto_kem_keypair_derand(uint8_t *pk, uint8_t *sk,
     poly_tobytes(sk + NTRUPLUS_POLYBYTES, &hinv);
     hash_f(sk + 2 * NTRUPLUS_POLYBYTES, pk);
 
-    clear_i16(h.coeffs, NTRUPLUS_N);
-    clear_i16(hinv.coeffs, NTRUPLUS_N);
+    i16_clear(h.coeffs, NTRUPLUS_N);
+    i16_clear(hinv.coeffs, NTRUPLUS_N);
 }
 
 /*************************************************
@@ -166,12 +158,12 @@ int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
 
     crypto_kem_keypair_derand(pk, sk, &f, &finv, &g, &ginv);
 
-    clear_u8(coins, sizeof coins);
-    clear_u8(buf, sizeof buf);
-    clear_i16(f.coeffs, NTRUPLUS_N);
-    clear_i16(finv.coeffs, NTRUPLUS_N);
-    clear_i16(g.coeffs, NTRUPLUS_N);
-    clear_i16(ginv.coeffs, NTRUPLUS_N);
+    u8_clear(coins, sizeof coins);
+    u8_clear(buf, sizeof buf);
+    i16_clear(f.coeffs, NTRUPLUS_N);
+    i16_clear(finv.coeffs, NTRUPLUS_N);
+    i16_clear(g.coeffs, NTRUPLUS_N);
+    i16_clear(ginv.coeffs, NTRUPLUS_N);
     return 0;
 }
 
@@ -201,11 +193,14 @@ static inline int crypto_kem_enc_derand(uint8_t *ct, uint8_t *ss,
     
     poly c, h, r, m;
 
-    if(poly_frombytes(&h, pk))
+    int fail = poly_frombytes(&h, pk);
+    ntruplus_declassify(&fail, sizeof fail);
+
+    if(fail)
     {
         for (size_t i = 0; i < NTRUPLUS_CIPHERTEXTBYTES; i++)
             ct[i] = 0;
-        clear_u8(ss, NTRUPLUS_SSBYTES);
+        u8_clear(ss, NTRUPLUS_SSBYTES);
 
         return 1;
     }
@@ -230,11 +225,11 @@ static inline int crypto_kem_enc_derand(uint8_t *ct, uint8_t *ss,
     for (size_t i = 0; i < NTRUPLUS_SSBYTES; i++)
         ss[i] = buf0[i];
 
-    clear_u8(msg, sizeof msg);
-    clear_u8(buf0, sizeof buf0);
-    clear_u8(buf1, sizeof buf1);
-    clear_i16(r.coeffs, NTRUPLUS_N);
-    clear_i16(m.coeffs, NTRUPLUS_N);
+    u8_clear(msg, sizeof msg);
+    u8_clear(buf0, sizeof buf0);
+    u8_clear(buf1, sizeof buf1);
+    i16_clear(r.coeffs, NTRUPLUS_N);
+    i16_clear(m.coeffs, NTRUPLUS_N);
     
     return 0;
 }
@@ -264,7 +259,7 @@ int crypto_kem_enc(unsigned char *ct, unsigned char *ss,
 
     randombytes(coins, sizeof coins);
     ret = crypto_kem_enc_derand(ct, ss, pk, coins);
-    clear_u8(coins, sizeof coins);
+    u8_clear(coins, sizeof coins);
     return ret;
 }
 
@@ -298,11 +293,14 @@ int crypto_kem_dec(unsigned char *ss, const unsigned char *ct,
     poly r0, r1;
     poly m0, m1;
 
-    if(declassify_poly_frombytes(&c, ct) ||
-       declassify_poly_frombytes(&f, sk) ||
-       declassify_poly_frombytes(&hinv, sk + NTRUPLUS_POLYBYTES))
+    int r = poly_frombytes(&c, ct);
+    r |= poly_frombytes(&f, sk);
+    r |= poly_frombytes(&hinv, sk + NTRUPLUS_POLYBYTES);
+    ntruplus_declassify(&r, sizeof r);
+
+    if(r)
     {
-        clear_u8(ss, NTRUPLUS_SSBYTES);
+        u8_clear(ss, NTRUPLUS_SSBYTES);
 
         goto cleanup;
     }
@@ -335,17 +333,17 @@ int crypto_kem_dec(unsigned char *ss, const unsigned char *ct,
         ss[i] = buf2[i] & ~(-fail);
 
 cleanup:
-    clear_u8(msg, sizeof msg);
-    clear_u8(buf0, sizeof buf0);
-    clear_u8(buf1, sizeof buf1);
-    clear_u8(buf2, sizeof buf2);
-    clear_i16(c.coeffs, NTRUPLUS_N);
-    clear_i16(f.coeffs, NTRUPLUS_N);
-    clear_i16(hinv.coeffs, NTRUPLUS_N);
-    clear_i16(r0.coeffs, NTRUPLUS_N);
-    clear_i16(r1.coeffs, NTRUPLUS_N);
-    clear_i16(m0.coeffs, NTRUPLUS_N);
-    clear_i16(m1.coeffs, NTRUPLUS_N);
+    u8_clear(msg, sizeof msg);
+    u8_clear(buf0, sizeof buf0);
+    u8_clear(buf1, sizeof buf1);
+    u8_clear(buf2, sizeof buf2);
+    i16_clear(c.coeffs, NTRUPLUS_N);
+    i16_clear(f.coeffs, NTRUPLUS_N);
+    i16_clear(hinv.coeffs, NTRUPLUS_N);
+    i16_clear(r0.coeffs, NTRUPLUS_N);
+    i16_clear(r1.coeffs, NTRUPLUS_N);
+    i16_clear(m0.coeffs, NTRUPLUS_N);
+    i16_clear(m1.coeffs, NTRUPLUS_N);
 
     return fail;
 }

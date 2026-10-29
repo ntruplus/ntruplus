@@ -762,7 +762,7 @@ static inline void invntt_scaled(int16_t r[NTRUPLUS_N])
 		r[i + NTRUPLUS_N/2] = plantard_mul(NTRUPLUS_2NINV, t1);
 	}
 
-	clear_i32(v, sizeof v/sizeof v[0]);
+	i32_clear(v, sizeof v/sizeof v[0]);
 }
 
 /*************************************************
@@ -987,7 +987,7 @@ static inline void fqinv_batch(int16_t *r)
 		r2[0] = plantard_mul(r2[0], INV);
 		r2[1] = plantard_mul(r2[1], INV);
 
-		clear_i16(&inv, 1);
+		i16_clear(&inv, 1);
 
 		const uint32_t INV20 = (uint32_t)r2[1] * NTRUPLUS_QINV;
 		const uint32_t INV21 = (uint32_t)r2[0] * NTRUPLUS_QINV;
@@ -1013,8 +1013,8 @@ static inline void fqinv_batch(int16_t *r)
 		inv0[6] = plantard_mul(inv0[6], INV12);
 		inv0[7] = plantard_mul(inv0[7], INV13);
 
-		clear_i16(r1, sizeof r1 / sizeof r1[0]);
-		clear_i16(r2, sizeof r2 / sizeof r2[0]);
+		i16_clear(r1, sizeof r1 / sizeof r1[0]);
+		i16_clear(r2, sizeof r2 / sizeof r2[0]);
 	}
 
 	for (int i = chunk - 1; i > 0; i--)
@@ -1069,8 +1069,8 @@ static inline void fqinv_batch(int16_t *r)
 	r[off6] = inv0[2];
 	r[off7] = inv0[3];
 
-	clear_i16(pc0,  sizeof pc0 / sizeof pc0[0]);
-	clear_i16(inv0, sizeof inv0 / sizeof inv0[0]);
+	i16_clear(pc0,  sizeof pc0 / sizeof pc0[0]);
+	i16_clear(inv0, sizeof inv0 / sizeof inv0[0]);
 }
 
 static inline void baseinv_2(int16_t r[NTRUPLUS_D], int16_t den[1])
@@ -1116,7 +1116,7 @@ int poly_baseinv(poly *r, const poly *a)
 
 	if (fail)
 	{
-		clear_i16(r->coeffs, NTRUPLUS_N);
+		i16_clear(r->coeffs, NTRUPLUS_N);
 	}
 	else
 	{
@@ -1126,7 +1126,7 @@ int poly_baseinv(poly *r, const poly *a)
 			baseinv_2(r->coeffs + NTRUPLUS_D*i, den + i);
 	}
 
-	clear_i16(den, sizeof den/sizeof den[0]);
+	i16_clear(den, sizeof den/sizeof den[0]);
 
 	return fail;
 }

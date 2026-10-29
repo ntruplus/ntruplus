@@ -14,9 +14,9 @@ typedef struct{
 	int16_t coeffs[NTRUPLUS_N];
 } poly;
 
-static inline void poly_secure_clear(poly *r)
+static inline void poly_clear(poly *r)
 {
-    clear_i16(r->coeffs, NTRUPLUS_N);
+    i16_clear(r->coeffs, NTRUPLUS_N);
 }
 
 void poly_tobytes(uint8_t r[NTRUPLUS_POLYBYTES], const poly *a);

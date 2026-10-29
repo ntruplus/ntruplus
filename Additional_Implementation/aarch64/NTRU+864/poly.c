@@ -182,7 +182,7 @@ static inline int fqinv_batch(int16x8_t *r, int16x8_t con)
 
 	if (fail)
 	{
-		clear_u8(pc0, sizeof pc0);
+		u8_clear(pc0, sizeof pc0);
 		return 1;
 	}
 
@@ -220,7 +220,7 @@ static inline int fqinv_batch(int16x8_t *r, int16x8_t con)
 	r[off1] = inv1;
 	r[off2] = inv2;
 
-	clear_u8(pc0, sizeof pc0);
+	u8_clear(pc0, sizeof pc0);
 	return 0;
 }
 
@@ -276,13 +276,13 @@ int poly_baseinv(poly *r, const poly *a)
 
 	if (fail)
 	{
-		clear_u8(r->coeffs, sizeof r->coeffs);
+		u8_clear(r->coeffs, sizeof r->coeffs);
 	}
 	else
 	{
 		poly_baseinv_2(r, den, con);
 	}
 
-	clear_u8(den, sizeof den);
+	u8_clear(den, sizeof den);
 	return fail;
 }

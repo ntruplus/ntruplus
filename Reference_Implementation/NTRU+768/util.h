@@ -11,7 +11,7 @@
 #define ntruplus_declassify(x, xlen) ((void)(x), (void)(xlen))
 #endif
 
-static inline void clear_u8(void *p, size_t n)
+static inline void u8_clear(void *p, size_t n)
 {
     volatile uint8_t *v = p;
 
@@ -19,7 +19,7 @@ static inline void clear_u8(void *p, size_t n)
         *v++ = 0;
 }
 
-static inline void clear_i16(int16_t *p, size_t n)
+static inline void i16_clear(int16_t *p, size_t n)
 {
     volatile int16_t *v = p;
 
@@ -27,7 +27,7 @@ static inline void clear_i16(int16_t *p, size_t n)
         *v++ = 0;
 }
 
-static inline void clear_i32(int32_t *p, size_t n)
+static inline void i32_clear(int32_t *p, size_t n)
 {
     volatile int32_t *v = p;
 
@@ -35,7 +35,7 @@ static inline void clear_i32(int32_t *p, size_t n)
         *v++ = 0;
 }
 
-static inline void clear_u32(uint32_t *p, size_t n)
+static inline void u32_clear(uint32_t *p, size_t n)
 {
     volatile uint32_t *v = p;
 

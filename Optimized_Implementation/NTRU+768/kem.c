@@ -8,14 +8,6 @@
 #include "fips202/fips202.h"
 #include "randombytes.h"
 
-/* Only encoding validity is public; decoded coefficients remain secret. */
-static inline int declassify_poly_frombytes(poly *r, const uint8_t *a)
-{
-    int fail = poly_frombytes(r, a);
-    ntruplus_declassify(&fail, sizeof fail);
-    return fail;
-}
-
 /*************************************************
 * Name:        verify
 *
@@ -122,7 +114,7 @@ static inline void crypto_kem_keypair_derand(uint8_t *pk, uint8_t *sk,
     poly_tobytes(sk + NTRUPLUS_POLYBYTES, &h);
     hash_f(sk + 2 * NTRUPLUS_POLYBYTES, pk);
 
-    poly_secure_clear(&h);
+    poly_clear(&h);
 }
 
 /*************************************************
@@ -163,12 +155,12 @@ int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
 
     crypto_kem_keypair_derand(pk, sk, &f, &finv, &g, &ginv);
 
-    clear_u8(coins, sizeof coins);
-    clear_u8(buf, sizeof buf);
-    poly_secure_clear(&f);
-    poly_secure_clear(&finv);
-    poly_secure_clear(&g);
-    poly_secure_clear(&ginv);
+    u8_clear(coins, sizeof coins);
+    u8_clear(buf, sizeof buf);
+    poly_clear(&f);
+    poly_clear(&finv);
+    poly_clear(&g);
+    poly_clear(&ginv);
 
     return 0;
 }
@@ -198,11 +190,14 @@ static inline int crypto_kem_enc_derand(uint8_t *ct, uint8_t *ss,
 
     poly c, h, r, m;
 
-    if(poly_frombytes(&h, pk))
+    int fail = poly_frombytes(&h, pk);
+    ntruplus_declassify(&fail, sizeof fail);
+
+    if(fail)
     {
         for(size_t i = 0; i < NTRUPLUS_CIPHERTEXTBYTES; i++)
             ct[i] = 0;
-        clear_u8(ss, NTRUPLUS_SSBYTES);
+        u8_clear(ss, NTRUPLUS_SSBYTES);
 
         return 1;
     }
@@ -227,10 +222,10 @@ static inline int crypto_kem_enc_derand(uint8_t *ct, uint8_t *ss,
     for(size_t i = 0; i < NTRUPLUS_SSBYTES; i++)
         ss[i] = buf[i];
 
-    clear_u8(msg, sizeof msg);
-    clear_u8(buf, sizeof buf);
-    poly_secure_clear(&r);
-    poly_secure_clear(&m);
+    u8_clear(msg, sizeof msg);
+    u8_clear(buf, sizeof buf);
+    poly_clear(&r);
+    poly_clear(&m);
 
     return 0;
 }
@@ -260,7 +255,7 @@ int crypto_kem_enc(unsigned char *ct, unsigned char *ss,
 
     randombytes(coins, sizeof coins);
     ret = crypto_kem_enc_derand(ct, ss, pk, coins);
-    clear_u8(coins, sizeof coins);
+    u8_clear(coins, sizeof coins);
     return ret;
 }
 
@@ -292,11 +287,14 @@ int crypto_kem_dec(unsigned char *ss, const unsigned char *ct,
 
     poly c, f, hinv, m;
 
-    if(declassify_poly_frombytes(&c, ct) ||
-       declassify_poly_frombytes(&f, sk) ||
-       declassify_poly_frombytes(&hinv, sk + NTRUPLUS_POLYBYTES))
+    int r = poly_frombytes(&c, ct);
+    r |= poly_frombytes(&f, sk);
+    r |= poly_frombytes(&hinv, sk + NTRUPLUS_POLYBYTES);
+    ntruplus_declassify(&r, sizeof r);
+
+    if(r)
     {
-        clear_u8(ss, NTRUPLUS_SSBYTES);
+        u8_clear(ss, NTRUPLUS_SSBYTES);
 
         goto cleanup;
     }
@@ -329,14 +327,14 @@ int crypto_kem_dec(unsigned char *ss, const unsigned char *ct,
         ss[i] = buf2[i] & ~(-fail);
 
 cleanup:
-    clear_u8(msg, sizeof msg);
-    clear_u8(buf0, sizeof buf0);
-    clear_u8(buf1, sizeof buf1);
-    clear_u8(buf2, sizeof buf2);
-    poly_secure_clear(&c);
-    poly_secure_clear(&f);
-    poly_secure_clear(&hinv);
-    poly_secure_clear(&m);
+    u8_clear(msg, sizeof msg);
+    u8_clear(buf0, sizeof buf0);
+    u8_clear(buf1, sizeof buf1);
+    u8_clear(buf2, sizeof buf2);
+    poly_clear(&c);
+    poly_clear(&f);
+    poly_clear(&hinv);
+    poly_clear(&m);
 
     return fail;
 }

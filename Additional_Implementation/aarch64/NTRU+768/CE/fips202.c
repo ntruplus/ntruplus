@@ -114,7 +114,7 @@ void shake256(uint8_t *out, size_t outlen, const uint8_t *in, size_t inlen) {
         for (size_t i = 0; i < outlen; i++) {
             out[i] = temp[i];
         }
-        clear_u8(temp, sizeof(temp));
+        u8_clear(temp, sizeof(temp));
     }
-    clear_u8(&state, sizeof(state));
+    u8_clear(&state, sizeof(state));
 }

@@ -22,7 +22,7 @@
 #define ntruplus_declassify(x, xlen) ((void)(x), (void)(xlen))
 #endif
 
-static inline void clear_u8(void *v, size_t len)
+static inline void u8_clear(void *v, size_t len)
 {
 #if defined(_WIN32)
     SecureZeroMemory(v, len);
