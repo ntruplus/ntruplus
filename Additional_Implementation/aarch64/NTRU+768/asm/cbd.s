@@ -52,11 +52,6 @@ _loop_cbd:
     and v5.16b, v17.16b, v1.16b
     and v6.16b, v18.16b, v1.16b
 
-    sub v3.16b, v3.16b, v2.16b
-    sub v4.16b, v4.16b, v2.16b
-    sub v5.16b, v5.16b, v2.16b
-    sub v6.16b, v6.16b, v2.16b
-
     ushr v20.16b, v20.16b, #4
     ushr v16.16b, v16.16b, #4
     ushr v17.16b, v17.16b, #4
@@ -67,11 +62,6 @@ _loop_cbd:
     and v20.16b, v16.16b, v1.16b
     and v21.16b, v17.16b, v1.16b
     and v22.16b, v18.16b, v1.16b
-
-    sub  v7.16b,  v7.16b, v2.16b
-    sub v20.16b, v20.16b, v2.16b
-    sub v21.16b, v21.16b, v2.16b
-    sub v22.16b, v22.16b, v2.16b
 
     #shuffles
     trn1 v23.16b,  v3.16b,  v4.16b
@@ -105,25 +95,25 @@ _loop_cbd:
     trn2 v7.4s, v22.4s, v20.4s
 
     #expand
-    sshll v20.8h, v16.8b, #0
-    sshll v21.8h, v17.8b, #0
-    sshll v22.8h, v18.8b, #0
-    sshll v23.8h,  v3.8b, #0
+    usubl v20.8h, v16.8b, v2.8b
+    usubl v21.8h, v17.8b, v2.8b
+    usubl v22.8h, v18.8b, v2.8b
+    usubl v23.8h,  v3.8b, v2.8b
 
-    sshll v24.8h, v4.8b, #0
-    sshll v25.8h, v5.8b, #0
-    sshll v26.8h, v6.8b, #0
-    sshll v27.8h, v7.8b, #0
+    usubl v24.8h, v4.8b, v2.8b
+    usubl v25.8h, v5.8b, v2.8b
+    usubl v26.8h, v6.8b, v2.8b
+    usubl v27.8h, v7.8b, v2.8b
 
-    sshll2 v16.8h, v16.16b, #0
-    sshll2 v17.8h, v17.16b, #0
-    sshll2 v18.8h, v18.16b, #0
-    sshll2 v19.8h,  v3.16b, #0
+    usubl2 v16.8h, v16.16b, v2.16b
+    usubl2 v17.8h, v17.16b, v2.16b
+    usubl2 v18.8h, v18.16b, v2.16b
+    usubl2 v19.8h,  v3.16b, v2.16b
 
-    sshll2 v28.8h, v4.16b, #0
-    sshll2 v29.8h, v5.16b, #0
-    sshll2 v30.8h, v6.16b, #0
-    sshll2 v31.8h, v7.16b, #0
+    usubl2 v28.8h, v4.16b, v2.16b
+    usubl2 v29.8h, v5.16b, v2.16b
+    usubl2 v30.8h, v6.16b, v2.16b
+    usubl2 v31.8h, v7.16b, v2.16b
 
     #store
     st1 {v20.8h - v23.8h}, [dst], #64
@@ -248,35 +238,26 @@ _loop_cbd_triple:
     trn2 v7.4s, v22.4s, v20.4s
 
     #triple
-    mul v16.16b, v16.16b, v1.16b
-    mul v17.16b, v17.16b, v1.16b
-    mul v18.16b, v18.16b, v1.16b
-    mul  v3.16b,  v3.16b, v1.16b
-    mul  v4.16b,  v4.16b, v1.16b
-    mul  v5.16b,  v5.16b, v1.16b
-    mul  v6.16b,  v6.16b, v1.16b
-    mul  v7.16b,  v7.16b, v1.16b
-
     #expand
-    sshll v20.8h, v16.8b, #0
-    sshll v21.8h, v17.8b, #0
-    sshll v22.8h, v18.8b, #0
-    sshll v23.8h,  v3.8b, #0
+    smull v20.8h, v16.8b, v1.8b
+    smull v21.8h, v17.8b, v1.8b
+    smull v22.8h, v18.8b, v1.8b
+    smull v23.8h,  v3.8b, v1.8b
 
-    sshll v24.8h, v4.8b, #0
-    sshll v25.8h, v5.8b, #0
-    sshll v26.8h, v6.8b, #0
-    sshll v27.8h, v7.8b, #0
+    smull v24.8h, v4.8b, v1.8b
+    smull v25.8h, v5.8b, v1.8b
+    smull v26.8h, v6.8b, v1.8b
+    smull v27.8h, v7.8b, v1.8b
 
-    sshll2 v16.8h, v16.16b, #0
-    sshll2 v17.8h, v17.16b, #0
-    sshll2 v18.8h, v18.16b, #0
-    sshll2 v19.8h,  v3.16b, #0
+    smull2 v16.8h, v16.16b, v1.16b
+    smull2 v17.8h, v17.16b, v1.16b
+    smull2 v18.8h, v18.16b, v1.16b
+    smull2 v19.8h,  v3.16b, v1.16b
 
-    sshll2 v28.8h, v4.16b, #0
-    sshll2 v29.8h, v5.16b, #0
-    sshll2 v30.8h, v6.16b, #0
-    sshll2 v31.8h, v7.16b, #0
+    smull2 v28.8h, v4.16b, v1.16b
+    smull2 v29.8h, v5.16b, v1.16b
+    smull2 v30.8h, v6.16b, v1.16b
+    smull2 v31.8h, v7.16b, v1.16b
 
     #store
     st1 {v20.8h - v23.8h}, [dst], #64
@@ -355,11 +336,6 @@ _loop_sotp_encode:
     and v18.16b, v5.16b, v1.16b
     and v19.16b, v6.16b, v1.16b
 
-    sub v16.16b, v16.16b, v2.16b
-    sub v17.16b, v17.16b, v2.16b
-    sub v18.16b, v18.16b, v2.16b
-    sub v19.16b, v19.16b, v2.16b
-
     ushr v3.16b, v3.16b, #4
     ushr v4.16b, v4.16b, #4
     ushr v5.16b, v5.16b, #4
@@ -370,11 +346,6 @@ _loop_sotp_encode:
     and v21.16b, v4.16b, v1.16b
     and v22.16b, v5.16b, v1.16b
     and v23.16b, v6.16b, v1.16b
-
-    sub v20.16b, v20.16b, v2.16b
-    sub v21.16b, v21.16b, v2.16b
-    sub v22.16b, v22.16b, v2.16b
-    sub v23.16b, v23.16b, v2.16b
 
     #shuffles
     trn1 v24.16b, v16.16b, v17.16b
@@ -408,25 +379,25 @@ _loop_sotp_encode:
     trn2 v31.4s, v22.4s, v23.4s
 
     #expand
-    sshll v16.8h, v24.8b, #0
-    sshll v17.8h, v25.8b, #0
-    sshll v18.8h, v26.8b, #0
-    sshll v19.8h, v27.8b, #0
+    usubl v16.8h, v24.8b, v2.8b
+    usubl v17.8h, v25.8b, v2.8b
+    usubl v18.8h, v26.8b, v2.8b
+    usubl v19.8h, v27.8b, v2.8b
 
-    sshll v20.8h, v28.8b, #0
-    sshll v21.8h, v29.8b, #0
-    sshll v22.8h, v30.8b, #0
-    sshll v23.8h, v31.8b, #0
+    usubl v20.8h, v28.8b, v2.8b
+    usubl v21.8h, v29.8b, v2.8b
+    usubl v22.8h, v30.8b, v2.8b
+    usubl v23.8h, v31.8b, v2.8b
 
-    sshll2 v24.8h, v24.16b, #0
-    sshll2 v25.8h, v25.16b, #0
-    sshll2 v26.8h, v26.16b, #0
-    sshll2 v27.8h, v27.16b, #0
+    usubl2 v24.8h, v24.16b, v2.16b
+    usubl2 v25.8h, v25.16b, v2.16b
+    usubl2 v26.8h, v26.16b, v2.16b
+    usubl2 v27.8h, v27.16b, v2.16b
 
-    sshll2 v28.8h, v28.16b, #0
-    sshll2 v29.8h, v29.16b, #0
-    sshll2 v30.8h, v30.16b, #0
-    sshll2 v31.8h, v31.16b, #0
+    usubl2 v28.8h, v28.16b, v2.16b
+    usubl2 v29.8h, v29.16b, v2.16b
+    usubl2 v30.8h, v30.16b, v2.16b
+    usubl2 v31.8h, v31.16b, v2.16b
 
     #store
     st1 {v16.8h - v19.8h}, [dst], #64
