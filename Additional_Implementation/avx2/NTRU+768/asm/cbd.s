@@ -83,65 +83,55 @@ _looptop_poly_cbd1_1:
     vpunpckldq %ymm10, %ymm9, %ymm13
     vpunpckhdq %ymm10, %ymm9, %ymm14
 
-    vperm2i128 $0x20, %ymm4, %ymm3, %ymm7
-    vperm2i128 $0x20, %ymm6, %ymm5, %ymm8
-    vperm2i128 $0x31, %ymm4, %ymm3, %ymm9
-    vperm2i128 $0x31, %ymm6, %ymm5, %ymm10
+    vpmovsxbw %xmm3, %ymm7
+    vpmovsxbw %xmm4, %ymm8
+    vpmovsxbw %xmm5, %ymm9
+    vpmovsxbw %xmm6, %ymm10
 
-    vperm2i128 $0x20, %ymm12, %ymm11, %ymm3
-    vperm2i128 $0x20, %ymm14, %ymm13, %ymm4
-    vperm2i128 $0x31, %ymm12, %ymm11, %ymm5
-    vperm2i128 $0x31, %ymm14, %ymm13, %ymm6
+    vmovdqa  %ymm7, 128(%rdi)
+    vmovdqa  %ymm8, 160(%rdi)
+    vmovdqa  %ymm9, 192(%rdi)
+    vmovdqa %ymm10, 224(%rdi)
 
-    vpmovsxbw  %xmm3,  %ymm11
-    vpmovsxbw  %xmm4,  %ymm12
-    vpmovsxbw  %xmm5,  %ymm13
-    vpmovsxbw  %xmm6,  %ymm14
+    vextracti128 $1, %ymm3, %xmm7
+    vextracti128 $1, %ymm4, %xmm8
+    vextracti128 $1, %ymm5, %xmm9
+    vextracti128 $1, %ymm6, %xmm10
 
-    vmovdqa    %ymm11,   0(%rdi)
-    vmovdqa    %ymm12,  64(%rdi)
-    vmovdqa    %ymm13, 256(%rdi)
-    vmovdqa    %ymm14, 320(%rdi)
+    vpmovsxbw  %xmm7, %ymm7
+    vpmovsxbw  %xmm8, %ymm8
+    vpmovsxbw  %xmm9, %ymm9
+    vpmovsxbw %xmm10, %ymm10
 
-    vpmovsxbw  %xmm7,  %ymm11
-    vpmovsxbw  %xmm8,  %ymm12
-    vpmovsxbw  %xmm9,  %ymm13
-    vpmovsxbw  %xmm10, %ymm14
+    vmovdqa  %ymm7, 384(%rdi)
+    vmovdqa  %ymm8, 416(%rdi)
+    vmovdqa  %ymm9, 448(%rdi)
+    vmovdqa %ymm10, 480(%rdi)
 
-    vmovdqa    %ymm11, 128(%rdi)
-    vmovdqa    %ymm12, 192(%rdi)
-    vmovdqa    %ymm13, 384(%rdi)
-    vmovdqa    %ymm14, 448(%rdi)
+    vpmovsxbw %xmm11, %ymm7
+    vpmovsxbw %xmm12, %ymm8
+    vpmovsxbw %xmm13, %ymm9
+    vpmovsxbw %xmm14, %ymm10
 
-    vextracti128 $1, %ymm3, %xmm11
-    vextracti128 $1, %ymm4, %xmm12
-    vextracti128 $1, %ymm5, %xmm13
-    vextracti128 $1, %ymm6, %xmm14
+    vmovdqa  %ymm7, 0(%rdi)
+    vmovdqa  %ymm8, 32(%rdi)
+    vmovdqa  %ymm9, 64(%rdi)
+    vmovdqa %ymm10, 96(%rdi)
 
-    vpmovsxbw    %xmm11, %ymm11
-    vpmovsxbw    %xmm12, %ymm12
-    vpmovsxbw    %xmm13, %ymm13
-    vpmovsxbw    %xmm14, %ymm14
+    vextracti128 $1, %ymm11, %xmm7
+    vextracti128 $1, %ymm12, %xmm8
+    vextracti128 $1, %ymm13, %xmm9
+    vextracti128 $1, %ymm14, %xmm10
 
-    vmovdqa      %ymm11,  32(%rdi)
-    vmovdqa      %ymm12,  96(%rdi)
-    vmovdqa      %ymm13, 288(%rdi)
-    vmovdqa      %ymm14, 352(%rdi)
+    vpmovsxbw  %xmm7, %ymm7
+    vpmovsxbw  %xmm8, %ymm8
+    vpmovsxbw  %xmm9, %ymm9
+    vpmovsxbw %xmm10, %ymm10
 
-    vextracti128 $1, %ymm7,  %xmm11
-    vextracti128 $1, %ymm8,  %xmm12
-    vextracti128 $1, %ymm9,  %xmm13
-    vextracti128 $1, %ymm10, %xmm14
-
-    vpmovsxbw    %xmm11, %ymm11
-    vpmovsxbw    %xmm12, %ymm12
-    vpmovsxbw    %xmm13, %ymm13
-    vpmovsxbw    %xmm14, %ymm14
-
-    vmovdqa      %ymm11, 160(%rdi)
-    vmovdqa      %ymm12, 224(%rdi)
-    vmovdqa      %ymm13, 416(%rdi)
-    vmovdqa      %ymm14, 480(%rdi)
+    vmovdqa  %ymm7, 256(%rdi)
+    vmovdqa  %ymm8, 288(%rdi)
+    vmovdqa  %ymm9, 320(%rdi)
+    vmovdqa %ymm10, 352(%rdi)
 
     add $32,  %rsi
     add $512, %rdi
@@ -239,65 +229,55 @@ _looptop_poly_sotp_1:
     vpunpckldq %ymm10, %ymm9, %ymm13
     vpunpckhdq %ymm10, %ymm9, %ymm14
 
-    vperm2i128 $0x20, %ymm4, %ymm3, %ymm7
-    vperm2i128 $0x20, %ymm6, %ymm5, %ymm8
-    vperm2i128 $0x31, %ymm4, %ymm3, %ymm9
-    vperm2i128 $0x31, %ymm6, %ymm5, %ymm10
+    vpmovsxbw %xmm3, %ymm7
+    vpmovsxbw %xmm4, %ymm8
+    vpmovsxbw %xmm5, %ymm9
+    vpmovsxbw %xmm6, %ymm10
 
-    vperm2i128 $0x20, %ymm12, %ymm11, %ymm3
-    vperm2i128 $0x20, %ymm14, %ymm13, %ymm4
-    vperm2i128 $0x31, %ymm12, %ymm11, %ymm5
-    vperm2i128 $0x31, %ymm14, %ymm13, %ymm6
+    vmovdqa  %ymm7, 128(%rdi)
+    vmovdqa  %ymm8, 160(%rdi)
+    vmovdqa  %ymm9, 192(%rdi)
+    vmovdqa %ymm10, 224(%rdi)
 
-    vpmovsxbw  %xmm3,  %ymm11
-    vpmovsxbw  %xmm4,  %ymm12
-    vpmovsxbw  %xmm5,  %ymm13
-    vpmovsxbw  %xmm6,  %ymm14
+    vextracti128 $1, %ymm3, %xmm7
+    vextracti128 $1, %ymm4, %xmm8
+    vextracti128 $1, %ymm5, %xmm9
+    vextracti128 $1, %ymm6, %xmm10
 
-    vmovdqa    %ymm11,   0(%rdi)
-    vmovdqa    %ymm12,  64(%rdi)
-    vmovdqa    %ymm13, 256(%rdi)
-    vmovdqa    %ymm14, 320(%rdi)
+    vpmovsxbw  %xmm7, %ymm7
+    vpmovsxbw  %xmm8, %ymm8
+    vpmovsxbw  %xmm9, %ymm9
+    vpmovsxbw %xmm10, %ymm10
 
-    vpmovsxbw  %xmm7,  %ymm11
-    vpmovsxbw  %xmm8,  %ymm12
-    vpmovsxbw  %xmm9,  %ymm13
-    vpmovsxbw  %xmm10, %ymm14
+    vmovdqa  %ymm7, 384(%rdi)
+    vmovdqa  %ymm8, 416(%rdi)
+    vmovdqa  %ymm9, 448(%rdi)
+    vmovdqa %ymm10, 480(%rdi)
 
-    vmovdqa    %ymm11, 128(%rdi)
-    vmovdqa    %ymm12, 192(%rdi)
-    vmovdqa    %ymm13, 384(%rdi)
-    vmovdqa    %ymm14, 448(%rdi)
+    vpmovsxbw %xmm11, %ymm7
+    vpmovsxbw %xmm12, %ymm8
+    vpmovsxbw %xmm13, %ymm9
+    vpmovsxbw %xmm14, %ymm10
 
-    vextracti128 $1, %ymm3, %xmm11
-    vextracti128 $1, %ymm4, %xmm12
-    vextracti128 $1, %ymm5, %xmm13
-    vextracti128 $1, %ymm6, %xmm14
+    vmovdqa  %ymm7, 0(%rdi)
+    vmovdqa  %ymm8, 32(%rdi)
+    vmovdqa  %ymm9, 64(%rdi)
+    vmovdqa %ymm10, 96(%rdi)
 
-    vpmovsxbw    %xmm11, %ymm11
-    vpmovsxbw    %xmm12, %ymm12
-    vpmovsxbw    %xmm13, %ymm13
-    vpmovsxbw    %xmm14, %ymm14
+    vextracti128 $1, %ymm11, %xmm7
+    vextracti128 $1, %ymm12, %xmm8
+    vextracti128 $1, %ymm13, %xmm9
+    vextracti128 $1, %ymm14, %xmm10
 
-    vmovdqa      %ymm11,  32(%rdi)
-    vmovdqa      %ymm12,  96(%rdi)
-    vmovdqa      %ymm13, 288(%rdi)
-    vmovdqa      %ymm14, 352(%rdi)
+    vpmovsxbw  %xmm7, %ymm7
+    vpmovsxbw  %xmm8, %ymm8
+    vpmovsxbw  %xmm9, %ymm9
+    vpmovsxbw %xmm10, %ymm10
 
-    vextracti128 $1, %ymm7,  %xmm11
-    vextracti128 $1, %ymm8,  %xmm12
-    vextracti128 $1, %ymm9,  %xmm13
-    vextracti128 $1, %ymm10, %xmm14
-
-    vpmovsxbw    %xmm11, %ymm11
-    vpmovsxbw    %xmm12, %ymm12
-    vpmovsxbw    %xmm13, %ymm13
-    vpmovsxbw    %xmm14, %ymm14
-
-    vmovdqa      %ymm11, 160(%rdi)
-    vmovdqa      %ymm12, 224(%rdi)
-    vmovdqa      %ymm13, 416(%rdi)
-    vmovdqa      %ymm14, 480(%rdi)
+    vmovdqa  %ymm7, 256(%rdi)
+    vmovdqa  %ymm8, 288(%rdi)
+    vmovdqa  %ymm9, 320(%rdi)
+    vmovdqa %ymm10, 352(%rdi)
 
     add $32,  %rsi
     add $32,  %rdx
