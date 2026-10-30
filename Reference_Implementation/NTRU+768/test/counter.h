@@ -23,6 +23,17 @@ static inline uint64_t counter(void)
     return t;
 }
 
+#elif defined(__arm__)
+#include <stdint.h>
+#include <time.h>
+
+static inline uint64_t counter(void)
+{
+    struct timespec ts;
+
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return (uint64_t)ts.tv_sec * 1000000000ULL + (uint64_t)ts.tv_nsec;
+}
 #elif defined(__x86_64__) || defined(__i386__)
 #include <stdint.h>
 
