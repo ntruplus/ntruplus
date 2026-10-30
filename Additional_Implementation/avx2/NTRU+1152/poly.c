@@ -265,9 +265,6 @@ static inline int fqinv_batch(__m256i *restrict r)
 		inv0[4] = fqmul(pc0[off5 + i], inv0[4], INV[5], q);
 	}
 
-	u8_clear(pc0, sizeof pc0);
-	u8_clear(INV, sizeof INV);
-
 	r[off0] = inv0[1];
 	r[off1] = inv0[0];
 	r[off2] = inv0[3];
@@ -275,6 +272,8 @@ static inline int fqinv_batch(__m256i *restrict r)
 	r[off4] = inv0[5];
 	r[off5] = inv0[4];
 
+	u8_clear(pc0, sizeof pc0);
+	u8_clear(INV, sizeof INV);
 	u8_clear(inv0, sizeof inv0);
 
 	return 0;
