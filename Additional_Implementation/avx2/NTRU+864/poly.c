@@ -183,6 +183,7 @@ static inline int fqinv_batch(__m256i *restrict r)
 		mask_zero0 = _mm256_or_si256(mask_zero0, mask_zero2);
 		mask_zero0 = _mm256_or_si256(mask_zero0, mask_zero4);
 		int fail = !_mm256_testz_si256(mask_zero0, mask_zero0);
+		__asm__ __volatile__("" : "+r"(fail));
 		ntruplus_declassify(&fail, sizeof fail);
 
 		if (fail)

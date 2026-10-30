@@ -185,6 +185,7 @@ static inline int fqinv_batch(int16x8_t *r, int16x8_t con)
 	const int fail2 = !vminvq_u16(vreinterpretq_u16_s16(x2));
 
 	int fail = fail0 | fail1 | fail2;
+	__asm__ __volatile__("" : "+r"(fail));
 	ntruplus_declassify(&fail, sizeof fail);
 
 	if (fail)
