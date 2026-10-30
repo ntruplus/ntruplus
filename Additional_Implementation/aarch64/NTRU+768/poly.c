@@ -19,7 +19,7 @@
  */
 
 static const int16_t consts[] __attribute__((aligned(16))) = {
-	0x0d81, 0x4bd4, 0xcd7f, 0xff6d, 0xfa8f, 0xf9dd, 0xc5d5, 0x3281
+	  3457,  19412, -12929,   -147,  -1393,  -1571, -14891,  12929
 };
 
 /*************************************************
@@ -81,14 +81,19 @@ static inline int16x8_t fqmul_precomp(int16x8_t x, int16x8_t y, int16x8_t Y, int
 *              The exponent q-2 = 3455 is evaluated using a shortest
 *              addition chain of length 15 (OEIS A003313).
 *
-* Arguments:   - int16x8_t a:   input field elements
+* Arguments:   - int16x8_t a:   input lanes with |a| < q
 *              - int16x8_t con: vector of arithmetic constants
 *
 * Returns:     lane-wise multiplicative inverses of a
 **************************************************/
 static inline int16x8_t fqinv(int16x8_t a, int16x8_t con)
 {
+	const int16x8_t R3QINV = vdupq_n_s16(-16436);
+	const int16x8_t R3     = vdupq_n_s16(460);
+
 	int16x8_t t0, t1, T;
+
+	a = fqmul_precomp(a, R3, R3QINV, con);
 
 	t0 = fqmul(a, a, con);   // 10
 	t0 = fqmul(t0, t0, con); // 100
@@ -114,10 +119,6 @@ static inline int16x8_t fqinv(int16x8_t a, int16x8_t con)
 	t0 = fqmul_precomp(t1, t1, T, con); // 10101100110
 	t0 = fqmul(t0, t0, con);            // 101011001100
 	t0 = fqmul_precomp(t0, t1, T, con); // 110101111111
-
-	t1 = vqrdmulhq_laneq_s16(t0, con, 6);
-	t0 = vmulq_laneq_s16(t0, con, 5);
-	t0 = vmlsq_laneq_s16(t0, t1, con, 0);
 
 	return t0;
 }
@@ -185,6 +186,7 @@ static inline int fqinv_batch(int16x8_t *r, int16x8_t con)
 	const int fail2 = !vminvq_u16(vreinterpretq_u16_s16(x2));
 
 	int fail = fail0 | fail1 | fail2;
+	/* Preserve the single aggregate failure decision. */
 	__asm__ __volatile__("" : "+r"(fail));
 	ntruplus_declassify(&fail, sizeof fail);
 
