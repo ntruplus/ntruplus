@@ -88,25 +88,32 @@ static inline int16x8_t fqmul_precomp(int16x8_t x, int16x8_t y, int16x8_t Y, int
 **************************************************/
 static inline int16x8_t fqinv(int16x8_t a, int16x8_t con)
 {
-	int16x8_t t0, t1;
+	int16x8_t t0, t1, T;
 
 	t0 = fqmul(a, a, con);   // 10
 	t0 = fqmul(t0, t0, con); // 100
 	t0 = fqmul(t0, t0, con); // 1000
 	t0 = fqmul(t0, t0, con); // 10000
-	t1 = fqmul(t0, a, con);  // 10001
 
-	t0 = fqmul(t0, t0, con); // 100000
+	T = vmulq_laneq_s16(t0, con, 7);
+	t1 = fqmul_precomp(a, t0, T, con);  // 10001
+	t0 = fqmul_precomp(t0, t0, T, con); // 100000
+
 	t0 = fqmul(t0, t0, con); // 1000000
 	t0 = fqmul(t0, t0, con); // 10000000
-	t1 = fqmul(t0, t1, con); // 10010001
 
-	t0 = fqmul(t1, t0, con); // 100010001
-	t0 = fqmul(t0, t0, con); // 1000100010
-	t1 = fqmul(t0, t1, con); // 1010110011
-	t0 = fqmul(t1, t1, con); // 10101100110
-	t0 = fqmul(t0, t0, con); // 101011001100
-	t0 = fqmul(t0, t1, con); // 110101111111
+	T = vmulq_laneq_s16(t0, con, 7);
+	t1 = fqmul_precomp(t1, t0, T, con); // 10010001
+	t0 = fqmul_precomp(t1, t0, T, con); // 100010001
+
+	T = vmulq_laneq_s16(t0, con, 7);
+	t1 = fqmul_precomp(t1, t0, T, con); // 110100010
+	t1 = fqmul_precomp(t1, t0, T, con); // 1010110011
+
+	T = vmulq_laneq_s16(t1, con, 7);
+	t0 = fqmul_precomp(t1, t1, T, con); // 10101100110
+	t0 = fqmul(t0, t0, con);            // 101011001100
+	t0 = fqmul_precomp(t0, t1, T, con); // 110101111111
 
 	t1 = vqrdmulhq_laneq_s16(t0, con, 6);
 	t0 = vmulq_laneq_s16(t0, con, 5);
