@@ -49,8 +49,7 @@ static inline int genf_derand(poly *f, poly *finv,
 {
 	shake256(buf, NTRUPLUS_N / 4, coins, 32);
 
-	poly_cbd1(f, buf);
-	poly_triple(f);
+	poly_cbd1_triple(f, buf);
 	f->coeffs[0] += 1;
 
 	poly_ntt(f);
@@ -78,8 +77,7 @@ static inline int geng_derand(poly *g, poly *ginv,
 {
 	shake256(buf, NTRUPLUS_N / 4, coins, 32);
 
-	poly_cbd1(g, buf);
-	poly_triple(g);
+	poly_cbd1_triple(g, buf);
 
 	poly_ntt(g);
 
