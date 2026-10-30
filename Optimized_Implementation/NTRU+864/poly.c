@@ -20,17 +20,16 @@
  * https://eprint.iacr.org/2026/1191
  */
 
-#define NTRUPLUS_R           0x0012F51Eu
-#define NTRUPLUS_RINVSQ      0x35774C7Fu
-#define NTRUPLUS_RSQ         0xBFCBDDF0u
-#define NTRUPLUS_QINV        0x74563281u
+#define NTRUPLUS_R      0x0012F51Eu
+#define NTRUPLUS_RINVSQ 0x35774C7Fu
+#define NTRUPLUS_QINV   0x74563281u
 
 #define NTRUPLUS_OMEGA       0xCA75BE64u
 #define NTRUPLUS_ZMINUSZ5INV 0x790084B4u
 #define NTRUPLUS_ZETA1       -722
 
-#define NTRUPLUS_NINV        0x82A0FD8Fu
-#define NTRUPLUS_2NINV       0x0541FB1Du
+#define NTRUPLUS_NINV  0x82A0FD8Fu
+#define NTRUPLUS_2NINV 0x0541FB1Du
 
 static const uint32_t zetas[288] = {
 	0x0012F51Eu, 0xCA88B381u, 0x8F70A253u, 0x533C346Eu, 0x40342211u, 0x708F5DAEu, 0x2152DD6Bu, 0x93A935D7u,
@@ -87,7 +86,7 @@ static const uint32_t zetas[288] = {
 static inline int16_t plantard_reduce(uint32_t a)
 {
 	int32_t t = (int32_t)(a * NTRUPLUS_QINV) >> 16;
-	t = ((t+8)*NTRUPLUS_Q) >> 16;
+	t         = ((t + 8) * NTRUPLUS_Q) >> 16;
 	return t;
 }
 
@@ -108,7 +107,7 @@ static inline int16_t plantard_reduce(uint32_t a)
 static inline int16_t plantard_reduce_acc(uint32_t a)
 {
 	int32_t t = (int32_t)a >> 16;
-	t = ((t+8)*NTRUPLUS_Q) >> 16;
+	t         = ((t + 8) * NTRUPLUS_Q) >> 16;
 	return t;
 }
 
@@ -130,33 +129,33 @@ static inline int16_t plantard_reduce_acc(uint32_t a)
 static inline int16_t plantard_mul(uint32_t a, uint32_t b)
 {
 	int32_t t = (int32_t)(a * b) >> 16;
-	t = ((t+8)*NTRUPLUS_Q) >> 16;
+	t         = ((t + 8) * NTRUPLUS_Q) >> 16;
 	return t;
 }
 
-#define NTRUPLUS_R_MONT            -147
-#define NTRUPLUS_RSQ_MONT           867
-#define NTRUPLUS_QINV_MONT        12929
+#define NTRUPLUS_R_MONT    -147
+#define NTRUPLUS_RSQ_MONT  867
+#define NTRUPLUS_QINV_MONT 12929
 
 static const int16_t zetas_mont[144] = {
-	-1323,   163,   309,   981,  -557,  -258,   232, -1680,
-	-1657, -1233,   144,  1699,   311, -1060,   578,  1298,
-	 -403,  1607,  1074,  -148,   447, -1568,  1142,  -402,
-	-1412,  -623,   855,   365,   -98,  -244,   407,  1225,
-	  416,   683,  -105,  1714, -1019,  1061,  1163,   638,
-	  798,  1493,  -351,   396,  -542,    -9,  1616,  -139,
-	 -987,  -482,   889,   238, -1513,   466, -1089,  -101,
-	  849,  -426,  1589,  1487,   671,  1459,  -776,   255,
-	-1014,  1144,   472, -1153,  -325,  1519,   -26, -1123,
-	  324,  1230,  1547,  -593,  -428,  1192,  1072, -1564,
-	  688,  -333,  1023, -1686,   841,   824,   -71,  1587,
-	  522,  -323,  1148,   389,  1231,   384,  1343,   169,
-	  628, -1329, -1056,  -936,    24,  -293,  1523,  -300,
-	-1654,   891,  -962,   -67,   179, -1177,   844,  -509,
-	-1677, -1565,  -549, -1508,  1191,  -280,   -43,   669,
-	 -746,   753,   770, -1046,  1711,  1438,   690,  1083,
-	 1062,  1727,  -883,   553,  1670,    66,   825,  -133,
-	-1586,   637,  -680,  -917,   644,  -372, -1193, -1136
+	 -1323,    163,    309,    981,   -557,   -258,    232,  -1680,
+	 -1657,  -1233,    144,   1699,    311,  -1060,    578,   1298,
+	  -403,   1607,   1074,   -148,    447,  -1568,   1142,   -402,
+	 -1412,   -623,    855,    365,    -98,   -244,    407,   1225,
+	   416,    683,   -105,   1714,  -1019,   1061,   1163,    638,
+	   798,   1493,   -351,    396,   -542,     -9,   1616,   -139,
+	  -987,   -482,    889,    238,  -1513,    466,  -1089,   -101,
+	   849,   -426,   1589,   1487,    671,   1459,   -776,    255,
+	 -1014,   1144,    472,  -1153,   -325,   1519,    -26,  -1123,
+	   324,   1230,   1547,   -593,   -428,   1192,   1072,  -1564,
+	   688,   -333,   1023,  -1686,    841,    824,    -71,   1587,
+	   522,   -323,   1148,    389,   1231,    384,   1343,    169,
+	   628,  -1329,  -1056,   -936,     24,   -293,   1523,   -300,
+	 -1654,    891,   -962,    -67,    179,  -1177,    844,   -509,
+	 -1677,  -1565,   -549,  -1508,   1191,   -280,    -43,    669,
+	  -746,    753,    770,  -1046,   1711,   1438,    690,   1083,
+	  1062,   1727,   -883,    553,   1670,     66,    825,   -133,
+	 -1586,    637,   -680,   -917,    644,   -372,  -1193,  -1136
 };
 
 /*************************************************
@@ -194,11 +193,11 @@ static inline int16_t montgomery_reduce(int32_t a)
 **************************************************/
 static inline int16_t barrett_reduce(int16_t a)
 {
-	int16_t t;
-	const int16_t v = ((1<<26) + NTRUPLUS_Q/2) / NTRUPLUS_Q;
+	int16_t       t;
+	const int16_t v = ((1 << 26) + NTRUPLUS_Q / 2) / NTRUPLUS_Q;
 
-	t  = ((int32_t)v*a + (1<<25)) >> 26;
-	return a - t*NTRUPLUS_Q;
+	t = ((int32_t)v * a + (1 << 25)) >> 26;
+	return a - t * NTRUPLUS_Q;
 }
 
 /*************************************************
@@ -214,16 +213,16 @@ void poly_tobytes(uint8_t r[NTRUPLUS_POLYBYTES], const poly *a)
 {
 	int16_t t[2];
 
-	for(size_t i = 0; i < NTRUPLUS_N/2; i++)
+	for (size_t i = 0; i < NTRUPLUS_N / 2; i++)
 	{
-		t[0] = a->coeffs[2*i];
+		t[0]  = a->coeffs[2 * i];
 		t[0] += (t[0] >> 15) & NTRUPLUS_Q;
-		t[1] = a->coeffs[2*i+1];
+		t[1]  = a->coeffs[2 * i + 1];
 		t[1] += (t[1] >> 15) & NTRUPLUS_Q;
 
-		r[3*i+0] = (t[0] >> 0);
-		r[3*i+1] = (t[0] >> 8) | (t[1] << 4);
-		r[3*i+2] = (t[1] >> 4);
+		r[3 * i + 0] = (t[0] >> 0);
+		r[3 * i + 1] = (t[0] >> 8) | (t[1] << 4);
+		r[3 * i + 2] = (t[1] >> 4);
 	}
 }
 
@@ -243,15 +242,15 @@ int poly_frombytes(poly *r, const uint8_t a[NTRUPLUS_POLYBYTES])
 {
 	uint32_t fail = 0;
 
-	for(size_t i = 0; i < NTRUPLUS_N/2; i++)
+	for (size_t i = 0; i < NTRUPLUS_N / 2; i++)
 	{
-		const uint16_t t0 = ((a[3*i+0] >> 0) | ((uint16_t)a[3*i+1] << 8)) & 0xFFF;
-		const uint16_t t1 = ((a[3*i+1] >> 4) | ((uint16_t)a[3*i+2] << 4)) & 0xFFF;
+		const uint16_t t0 = ((a[3 * i + 0] >> 0) | ((uint16_t)a[3 * i + 1] << 8)) & 0xFFF;
+		const uint16_t t1 = ((a[3 * i + 1] >> 4) | ((uint16_t)a[3 * i + 2] << 4)) & 0xFFF;
 
-		r->coeffs[2*i]   = t0;
-		r->coeffs[2*i+1] = t1;
-		fail |= (uint32_t)(NTRUPLUS_Q - 1) - t0;
-		fail |= (uint32_t)(NTRUPLUS_Q - 1) - t1;
+		r->coeffs[2 * i]      = t0;
+		r->coeffs[2 * i + 1]  = t1;
+		fail                 |= (uint32_t)(NTRUPLUS_Q - 1) - t0;
+		fail                 |= (uint32_t)(NTRUPLUS_Q - 1) - t1;
 	}
 
 	return fail >> 31;
@@ -267,18 +266,18 @@ int poly_frombytes(poly *r, const uint8_t a[NTRUPLUS_POLYBYTES])
 *              - const uint8_t *buf: pointer to input random
 *                                     (of length NTRUPLUS_N/4 bytes)
 **************************************************/
-void poly_cbd1(poly *r, const uint8_t buf[NTRUPLUS_N/4])
+void poly_cbd1(poly *r, const uint8_t buf[NTRUPLUS_N / 4])
 {
 	uint8_t t0, t1;
 
-	for(size_t i = 0; i < NTRUPLUS_N/8; i++)
+	for (size_t i = 0; i < NTRUPLUS_N / 8; i++)
 	{
 		t0 = buf[i];
-		t1 = buf[i + NTRUPLUS_N/8];
+		t1 = buf[i + NTRUPLUS_N / 8];
 
-		for(size_t j = 0; j < 8; j++)
+		for (size_t j = 0; j < 8; j++)
 		{
-			r->coeffs[8*i + j] = (t0 & 0x1) - (t1 & 0x1);
+			r->coeffs[8 * i + j] = (t0 & 0x1) - (t1 & 0x1);
 
 			t0 >>= 1;
 			t1 >>= 1;
@@ -296,25 +295,24 @@ void poly_cbd1(poly *r, const uint8_t buf[NTRUPLUS_N/4])
 *              - const uint8_t *buf: input random bytes
 *                                     (of length NTRUPLUS_N/4 bytes)
 **************************************************/
-void poly_cbd1_triple(poly *r, const uint8_t buf[NTRUPLUS_N/4])
+void poly_cbd1_triple(poly *r, const uint8_t buf[NTRUPLUS_N / 4])
 {
-    uint8_t t0, t1;
+	uint8_t t0, t1;
 
-    for(size_t i = 0; i < NTRUPLUS_N/8; i++)
-    {
-        t0 = buf[i];
-        t1 = buf[i + NTRUPLUS_N/8];
+	for (size_t i = 0; i < NTRUPLUS_N / 8; i++)
+	{
+		t0 = buf[i];
+		t1 = buf[i + NTRUPLUS_N / 8];
 
-        for(size_t j = 0; j < 8; j++)
-        {
-            r->coeffs[8*i + j] = 3*((t0 & 0x1) - (t1 & 0x1));
+		for (size_t j = 0; j < 8; j++)
+		{
+			r->coeffs[8 * i + j] = 3 * ((t0 & 0x1) - (t1 & 0x1));
 
-            t0 >>= 1;
-            t1 >>= 1;
-        }
-    }
+			t0 >>= 1;
+			t1 >>= 1;
+		}
+	}
 }
-
 
 /*************************************************
 * Name:        poly_sotp_encode
@@ -326,18 +324,18 @@ void poly_cbd1_triple(poly *r, const uint8_t buf[NTRUPLUS_N/4])
 *              - const uint8_t *msg: pointer to input message
 *              - const uint8_t *buf: pointer to input random
 **************************************************/
-void poly_sotp_encode(poly *r, const uint8_t msg[NTRUPLUS_N/8], const uint8_t buf[NTRUPLUS_N/4])
+void poly_sotp_encode(poly *r, const uint8_t msg[NTRUPLUS_N / 8], const uint8_t buf[NTRUPLUS_N / 4])
 {
-	for(size_t i = 0; i < NTRUPLUS_N/8; i++)
+	for (size_t i = 0; i < NTRUPLUS_N / 8; i++)
 	{
 		uint8_t t0 = buf[i] ^ msg[i];
-		uint8_t t1 = buf[i + NTRUPLUS_N/8];
+		uint8_t t1 = buf[i + NTRUPLUS_N / 8];
 
-		for(size_t j = 0; j < 8; j++)
+		for (size_t j = 0; j < 8; j++)
 		{
-			r->coeffs[8*i + j] = (t0 & 0x1) - (t1 & 0x1);
-			t0 >>= 1;
-			t1 >>= 1;
+			r->coeffs[8 * i + j]   = (t0 & 0x1) - (t1 & 0x1);
+			t0                   >>= 1;
+			t1                   >>= 1;
 		}
 	}
 }
@@ -353,40 +351,40 @@ void poly_sotp_encode(poly *r, const uint8_t msg[NTRUPLUS_N/8], const uint8_t bu
 *
 * Returns 0 (success) or 1 (failure)
 **************************************************/
-int poly_sotp_decode(uint8_t msg[NTRUPLUS_N/8], const poly *a, const uint8_t buf[NTRUPLUS_N/4])
+int poly_sotp_decode(uint8_t msg[NTRUPLUS_N / 8], const poly *a, const uint8_t buf[NTRUPLUS_N / 4])
 {
-    uint8_t t0, t1;
-    uint16_t t2;
-    uint32_t fail = 0;
-    volatile uint8_t mask;
+	uint8_t          t0, t1;
+	uint16_t         t2;
+	uint32_t         fail = 0;
+	volatile uint8_t mask;
 
-    for(size_t i = 0; i < NTRUPLUS_N/8; i++)
-    {
-        t0 = buf[i + NTRUPLUS_N/8];
-        t1 = 0;
+	for (size_t i = 0; i < NTRUPLUS_N / 8; i++)
+	{
+		t0 = buf[i + NTRUPLUS_N / 8];
+		t1 = 0;
 
-        for(size_t j = 0; j < 8; j++)
-        {
-            t2 = t0 & 0x1;
-            t2 += a->coeffs[8*i + j];
-            fail |= t2;
-            t1 ^= (uint8_t)(t2 << j);
+		for (size_t j = 0; j < 8; j++)
+		{
+			t2    = t0 & 0x1;
+			t2   += a->coeffs[8 * i + j];
+			fail |= t2;
+			t1   ^= (uint8_t)(t2 << j);
 
-            t0 >>= 1;
-        }
+			t0 >>= 1;
+		}
 
-        msg[i] = t1 ^ buf[i];
-    }
+		msg[i] = t1 ^ buf[i];
+	}
 
-    fail >>= 1;
-    fail = (-fail) >> 31;
+	fail >>= 1;
+	fail   = (-fail) >> 31;
 
-    mask = (uint8_t)(fail - 1);
+	mask = (uint8_t)(fail - 1);
 
-    for(size_t i = 0; i < NTRUPLUS_N/8; i++)
-        msg[i] &= mask;
+	for (size_t i = 0; i < NTRUPLUS_N / 8; i++)
+		msg[i] &= mask;
 
-    return fail;
+	return fail;
 }
 
 /*************************************************
@@ -407,21 +405,21 @@ int poly_sotp_decode(uint8_t msg[NTRUPLUS_N/8], const poly *a, const uint8_t buf
 **************************************************/
 static inline void ntt(int16_t r[NTRUPLUS_N])
 {
-	for(int i = 0; i < NTRUPLUS_N/2; i++)
+	for (int i = 0; i < NTRUPLUS_N / 2; i++)
 	{
-		const int16_t t = NTRUPLUS_ZETA1 * r[i + NTRUPLUS_N/2];
+		const int16_t t = NTRUPLUS_ZETA1 * r[i + NTRUPLUS_N / 2];
 
-		r[i + NTRUPLUS_N/2] = r[i] + r[i + NTRUPLUS_N/2] - t;
-		r[i]                = r[i] + t;
+		r[i + NTRUPLUS_N / 2] = r[i] + r[i + NTRUPLUS_N / 2] - t;
+		r[i]                  = r[i] + t;
 	}
 
-	for(int j = 0; j < 2; j++)
+	for (int j = 0; j < 2; j++)
 	{
-		const uint32_t zeta0 = zetas[2+2*j];
-		const uint32_t zeta1 = zetas[3+2*j];
-		int16_t *ri = r + 432*j;
+		const uint32_t zeta0 = zetas[2 + 2 * j];
+		const uint32_t zeta1 = zetas[3 + 2 * j];
+		int16_t       *ri    = r + 432 * j;
 
-		for(int i = 0; i < 144; i++)
+		for (int i = 0; i < 144; i++)
 		{
 			const int16_t t0 = plantard_mul(zeta0, ri[i + 144]);
 			const int16_t t1 = plantard_mul(zeta1, ri[i + 288]);
@@ -433,23 +431,23 @@ static inline void ntt(int16_t r[NTRUPLUS_N])
 		}
 	}
 
-	for(int j = 0; j < 6; j++)
+	for (int j = 0; j < 6; j++)
 	{
-		const uint32_t zeta0 = zetas[6+2*j];
-		const uint32_t zeta1 = zetas[7+2*j];
-		const uint32_t zeta2 = zetas[18+3*j];
-		const uint32_t zeta3 = zetas[19+3*j];
-		const uint32_t zeta4 = zetas[20+3*j];
+		const uint32_t zeta0 = zetas[6 + 2 * j];
+		const uint32_t zeta1 = zetas[7 + 2 * j];
+		const uint32_t zeta2 = zetas[18 + 3 * j];
+		const uint32_t zeta3 = zetas[19 + 3 * j];
+		const uint32_t zeta4 = zetas[20 + 3 * j];
 
-		for(int i = 0; i < 24; i++)
+		for (int i = 0; i < 24; i++)
 		{
-			int16_t *ri = r + 144*j + i;
-			int32_t v0 = ri[0*24];
-			int32_t v1 = ri[1*24];
-			int32_t v2 = ri[2*24];
-			int32_t v3 = ri[3*24];
-			int32_t v4 = ri[4*24];
-			int32_t v5 = ri[5*24];
+			int16_t *ri = r + 144 * j + i;
+			int32_t  v0 = ri[0 * 24];
+			int32_t  v1 = ri[1 * 24];
+			int32_t  v2 = ri[2 * 24];
+			int32_t  v3 = ri[3 * 24];
+			int32_t  v4 = ri[4 * 24];
+			int32_t  v5 = ri[5 * 24];
 
 			{
 				const int16_t a0 = plantard_mul(zeta0, v2);
@@ -485,59 +483,59 @@ static inline void ntt(int16_t r[NTRUPLUS_N])
 				v4 = v4 + u2;
 			}
 
-			ri[0*24] = v0;
-			ri[1*24] = v1;
-			ri[2*24] = v2;
-			ri[3*24] = v3;
-			ri[4*24] = v4;
-			ri[5*24] = v5;
+			ri[0 * 24] = v0;
+			ri[1 * 24] = v1;
+			ri[2 * 24] = v2;
+			ri[3 * 24] = v3;
+			ri[4 * 24] = v4;
+			ri[5 * 24] = v5;
 		}
 	}
 
-	for(int j = 0; j < 36; j++)
+	for (int j = 0; j < 36; j++)
 	{
-		const uint32_t zeta0 = zetas[36+j];
-		int16_t *ri = r + 24*j;
+		const uint32_t zeta0 = zetas[36 + j];
+		int16_t       *ri    = r + 24 * j;
 
-		for(int i = 0; i < 12; i++)
+		for (int i = 0; i < 12; i++)
 		{
 			const int16_t t = plantard_mul(zeta0, ri[i + 12]);
-			ri[i + 12] = ri[i] - t;
-			ri[i]      = ri[i] + t;
+			ri[i + 12]      = ri[i] - t;
+			ri[i]           = ri[i] + t;
 		}
 	}
 
-	for(int j = 0; j < 72; j++)
+	for (int j = 0; j < 72; j++)
 	{
-		const uint32_t zeta0 = zetas[72+j];
-		int16_t *ri = r + 12*j;
+		const uint32_t zeta0 = zetas[72 + j];
+		int16_t       *ri    = r + 12 * j;
 
-		for(int i = 0; i < 6; i++)
+		for (int i = 0; i < 6; i++)
 		{
 			const int16_t t = plantard_mul(zeta0, ri[i + 6]);
-			ri[i + 6] = ri[i] - t;
-			ri[i]     = ri[i] + t;
+			ri[i + 6]       = ri[i] - t;
+			ri[i]           = ri[i] + t;
 		}
 	}
 
-	for(int j = 0; j < 36; j++)
+	for (int j = 0; j < 36; j++)
 	{
-		const uint32_t zeta0 = zetas[144+4*j];
-		const uint32_t zeta1 = zetas[145+4*j];
-		const uint32_t zeta2 = zetas[146+4*j];
-		const uint32_t zeta3 = zetas[147+4*j];
+		const uint32_t zeta0 = zetas[144 + 4 * j];
+		const uint32_t zeta1 = zetas[145 + 4 * j];
+		const uint32_t zeta2 = zetas[146 + 4 * j];
+		const uint32_t zeta3 = zetas[147 + 4 * j];
 
-		for(int i = 0; i < 3; i++)
+		for (int i = 0; i < 3; i++)
 		{
-			int16_t *ri = r + 24*j + i;
-			int32_t v0 = ri[0*6];
-			int32_t v1 = ri[0*6 + 3];
-			int32_t v2 = ri[1*6];
-			int32_t v3 = ri[1*6 + 3];
-			int32_t v4 = ri[2*6];
-			int32_t v5 = ri[2*6 + 3];
-			int32_t v6 = ri[3*6];
-			int32_t v7 = ri[3*6 + 3];
+			int16_t *ri = r + 24 * j + i;
+			int32_t  v0 = ri[0 * 6];
+			int32_t  v1 = ri[0 * 6 + 3];
+			int32_t  v2 = ri[1 * 6];
+			int32_t  v3 = ri[1 * 6 + 3];
+			int32_t  v4 = ri[2 * 6];
+			int32_t  v5 = ri[2 * 6 + 3];
+			int32_t  v6 = ri[3 * 6];
+			int32_t  v7 = ri[3 * 6 + 3];
 
 			{
 				const int16_t u0 = plantard_mul(zeta0, v1);
@@ -555,18 +553,18 @@ static inline void ntt(int16_t r[NTRUPLUS_N])
 				v6 = v6 + u3;
 			}
 
-			ri[0*6]     = v0;
-			ri[0*6 + 3] = v1;
-			ri[1*6]     = v2;
-			ri[1*6 + 3] = v3;
-			ri[2*6]     = v4;
-			ri[2*6 + 3] = v5;
-			ri[3*6]     = v6;
-			ri[3*6 + 3] = v7;
+			ri[0 * 6]     = v0;
+			ri[0 * 6 + 3] = v1;
+			ri[1 * 6]     = v2;
+			ri[1 * 6 + 3] = v3;
+			ri[2 * 6]     = v4;
+			ri[2 * 6 + 3] = v5;
+			ri[3 * 6]     = v6;
+			ri[3 * 6 + 3] = v7;
 		}
 	}
 
-	for(int i = 0; i < NTRUPLUS_N; i++)
+	for (int i = 0; i < NTRUPLUS_N; i++)
 		r[i] = barrett_reduce(r[i]);
 }
 
@@ -602,126 +600,126 @@ void poly_ntt(poly *r)
 **************************************************/
 static inline void invntt_scaled(int16_t r[NTRUPLUS_N])
 {
-	int32_t t0, t1, t2;
+	int32_t  t0, t1, t2;
 	uint32_t zeta[7];
-	int32_t v[8];
+	int32_t  v[8];
 
-	for(int j = 0; j < 36; j++)
+	for (int j = 0; j < 36; j++)
 	{
-		zeta[0] = zetas[287-4*j];
-		zeta[1] = zetas[286-4*j];
-		zeta[2] = zetas[285-4*j];
-		zeta[3] = zetas[284-4*j];
-		zeta[4] = zetas[143-2*j];
-		zeta[5] = zetas[142-2*j];
-		zeta[6] = zetas[71-j];
+		zeta[0] = zetas[287 - 4 * j];
+		zeta[1] = zetas[286 - 4 * j];
+		zeta[2] = zetas[285 - 4 * j];
+		zeta[3] = zetas[284 - 4 * j];
+		zeta[4] = zetas[143 - 2 * j];
+		zeta[5] = zetas[142 - 2 * j];
+		zeta[6] = zetas[71 - j];
 
-		for(int i = 0; i < 3; i++)
+		for (int i = 0; i < 3; i++)
 		{
-			for(int k = 0; k < 8; k++)
+			for (int k = 0; k < 8; k++)
 			{
-				v[k] = r[3*k+i+24*j];
+				v[k] = r[3 * k + i + 24 * j];
 			}
 
-			t0 = v[1];
+			t0   = v[1];
 			v[1] = plantard_mul(zeta[0], t0 - v[0]);
 			v[0] = v[0] + t0;
 
-			t0 = v[3];
+			t0   = v[3];
 			v[3] = plantard_mul(zeta[1], t0 - v[2]);
 			v[2] = v[2] + t0;
 
-			t0 = v[5];
+			t0   = v[5];
 			v[5] = plantard_mul(zeta[2], t0 - v[4]);
 			v[4] = v[4] + t0;
 
-			t0 = v[7];
+			t0   = v[7];
 			v[7] = plantard_mul(zeta[3], t0 - v[6]);
 			v[6] = v[6] + t0;
 
-			t0 = v[2];
+			t0   = v[2];
 			v[2] = plantard_mul(zeta[4], t0 - v[0]);
 			v[0] = v[0] + t0;
 
-			t0 = v[3];
+			t0   = v[3];
 			v[3] = plantard_mul(zeta[4], t0 - v[1]);
 			v[1] = v[1] + t0;
 
-			t0 = v[6];
+			t0   = v[6];
 			v[6] = plantard_mul(zeta[5], t0 - v[4]);
 			v[4] = v[4] + t0;
 
-			t0 = v[7];
+			t0   = v[7];
 			v[7] = plantard_mul(zeta[5], t0 - v[5]);
 			v[5] = v[5] + t0;
 
-			t0 = v[4];
+			t0   = v[4];
 			v[4] = plantard_mul(zeta[6], t0 - v[0]);
 			v[0] = v[0] + t0;
 
-			t0 = v[5];
+			t0   = v[5];
 			v[5] = plantard_mul(zeta[6], t0 - v[1]);
 			v[1] = v[1] + t0;
 
-			t0 = v[6];
+			t0   = v[6];
 			v[6] = plantard_mul(zeta[6], t0 - v[2]);
 			v[2] = v[2] + t0;
 
-			t0 = v[7];
+			t0   = v[7];
 			v[7] = plantard_mul(zeta[6], t0 - v[3]);
 			v[3] = v[3] + t0;
 
-			for(int k = 0; k < 8; k++)
+			for (int k = 0; k < 8; k++)
 			{
-				r[3*k+i+24*j] = v[k];
+				r[3 * k + i + 24 * j] = v[k];
 			}
 		}
 	}
 
-	for(int j = 0; j < 6; j++)
+	for (int j = 0; j < 6; j++)
 	{
-		zeta[0] = zetas[35-3*j];
-		zeta[1] = zetas[34-3*j];
-		zeta[2] = zetas[33-3*j];
-		zeta[3] = zetas[16-2*j];
-		zeta[4] = zetas[17-2*j];
+		zeta[0] = zetas[35 - 3 * j];
+		zeta[1] = zetas[34 - 3 * j];
+		zeta[2] = zetas[33 - 3 * j];
+		zeta[3] = zetas[16 - 2 * j];
+		zeta[4] = zetas[17 - 2 * j];
 
-		for(int i = 0; i < 24; i++)
+		for (int i = 0; i < 24; i++)
 		{
-			for(int k = 0; k < 6; k++)
+			for (int k = 0; k < 6; k++)
 			{
-				v[k] = r[24*k+i+144*j];
+				v[k] = r[24 * k + i + 144 * j];
 			}
 
-			t0 = v[1];
+			t0   = v[1];
 			v[1] = plantard_mul(zeta[0], t0 - v[0]);
 			v[0] = (int16_t)(v[0] + t0);
 
-			t0 = v[3];
+			t0   = v[3];
 			v[3] = plantard_mul(zeta[1], t0 - v[2]);
 			v[2] = (int16_t)(v[2] + t0);
 
-			t0 = v[5];
+			t0   = v[5];
 			v[5] = plantard_mul(zeta[2], t0 - v[4]);
 			v[4] = (int16_t)(v[4] + t0);
 
-			t0 = plantard_mul(NTRUPLUS_OMEGA, v[2] - v[0]);
-			t1 = plantard_mul(zeta[3], v[4] - v[0] + t0);
-			t2 = plantard_mul(zeta[4], v[4] - v[2] - t0);
+			t0   = plantard_mul(NTRUPLUS_OMEGA, v[2] - v[0]);
+			t1   = plantard_mul(zeta[3], v[4] - v[0] + t0);
+			t2   = plantard_mul(zeta[4], v[4] - v[2] - t0);
 			v[0] = plantard_mul((int32_t)v[0] + (int32_t)v[2] + (int32_t)v[4], NTRUPLUS_R);
 			v[2] = t1;
 			v[4] = t2;
 
-			t0 = plantard_mul(NTRUPLUS_OMEGA, v[3] - v[1]);
-			t1 = plantard_mul(zeta[3], v[5] - v[1] + t0);
-			t2 = plantard_mul(zeta[4], v[5] - v[3] - t0);
+			t0   = plantard_mul(NTRUPLUS_OMEGA, v[3] - v[1]);
+			t1   = plantard_mul(zeta[3], v[5] - v[1] + t0);
+			t2   = plantard_mul(zeta[4], v[5] - v[3] - t0);
 			v[1] = plantard_mul((int32_t)v[1] + (int32_t)v[3] + (int32_t)v[5], NTRUPLUS_R);
 			v[3] = t1;
 			v[5] = t2;
 
-			for(int k = 0; k < 6; k++)
+			for (int k = 0; k < 6; k++)
 			{
-				r[24*k+i+144*j] = v[k];
+				r[24 * k + i + 144 * j] = v[k];
 			}
 		}
 	}
@@ -731,116 +729,114 @@ static inline void invntt_scaled(int16_t r[NTRUPLUS_N])
 	zeta[2] = zetas[2];
 	zeta[3] = zetas[3];
 
-	for(int j = 0; j < 144; j++)
+	for (int j = 0; j < 144; j++)
 	{
-		for(int i = 0; i < 6; i++)
+		for (int i = 0; i < 6; i++)
 		{
-			v[i] = r[144*i+j];
+			v[i] = r[144 * i + j];
 		}
 
-		t0 = plantard_mul(NTRUPLUS_OMEGA, v[1] - v[0]);
-		t1 = plantard_mul(zeta[0], v[2] - v[0] + t0);
-		t2 = plantard_mul(zeta[1], v[2] - v[1] - t0);
+		t0   = plantard_mul(NTRUPLUS_OMEGA, v[1] - v[0]);
+		t1   = plantard_mul(zeta[0], v[2] - v[0] + t0);
+		t2   = plantard_mul(zeta[1], v[2] - v[1] - t0);
 		v[0] = v[0] + v[1] + v[2];
 		v[1] = t1;
 		v[2] = t2;
 
-		t0 = plantard_mul(NTRUPLUS_OMEGA, v[4] - v[3]);
-		t1 = plantard_mul(zeta[2], v[5] - v[3] + t0);
-		t2 = plantard_mul(zeta[3], v[5] - v[4] - t0);
+		t0   = plantard_mul(NTRUPLUS_OMEGA, v[4] - v[3]);
+		t1   = plantard_mul(zeta[2], v[5] - v[3] + t0);
+		t2   = plantard_mul(zeta[3], v[5] - v[4] - t0);
 		v[3] = v[3] + v[4] + v[5];
 		v[4] = t1;
 		v[5] = t2;
 
-		t0 = v[0] + v[3];
-		t1 = plantard_mul(NTRUPLUS_ZMINUSZ5INV, v[0] - v[3]);
+		t0   = v[0] + v[3];
+		t1   = plantard_mul(NTRUPLUS_ZMINUSZ5INV, v[0] - v[3]);
 		v[0] = plantard_mul(NTRUPLUS_NINV, t0 - t1);
 		v[3] = plantard_mul(NTRUPLUS_2NINV, t1);
 
-		t0 = v[1] + v[4];
-		t1 = plantard_mul(NTRUPLUS_ZMINUSZ5INV, v[1] - v[4]);
+		t0   = v[1] + v[4];
+		t1   = plantard_mul(NTRUPLUS_ZMINUSZ5INV, v[1] - v[4]);
 		v[1] = plantard_mul(NTRUPLUS_NINV, t0 - t1);
 		v[4] = plantard_mul(NTRUPLUS_2NINV, t1);
 
-		t0 = v[2] + v[5];
-		t1 = plantard_mul(NTRUPLUS_ZMINUSZ5INV, v[2] - v[5]);
+		t0   = v[2] + v[5];
+		t1   = plantard_mul(NTRUPLUS_ZMINUSZ5INV, v[2] - v[5]);
 		v[2] = plantard_mul(NTRUPLUS_NINV, t0 - t1);
 		v[5] = plantard_mul(NTRUPLUS_2NINV, t1);
 
-		for(int i = 0; i < 6; i++)
+		for (int i = 0; i < 6; i++)
 		{
-			r[144*i+j] = v[i];
+			r[144 * i + j] = v[i];
 		}
 	}
 
-	i32_clear(v, sizeof v/sizeof v[0]);
+	i32_clear(v, sizeof v / sizeof v[0]);
 }
 
 /*************************************************
-* Name:        poly_invntt_scaled
+* Name:        poly_invntt_scale
 *
 * Description: Computes the inverse NTT for an input carrying the Montgomery
-*              R^-1 scale produced by poly_basemul_scaled.
+*              R^-1 scale produced by poly_basemul_scale.
 *
 * Arguments:   - poly *r: pointer to input/output polynomial
 **************************************************/
-void poly_invntt_scaled(poly *r)
+void poly_invntt_scale(poly *r)
 {
 	invntt_scaled(r->coeffs);
 }
 
 /*************************************************
-* Name:        baseinv
+* Name:        baseinv_1
 *
-* Description: Simultaneous inversion of polynomials in
-*              Z_q[X]/(X^3 - zeta) and Z_q[X]/(X^3 + zeta), used as
-*              a building block for inversion of elements in R_q in the
-*              NTT domain. The input array a encodes two degree-2
-*              polynomials:
-*                a[0..2] for X^3 - zeta,
-*                a[3..5] for X^3 + zeta.
-*              On success, r[0..2] and r[3..5] contain their inverses.
+* Description: Computes numerator coefficients and denominators for
+*              inversion modulo X^3 - zeta and X^3 + zeta.
+*              fqinv_batch inverts den before baseinv_2 forms the inverses.
 *
-* Arguments:   - int16_t r[6]:       pointer to the output polynomials
-*              - const int16_t a[6]: pointer to the input polynomials
-*              - uint32_t zeta:      parameter defining X^3 ± zeta
+* Arguments:   - int16_t r[2*NTRUPLUS_D]:       output numerator coefficients
+*              - int16_t den[2]:                output denominators
+*              - const int16_t a[2*NTRUPLUS_D]: input polynomial coefficients
+*              - uint32_t zeta:                 defining parameter
 *
-* Returns:     0 if both polynomials are invertible, 1 otherwise.
+* Returns:     0 if both denominators are nonzero, 1 otherwise.
 **************************************************/
-static inline int baseinv_1(int16_t r[2*NTRUPLUS_D], int16_t den[2],
-		const int16_t a[2*NTRUPLUS_D], uint32_t zeta)
+static inline int baseinv_1(int16_t r[2 * NTRUPLUS_D], int16_t den[2],
+                            const int16_t a[2 * NTRUPLUS_D], uint32_t zeta)
 {
-	int16_t t0, t1, t2;
-	int16_t s0, s1, s2;
+	int16_t  t0, t1, t2;
+	int16_t  s0, s1, s2;
 	uint32_t A0, A1, A2;
 	uint32_t B0, B1, B2;
 
-	A0 = (int32_t)a[0]*NTRUPLUS_QINV;
-	A1 = (int32_t)a[1]*NTRUPLUS_QINV;
-	A2 = (int32_t)a[2]*NTRUPLUS_QINV;
-	B0 = (int32_t)a[3]*NTRUPLUS_QINV;
-	B1 = (int32_t)a[4]*NTRUPLUS_QINV;
-	B2 = (int32_t)a[5]*NTRUPLUS_QINV;
+	A0 = (int32_t)a[0] * NTRUPLUS_QINV;
+	A1 = (int32_t)a[1] * NTRUPLUS_QINV;
+	A2 = (int32_t)a[2] * NTRUPLUS_QINV;
+	B0 = (int32_t)a[3] * NTRUPLUS_QINV;
+	B1 = (int32_t)a[4] * NTRUPLUS_QINV;
+	B2 = (int32_t)a[5] * NTRUPLUS_QINV;
 
-	t0 = plantard_reduce_acc(a[1]*A2);
-	s0 = plantard_reduce_acc(a[4]*B2);
-	t1 = plantard_reduce_acc(a[2]*A2);
-	s1 = plantard_reduce_acc(a[5]*B2);
-	t2 = plantard_reduce_acc(a[1]*A1-a[0]*A2);
-	s2 = plantard_reduce_acc(a[4]*B1-a[3]*B2);
+	t0 = plantard_reduce_acc(a[1] * A2);
+	s0 = plantard_reduce_acc(a[4] * B2);
+	t1 = plantard_reduce_acc(a[2] * A2);
+	s1 = plantard_reduce_acc(a[5] * B2);
+	t2 = plantard_reduce_acc(a[1] * A1 - a[0] * A2);
+	s2 = plantard_reduce_acc(a[4] * B1 - a[3] * B2);
 
-	t0 = plantard_reduce_acc(a[0]*A0-t0*zeta);
-	s0 = plantard_reduce_acc(a[3]*B0+s0*zeta);
-	t1 = plantard_reduce_acc(t1*zeta-a[0]*A1);
-	s1 = -plantard_reduce_acc(s1*zeta+a[3]*B1);
+	t0 = plantard_reduce_acc(a[0] * A0 - t0 * zeta);
+	s0 = plantard_reduce_acc(a[3] * B0 + s0 * zeta);
+	t1 = plantard_reduce_acc(t1 * zeta - a[0] * A1);
+	s1 = -plantard_reduce_acc(s1 * zeta + a[3] * B1);
 
-	r[0] = t0; r[1] = t1, r[2] = t2;
-	r[3] = s0; r[4] = s1, r[5] = s2;
+	r[0] = t0;
+	r[1] = t1, r[2] = t2;
+	r[3] = s0;
+	r[4] = s1, r[5] = s2;
 
-	t2  = plantard_reduce_acc(t2*A1+t1*A2);
-	s2  = plantard_reduce_acc(s2*B1+s1*B2);
-	t2  = plantard_reduce_acc(t2*zeta+t0*A0);
-	s2  = plantard_reduce_acc(s0*B0-s2*zeta);
+	t2 = plantard_reduce_acc(t2 * A1 + t1 * A2);
+	s2 = plantard_reduce_acc(s2 * B1 + s1 * B2);
+	t2 = plantard_reduce_acc(t2 * zeta + t0 * A0);
+	s2 = plantard_reduce_acc(s0 * B0 - s2 * zeta);
 
 	den[0] = t2;
 	den[1] = s2;
@@ -863,30 +859,30 @@ static inline int baseinv_1(int16_t r[2*NTRUPLUS_D], int16_t den[2],
 **************************************************/
 static inline int16_t fqinv(int16_t a)
 {
-	int16_t t0, t1;
+	int16_t  t0, t1;
 	uint32_t A, T;
 
-	A = a*NTRUPLUS_QINV;
-	t0 = plantard_reduce_acc(a*A);      // 10
-	t0 = plantard_reduce(t0*t0);        // 100
-	t0 = plantard_reduce(t0*t0);        // 1000
-	t0 = plantard_reduce(t0*t0);        // 10000
-	t1 = plantard_reduce_acc(t0*A);     // 10001
+	A  = a * NTRUPLUS_QINV;
+	t0 = plantard_reduce_acc(a * A);    // 10
+	t0 = plantard_reduce(t0 * t0);      // 100
+	t0 = plantard_reduce(t0 * t0);      // 1000
+	t0 = plantard_reduce(t0 * t0);      // 10000
+	t1 = plantard_reduce_acc(t0 * A);   // 10001
 
-	t0 = plantard_reduce(t0*t0);        // 100000
-	t0 = plantard_reduce(t0*t0);        // 1000000
-	t0 = plantard_reduce(t0*t0);        // 10000000
-	t1 = plantard_reduce(t0*t1);        // 10010001
+	t0 = plantard_reduce(t0 * t0);      // 100000
+	t0 = plantard_reduce(t0 * t0);      // 1000000
+	t0 = plantard_reduce(t0 * t0);      // 10000000
+	t1 = plantard_reduce(t0 * t1);      // 10010001
 
-	T = t1*NTRUPLUS_QINV;
-	t0 = plantard_reduce_acc(t0*T);     // 100010001
-	t1 = plantard_reduce_acc(t0*T);     // 110100010
-	t1 = plantard_reduce(t1*t0);        // 1010110011
-	t0 = plantard_reduce(t1*t1);        // 10101100110
-	t0 = plantard_reduce(t0*t0);        // 101011001100
+	T  = t1 * NTRUPLUS_QINV;
+	t0 = plantard_reduce_acc(t0 * T);   // 100010001
+	t1 = plantard_reduce_acc(t0 * T);   // 110100010
+	t1 = plantard_reduce(t1 * t0);      // 1010110011
+	t0 = plantard_reduce(t1 * t1);      // 10101100110
+	t0 = plantard_reduce(t0 * t0);      // 101011001100
 
-	T = t1*NTRUPLUS_RINVSQ; // below 64*q^2 for centered fqinv inputs.
-	return plantard_reduce_acc(t0*T);   // 110101111111
+	T = t1 * NTRUPLUS_RINVSQ;           // below 64*q^2 for centered fqinv inputs.
+	return plantard_reduce_acc(t0 * T); // 110101111111
 }
 
 /*************************************************
@@ -1071,7 +1067,7 @@ static inline void fqinv_batch(int16_t *r)
 	r[off6] = inv0[2];
 	r[off7] = inv0[3];
 
-	i16_clear(pc0,  sizeof pc0 / sizeof pc0[0]);
+	i16_clear(pc0, sizeof pc0 / sizeof pc0[0]);
 	i16_clear(inv0, sizeof inv0 / sizeof inv0[0]);
 }
 
@@ -1079,11 +1075,11 @@ static inline void baseinv_2(int16_t r[NTRUPLUS_D], int16_t den[1])
 {
 	uint32_t T;
 
-	T = den[0]*NTRUPLUS_QINV;
+	T = den[0] * NTRUPLUS_QINV;
 
-	r[0] = plantard_reduce_acc(r[0]*T);
-	r[1] = plantard_reduce_acc(r[1]*T);
-	r[2] = plantard_reduce_acc(r[2]*T);
+	r[0] = plantard_reduce_acc(r[0] * T);
+	r[1] = plantard_reduce_acc(r[1] * T);
+	r[2] = plantard_reduce_acc(r[2] * T);
 }
 
 /*************************************************
@@ -1102,15 +1098,15 @@ static inline void baseinv_2(int16_t r[NTRUPLUS_D], int16_t den[1])
 **************************************************/
 int poly_baseinv(poly *r, const poly *a)
 {
-	int16_t den[NTRUPLUS_N/NTRUPLUS_D];
-	int fail = 0;
+	int16_t den[NTRUPLUS_N / NTRUPLUS_D];
+	int     fail = 0;
 
-	for(int i = 0; i < NTRUPLUS_N/(2*NTRUPLUS_D); i++)
+	for (int i = 0; i < NTRUPLUS_N / (2 * NTRUPLUS_D); i++)
 	{
-		int16_t *ri = r->coeffs + 2*NTRUPLUS_D*i;
-		const int16_t *ai = a->coeffs + 2*NTRUPLUS_D*i;
+		int16_t       *ri = r->coeffs + 2 * NTRUPLUS_D * i;
+		const int16_t *ai = a->coeffs + 2 * NTRUPLUS_D * i;
 
-		fail |= baseinv_1(ri, den + 2*i, ai, zetas[144 + i]);
+		fail |= baseinv_1(ri, den + 2 * i, ai, zetas[144 + i]);
 	}
 
 	ntruplus_declassify(&fail, sizeof fail);
@@ -1123,11 +1119,11 @@ int poly_baseinv(poly *r, const poly *a)
 	{
 		fqinv_batch(den);
 
-		for(int i = 0; i < NTRUPLUS_N/NTRUPLUS_D; i++)
-			baseinv_2(r->coeffs + NTRUPLUS_D*i, den + i);
+		for (int i = 0; i < NTRUPLUS_N / NTRUPLUS_D; i++)
+			baseinv_2(r->coeffs + NTRUPLUS_D * i, den + i);
 	}
 
-	i16_clear(den, sizeof den/sizeof den[0]);
+	i16_clear(den, sizeof den / sizeof den[0]);
 
 	return fail;
 }
@@ -1145,25 +1141,25 @@ int poly_baseinv(poly *r, const poly *a)
 *
 * Returns:     none.
 **************************************************/
-static inline void basemul(int16_t r[NTRUPLUS_D],
-                          const int16_t a[NTRUPLUS_D],
-                          const int16_t b[NTRUPLUS_D],
-                          const int16_t zeta)
+static inline void basemul(int16_t       r[NTRUPLUS_D],
+                           const int16_t a[NTRUPLUS_D],
+                           const int16_t b[NTRUPLUS_D],
+                           const int16_t zeta)
 {
-    int32_t p00 = (int32_t)a[0]*b[0];
-    int32_t p11 = (int32_t)a[1]*b[1];
-    int32_t p22 = (int32_t)a[2]*b[2];
+	int32_t p00 = (int32_t)a[0] * b[0];
+	int32_t p11 = (int32_t)a[1] * b[1];
+	int32_t p22 = (int32_t)a[2] * b[2];
 
-    int32_t p01 = (a[0] + a[1])*(b[0] + b[1]) - p00 - p11;
-    int32_t p02 = (a[0] + a[2])*(b[0] + b[2]) - p00 - p22;
-    int32_t p12 = (a[1] + a[2])*(b[1] + b[2]) - p11 - p22;
+	int32_t p01 = (a[0] + a[1]) * (b[0] + b[1]) - p00 - p11;
+	int32_t p02 = (a[0] + a[2]) * (b[0] + b[2]) - p00 - p22;
+	int32_t p12 = (a[1] + a[2]) * (b[1] + b[2]) - p11 - p22;
 
-    int16_t t0 = montgomery_reduce(p12);
-    int16_t t1 = montgomery_reduce(p22);
+	int16_t t0 = montgomery_reduce(p12);
+	int16_t t1 = montgomery_reduce(p22);
 
-    r[0] = montgomery_reduce(t0*zeta + p00);
-    r[1] = montgomery_reduce(t1*zeta + p01);
-    r[2] = montgomery_reduce(p02 + p11);
+	r[0] = montgomery_reduce(t0 * zeta + p00);
+	r[1] = montgomery_reduce(t1 * zeta + p01);
+	r[2] = montgomery_reduce(p02 + p11);
 }
 
 /*************************************************
@@ -1177,19 +1173,19 @@ static inline void basemul(int16_t r[NTRUPLUS_D],
 **************************************************/
 void poly_basemul(poly *r, const poly *a, const poly *b)
 {
-	for(int i = 0; i < NTRUPLUS_N/(2*NTRUPLUS_D); i++)
+	for (int i = 0; i < NTRUPLUS_N / (2 * NTRUPLUS_D); i++)
 	{
-		int16_t *ri = r->coeffs + 2*NTRUPLUS_D*i;
-		const int16_t *ai = a->coeffs + 2*NTRUPLUS_D*i;
-		const int16_t *bi = b->coeffs + 2*NTRUPLUS_D*i;
+		int16_t       *ri = r->coeffs + 2 * NTRUPLUS_D * i;
+		const int16_t *ai = a->coeffs + 2 * NTRUPLUS_D * i;
+		const int16_t *bi = b->coeffs + 2 * NTRUPLUS_D * i;
 
 		basemul(ri, ai, bi, zetas_mont[i]);
 		basemul(ri + NTRUPLUS_D, ai + NTRUPLUS_D,
-				bi + NTRUPLUS_D, -zetas_mont[i]);
+		        bi + NTRUPLUS_D, -zetas_mont[i]);
 	}
 
-	for(int i = 0; i < NTRUPLUS_N; i++)
-		r->coeffs[i] = montgomery_reduce(r->coeffs[i]*NTRUPLUS_RSQ_MONT);
+	for (int i = 0; i < NTRUPLUS_N; i++)
+		r->coeffs[i] = montgomery_reduce(r->coeffs[i] * NTRUPLUS_RSQ_MONT);
 }
 
 /*************************************************
@@ -1204,43 +1200,43 @@ void poly_basemul(poly *r, const poly *a, const poly *b)
 **************************************************/
 void poly_basemul_add(poly *r, const poly *a, const poly *b, const poly *c)
 {
-	for(int i = 0; i < NTRUPLUS_N/(2*NTRUPLUS_D); i++)
+	for (int i = 0; i < NTRUPLUS_N / (2 * NTRUPLUS_D); i++)
 	{
-		int16_t *ri = r->coeffs + 2*NTRUPLUS_D*i;
-		const int16_t *ai = a->coeffs + 2*NTRUPLUS_D*i;
-		const int16_t *bi = b->coeffs + 2*NTRUPLUS_D*i;
+		int16_t       *ri = r->coeffs + 2 * NTRUPLUS_D * i;
+		const int16_t *ai = a->coeffs + 2 * NTRUPLUS_D * i;
+		const int16_t *bi = b->coeffs + 2 * NTRUPLUS_D * i;
 
 		basemul(ri, ai, bi, zetas_mont[i]);
 		basemul(ri + NTRUPLUS_D, ai + NTRUPLUS_D,
-				bi + NTRUPLUS_D, -zetas_mont[i]);
+		        bi + NTRUPLUS_D, -zetas_mont[i]);
 	}
 
-	for(int i = 0; i < NTRUPLUS_N; i++)
-		r->coeffs[i] = montgomery_reduce(c->coeffs[i]*NTRUPLUS_R_MONT + r->coeffs[i]*NTRUPLUS_RSQ_MONT);
+	for (int i = 0; i < NTRUPLUS_N; i++)
+		r->coeffs[i] = montgomery_reduce(c->coeffs[i] * NTRUPLUS_R_MONT + r->coeffs[i] * NTRUPLUS_RSQ_MONT);
 }
 
 /*************************************************
-* Name:        poly_basemul_scaled
+* Name:        poly_basemul_scale
 *
 * Description: Multiplication of two polynomials in the NTT domain. The
 *              output carries the Montgomery R^-1 scale consumed by
-*              poly_invntt_scaled.
+*              poly_invntt_scale.
 *
 * Arguments:   - poly *r:       pointer to the output polynomial
 *              - const poly *a: pointer to the first input polynomial
 *              - const poly *b: pointer to the second input polynomial
 **************************************************/
-void poly_basemul_scaled(poly *r, const poly *a, const poly *b)
+void poly_basemul_scale(poly *r, const poly *a, const poly *b)
 {
-	for(int i = 0; i < NTRUPLUS_N/(2*NTRUPLUS_D); i++)
+	for (int i = 0; i < NTRUPLUS_N / (2 * NTRUPLUS_D); i++)
 	{
-		int16_t *ri = r->coeffs + 2*NTRUPLUS_D*i;
-		const int16_t *ai = a->coeffs + 2*NTRUPLUS_D*i;
-		const int16_t *bi = b->coeffs + 2*NTRUPLUS_D*i;
+		int16_t       *ri = r->coeffs + 2 * NTRUPLUS_D * i;
+		const int16_t *ai = a->coeffs + 2 * NTRUPLUS_D * i;
+		const int16_t *bi = b->coeffs + 2 * NTRUPLUS_D * i;
 
 		basemul(ri, ai, bi, zetas_mont[i]);
 		basemul(ri + NTRUPLUS_D, ai + NTRUPLUS_D,
-				bi + NTRUPLUS_D, -zetas_mont[i]);
+		        bi + NTRUPLUS_D, -zetas_mont[i]);
 	}
 }
 
@@ -1255,7 +1251,7 @@ void poly_basemul_scaled(poly *r, const poly *a, const poly *b)
 **************************************************/
 void poly_sub(poly *r, const poly *a, const poly *b)
 {
-	for(int i = 0; i < NTRUPLUS_N; i++)
+	for (int i = 0; i < NTRUPLUS_N; i++)
 		r->coeffs[i] = a->coeffs[i] - b->coeffs[i];
 }
 
@@ -1270,15 +1266,15 @@ void poly_sub(poly *r, const poly *a, const poly *b)
 **************************************************/
 static inline int16_t crepmod3(int16_t a)
 {
-	int16_t t;
-	const int16_t v = ((1<<15) + 3/2)/3;
+	int16_t       t;
+	const int16_t v = ((1 << 15) + 3 / 2) / 3;
 
 	a += (a >> 15) & NTRUPLUS_Q;
-	a -= (NTRUPLUS_Q+1)/2;
+	a -= (NTRUPLUS_Q + 1) / 2;
 	a += (a >> 15) & NTRUPLUS_Q;
-	a -= (NTRUPLUS_Q-1)/2;
+	a -= (NTRUPLUS_Q - 1) / 2;
 
-	t  = ((int32_t)v*a + (1<<14)) >> 15;
+	t  = ((int32_t)v * a + (1 << 14)) >> 15;
 	t *= 3;
 	return a - t;
 }
@@ -1292,6 +1288,6 @@ static inline int16_t crepmod3(int16_t a)
 **************************************************/
 void poly_crepmod3(poly *r)
 {
-	for(int i = 0; i < NTRUPLUS_N; i++)
+	for (int i = 0; i < NTRUPLUS_N; i++)
 		r->coeffs[i] = crepmod3(r->coeffs[i]);
 }

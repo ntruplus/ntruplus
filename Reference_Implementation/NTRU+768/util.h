@@ -13,34 +13,34 @@
 
 static inline void u8_clear(void *p, size_t n)
 {
-    volatile uint8_t *v = p;
+	volatile uint8_t *v = p;
 
-    while(n-- > 0)
-        *v++ = 0;
+	while (n-- > 0)
+		*v++ = 0;
 }
 
 static inline void i16_clear(int16_t *p, size_t n)
 {
-    volatile int16_t *v = p;
+	volatile int16_t *v = p;
 
-    while(n-- > 0)
-        *v++ = 0;
+	while (n-- > 0)
+		*v++ = 0;
 }
 
 static inline void i32_clear(int32_t *p, size_t n)
 {
-    volatile int32_t *v = p;
+	volatile int32_t *v = p;
 
-    while(n-- > 0)
-        *v++ = 0;
+	while (n-- > 0)
+		*v++ = 0;
 }
 
 static inline void u32_clear(uint32_t *p, size_t n)
 {
-    volatile uint32_t *v = p;
+	volatile uint32_t *v = p;
 
-    while(n-- > 0)
-        *v++ = 0;
+	while (n-- > 0)
+		*v++ = 0;
 }
 
 #endif /* UTIL_H */

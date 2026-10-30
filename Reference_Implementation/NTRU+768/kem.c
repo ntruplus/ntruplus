@@ -21,12 +21,12 @@
 **************************************************/
 static inline int verify(const uint8_t *a, const uint8_t *b, size_t len)
 {
-    uint8_t acc = 0;
+	uint8_t acc = 0;
 
-    for (size_t i = 0; i < len; i++)
-        acc |= (uint8_t)(a[i] ^ b[i]);
+	for (size_t i = 0; i < len; i++)
+		acc |= (uint8_t)(a[i] ^ b[i]);
 
-    return (-(uint64_t)acc) >> 63;
+	return (-(uint64_t)acc) >> 63;
 }
 
 /*************************************************
@@ -44,18 +44,18 @@ static inline int verify(const uint8_t *a, const uint8_t *b, size_t len)
 * Returns 0 on success; non-zero if f is not invertible in the NTT domain.
 **************************************************/
 static inline int genf_derand(poly *f, poly *finv,
-                              uint8_t buf[NTRUPLUS_N / 4],
+                              uint8_t        buf[NTRUPLUS_N / 4],
                               const uint8_t *coins)
 {
-    shake256(buf, NTRUPLUS_N / 4, coins, 32);
+	shake256(buf, NTRUPLUS_N / 4, coins, 32);
 
-    poly_cbd1(f, buf);
-    poly_triple(f);
-    f->coeffs[0] += 1;
+	poly_cbd1(f, buf);
+	poly_triple(f);
+	f->coeffs[0] += 1;
 
-    poly_ntt(f);
+	poly_ntt(f);
 
-    return poly_baseinv(finv, f);
+	return poly_baseinv(finv, f);
 }
 
 /*************************************************
@@ -73,17 +73,17 @@ static inline int genf_derand(poly *f, poly *finv,
 * Returns 0 on success; non-zero if g is not invertible in the NTT domain.
 **************************************************/
 static inline int geng_derand(poly *g, poly *ginv,
-                              uint8_t buf[NTRUPLUS_N / 4],
+                              uint8_t        buf[NTRUPLUS_N / 4],
                               const uint8_t *coins)
 {
-    shake256(buf, NTRUPLUS_N / 4, coins, 32);
+	shake256(buf, NTRUPLUS_N / 4, coins, 32);
 
-    poly_cbd1(g, buf);
-    poly_triple(g);
+	poly_cbd1(g, buf);
+	poly_triple(g);
 
-    poly_ntt(g);
+	poly_ntt(g);
 
-    return poly_baseinv(ginv, g);
+	return poly_baseinv(ginv, g);
 }
 
 /*************************************************
@@ -103,21 +103,21 @@ static inline int geng_derand(poly *g, poly *ginv,
 * Returns:     void
 **************************************************/
 static inline void crypto_kem_keypair_derand(uint8_t *pk, uint8_t *sk,
-                                             const poly *f,  const poly *finv,
-                                             const poly *g,  const poly *ginv)
+                                             const poly *f, const poly *finv,
+                                             const poly *g, const poly *ginv)
 {
-    poly h, hinv;
+	poly h, hinv;
 
-    poly_basemul(&h, g, finv);
-    poly_basemul(&hinv, f, ginv);
+	poly_basemul(&h, g, finv);
+	poly_basemul(&hinv, f, ginv);
 
-    poly_tobytes(pk, &h);
-    poly_tobytes(sk, f);
-    poly_tobytes(sk + NTRUPLUS_POLYBYTES, &hinv);
-    hash_f(sk + 2 * NTRUPLUS_POLYBYTES, pk);
+	poly_tobytes(pk, &h);
+	poly_tobytes(sk, f);
+	poly_tobytes(sk + NTRUPLUS_POLYBYTES, &hinv);
+	hash_f(sk + 2 * NTRUPLUS_POLYBYTES, pk);
 
-    i16_clear(h.coeffs, NTRUPLUS_N);
-    i16_clear(hinv.coeffs, NTRUPLUS_N);
+	i16_clear(h.coeffs, NTRUPLUS_N);
+	i16_clear(hinv.coeffs, NTRUPLUS_N);
 }
 
 /*************************************************
@@ -137,34 +137,36 @@ static inline void crypto_kem_keypair_derand(uint8_t *pk, uint8_t *sk,
 **************************************************/
 int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
 {
-    uint8_t coins[NTRUPLUS_SYMBYTES];
-    uint8_t buf[NTRUPLUS_N / 4];
-    int r;
+	uint8_t coins[NTRUPLUS_SYMBYTES];
+	uint8_t buf[NTRUPLUS_N / 4];
+	int     r;
 
-    poly f, finv;
-    poly g, ginv;
+	poly f, finv;
+	poly g, ginv;
 
-    do {
-        randombytes(coins, sizeof coins);
-        r = genf_derand(&f, &finv, buf, coins);
-        ntruplus_declassify(&r, sizeof r);
-    } while (r);
+	do
+	{
+		randombytes(coins, sizeof coins);
+		r = genf_derand(&f, &finv, buf, coins);
+		ntruplus_declassify(&r, sizeof r);
+	} while (r);
 
-    do {
-        randombytes(coins, sizeof coins);
-        r = geng_derand(&g, &ginv, buf, coins);
-        ntruplus_declassify(&r, sizeof r);
-    } while (r);
+	do
+	{
+		randombytes(coins, sizeof coins);
+		r = geng_derand(&g, &ginv, buf, coins);
+		ntruplus_declassify(&r, sizeof r);
+	} while (r);
 
-    crypto_kem_keypair_derand(pk, sk, &f, &finv, &g, &ginv);
+	crypto_kem_keypair_derand(pk, sk, &f, &finv, &g, &ginv);
 
-    u8_clear(coins, sizeof coins);
-    u8_clear(buf, sizeof buf);
-    i16_clear(f.coeffs, NTRUPLUS_N);
-    i16_clear(finv.coeffs, NTRUPLUS_N);
-    i16_clear(g.coeffs, NTRUPLUS_N);
-    i16_clear(ginv.coeffs, NTRUPLUS_N);
-    return 0;
+	u8_clear(coins, sizeof coins);
+	u8_clear(buf, sizeof buf);
+	i16_clear(f.coeffs, NTRUPLUS_N);
+	i16_clear(finv.coeffs, NTRUPLUS_N);
+	i16_clear(g.coeffs, NTRUPLUS_N);
+	i16_clear(ginv.coeffs, NTRUPLUS_N);
+	return 0;
 }
 
 /*************************************************
@@ -190,48 +192,48 @@ static inline int crypto_kem_enc_derand(uint8_t *ct, uint8_t *ss,
 	uint8_t msg[HASH_H_INBYTES];
 	uint8_t buf0[HASH_H_OUTBYTES];
 	uint8_t buf1[HASH_G_INBYTES];
-    
-    poly c, h, r, m;
 
-    int fail = poly_frombytes(&h, pk);
-    ntruplus_declassify(&fail, sizeof fail);
+	poly c, h, r, m;
 
-    if(fail)
-    {
-        for (size_t i = 0; i < NTRUPLUS_CIPHERTEXTBYTES; i++)
-            ct[i] = 0;
-        u8_clear(ss, NTRUPLUS_SSBYTES);
+	int fail = poly_frombytes(&h, pk);
+	ntruplus_declassify(&fail, sizeof fail);
 
-        return 1;
-    }
-    
-    for (size_t i = 0; i < NTRUPLUS_N / 8; i++)
-        msg[i] = coins[i];
+	if (fail)
+	{
+		for (size_t i = 0; i < NTRUPLUS_CIPHERTEXTBYTES; i++)
+			ct[i] = 0;
+		u8_clear(ss, NTRUPLUS_SSBYTES);
 
-    hash_f(msg + NTRUPLUS_N / 8, pk);
-    hash_h(buf0, msg);
-    
-    poly_cbd1(&r, buf0 + NTRUPLUS_SYMBYTES);
-    poly_ntt(&r);
-    
-    poly_tobytes(buf1, &r);
-    hash_g(buf1, buf1);
-    poly_sotp_encode(&m, msg, buf1);
-    poly_ntt(&m);
-    
-    poly_basemul_add(&c, &h, &r, &m);
-    poly_tobytes(ct, &c);
-    
-    for (size_t i = 0; i < NTRUPLUS_SSBYTES; i++)
-        ss[i] = buf0[i];
+		return 1;
+	}
 
-    u8_clear(msg, sizeof msg);
-    u8_clear(buf0, sizeof buf0);
-    u8_clear(buf1, sizeof buf1);
-    i16_clear(r.coeffs, NTRUPLUS_N);
-    i16_clear(m.coeffs, NTRUPLUS_N);
-    
-    return 0;
+	for (size_t i = 0; i < NTRUPLUS_N / 8; i++)
+		msg[i] = coins[i];
+
+	hash_f(msg + NTRUPLUS_N / 8, pk);
+	hash_h(buf0, msg);
+
+	poly_cbd1(&r, buf0 + NTRUPLUS_SYMBYTES);
+	poly_ntt(&r);
+
+	poly_tobytes(buf1, &r);
+	hash_g(buf1, buf1);
+	poly_sotp_encode(&m, msg, buf1);
+	poly_ntt(&m);
+
+	poly_basemul_add(&c, &h, &r, &m);
+	poly_tobytes(ct, &c);
+
+	for (size_t i = 0; i < NTRUPLUS_SSBYTES; i++)
+		ss[i] = buf0[i];
+
+	u8_clear(msg, sizeof msg);
+	u8_clear(buf0, sizeof buf0);
+	u8_clear(buf1, sizeof buf1);
+	i16_clear(r.coeffs, NTRUPLUS_N);
+	i16_clear(m.coeffs, NTRUPLUS_N);
+
+	return 0;
 }
 
 /*************************************************
@@ -254,13 +256,13 @@ static inline int crypto_kem_enc_derand(uint8_t *ct, uint8_t *ss,
 int crypto_kem_enc(unsigned char *ct, unsigned char *ss,
                    const unsigned char *pk)
 {
-    uint8_t coins[NTRUPLUS_N / 8];
-    int ret;
+	uint8_t coins[NTRUPLUS_N / 8];
+	int     ret;
 
-    randombytes(coins, sizeof coins);
-    ret = crypto_kem_enc_derand(ct, ss, pk, coins);
-    u8_clear(coins, sizeof coins);
-    return ret;
+	randombytes(coins, sizeof coins);
+	ret = crypto_kem_enc_derand(ct, ss, pk, coins);
+	u8_clear(coins, sizeof coins);
+	return ret;
 }
 
 /*************************************************
@@ -287,63 +289,63 @@ int crypto_kem_dec(unsigned char *ss, const unsigned char *ct,
 	uint8_t buf1[HASH_G_INBYTES];
 	uint8_t buf2[HASH_H_OUTBYTES];
 
-    int8_t fail = 1;
-    
-    poly c, f, hinv;
-    poly r0, r1;
-    poly m0, m1;
+	int8_t fail = 1;
 
-    int r = poly_frombytes(&c, ct);
-    r |= poly_frombytes(&f, sk);
-    r |= poly_frombytes(&hinv, sk + NTRUPLUS_POLYBYTES);
-    ntruplus_declassify(&r, sizeof r);
+	poly c, f, hinv;
+	poly r0, r1;
+	poly m0, m1;
 
-    if(r)
-    {
-        u8_clear(ss, NTRUPLUS_SSBYTES);
+	int r  = poly_frombytes(&c, ct);
+	r     |= poly_frombytes(&f, sk);
+	r     |= poly_frombytes(&hinv, sk + NTRUPLUS_POLYBYTES);
+	ntruplus_declassify(&r, sizeof r);
 
-        goto cleanup;
-    }
-    
-    poly_basemul(&m0, &c, &f);
-    poly_invntt(&m0);
-    poly_crepmod3(&m0);
-    
-    m1 = m0;
-    poly_ntt(&m1);
-    poly_sub(&c, &c, &m1);
-    poly_basemul(&r1, &c, &hinv);
+	if (r)
+	{
+		u8_clear(ss, NTRUPLUS_SSBYTES);
 
-    poly_tobytes(buf0, &r1);
-    hash_g(buf1, buf0);
-    fail = poly_sotp_decode(msg, &m0, buf1);
-    
-    for (size_t i = 0; i < HASH_F_OUTBYTES; i++)
-        msg[i + NTRUPLUS_N / 8] = sk[i + 2 * NTRUPLUS_POLYBYTES];
-    
-    hash_h(buf2, msg);
-    
-    poly_cbd1(&r0, buf2 + NTRUPLUS_SSBYTES);
-    poly_ntt(&r0);
-    poly_tobytes(buf1, &r0);
-    
-    fail |= verify(buf0, buf1, NTRUPLUS_POLYBYTES);
-    
-    for (size_t i = 0; i < NTRUPLUS_SSBYTES; i++)
-        ss[i] = buf2[i] & ~(-fail);
+		goto cleanup;
+	}
+
+	poly_basemul(&m0, &c, &f);
+	poly_invntt(&m0);
+	poly_crepmod3(&m0);
+
+	m1 = m0;
+	poly_ntt(&m1);
+	poly_sub(&c, &c, &m1);
+	poly_basemul(&r1, &c, &hinv);
+
+	poly_tobytes(buf0, &r1);
+	hash_g(buf1, buf0);
+	fail = poly_sotp_decode(msg, &m0, buf1);
+
+	for (size_t i = 0; i < HASH_F_OUTBYTES; i++)
+		msg[i + NTRUPLUS_N / 8] = sk[i + 2 * NTRUPLUS_POLYBYTES];
+
+	hash_h(buf2, msg);
+
+	poly_cbd1(&r0, buf2 + NTRUPLUS_SSBYTES);
+	poly_ntt(&r0);
+	poly_tobytes(buf1, &r0);
+
+	fail |= verify(buf0, buf1, NTRUPLUS_POLYBYTES);
+
+	for (size_t i = 0; i < NTRUPLUS_SSBYTES; i++)
+		ss[i] = buf2[i] & ~(-fail);
 
 cleanup:
-    u8_clear(msg, sizeof msg);
-    u8_clear(buf0, sizeof buf0);
-    u8_clear(buf1, sizeof buf1);
-    u8_clear(buf2, sizeof buf2);
-    i16_clear(c.coeffs, NTRUPLUS_N);
-    i16_clear(f.coeffs, NTRUPLUS_N);
-    i16_clear(hinv.coeffs, NTRUPLUS_N);
-    i16_clear(r0.coeffs, NTRUPLUS_N);
-    i16_clear(r1.coeffs, NTRUPLUS_N);
-    i16_clear(m0.coeffs, NTRUPLUS_N);
-    i16_clear(m1.coeffs, NTRUPLUS_N);
+	u8_clear(msg, sizeof msg);
+	u8_clear(buf0, sizeof buf0);
+	u8_clear(buf1, sizeof buf1);
+	u8_clear(buf2, sizeof buf2);
+	i16_clear(c.coeffs, NTRUPLUS_N);
+	i16_clear(f.coeffs, NTRUPLUS_N);
+	i16_clear(hinv.coeffs, NTRUPLUS_N);
+	i16_clear(r0.coeffs, NTRUPLUS_N);
+	i16_clear(r1.coeffs, NTRUPLUS_N);
+	i16_clear(m0.coeffs, NTRUPLUS_N);
+	i16_clear(m1.coeffs, NTRUPLUS_N);
 
-    return fail;
+	return fail;
 }

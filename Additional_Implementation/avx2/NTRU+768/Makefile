@@ -12,7 +12,7 @@ MINGW_LDLIBS = -ladvapi32
 endif
 
 SOURCES= asm/add.s asm/baseinv.s asm/basemul.s asm/cbd.s asm/crepmod3.s asm/invntt.s asm/ntt.s asm/pack.s consts.c kem.c poly.c symmetric.c fips202/fips202.c fips202/KeccakP-1600-AVX2.s
-HEADERS= params.h api.h poly.h symmetric.h util.h fips202/fips202.h fips202/KeccakP-1600-SnP.h
+HEADERS= params.h api.h poly.h consts.h symmetric.h util.h fips202/fips202.h fips202/KeccakP-1600-SnP.h
 
 .PHONY: all PQCgenKAT_kem test clean
 

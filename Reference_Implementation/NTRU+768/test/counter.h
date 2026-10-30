@@ -7,44 +7,45 @@ unsigned long long countergap;
 #if defined(__APPLE__) && defined(__MACH__)
 #include <stdint.h>
 #include <mach/mach_time.h>
+#define COUNTER_UNIT_STR "ticks"
 
 static inline uint64_t counter(void)
 {
-    return mach_absolute_time();
+	return mach_absolute_time();
 }
 
 #elif defined(__aarch64__)
 #include <stdint.h>
+#define COUNTER_UNIT_STR "ticks"
 
 static inline uint64_t counter(void)
 {
-    uint64_t t;
-    __asm__ volatile("mrs %0, cntvct_el0" : "=r"(t));
-    return t;
+	uint64_t t;
+	__asm__ volatile("mrs %0, cntvct_el0" : "=r"(t));
+	return t;
 }
 
 #elif defined(__arm__)
 #include <stdint.h>
 #include <time.h>
+#define COUNTER_UNIT_STR "ns"
 
 static inline uint64_t counter(void)
 {
-    struct timespec ts;
+	struct timespec ts;
 
-    clock_gettime(CLOCK_MONOTONIC, &ts);
-    return (uint64_t)ts.tv_sec * 1000000000ULL + (uint64_t)ts.tv_nsec;
+	clock_gettime(CLOCK_MONOTONIC, &ts);
+	return (uint64_t)ts.tv_sec * 1000000000ULL + (uint64_t)ts.tv_nsec;
 }
 #elif defined(__x86_64__) || defined(__i386__)
 #include <stdint.h>
+#define COUNTER_UNIT_STR "TSC ticks"
 
 static inline uint64_t counter(void)
 {
-    uint64_t result;
-    __asm__ volatile ("rdtsc; shlq $32,%%rdx; orq %%rdx,%%rax"
-                      : "=a" (result)
-                      :
-                      : "%rdx");
-    return result;
+	uint32_t lo, hi;
+	__asm__ volatile("rdtsc" : "=a"(lo), "=d"(hi));
+	return ((uint64_t)hi << 32) | lo;
 }
 
 #else
@@ -53,17 +54,17 @@ static inline uint64_t counter(void)
 
 static inline void setup_counter(void)
 {
-    countergap = 0;
-    for (int i = 0; i < TEST_LOOP_COUNT; i++)
-    {
-      unsigned long long count1;
-      unsigned long long count2;
+	countergap = 0;
+	for (int i = 0; i < TEST_LOOP_COUNT; i++)
+	{
+		unsigned long long count1;
+		unsigned long long count2;
 
-      count1 = counter();
-      count2 = counter();
-      countergap += count2 - count1;
-    }
-    countergap = countergap / TEST_LOOP_COUNT;
+		count1      = counter();
+		count2      = counter();
+		countergap += count2 - count1;
+	}
+	countergap = countergap / TEST_LOOP_COUNT;
 }
 
 #endif

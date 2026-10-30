@@ -25,16 +25,16 @@
 static inline void u8_clear(void *v, size_t len)
 {
 #if defined(_WIN32)
-    SecureZeroMemory(v, len);
+	SecureZeroMemory(v, len);
 #elif defined(__APPLE__)
-    (void)memset_s(v, len, 0, len);
+	(void)memset_s(v, len, 0, len);
 #elif defined(__GLIBC__)
-    explicit_bzero(v, len);
+	explicit_bzero(v, len);
 #else
-    volatile uint8_t *p = v;
+	volatile uint8_t *p = v;
 
-    while (len-- > 0)
-        *p++ = 0;
+	while (len-- > 0)
+		*p++ = 0;
 #endif
 }
 

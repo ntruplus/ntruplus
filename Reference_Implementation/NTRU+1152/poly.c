@@ -16,15 +16,15 @@
 **************************************************/
 static inline int16_t crepmod3(int16_t a)
 {
-	int16_t t;
-	const int16_t v = ((1<<15) + 3/2)/3;
+	int16_t       t;
+	const int16_t v = ((1 << 15) + 3 / 2) / 3;
 
 	a += (a >> 15) & NTRUPLUS_Q;
-	a -= (NTRUPLUS_Q+1)/2;
+	a -= (NTRUPLUS_Q + 1) / 2;
 	a += (a >> 15) & NTRUPLUS_Q;
-	a -= (NTRUPLUS_Q-1)/2;
+	a -= (NTRUPLUS_Q - 1) / 2;
 
-	t  = ((int32_t)v*a + (1<<14)) >> 15;
+	t  = ((int32_t)v * a + (1 << 14)) >> 15;
 	t *= 3;
 	return a - t;
 }
@@ -42,19 +42,18 @@ void poly_tobytes(uint8_t r[NTRUPLUS_POLYBYTES], const poly *a)
 {
 	int16_t t[2];
 
-	for(size_t i = 0; i < NTRUPLUS_N/2; i++)
+	for (size_t i = 0; i < NTRUPLUS_N / 2; i++)
 	{
-		t[0] = a->coeffs[2*i];
+		t[0]  = a->coeffs[2 * i];
 		t[0] += (t[0] >> 15) & NTRUPLUS_Q;
-		t[1] = a->coeffs[2*i+1];
+		t[1]  = a->coeffs[2 * i + 1];
 		t[1] += (t[1] >> 15) & NTRUPLUS_Q;
 
-		r[3*i+0] = (t[0] >> 0);
-		r[3*i+1] = (t[0] >> 8) | (t[1] << 4);
-		r[3*i+2] = (t[1] >> 4);
+		r[3 * i + 0] = (t[0] >> 0);
+		r[3 * i + 1] = (t[0] >> 8) | (t[1] << 4);
+		r[3 * i + 2] = (t[1] >> 4);
 	}
 }
-
 
 /*************************************************
 * Name:        poly_frombytes
@@ -72,15 +71,15 @@ int poly_frombytes(poly *r, const uint8_t a[NTRUPLUS_POLYBYTES])
 {
 	uint32_t fail = 0;
 
-	for(size_t i = 0; i < NTRUPLUS_N/2; i++)
+	for (size_t i = 0; i < NTRUPLUS_N / 2; i++)
 	{
-		const uint16_t t0 = ((a[3*i+0] >> 0) | ((uint16_t)a[3*i+1] << 8)) & 0xFFF;
-		const uint16_t t1 = ((a[3*i+1] >> 4) | ((uint16_t)a[3*i+2] << 4)) & 0xFFF;
+		const uint16_t t0 = ((a[3 * i + 0] >> 0) | ((uint16_t)a[3 * i + 1] << 8)) & 0xFFF;
+		const uint16_t t1 = ((a[3 * i + 1] >> 4) | ((uint16_t)a[3 * i + 2] << 4)) & 0xFFF;
 
-		r->coeffs[2*i]   = t0;
-		r->coeffs[2*i+1] = t1;
-		fail |= (uint32_t)(NTRUPLUS_Q - 1) - t0;
-		fail |= (uint32_t)(NTRUPLUS_Q - 1) - t1;
+		r->coeffs[2 * i]      = t0;
+		r->coeffs[2 * i + 1]  = t1;
+		fail                 |= (uint32_t)(NTRUPLUS_Q - 1) - t0;
+		fail                 |= (uint32_t)(NTRUPLUS_Q - 1) - t1;
 	}
 
 	return fail >> 31;
@@ -96,18 +95,18 @@ int poly_frombytes(poly *r, const uint8_t a[NTRUPLUS_POLYBYTES])
 *              - const uint8_t *buf: pointer to input random
 *                                     (of length NTRUPLUS_N/4 bytes)
 **************************************************/
-void poly_cbd1(poly *r, const unsigned char buf[NTRUPLUS_N/4])
+void poly_cbd1(poly *r, const unsigned char buf[NTRUPLUS_N / 4])
 {
 	uint8_t t0, t1;
 
-	for(size_t i = 0; i < NTRUPLUS_N / 8; i++)
+	for (size_t i = 0; i < NTRUPLUS_N / 8; i++)
 	{
 		t0 = buf[i];
 		t1 = buf[i + NTRUPLUS_N / 8];
 
-		for(size_t j = 0; j < 8; j++)
+		for (size_t j = 0; j < 8; j++)
 		{
-			r->coeffs[8*i + j] = (t0 & 0x1) - (t1 & 0x1);
+			r->coeffs[8 * i + j] = (t0 & 0x1) - (t1 & 0x1);
 
 			t0 >>= 1;
 			t1 >>= 1;
@@ -125,19 +124,19 @@ void poly_cbd1(poly *r, const unsigned char buf[NTRUPLUS_N/4])
 *              - const uint8_t *msg: pointer to input message
 *              - const uint8_t *buf: pointer to input random
 **************************************************/
-void poly_sotp_encode(poly *r, const uint8_t msg[NTRUPLUS_N/8], const uint8_t buf[NTRUPLUS_N/4])
+void poly_sotp_encode(poly *r, const uint8_t msg[NTRUPLUS_N / 8], const uint8_t buf[NTRUPLUS_N / 4])
 {
-    uint8_t tmp[NTRUPLUS_N/4];
+	uint8_t tmp[NTRUPLUS_N / 4];
 
-    for(int i = 0; i < NTRUPLUS_N/8; i++)
-    {
-         tmp[i] = buf[i]^msg[i];
-    }
+	for (int i = 0; i < NTRUPLUS_N / 8; i++)
+	{
+		tmp[i] = buf[i] ^ msg[i];
+	}
 
-    for(int i = NTRUPLUS_N/8; i < NTRUPLUS_N/4; i++)
-    {
-         tmp[i] = buf[i];
-    }
+	for (int i = NTRUPLUS_N / 8; i < NTRUPLUS_N / 4; i++)
+	{
+		tmp[i] = buf[i];
+	}
 
 	poly_cbd1(r, tmp);
 }
@@ -153,25 +152,25 @@ void poly_sotp_encode(poly *r, const uint8_t msg[NTRUPLUS_N/8], const uint8_t bu
 *
 * Returns 0 (success) or 1 (failure)
 **************************************************/
-int poly_sotp_decode(uint8_t msg[NTRUPLUS_N/8], const poly *a, const uint8_t buf[NTRUPLUS_N/4])
+int poly_sotp_decode(uint8_t msg[NTRUPLUS_N / 8], const poly *a, const uint8_t buf[NTRUPLUS_N / 4])
 {
-	uint8_t t0, t1, t2;
-	uint16_t t3;
-	uint32_t r = 0;
+	uint8_t          t0, t1, t2;
+	uint16_t         t3;
+	uint32_t         r = 0;
 	volatile uint8_t mask;
 
-	for(size_t i = 0; i < NTRUPLUS_N / 8; i++)
+	for (size_t i = 0; i < NTRUPLUS_N / 8; i++)
 	{
-		t0 = buf[i                 ];
+		t0 = buf[i];
 		t1 = buf[i + NTRUPLUS_N / 8];
 		t2 = 0;
 
-		for(size_t j = 0; j < 8; j++)
+		for (size_t j = 0; j < 8; j++)
 		{
-			t3 = t1 & 0x1;
-			t3 += a->coeffs[8*i + j];
-			r |= t3;
-			t3 = (t3 ^ t0) & 0x1;
+			t3  = t1 & 0x1;
+			t3 += a->coeffs[8 * i + j];
+			r  |= t3;
+			t3  = (t3 ^ t0) & 0x1;
 			t2 ^= (uint8_t)(t3 << j);
 
 			t0 >>= 1;
@@ -226,24 +225,24 @@ void poly_invntt(poly *r)
 **************************************************/
 int poly_baseinv(poly *r, const poly *a)
 {
-	for(size_t i = 0; i < NTRUPLUS_N/8; ++i)
+	for (size_t i = 0; i < NTRUPLUS_N / 8; ++i)
 	{
-		if(baseinv(r->coeffs + 8*i, a->coeffs + 8*i, zetas[144 + i]))
+		if (baseinv(r->coeffs + 8 * i, a->coeffs + 8 * i, zetas[144 + i]))
 		{
 			for (size_t j = 0; j < NTRUPLUS_N; ++j)
 				r->coeffs[j] = 0;
 
 			return 1;
-		} 
+		}
 
-		if(baseinv(r->coeffs + 8*i + 4, a->coeffs + 8*i + 4, -zetas[144 + i]))
+		if (baseinv(r->coeffs + 8 * i + 4, a->coeffs + 8 * i + 4, -zetas[144 + i]))
 		{
 			for (size_t j = 0; j < NTRUPLUS_N; ++j)
 				r->coeffs[j] = 0;
 
 			return 1;
-		} 
-	 }
+		}
+	}
 
 	return 0;
 }
@@ -259,10 +258,10 @@ int poly_baseinv(poly *r, const poly *a)
 **************************************************/
 void poly_basemul(poly *r, const poly *a, const poly *b)
 {
-	for(int i = 0; i < NTRUPLUS_N/8; ++i)
+	for (int i = 0; i < NTRUPLUS_N / 8; ++i)
 	{
-		basemul(r->coeffs + 8*i, a->coeffs + 8*i, b->coeffs + 8*i, zetas[144 + i]);
-		basemul(r->coeffs + 8*i + 4, a->coeffs + 8*i + 4, b->coeffs + 8*i + 4, -zetas[144 + i]);
+		basemul(r->coeffs + 8 * i, a->coeffs + 8 * i, b->coeffs + 8 * i, zetas[144 + i]);
+		basemul(r->coeffs + 8 * i + 4, a->coeffs + 8 * i + 4, b->coeffs + 8 * i + 4, -zetas[144 + i]);
 	}
 }
 
@@ -277,10 +276,10 @@ void poly_basemul(poly *r, const poly *a, const poly *b)
 **************************************************/
 void poly_basemul_add(poly *r, const poly *a, const poly *b, const poly *c)
 {
-	for(int i = 0; i < NTRUPLUS_N/8; ++i)
+	for (int i = 0; i < NTRUPLUS_N / 8; ++i)
 	{
-		basemul_add(r->coeffs + 8*i, a->coeffs + 8*i, b->coeffs + 8*i, c->coeffs + 8*i, zetas[144 + i]);
-		basemul_add(r->coeffs + 8*i + 4, a->coeffs + 8*i + 4, b->coeffs + 8*i + 4, c->coeffs + 8*i + 4, -zetas[144 + i]);
+		basemul_add(r->coeffs + 8 * i, a->coeffs + 8 * i, b->coeffs + 8 * i, c->coeffs + 8 * i, zetas[144 + i]);
+		basemul_add(r->coeffs + 8 * i + 4, a->coeffs + 8 * i + 4, b->coeffs + 8 * i + 4, c->coeffs + 8 * i + 4, -zetas[144 + i]);
 	}
 }
 
@@ -295,7 +294,7 @@ void poly_basemul_add(poly *r, const poly *a, const poly *b, const poly *c)
 **************************************************/
 void poly_sub(poly *r, const poly *a, const poly *b)
 {
-	for(int i = 0; i < NTRUPLUS_N; ++i)
+	for (int i = 0; i < NTRUPLUS_N; ++i)
 		r->coeffs[i] = a->coeffs[i] - b->coeffs[i];
 }
 
@@ -306,9 +305,9 @@ void poly_sub(poly *r, const poly *a, const poly *b)
 *
 * Arguments: - poly *r: pointer to input/output polynomial
 **************************************************/
-void poly_triple(poly *r) 
+void poly_triple(poly *r)
 {
-	for(int i = 0; i < NTRUPLUS_N; ++i)
+	for (int i = 0; i < NTRUPLUS_N; ++i)
 		r->coeffs[i] *= 3;
 }
 
@@ -321,6 +320,6 @@ void poly_triple(poly *r)
 **************************************************/
 void poly_crepmod3(poly *r)
 {
-	for(int i = 0; i < NTRUPLUS_N; i++)
+	for (int i = 0; i < NTRUPLUS_N; i++)
 		r->coeffs[i] = crepmod3(r->coeffs[i]);
 }

@@ -18,8 +18,11 @@
  * https://eprint.iacr.org/2026/1191
  */
 
-static const int16_t consts[] __attribute__((aligned(16))) = {
-	  3457,  19412, -12929,   -147,  -1393,  -1571, -14891,  12929
+#define NTRUPLUS_QINV 12929
+
+static const int16_t consts[8] __attribute__((aligned(16))) = {
+	[0] = NTRUPLUS_Q,
+	[7] = NTRUPLUS_QINV
 };
 
 /*************************************************
@@ -40,7 +43,7 @@ static const int16_t consts[] __attribute__((aligned(16))) = {
 static inline int16x8_t fqmul(int16x8_t x, int16x8_t y, int16x8_t con)
 {
 	const int16x8_t h = vqdmulhq_s16(x, y);
-	int16x8_t t = vmulq_s16(x, y);
+	int16x8_t       t = vmulq_s16(x, y);
 
 	t = vmulq_laneq_s16(t, con, 7);
 	t = vqdmulhq_laneq_s16(t, con, 0);
@@ -67,7 +70,7 @@ static inline int16x8_t fqmul(int16x8_t x, int16x8_t y, int16x8_t con)
 static inline int16x8_t fqmul_precomp(int16x8_t x, int16x8_t y, int16x8_t Y, int16x8_t con)
 {
 	const int16x8_t h = vqdmulhq_s16(x, y);
-	int16x8_t t = vmulq_s16(x, Y);
+	int16x8_t       t = vmulq_s16(x, Y);
 
 	t = vqdmulhq_laneq_s16(t, con, 0);
 
@@ -90,28 +93,28 @@ static inline int16x8_t fqinv(int16x8_t a, int16x8_t con)
 {
 	int16x8_t t0, t1, T;
 
-	t0 = fqmul(a, a, con);   // 10
-	t0 = vshlq_n_s16(t0, 4); //16^1720 = R^-2 mod q
-	t0 = fqmul(t0, t0, con); // 100
-	t0 = fqmul(t0, t0, con); // 1000
-	t0 = fqmul(t0, t0, con); // 10000
+	t0 = fqmul(a, a, con);              // 10
+	t0 = vshlq_n_s16(t0, 4);            //16^1720 = R^-2 mod q
+	t0 = fqmul(t0, t0, con);            // 100
+	t0 = fqmul(t0, t0, con);            // 1000
+	t0 = fqmul(t0, t0, con);            // 10000
 
-	T = vmulq_laneq_s16(t0, con, 7);
+	T  = vmulq_laneq_s16(t0, con, 7);
 	t1 = fqmul_precomp(a, t0, T, con);  // 10001
 	t0 = fqmul_precomp(t0, t0, T, con); // 100000
 
-	t0 = fqmul(t0, t0, con); // 1000000
-	t0 = fqmul(t0, t0, con); // 10000000
+	t0 = fqmul(t0, t0, con);            // 1000000
+	t0 = fqmul(t0, t0, con);            // 10000000
 
-	T = vmulq_laneq_s16(t0, con, 7);
+	T  = vmulq_laneq_s16(t0, con, 7);
 	t1 = fqmul_precomp(t1, t0, T, con); // 10010001
 	t0 = fqmul_precomp(t1, t0, T, con); // 100010001
 
-	T = vmulq_laneq_s16(t0, con, 7);
+	T  = vmulq_laneq_s16(t0, con, 7);
 	t1 = fqmul_precomp(t1, t0, T, con); // 110100010
 	t1 = fqmul_precomp(t1, t0, T, con); // 1010110011
 
-	T = vmulq_laneq_s16(t1, con, 7);
+	T  = vmulq_laneq_s16(t1, con, 7);
 	t0 = fqmul_precomp(t1, t1, T, con); // 10101100110
 	t0 = fqmul(t0, t0, con);            // 101011001100
 	t0 = fqmul_precomp(t0, t1, T, con); // 110101111111
@@ -193,9 +196,9 @@ static inline int fqinv_batch(int16x8_t *r, int16x8_t con)
 	}
 
 	/* Product tree: (0, 1), then 2. */
-	const int16x8_t x01 = fqmul(x0, x1, con);
-	const int16x8_t inv = fqinv(fqmul(x01, x2, con), con);
-	const int16x8_t INV = vmulq_laneq_s16(inv, con, 7);
+	const int16x8_t x01   = fqmul(x0, x1, con);
+	const int16x8_t inv   = fqinv(fqmul(x01, x2, con), con);
+	const int16x8_t INV   = vmulq_laneq_s16(inv, con, 7);
 	const int16x8_t inv01 = fqmul_precomp(x2, inv, INV, con);
 	const int16x8_t INV01 = vmulq_laneq_s16(inv01, con, 7);
 
@@ -238,20 +241,20 @@ static inline void poly_baseinv_2(poly *r, const int16x8_t *den, int16x8_t con)
 
 	for (int i = 0; i < 36; i++)
 	{
-		const int16x8_t pden = den[i];
-		const int16x8_t PDEN = vmulq_laneq_s16(pden, con, 7);
-		const int offset = i * 24;
+		const int16x8_t pden   = den[i];
+		const int16x8_t PDEN   = vmulq_laneq_s16(pden, con, 7);
+		const int       offset = i * 24;
 
-		int16x8_t r0 = vld1q_s16(rp + offset +  0);
-		int16x8_t r1 = vld1q_s16(rp + offset +  8);
+		int16x8_t r0 = vld1q_s16(rp + offset + 0);
+		int16x8_t r1 = vld1q_s16(rp + offset + 8);
 		int16x8_t r2 = vld1q_s16(rp + offset + 16);
 
 		r0 = fqmul_precomp(r0, pden, PDEN, con);
 		r1 = fqmul_precomp(r1, pden, PDEN, con);
 		r2 = fqmul_precomp(r2, pden, PDEN, con);
 
-		vst1q_s16(rp + offset +  0, r0);
-		vst1q_s16(rp + offset +  8, r1);
+		vst1q_s16(rp + offset + 0, r0);
+		vst1q_s16(rp + offset + 8, r1);
 		vst1q_s16(rp + offset + 16, r2);
 	}
 }
@@ -274,7 +277,7 @@ static inline void poly_baseinv_2(poly *r, const int16x8_t *den, int16x8_t con)
 int poly_baseinv(poly *r, const poly *a)
 {
 	const int16x8_t con = vld1q_s16(consts);
-	int16x8_t den[36] __attribute__((aligned(16)));
+	int16x8_t       den[36] __attribute__((aligned(16)));
 
 	poly_baseinv_1(r, den, a);
 
