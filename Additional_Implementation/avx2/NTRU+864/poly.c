@@ -21,9 +21,6 @@
 
 #define NTRUPLUS_QINV 12929
 
-#define NTRUPLUS_R3          460
-#define NTRUPLUS_R3_QINV  -16436
-
 NTRUPLUS_INTERNAL NTRUPLUS_SYSV
 extern void poly_ntt_pack(poly *b, const poly *a);
 NTRUPLUS_INTERNAL NTRUPLUS_SYSV
@@ -83,17 +80,13 @@ static inline __m256i fqinv(__m256i a)
 	const __m256i qinv = _mm256_set1_epi16(NTRUPLUS_QINV);
 	const __m256i q    = _mm256_set1_epi16(NTRUPLUS_Q);
 
-	const __m256i R3QINV = _mm256_set1_epi16(NTRUPLUS_R3_QINV);
-	const __m256i R3     = _mm256_set1_epi16(NTRUPLUS_R3);
-
 	__m256i t0, t1, T;
 
-	a = fqmul_precomp(a, R3, R3QINV, q);
-
-	t0 = fqmul(a, a, q, qinv);   // 10
-	t0 = fqmul(t0, t0, q, qinv); // 100
-	t0 = fqmul(t0, t0, q, qinv); // 1000
-	t0 = fqmul(t0, t0, q, qinv); // 10000
+	t0 = fqmul(a, a, q, qinv);     // 10
+	t0 = _mm256_slli_epi16(t0, 4); //16^1720 = R^-2 mod q
+	t0 = fqmul(t0, t0, q, qinv);   // 100
+	t0 = fqmul(t0, t0, q, qinv);   // 1000
+	t0 = fqmul(t0, t0, q, qinv);   // 10000
 
 	T = _mm256_mullo_epi16(t0, qinv);
 	t1 = fqmul_precomp(a, t0, T, q);  // 10001

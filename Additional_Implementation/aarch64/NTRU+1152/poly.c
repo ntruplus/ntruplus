@@ -29,13 +29,13 @@ static const int16_t consts[] __attribute__((aligned(16))) = {
 *
 * Reference:   Algorithm 12 of [BHK+21].
 *
-* Arguments:   - int16x8_t x: input lanes in [-q+1,q-1]
-*              - int16x8_t y: input lanes in [-q+1,q-1]
+* Arguments:   - int16x8_t x: input lanes with |x*y| < 2^30
+*              - int16x8_t y: input lanes
 *              - int16x8_t con: constants with con[0] = q and
 *                              con[7] = q^-1 mod R
 *
-* Returns:     lane-wise representatives of x*y*R^-1 modulo q
-*              in [-1910,1910]
+* Returns:     representatives of x*y/R modulo q with
+*              |r| <= |x*y|/R + q/2; at most 1910 if |x|,|y| < q
 **************************************************/
 static inline int16x8_t fqmul(int16x8_t x, int16x8_t y, int16x8_t con)
 {
@@ -56,13 +56,13 @@ static inline int16x8_t fqmul(int16x8_t x, int16x8_t y, int16x8_t con)
 *
 * Reference:   Algorithm 12 of [BHK+21].
 *
-* Arguments:   - int16x8_t x: input lanes in [-q+1,q-1]
-*              - int16x8_t y: input lanes in [-q+1,q-1]
+* Arguments:   - int16x8_t x: input lanes with |x*y| < 2^30
+*              - int16x8_t y: input lanes
 *              - int16x8_t Y: y*q^-1 mod R
 *              - int16x8_t con: constants with con[0] = q
 *
-* Returns:     lane-wise representatives of x*y*R^-1 modulo q
-*              in [-1910,1910]
+* Returns:     representatives of x*y/R modulo q with
+*              |r| <= |x*y|/R + q/2; at most 1910 if |x|,|y| < q
 **************************************************/
 static inline int16x8_t fqmul_precomp(int16x8_t x, int16x8_t y, int16x8_t Y, int16x8_t con)
 {
@@ -88,14 +88,10 @@ static inline int16x8_t fqmul_precomp(int16x8_t x, int16x8_t y, int16x8_t Y, int
 **************************************************/
 static inline int16x8_t fqinv(int16x8_t a, int16x8_t con)
 {
-	const int16x8_t R3QINV = vdupq_n_s16(-16436);
-	const int16x8_t R3     = vdupq_n_s16(460);
-
 	int16x8_t t0, t1, T;
 
-	a = fqmul_precomp(a, R3, R3QINV, con);
-
 	t0 = fqmul(a, a, con);   // 10
+	t0 = vshlq_n_s16(t0, 4); //16^1720 = R^-2 mod q
 	t0 = fqmul(t0, t0, con); // 100
 	t0 = fqmul(t0, t0, con); // 1000
 	t0 = fqmul(t0, t0, con); // 10000
