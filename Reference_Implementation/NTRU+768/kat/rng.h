@@ -9,7 +9,9 @@ You are solely responsible for determining the appropriateness of using and dist
 #ifndef rng_h
 #define rng_h
 
+/* Modified 2026-10-31: use the shared randombytes interface. */
 #include <stdio.h>
+#include "../randombytes.h"
 
 #define RNG_SUCCESS      0
 #define RNG_BAD_MAXLEN  -1
@@ -49,8 +51,5 @@ void
 randombytes_init(unsigned char *entropy_input,
                  unsigned char *personalization_string,
                  int security_strength);
-
-int
-randombytes(unsigned char *x, unsigned long long xlen);
 
 #endif /* rng_h */
