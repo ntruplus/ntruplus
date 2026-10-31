@@ -11,8 +11,8 @@ MINGW_ASFLAGS = -Wa,--defsym,no_type=1,--defsym,no_size=1,--defsym,no_gnu_stack=
 MINGW_LDLIBS = -ladvapi32
 endif
 
-SOURCES= asm/add.s asm/baseinv.s asm/basemul.s asm/cbd.s asm/crepmod3.s asm/invntt.s asm/ntt.s asm/pack.s consts.c kem.c poly.c symmetric.c fips202/fips202.c fips202/KeccakP-1600-AVX2.s
-HEADERS= params.h api.h poly.h consts.h symmetric.h util.h fips202/fips202.h fips202/KeccakP-1600-SnP.h
+SOURCES= asm/add.s asm/baseinv.s asm/basemul.s asm/cbd.s asm/crepmod3.s asm/invntt.s asm/ntt.s asm/pack.s consts.c kem.c poly.c symmetric.c fips202/fips202.c
+HEADERS= params.h api.h poly.h consts.h symmetric.h util.h fips202/fips202.h
 
 .PHONY: all PQCgenKAT_kem test clean
 
@@ -24,11 +24,11 @@ all: \
 
 PQCgenKAT_kem: $(HEADERS) kat/aes.h kat/rng.h $(SOURCES) kat/PQCgenKAT_kem.c kat/aes.c kat/rng.c
 	@mkdir -p $(BUILD_DIR)
-	$(CC) $(NISTFLAGS) $(MINGW_ASFLAGS) -I. -o $(BUILD_DIR)/PQCgenKAT_kem kat/PQCgenKAT_kem.c kat/aes.c kat/rng.c $(SOURCES)
+	$(CC) $(CPPFLAGS) $(NISTFLAGS) $(MINGW_ASFLAGS) -I. -o $(BUILD_DIR)/PQCgenKAT_kem kat/PQCgenKAT_kem.c kat/aes.c kat/rng.c $(SOURCES)
 
 test: $(HEADERS) randombytes.h $(SOURCES) randombytes.c test/test.c
 	@mkdir -p $(BUILD_DIR)
-	$(CC) $(CFLAGS) $(MINGW_ASFLAGS) -I. -o $(BUILD_DIR)/test randombytes.c test/test.c $(SOURCES) $(MINGW_LDLIBS)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(MINGW_ASFLAGS) -I. -o $(BUILD_DIR)/test randombytes.c test/test.c $(SOURCES) $(MINGW_LDLIBS)
 
 clean:
 	$(RM) PQCkemKAT_*.req PQCkemKAT_*.rsp
