@@ -123,20 +123,17 @@ vpor  %ymm9, %ymm4, %ymm4
 vperm2i128 $0x20, %ymm1, %ymm0, %ymm6
 vperm2i128 $0x20, %ymm3, %ymm2, %ymm7
 
-vextracti128 $1, %ymm0,  %xmm8
-vextracti128 $1, %ymm1,  %xmm9
-vextracti128 $1, %ymm2, %xmm10
-vextracti128 $1, %ymm3, %xmm11
-vextracti128 $1, %ymm4, %xmm12
+vpermq      $0x4e, %ymm0, %ymm8
+vpunpcklqdq %ymm8, %ymm4, %ymm8
+vpalignr       $8, %ymm0, %ymm1, %ymm9
+vpblendd    $0xf0, %ymm9, %ymm8, %ymm0
 
-vpunpcklqdq %xmm8,  %xmm4,  %xmm0
-vpalignr       $8,  %xmm8,  %xmm9, %xmm1
-vpalignr       $8,  %xmm9, %xmm10, %xmm2
-vpalignr       $8, %xmm10, %xmm11, %xmm3
-vpalignr       $8, %xmm11, %xmm12, %xmm4
+vpalignr      $8, %ymm1, %ymm2, %ymm8
+vpalignr      $8, %ymm2, %ymm3, %ymm9
+vperm2i128 $0x31, %ymm9, %ymm8, %ymm2
 
-vinserti128 $1, %xmm1, %ymm0, %ymm0
-vinserti128 $1, %xmm3, %ymm2, %ymm2
+vpalignr     $8, %ymm3, %ymm4, %ymm8
+vextracti128 $1, %ymm8, %xmm4
 
 #store
 vmovdqu %ymm6,    (%rdi)
@@ -169,7 +166,7 @@ ret
 .global poly_frombytes
 poly_frombytes:
 vmovdqa _low_mask(%rip), %ymm15
-xor %eax, %eax
+vpxor %ymm14, %ymm14, %ymm14
 lea 1296(%rsi), %r8
 
 .p2align 5
@@ -246,14 +243,12 @@ vpsrlw    $12, %ymm9, %ymm10
 vpor   %ymm10, %ymm5,  %ymm5
 
 #check: accept [0,q-1]
-vpmaxuw          %ymm1, %ymm0, %ymm6
-vpmaxuw          %ymm3, %ymm2, %ymm7
-vpmaxuw          %ymm5, %ymm4, %ymm8
-vpmaxuw          %ymm7, %ymm6, %ymm6
-vpmaxuw          %ymm8, %ymm6, %ymm6
-vpcmpgtw _16xqm1(%rip), %ymm6, %ymm6
-vpmovmskb %ymm6, %edx
-or %edx, %eax
+vpmaxuw %ymm1,  %ymm0,  %ymm6
+vpmaxuw %ymm3,  %ymm2,  %ymm7
+vpmaxuw %ymm5,  %ymm4,  %ymm8
+vpmaxuw %ymm7,  %ymm6,  %ymm6
+vpmaxuw %ymm8,  %ymm6,  %ymm6
+vpmaxuw %ymm6, %ymm14, %ymm14
 
 #store
 vmovdqa %ymm0,   0(%rdi)
@@ -268,9 +263,11 @@ add $192, %rdi
 cmp %r8, %rsi
 jb _looptop_poly_frombytes
 
-test   %eax, %eax
+vpcmpgtw _16xqm1(%rip), %ymm14, %ymm14
+
+vptest %ymm14, %ymm14
 setne  %al
-movzbl  %al, %eax
+movzbl %al, %eax
 ret
 
 .ifndef no_gnu_stack
