@@ -34,6 +34,7 @@ NTRUPLUS_INTERNAL extern const int16_t _16x3m3[16];
 
 #if NTRUPLUS_N == 864
 NTRUPLUS_INTERNAL extern const uint8_t _pack96_masks[416];
+NTRUPLUS_INTERNAL extern const uint8_t _unpack96_masks[416];
 #endif
 
 #endif

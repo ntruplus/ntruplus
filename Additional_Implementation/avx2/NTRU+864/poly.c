@@ -21,18 +21,6 @@
 
 #define NTRUPLUS_QINV 12929
 
-NTRUPLUS_INTERNAL NTRUPLUS_SYSV extern void poly_ntt_unpack(poly *b, const poly *a);
-NTRUPLUS_INTERNAL NTRUPLUS_SYSV extern int  poly_frombytes_raw(poly         *r,
-                                                               const uint8_t a[NTRUPLUS_POLYBYTES]);
-
-
-int poly_frombytes(poly *r, const uint8_t a[NTRUPLUS_POLYBYTES])
-{
-	const int fail = poly_frombytes_raw(r, a);
-	poly_ntt_unpack(r, r);
-	return fail;
-}
-
 /* Signed Montgomery multiplication [Sei18]. */
 static inline __m256i fqmul(__m256i a, __m256i b, __m256i q, __m256i qinv)
 {
