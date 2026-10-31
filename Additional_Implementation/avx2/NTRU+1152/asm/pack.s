@@ -231,10 +231,8 @@ vpxor   %ymm1, %ymm0,  %ymm0
 vpxor   %ymm4, %ymm3,  %ymm3
 vpand  %ymm15, %ymm0, %ymm13
 vpand  %ymm15, %ymm3,  %ymm9
-vpsrlw     $4, %ymm2,  %ymm0
-vpsrlw     $4, %ymm5,  %ymm3
-vpand  %ymm15, %ymm0, %ymm14
-vpand  %ymm15, %ymm3, %ymm10
+vpsrlw     $4, %ymm2, %ymm14
+vpsrlw     $4, %ymm5, %ymm10
 
 #store
 vmovdqa %ymm11,    (%rdi)
