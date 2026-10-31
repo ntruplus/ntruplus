@@ -214,30 +214,28 @@ vpor %ymm1, %ymm5, %ymm5
 vpor %ymm2, %ymm5, %ymm5
 vpor %ymm3, %ymm5, %ymm5
 
-vpunpcklqdq %ymm7, %ymm6, %ymm0
-vpunpckhqdq %ymm7, %ymm6, %ymm1
-vpunpcklqdq %ymm9, %ymm8, %ymm2
-vpunpckhqdq %ymm9, %ymm8, %ymm3
-vpunpcklwd  %ymm1, %ymm0, %ymm6
-vpunpckhwd  %ymm1, %ymm0, %ymm7
-vpunpcklwd  %ymm3, %ymm2, %ymm8
-vpunpckhwd  %ymm3, %ymm2, %ymm9
-vpunpckldq  %ymm8, %ymm6, %ymm0
-vpunpckhdq  %ymm8, %ymm6, %ymm1
-vpunpckldq  %ymm9, %ymm7, %ymm2
-vpunpckhdq  %ymm9, %ymm7, %ymm3
-vpunpckldq  %ymm2, %ymm0, %ymm6
-vpunpckhdq  %ymm2, %ymm0, %ymm7
-vpunpckldq  %ymm3, %ymm1, %ymm8
-vpunpckhdq  %ymm3, %ymm1, %ymm9
+vpunpcklwd %ymm7, %ymm6, %ymm0
+vpunpckhwd %ymm7, %ymm6, %ymm1
+vpunpcklwd %ymm9, %ymm8, %ymm2
+vpunpckhwd %ymm9, %ymm8, %ymm3
+
+vpunpcklwd %ymm1, %ymm0, %ymm6
+vpunpckhwd %ymm1, %ymm0, %ymm7
+vpunpcklwd %ymm3, %ymm2, %ymm8
+vpunpckhwd %ymm3, %ymm2, %ymm9
+
+vpunpcklqdq %ymm8, %ymm6, %ymm0
+vpunpckhqdq %ymm8, %ymm6, %ymm6
+vpunpcklqdq %ymm9, %ymm7, %ymm8
+vpunpckhqdq %ymm9, %ymm7, %ymm9
 
 #unpack
-vpand  %ymm15, %ymm6,  %ymm0
-vpsrlw    $12, %ymm6,  %ymm1
-vpsllw     $4, %ymm7, %ymm10
+vpsrlw    $12, %ymm0,  %ymm1
+vpand  %ymm15, %ymm0,  %ymm0
+vpsllw     $4, %ymm6, %ymm10
 vpor   %ymm10, %ymm1,  %ymm1
 vpand  %ymm15, %ymm1,  %ymm1
-vpsrlw     $8, %ymm7,  %ymm2
+vpsrlw     $8, %ymm6,  %ymm2
 vpsllw     $8, %ymm8, %ymm10
 vpor   %ymm10, %ymm2,  %ymm2
 vpand  %ymm15, %ymm2,  %ymm2
