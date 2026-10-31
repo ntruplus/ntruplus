@@ -10,6 +10,17 @@
  * Rounded Barrett reduction is adapted to AVX2.
  */
 
+/*************************************************
+* Name:        poly_tobytes
+*
+* Description: Serialization of a polynomial in NTT order.
+*              Input coefficients are signed 16-bit integers;
+*              encoded coefficients lie in [0,q-1].
+*
+* Arguments:   - uint8_t *r:    pointer to output byte array
+*                               (needs space for NTRUPLUS_POLYBYTES bytes)
+*              - const poly *a: pointer to input polynomial
+**************************************************/
 .global poly_tobytes
 poly_tobytes:
 vmovdqa _16xv(%rip), %ymm15
@@ -141,6 +152,20 @@ jb  _looptop_poly_tobytes
 
 ret
 
+
+/*************************************************
+* Name:        poly_frombytes
+*
+* Description: De-serialization of a polynomial into NTT order;
+*              inverse of poly_tobytes. Decoded coefficients lie
+*              in [0,4095], and valid encodings use [0,q-1].
+*
+* Arguments:   - poly *r:          pointer to output polynomial
+*              - const uint8_t *a: pointer to input byte array
+*                                  (of NTRUPLUS_POLYBYTES bytes)
+*
+* Returns 0 on success, 1 if any coefficient is greater than or equal to q.
+**************************************************/
 .global poly_frombytes
 poly_frombytes:
 vmovdqa _low_mask(%rip), %ymm15
@@ -151,17 +176,19 @@ lea 1296(%rsi), %r8
 _looptop_poly_frombytes:
 
 #load
-vmovdqu   0(%rsi),  %xmm0
-vinserti128 $1,  72(%rsi), %ymm0, %ymm0
+vmovdqu    (%rsi),  %xmm0
 vmovdqu  16(%rsi),  %xmm1
-vinserti128 $1,  88(%rsi), %ymm1, %ymm1
 vmovdqu  32(%rsi),  %xmm2
-vinserti128 $1, 104(%rsi), %ymm2, %ymm2
 vmovdqu  48(%rsi),  %xmm3
-vinserti128 $1, 120(%rsi), %ymm3, %ymm3
 vmovdqu  64(%rsi),  %xmm4
 vmovq   136(%rsi), %xmm10
-vinserti128 $1,    %xmm10, %ymm4, %ymm4
+
+vinserti128 $1,  72(%rsi), %ymm0, %ymm0
+vinserti128 $1,  88(%rsi), %ymm1, %ymm1
+vinserti128 $1, 104(%rsi), %ymm2, %ymm2
+vinserti128 $1, 120(%rsi), %ymm3, %ymm3
+
+vinserti128 $1, %xmm10, %ymm4, %ymm4
 
 #shuffle
 vpshufb   _unpack96_masks+0(%rip), %ymm0,  %ymm6
@@ -243,12 +270,10 @@ add $192, %rdi
 cmp %r8, %rsi
 jb _looptop_poly_frombytes
 
-test %eax, %eax
-setne %al
-movzbl %al, %eax
+test   %eax, %eax
+setne  %al
+movzbl  %al, %eax
 ret
-
-
 
 .ifndef no_gnu_stack
 .section .note.GNU-stack, "", @progbits

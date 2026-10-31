@@ -152,6 +152,7 @@ jb _looptop_poly_tobytes
 
 ret
 
+
 .global poly_frombytes
 poly_frombytes:
 vmovdqa _low_mask(%rip), %ymm15

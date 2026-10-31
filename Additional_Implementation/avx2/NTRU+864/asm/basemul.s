@@ -514,6 +514,7 @@ jb _looptop_scale
 
 ret
 
+
 /*************************************************
 * Name:        poly_basemul_add
 *
@@ -797,8 +798,6 @@ cmp %r8, %rdi
 jb _reduce_R2_add_loop
 
 ret
-
-
 
 .ifndef no_gnu_stack
 .section .note.GNU-stack, "", @progbits

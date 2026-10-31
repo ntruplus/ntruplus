@@ -419,6 +419,7 @@ _loop_sotp_encode:
 
     ret
 
+
 /*************************************************
 * Name:        poly_sotp_decode
 *

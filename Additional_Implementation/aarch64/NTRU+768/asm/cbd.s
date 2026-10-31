@@ -132,6 +132,7 @@ _loop_cbd:
 
     ret
 
+
 /*************************************************
 * Name:        poly_cbd1_triple
 *
@@ -417,6 +418,7 @@ _loop_sotp_encode:
     .unreq counter
 
     ret
+
 
 /*************************************************
 * Name:        poly_sotp_decode
