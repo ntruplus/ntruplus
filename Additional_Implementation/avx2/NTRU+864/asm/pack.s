@@ -88,10 +88,10 @@ vmovdqu %ymm0,   (%rdi)
 vmovdqu %ymm1, 32(%rdi)
 vmovdqu %ymm2, 64(%rdi)
 
-add $96,  %rdi
+add $96, %rdi
 add $128, %rsi
-cmp %r8,  %rsi
-jb  _looptop_poly_tobytes
+cmp %r8, %rsi
+jb _looptop_poly_tobytes
 
 #load
 vmovdqa   (%rsi), %xmm4
@@ -254,9 +254,9 @@ vpmovmskb %ymm4, %edx
 or %edx, %eax
 
 add $128, %rdi
-add $96,  %rsi
-cmp %r8,  %rdi
-jb  _looptop_poly_frombytes
+add $96, %rsi
+cmp %r8, %rdi
+jb _looptop_poly_frombytes
 
 #load
 vmovdqu   (%rsi), %xmm0
@@ -406,8 +406,8 @@ vmovdqa %ymm5, 160(%rdi)
 
 add $192, %rsi
 add $192, %rdi
-cmp %r8,  %rsi
-jb  _looptop_poly_ntt_unpack
+cmp %r8, %rsi
+jb _looptop_poly_ntt_unpack
 
 ret
 
@@ -515,11 +515,11 @@ vmovdqa %ymm5, 160(%rdi)
 
 add $192, %rsi
 add $192, %rdi
-cmp %r8,  %rsi
-jb  _looptop_poly_ntt_pack
+cmp %r8, %rsi
+jb _looptop_poly_ntt_pack
 
 ret
 
 .ifndef no_gnu_stack
-.section .note.GNU-stack,"",@progbits
+.section .note.GNU-stack, "", @progbits
 .endif

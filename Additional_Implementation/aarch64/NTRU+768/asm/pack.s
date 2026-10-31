@@ -110,6 +110,7 @@ _poly_tobytes:
     mov counter, #1536
 
 _loop_tobytes:
+
     #load
     ld1 {v16.8h - v19.8h}, [src], #64
     ld1 {v20.8h - v23.8h}, [src], #64

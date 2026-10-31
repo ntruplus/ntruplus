@@ -39,7 +39,7 @@ static inline uint64_t counter(void)
 }
 #elif defined(__x86_64__) || defined(__i386__)
 #include <stdint.h>
-#define COUNTER_UNIT_STR "TSC ticks"
+#define COUNTER_UNIT_STR "ticks"
 
 static inline uint64_t counter(void)
 {

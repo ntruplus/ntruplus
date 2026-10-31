@@ -1,13 +1,14 @@
 .global poly_invntt_scale
 poly_invntt_scale:
-vmovdqa     _16xq(%rip), %ymm0
-vmovdqa     _16xv(%rip), %ymm1
-lea     zetas_inv(%rip), %rdx
+vmovdqa _16xq(%rip), %ymm0
+vmovdqa _16xv(%rip), %ymm1
+lea zetas_inv(%rip), %rdx
 
 lea 1728(%rdi), %r8
 
 .p2align 5
 _looptop_start_6543:
+
 #load
 vmovdqa    (%rdi), %ymm4
 vmovdqa  32(%rdi), %ymm5
@@ -25,9 +26,9 @@ vmovdqa 32(%rdx), %ymm3
 vpsubw %ymm7, %ymm4, %ymm13
 vpsubw %ymm8, %ymm5, %ymm14
 vpsubw %ymm9, %ymm6, %ymm15
-vpaddw %ymm7, %ymm4, %ymm7
-vpaddw %ymm8, %ymm5, %ymm8
-vpaddw %ymm9, %ymm6, %ymm9
+vpaddw %ymm7, %ymm4,  %ymm7
+vpaddw %ymm8, %ymm5,  %ymm8
+vpaddw %ymm9, %ymm6,  %ymm9
 
 #mul
 vpmullw %ymm2, %ymm13, %ymm10
@@ -38,35 +39,35 @@ vpmulhw %ymm3, %ymm14, %ymm14
 vpmulhw %ymm3, %ymm15, %ymm15
 
 #reduce
-vpmulhw %ymm0,  %ymm10, %ymm10
-vpmulhw %ymm0,  %ymm11, %ymm11
-vpmulhw %ymm0,  %ymm12, %ymm12
+vpmulhw  %ymm0, %ymm10, %ymm10
+vpmulhw  %ymm0, %ymm11, %ymm11
+vpmulhw  %ymm0, %ymm12, %ymm12
 vpsubw  %ymm10, %ymm13, %ymm10
 vpsubw  %ymm11, %ymm14, %ymm11
 vpsubw  %ymm12, %ymm15, %ymm12
 
 #reduce2
-vpmulhrsw %ymm1, %ymm7, %ymm13
-vpmulhrsw %ymm1, %ymm8, %ymm14
-vpmulhrsw %ymm1, %ymm9, %ymm15
-vpmullw %ymm0,  %ymm13, %ymm13
-vpmullw %ymm0,  %ymm14, %ymm14
-vpmullw %ymm0,  %ymm15, %ymm15
-vpsubw  %ymm13, %ymm7,  %ymm7
-vpsubw  %ymm14, %ymm8,  %ymm8
-vpsubw  %ymm15, %ymm9,  %ymm9
+vpmulhrsw  %ymm1,  %ymm7, %ymm13
+vpmulhrsw  %ymm1,  %ymm8, %ymm14
+vpmulhrsw  %ymm1,  %ymm9, %ymm15
+vpmullw    %ymm0, %ymm13, %ymm13
+vpmullw    %ymm0, %ymm14, %ymm14
+vpmullw    %ymm0, %ymm15, %ymm15
+vpsubw    %ymm13,  %ymm7,  %ymm7
+vpsubw    %ymm14,  %ymm8,  %ymm8
+vpsubw    %ymm15,  %ymm9,  %ymm9
 
 #shuffle
-vpslld   $16,   %ymm8,  %ymm13
-vpslld   $16,   %ymm10, %ymm14
-vpslld   $16,   %ymm12, %ymm15
-vpblendw $0xAA, %ymm13, %ymm7,  %ymm4
-vpblendw $0xAA, %ymm14, %ymm9,  %ymm5
+vpslld     $16,  %ymm8, %ymm13
+vpslld     $16, %ymm10, %ymm14
+vpslld     $16, %ymm12, %ymm15
+vpblendw $0xAA, %ymm13,  %ymm7, %ymm4
+vpblendw $0xAA, %ymm14,  %ymm9, %ymm5
 vpblendw $0xAA, %ymm15, %ymm11, %ymm6
-vpsrld   $16,   %ymm7,  %ymm13
-vpsrld   $16,   %ymm9,  %ymm14
-vpsrld   $16,   %ymm11, %ymm15
-vpblendw $0xAA, %ymm8,  %ymm13, %ymm7
+vpsrld     $16,  %ymm7, %ymm13
+vpsrld     $16,  %ymm9, %ymm14
+vpsrld     $16, %ymm11, %ymm15
+vpblendw $0xAA,  %ymm8, %ymm13, %ymm7
 vpblendw $0xAA, %ymm10, %ymm14, %ymm8
 vpblendw $0xAA, %ymm12, %ymm15, %ymm9
 
@@ -79,9 +80,9 @@ vmovdqa 608(%rdx), %ymm3
 vpsubw %ymm7, %ymm4, %ymm13
 vpsubw %ymm8, %ymm5, %ymm14
 vpsubw %ymm9, %ymm6, %ymm15
-vpaddw %ymm7, %ymm4, %ymm7
-vpaddw %ymm8, %ymm5, %ymm8
-vpaddw %ymm9, %ymm6, %ymm9
+vpaddw %ymm7, %ymm4,  %ymm7
+vpaddw %ymm8, %ymm5,  %ymm8
+vpaddw %ymm9, %ymm6,  %ymm9
 
 #mul
 vpmullw %ymm2, %ymm13, %ymm10
@@ -92,24 +93,24 @@ vpmulhw %ymm3, %ymm14, %ymm14
 vpmulhw %ymm3, %ymm15, %ymm15
 
 #reduce
-vpmulhw %ymm0, %ymm10, %ymm10
-vpmulhw %ymm0, %ymm11, %ymm11
-vpmulhw %ymm0, %ymm12, %ymm12
-vpsubw %ymm10, %ymm13, %ymm10
-vpsubw %ymm11, %ymm14, %ymm11
-vpsubw %ymm12, %ymm15, %ymm12
+vpmulhw  %ymm0, %ymm10, %ymm10
+vpmulhw  %ymm0, %ymm11, %ymm11
+vpmulhw  %ymm0, %ymm12, %ymm12
+vpsubw  %ymm10, %ymm13, %ymm10
+vpsubw  %ymm11, %ymm14, %ymm11
+vpsubw  %ymm12, %ymm15, %ymm12
 
 #shuffle
-vpsllq   $32,   %ymm8,  %ymm13
-vpsllq   $32,   %ymm10, %ymm14
-vpsllq   $32,   %ymm12, %ymm15
-vpblendd $0xAA, %ymm13, %ymm7,  %ymm4
-vpblendd $0xAA, %ymm14, %ymm9,  %ymm5
+vpsllq     $32,  %ymm8, %ymm13
+vpsllq     $32, %ymm10, %ymm14
+vpsllq     $32, %ymm12, %ymm15
+vpblendd $0xAA, %ymm13,  %ymm7, %ymm4
+vpblendd $0xAA, %ymm14,  %ymm9, %ymm5
 vpblendd $0xAA, %ymm15, %ymm11, %ymm6
-vpsrlq   $32,   %ymm7,  %ymm13
-vpsrlq   $32,   %ymm9,  %ymm14
-vpsrlq   $32,   %ymm11, %ymm15
-vpblendd $0xAA, %ymm8,  %ymm13, %ymm7
+vpsrlq     $32,  %ymm7, %ymm13
+vpsrlq     $32,  %ymm9, %ymm14
+vpsrlq     $32, %ymm11, %ymm15
+vpblendd $0xAA,  %ymm8, %ymm13, %ymm7
 vpblendd $0xAA, %ymm10, %ymm14, %ymm8
 vpblendd $0xAA, %ymm12, %ymm15, %ymm9
 
@@ -122,9 +123,9 @@ vmovdqa 1184(%rdx), %ymm3
 vpsubw %ymm7, %ymm4, %ymm13
 vpsubw %ymm8, %ymm5, %ymm14
 vpsubw %ymm9, %ymm6, %ymm15
-vpaddw %ymm7, %ymm4, %ymm7
-vpaddw %ymm8, %ymm5, %ymm8
-vpaddw %ymm9, %ymm6, %ymm9
+vpaddw %ymm7, %ymm4,  %ymm7
+vpaddw %ymm8, %ymm5,  %ymm8
+vpaddw %ymm9, %ymm6,  %ymm9
 
 #mul
 vpmullw %ymm2, %ymm13, %ymm10
@@ -135,19 +136,19 @@ vpmulhw %ymm3, %ymm14, %ymm14
 vpmulhw %ymm3, %ymm15, %ymm15
 
 #reduce
-vpmulhw %ymm0, %ymm10, %ymm10
-vpmulhw %ymm0, %ymm11, %ymm11
-vpmulhw %ymm0, %ymm12, %ymm12
-vpsubw %ymm10, %ymm13, %ymm10
-vpsubw %ymm11, %ymm14, %ymm11
-vpsubw %ymm12, %ymm15, %ymm12
+vpmulhw  %ymm0, %ymm10, %ymm10
+vpmulhw  %ymm0, %ymm11, %ymm11
+vpmulhw  %ymm0, %ymm12, %ymm12
+vpsubw  %ymm10, %ymm13, %ymm10
+vpsubw  %ymm11, %ymm14, %ymm11
+vpsubw  %ymm12, %ymm15, %ymm12
 
 #shuffle
-vpunpcklqdq %ymm8,  %ymm7,  %ymm4
-vpunpcklqdq %ymm10, %ymm9,  %ymm5
+vpunpcklqdq  %ymm8,  %ymm7, %ymm4
+vpunpcklqdq %ymm10,  %ymm9, %ymm5
 vpunpcklqdq %ymm12, %ymm11, %ymm6
-vpunpckhqdq %ymm8,  %ymm7,  %ymm7
-vpunpckhqdq %ymm10, %ymm9,  %ymm8
+vpunpckhqdq  %ymm8,  %ymm7, %ymm7
+vpunpckhqdq %ymm10,  %ymm9, %ymm8
 vpunpckhqdq %ymm12, %ymm11, %ymm9
 
 #level3
@@ -155,9 +156,9 @@ vpunpckhqdq %ymm12, %ymm11, %ymm9
 vpsubw %ymm7, %ymm4, %ymm13
 vpsubw %ymm8, %ymm5, %ymm14
 vpsubw %ymm9, %ymm6, %ymm15
-vpaddw %ymm7, %ymm4, %ymm7
-vpaddw %ymm8, %ymm5, %ymm8
-vpaddw %ymm9, %ymm6, %ymm9
+vpaddw %ymm7, %ymm4,  %ymm7
+vpaddw %ymm8, %ymm5,  %ymm8
+vpaddw %ymm9, %ymm6,  %ymm9
 
 #zetas
 vmovdqa 1728(%rdx), %ymm2
@@ -172,30 +173,30 @@ vpmulhw %ymm3, %ymm14, %ymm14
 vpmulhw %ymm3, %ymm15, %ymm15
 
 #reduce
-vpmulhw %ymm0, %ymm10, %ymm10
-vpmulhw %ymm0, %ymm11, %ymm11
-vpmulhw %ymm0, %ymm12, %ymm12
-vpsubw %ymm10, %ymm13, %ymm10
-vpsubw %ymm11, %ymm14, %ymm11
-vpsubw %ymm12, %ymm15, %ymm12
+vpmulhw  %ymm0, %ymm10, %ymm10
+vpmulhw  %ymm0, %ymm11, %ymm11
+vpmulhw  %ymm0, %ymm12, %ymm12
+vpsubw  %ymm10, %ymm13, %ymm10
+vpsubw  %ymm11, %ymm14, %ymm11
+vpsubw  %ymm12, %ymm15, %ymm12
 
 #reduce2
-vpmulhrsw %ymm1, %ymm7, %ymm13
-vpmulhrsw %ymm1, %ymm8, %ymm14
-vpmulhrsw %ymm1, %ymm9, %ymm15
-vpmullw %ymm0,  %ymm13, %ymm13
-vpmullw %ymm0,  %ymm14, %ymm14
-vpmullw %ymm0,  %ymm15, %ymm15
-vpsubw  %ymm13, %ymm7,  %ymm7
-vpsubw  %ymm14, %ymm8,  %ymm8
-vpsubw  %ymm15, %ymm9,  %ymm9
+vpmulhrsw  %ymm1,  %ymm7, %ymm13
+vpmulhrsw  %ymm1,  %ymm8, %ymm14
+vpmulhrsw  %ymm1,  %ymm9, %ymm15
+vpmullw    %ymm0, %ymm13, %ymm13
+vpmullw    %ymm0, %ymm14, %ymm14
+vpmullw    %ymm0, %ymm15, %ymm15
+vpsubw    %ymm13,  %ymm7,  %ymm7
+vpsubw    %ymm14,  %ymm8,  %ymm8
+vpsubw    %ymm15,  %ymm9,  %ymm9
 
 #shuffle
-vperm2i128 $0x20, %ymm8,  %ymm7,  %ymm4
-vperm2i128 $0x20, %ymm10, %ymm9,  %ymm5
+vperm2i128 $0x20,  %ymm8,  %ymm7, %ymm4
+vperm2i128 $0x20, %ymm10,  %ymm9, %ymm5
 vperm2i128 $0x20, %ymm12, %ymm11, %ymm6
-vperm2i128 $0x31, %ymm8,  %ymm7,  %ymm7
-vperm2i128 $0x31, %ymm10, %ymm9,  %ymm8
+vperm2i128 $0x31,  %ymm8,  %ymm7, %ymm7
+vperm2i128 $0x31, %ymm10,  %ymm9, %ymm8
 vperm2i128 $0x31, %ymm12, %ymm11, %ymm9
 
 #store
@@ -207,9 +208,9 @@ vmovdqa %ymm8, 128(%rdi)
 vmovdqa %ymm9, 160(%rdi)
 
 add $192, %rdi
-add $64,  %rdx
-cmp %r8,  %rdi
-jb  _looptop_start_6543
+add $64, %rdx
+cmp %r8, %rdi
+jb _looptop_start_6543
 
 sub $1728, %rdi
 
@@ -221,6 +222,7 @@ lea 1728(%rdi), %r8
 
 .p2align 5
 _looptop_start_2:
+
 #zetas
 vpbroadcastd 1728(%rdx), %ymm4 #z^-1qinv
 vpbroadcastd 1736(%rdx), %ymm5 #z^-2qinv
@@ -231,8 +233,8 @@ lea 96(%rdi), %r9
 
 .p2align 5
 _looptop_j_2:
-vmovdqa    (%rdi), %ymm8  #X
-vmovdqa  96(%rdi), %ymm9  #Y
+vmovdqa    (%rdi),  %ymm8 #X
+vmovdqa  96(%rdi),  %ymm9 #Y
 vmovdqa 192(%rdi), %ymm10 #Z
 
 #sub
@@ -243,11 +245,11 @@ vpmullw %ymm2, %ymm11, %ymm12 #w(Y-Z)
 vpmulhw %ymm3, %ymm11, %ymm11 #w(Y-Z)
 
 #reduce
-vpmulhw %ymm0,  %ymm12, %ymm12 #w(Y-Z)
+vpmulhw  %ymm0, %ymm12, %ymm12 #w(Y-Z)
 vpsubw  %ymm12, %ymm11, %ymm11 #w(Y-Z)
 
-vpsubw %ymm9,  %ymm8,  %ymm12 #X-Y
-vpsubw %ymm10, %ymm8,  %ymm13 #X-Z
+vpsubw  %ymm9,  %ymm8, %ymm12 #X-Y
+vpsubw %ymm10,  %ymm8, %ymm13 #X-Z
 vpsubw %ymm11, %ymm12, %ymm12 #X-Y - w(Y-Z)
 vpaddw %ymm11, %ymm13, %ymm13 #X-Z + w(Y-Z)
 
@@ -258,13 +260,13 @@ vpmulhw %ymm6, %ymm12, %ymm12 #alpha^-1(X-Y - w(Y-Z))
 vpmulhw %ymm7, %ymm13, %ymm13 #alpha^-2(X-Z + w(Y-Z))
 
 #reduce
-vpmulhw %ymm0,  %ymm14, %ymm14 #alpha^-1(X-Y - w(Y-Z))
-vpmulhw %ymm0,  %ymm15, %ymm15 #alpha^-2(X-Z + w(Y-Z))
+vpmulhw  %ymm0, %ymm14, %ymm14 #alpha^-1(X-Y - w(Y-Z))
+vpmulhw  %ymm0, %ymm15, %ymm15 #alpha^-2(X-Z + w(Y-Z))
 vpsubw  %ymm14, %ymm12, %ymm12 #alpha^-1(X-Y - w(Y-Z))
 vpsubw  %ymm15, %ymm13, %ymm13 #alpha^-2(X-Z + w(Y-Z))
 
 #add
-vpaddw %ymm9,  %ymm8,  %ymm11 #X+Y
+vpaddw  %ymm9,  %ymm8, %ymm11 #X+Y
 vpaddw %ymm10, %ymm11, %ymm11 #X+Y+Z
 
 #store
@@ -274,12 +276,12 @@ vmovdqa %ymm13, 192(%rdi)
 
 add $32, %rdi
 cmp %r9, %rdi
-jb  _looptop_j_2
+jb _looptop_j_2
 
 add $192, %rdi
-add $16,  %rdx
-cmp %r8,  %rdi
-jb  _looptop_start_2
+add $16, %rdx
+cmp %r8, %rdi
+jb _looptop_start_2
 
 sub $1728, %rdi
 
@@ -288,6 +290,7 @@ lea 1728(%rdi), %r8
 
 .p2align 5
 _looptop_start_1:
+
 #zetas
 vpbroadcastd 1728(%rdx), %ymm4 #z^-1qinv
 vpbroadcastd 1736(%rdx), %ymm5 #z^-2qinv
@@ -297,8 +300,8 @@ vpbroadcastd 1740(%rdx), %ymm7 #z^-2
 lea 288(%rdi), %r9
 .p2align 5
 _looptop_j_1:
-vmovdqa    (%rdi), %ymm8  #X
-vmovdqa 288(%rdi), %ymm9  #Y
+vmovdqa    (%rdi),  %ymm8 #X
+vmovdqa 288(%rdi),  %ymm9 #Y
 vmovdqa 576(%rdi), %ymm10 #Z
 
 #sub
@@ -309,11 +312,11 @@ vpmullw %ymm2, %ymm11, %ymm12 #w(Y-Z)
 vpmulhw %ymm3, %ymm11, %ymm11 #w(Y-Z)
 
 #reduce
-vpmulhw %ymm0,  %ymm12, %ymm12 #w(Y-Z)
+vpmulhw  %ymm0, %ymm12, %ymm12 #w(Y-Z)
 vpsubw  %ymm12, %ymm11, %ymm11 #w(Y-Z)
 
-vpsubw %ymm9,  %ymm8,  %ymm12 #X-Y
-vpsubw %ymm10, %ymm8,  %ymm13 #X-Z
+vpsubw  %ymm9,  %ymm8, %ymm12 #X-Y
+vpsubw %ymm10,  %ymm8, %ymm13 #X-Z
 vpsubw %ymm11, %ymm12, %ymm12 #X-Y - w(Y-Z)
 vpaddw %ymm11, %ymm13, %ymm13 #X-Z + w(Y-Z)
 
@@ -324,19 +327,19 @@ vpmulhw %ymm6, %ymm12, %ymm12 #alpha^-1(X-Y - w(Y-Z))
 vpmulhw %ymm7, %ymm13, %ymm13 #alpha^-2(X-Z + w(Y-Z))
 
 #reduce
-vpmulhw %ymm0,  %ymm14, %ymm14 #alpha^-1(X-Y - w(Y-Z))
-vpmulhw %ymm0,  %ymm15, %ymm15 #alpha^-2(X-Z + w(Y-Z))
+vpmulhw  %ymm0, %ymm14, %ymm14 #alpha^-1(X-Y - w(Y-Z))
+vpmulhw  %ymm0, %ymm15, %ymm15 #alpha^-2(X-Z + w(Y-Z))
 vpsubw  %ymm14, %ymm12, %ymm12 #alpha^-1(X-Y - w(Y-Z))
 vpsubw  %ymm15, %ymm13, %ymm13 #alpha^-2(X-Z + w(Y-Z))
 
 #add
-vpaddw %ymm9,  %ymm8,  %ymm11 #X+Y
+vpaddw  %ymm9,  %ymm8, %ymm11 #X+Y
 vpaddw %ymm10, %ymm11, %ymm11 #X+Y+Z
 
 #reduce2
-vpmulhrsw %ymm1, %ymm11, %ymm14
-vpmullw %ymm0,  %ymm14, %ymm14
-vpsubw  %ymm14, %ymm11, %ymm11
+vpmulhrsw  %ymm1, %ymm11, %ymm14
+vpmullw    %ymm0, %ymm14, %ymm14
+vpsubw    %ymm14, %ymm11, %ymm11
 
 #store
 vmovdqa %ymm11,    (%rdi)
@@ -345,12 +348,12 @@ vmovdqa %ymm13, 576(%rdi)
 
 add $32, %rdi
 cmp %r9, %rdi
-jb  _looptop_j_1
+jb _looptop_j_1
 
 add $576, %rdi
-add $16,  %rdx
-cmp %r8,  %rdi
-jb  _looptop_start_1
+add $16, %rdx
+cmp %r8, %rdi
+jb _looptop_start_1
 
 sub $1728, %rdi
 
@@ -360,15 +363,16 @@ vpbroadcastd 1728(%rdx), %ymm2 #(z-z^5)^-1
 vpbroadcastd 1732(%rdx), %ymm3 #(z-z^5)^-1
 
 vmovdqa _16xNinv_scaleqinv(%rip), %ymm13
-vmovdqa _16xNinv_scale(%rip),     %ymm14
+vmovdqa     _16xNinv_scale(%rip), %ymm14
 
 vpsllw $1, %ymm13, %ymm15
-vpsllw $1, %ymm14, %ymm1
+vpsllw $1, %ymm14,  %ymm1
 
 lea 864(%rdi), %r8
 
 .p2align 5
 _looptop_start_0:
+
  #load
  vmovdqa    (%rdi), %ymm4
  vmovdqa  32(%rdi), %ymm5
@@ -381,22 +385,22 @@ _looptop_start_0:
  vpsubw %ymm7, %ymm4, %ymm10
  vpsubw %ymm8, %ymm5, %ymm11
  vpsubw %ymm9, %ymm6, %ymm12
- vpaddw %ymm7, %ymm4, %ymm4
- vpaddw %ymm8, %ymm5, %ymm5
- vpaddw %ymm9, %ymm6, %ymm6
+ vpaddw %ymm7, %ymm4,  %ymm4
+ vpaddw %ymm8, %ymm5,  %ymm5
+ vpaddw %ymm9, %ymm6,  %ymm6
 
  #mul
- vpmullw %ymm2, %ymm10, %ymm7
- vpmullw %ymm2, %ymm11, %ymm8
- vpmullw %ymm2, %ymm12, %ymm9
+ vpmullw %ymm2, %ymm10,  %ymm7
+ vpmullw %ymm2, %ymm11,  %ymm8
+ vpmullw %ymm2, %ymm12,  %ymm9
  vpmulhw %ymm3, %ymm10, %ymm10
  vpmulhw %ymm3, %ymm11, %ymm11
  vpmulhw %ymm3, %ymm12, %ymm12
 
  #reduce
- vpmulhw %ymm0, %ymm7,  %ymm7
- vpmulhw %ymm0, %ymm8,  %ymm8
- vpmulhw %ymm0, %ymm9,  %ymm9
+ vpmulhw %ymm0,  %ymm7, %ymm7
+ vpmulhw %ymm0,  %ymm8, %ymm8
+ vpmulhw %ymm0,  %ymm9, %ymm9
  vpsubw  %ymm7, %ymm10, %ymm7
  vpsubw  %ymm8, %ymm11, %ymm8
  vpsubw  %ymm9, %ymm12, %ymm9
@@ -410,33 +414,33 @@ _looptop_start_0:
  vpmullw %ymm13, %ymm4, %ymm10
  vpmullw %ymm13, %ymm5, %ymm11
  vpmullw %ymm13, %ymm6, %ymm12
- vpmulhw %ymm14, %ymm4, %ymm4
- vpmulhw %ymm14, %ymm5, %ymm5
- vpmulhw %ymm14, %ymm6, %ymm6
+ vpmulhw %ymm14, %ymm4,  %ymm4
+ vpmulhw %ymm14, %ymm5,  %ymm5
+ vpmulhw %ymm14, %ymm6,  %ymm6
 
  #reduce
- vpmulhw %ymm0,  %ymm10, %ymm10
- vpmulhw %ymm0,  %ymm11, %ymm11
- vpmulhw %ymm0,  %ymm12, %ymm12
- vpsubw  %ymm10, %ymm4,  %ymm4
- vpsubw  %ymm11, %ymm5,  %ymm5
- vpsubw  %ymm12, %ymm6,  %ymm6
+ vpmulhw  %ymm0, %ymm10, %ymm10
+ vpmulhw  %ymm0, %ymm11, %ymm11
+ vpmulhw  %ymm0, %ymm12, %ymm12
+ vpsubw  %ymm10,  %ymm4,  %ymm4
+ vpsubw  %ymm11,  %ymm5,  %ymm5
+ vpsubw  %ymm12,  %ymm6,  %ymm6
 
  #mul
  vpmullw %ymm15, %ymm7, %ymm10
  vpmullw %ymm15, %ymm8, %ymm11
  vpmullw %ymm15, %ymm9, %ymm12
- vpmulhw %ymm1,  %ymm7, %ymm7
- vpmulhw %ymm1,  %ymm8, %ymm8
- vpmulhw %ymm1,  %ymm9, %ymm9
+ vpmulhw  %ymm1, %ymm7,  %ymm7
+ vpmulhw  %ymm1, %ymm8,  %ymm8
+ vpmulhw  %ymm1, %ymm9,  %ymm9
 
  #reduce
- vpmulhw %ymm0,  %ymm10, %ymm10
- vpmulhw %ymm0,  %ymm11, %ymm11
- vpmulhw %ymm0,  %ymm12, %ymm12
- vpsubw  %ymm10, %ymm7,  %ymm7
- vpsubw  %ymm11, %ymm8,  %ymm8
- vpsubw  %ymm12, %ymm9,  %ymm9
+ vpmulhw  %ymm0, %ymm10, %ymm10
+ vpmulhw  %ymm0, %ymm11, %ymm11
+ vpmulhw  %ymm0, %ymm12, %ymm12
+ vpsubw  %ymm10,  %ymm7,  %ymm7
+ vpsubw  %ymm11,  %ymm8,  %ymm8
+ vpsubw  %ymm12,  %ymm9,  %ymm9
 
  #store
  vmovdqa %ymm4,    (%rdi)
@@ -448,10 +452,10 @@ _looptop_start_0:
 
  add $96, %rdi
  cmp %r8, %rdi
- jb  _looptop_start_0
+ jb _looptop_start_0
 
  ret
 
 .ifndef no_gnu_stack
-.section .note.GNU-stack,"",@progbits
+.section .note.GNU-stack, "", @progbits
 .endif

@@ -26,6 +26,7 @@ _poly_frombytes:
     mov counter, #1728
 
 _loop_frombytes:
+
     # Deinterleave the first 16 triples and preserve their B/C streams.
     ld3 {v16.16b - v18.16b}, [src], #48
     mov v20.16b, v18.16b

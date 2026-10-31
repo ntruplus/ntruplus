@@ -53,6 +53,7 @@ _poly_ntt:
     mov counter, #128
 
 _looptop_012:
+
     # v0-v3: constants; v4-v7/v16-v23: coefficients; v24-v29: temporaries.
     # Input range: [-3,4].
     #level 0
@@ -268,6 +269,7 @@ _looptop_012:
     mov counter, #1536
 
 _looptop_3456:
+
     # v0-v3: constants; v4-v7/v16-v19: coefficients; v20-v31: temporaries.
     #zeta
     ld1 {v0.8h - v3.8h}, [zetas_ptr], #64
@@ -449,7 +451,7 @@ _looptop_3456:
 
     # Range after R=2^15 Barrett reduction: [-2556,2555].
     #store
-    st1 {v4.8h -  v7.8h}, [dst], #64
+    st1 { v4.8h -  v7.8h}, [dst], #64
     st1 {v16.8h - v19.8h}, [dst], #64
 
     subs counter, counter, #128
@@ -497,6 +499,7 @@ _poly_invntt_scale:
     ldr q23, [x9]
 
 _looptop_6543:
+
     # v0-v3: arithmetic constants; other caller-saved vectors hold data, temporaries and mask.
     #zetas
     ldp q0, q1, [zetas_ptr], #-64
@@ -505,7 +508,7 @@ _looptop_6543:
     tbl v3.16b, {v3.16b}, v23.16b
 
     #load
-    ld1 {v4.8h -  v7.8h}, [src], #64
+    ld1 { v4.8h -  v7.8h}, [src], #64
     ld1 {v16.8h - v19.8h}, [src], #64
 
     # Input range: [-3456,3456].
@@ -665,7 +668,7 @@ _looptop_6543:
     mls v19.8h, v20.8h, v0.h[0]
 
     #store
-    st1 {v4.8h -  v7.8h}, [dst], #64
+    st1 { v4.8h -  v7.8h}, [dst], #64
     st1 {v16.8h - v19.8h}, [dst], #64
 
     # Range after level 3: [-6214,6214].
@@ -686,6 +689,7 @@ _looptop_6543:
     mov counter, #128
 
 _looptop_210:
+
     # v0-v3: constants; coefficients and temporaries reuse caller-saved vectors.
     #load
     ldr  q4, [dst, #0*128]

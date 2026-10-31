@@ -147,8 +147,8 @@ vmovdqu %ymm5, 160(%rdi)
 
 add $192, %rdi
 add $256, %rsi
-cmp %r8,  %rsi
-jb  _looptop_poly_tobytes
+cmp %r8, %rsi
+jb _looptop_poly_tobytes
 
 ret
 
@@ -259,8 +259,8 @@ or %edx, %eax
 
 add $256, %rdi
 add $192, %rsi
-cmp %r8,  %rsi
-jb  _looptop_poly_frombytes
+cmp %r8, %rsi
+jb _looptop_poly_frombytes
 
 test %eax, %eax
 setne %al
@@ -268,5 +268,5 @@ movzbl %al, %eax
 ret
 
 .ifndef no_gnu_stack
-.section .note.GNU-stack,"",@progbits
+.section .note.GNU-stack, "", @progbits
 .endif

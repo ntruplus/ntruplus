@@ -28,8 +28,8 @@ vmovdqa %ymm5, 160(%rdi)
 add $192, %rsi
 add $192, %rdx
 add $192, %rdi
-cmp %r8,  %rsi
-jb  _looptop_add
+cmp %r8, %rsi
+jb _looptop_add
 
 ret
 
@@ -64,11 +64,11 @@ vmovdqa %ymm5, 160(%rdi)
 add $192, %rsi
 add $192, %rdx
 add $192, %rdi
-cmp %r8,  %rsi
-jb  _looptop_sub
+cmp %r8, %rsi
+jb _looptop_sub
 
 ret
 
 .ifndef no_gnu_stack
-.section .note.GNU-stack,"",@progbits
+.section .note.GNU-stack, "", @progbits
 .endif

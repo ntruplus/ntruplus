@@ -58,6 +58,7 @@ _poly_ntt:
     mov counter, #96
 
 _looptop_012:
+
     # v0-v4: constants; v5-v22: coefficients; v23-v31: temporaries.
     # Input range: [-3,4].
     #level 0
@@ -428,6 +429,7 @@ _looptop_012:
     ldp q30, q31, [src]
 
 _looptop_3456:
+
     # v0-v3: compact twiddles; v4-v15: coefficient banks.
     # v16-v24: temporaries; v25-v26: expanded factors; v30-v31: masks.
     #load compact zetas
@@ -648,6 +650,7 @@ _poly_invntt_scale:
     mov counter, #1728
 
 _looptop_6543:
+
     # v0-v3: compact twiddles; v4-v15: coefficient banks.
     # v16-v21: temporaries; v23-v24: expanded factors; v27-v31: masks.
     #zetas
@@ -823,6 +826,7 @@ _looptop_6543:
     mov counter, #96
 
 _looptop_210:
+
     # v0-v4: constants; v5-v22: coefficients; v23-v31: temporaries.
     #load
     ldr  q5, [dst, #0*96]

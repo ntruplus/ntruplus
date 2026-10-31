@@ -58,6 +58,7 @@ _poly_ntt:
     mov counter, #128
 
 _looptop_012:
+
     # v0-v4: constants; v5-v22: coefficients; v23-v31: temporaries.
     # Input range: [-3,4].
     #level 0
@@ -424,6 +425,7 @@ _looptop_012:
     mov counter, #2304
 
 _looptop_3456:
+
     # v0-v3: constants; v4-v11: coefficients; v12-v31: temporaries.
     #load zetas
     ld1 {v0.8h - v3.8h}, [zetas_ptr], #64
@@ -661,6 +663,7 @@ _poly_invntt_scale:
     ldr q31, [x9]
 
 _looptop_6543:
+
     # v0-v3: constants; v4-v11: coefficients; v12-v30: temporaries; v31: mask.
     #load zetas
     ldp q0, q1, [zetas_ptr], #-64
@@ -852,6 +855,7 @@ _looptop_6543:
     mov counter, #128
 
 _looptop_210:
+
     # v0-v4: constants; v5-v22: coefficients; v23-v31: temporaries.
     #load
     ldr  q5, [dst, #0*128]

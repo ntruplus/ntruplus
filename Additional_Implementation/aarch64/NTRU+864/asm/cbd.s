@@ -124,6 +124,7 @@ _poly_cbd1:
     mov counter, #1536
 
 _loop_cbd:
+
     #load
     ldr q20, [src], #16
     ldr q16, [src, #92]
@@ -368,6 +369,7 @@ _poly_cbd1_triple:
     mov counter, #1536
 
 _loop_cbd_triple:
+
     #load
     ldr q20, [src], #16
     ldr q16, [src, #92]
@@ -619,6 +621,7 @@ _poly_sotp_encode:
     mov counter, #1536
 
 _loop_sotp_encode:
+
     #load
     ldr q7, [src1], #16
     ldr q3, [src2], #16
@@ -886,6 +889,7 @@ _poly_sotp_decode:
     mov counter, #1536
 
 _loop_sotp_decode:
+
     #load
     ld1 {v16.8h - v19.8h}, [src1], #64
     ld1 {v20.8h - v23.8h}, [src1], #64
