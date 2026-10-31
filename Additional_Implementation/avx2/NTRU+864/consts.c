@@ -50,6 +50,7 @@ const int16_t _16xNinv_scaleqinv[16] __attribute__((aligned(32))) = FILL_16(NINV
 const int16_t _16x5555[16] __attribute__((aligned(32))) = FILL_16(MASK_5555);
 const int16_t _16x0303[16] __attribute__((aligned(32))) = FILL_16(MASK_0303);
 const int16_t _16x0101[16] __attribute__((aligned(32))) = FILL_16(MASK_0101);
+const int16_t _16x3m3[16] __attribute__((aligned(32))) = FILL_16(-765);
 
 const int16_t zetas[1232] __attribute__((aligned(32))) = {
 	 13687,  13687,  -1033,  -1033,  28815,  28815,  -1265,  -1265,

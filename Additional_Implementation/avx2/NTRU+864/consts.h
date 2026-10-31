@@ -30,5 +30,6 @@ NTRUPLUS_INTERNAL extern const int16_t _16xNinv_scaleqinv[16];
 NTRUPLUS_INTERNAL extern const int16_t _16x5555[16];
 NTRUPLUS_INTERNAL extern const int16_t _16x0303[16];
 NTRUPLUS_INTERNAL extern const int16_t _16x0101[16];
+NTRUPLUS_INTERNAL extern const int16_t _16x3m3[16];
 
 #endif
