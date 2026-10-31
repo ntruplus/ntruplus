@@ -27,11 +27,11 @@ int poly_sotp_decode(uint8_t msg[NTRUPLUS_N / 8], const poly *a,
 NTRUPLUS_INTERNAL NTRUPLUS_SYSV void poly_ntt(poly *r);
 NTRUPLUS_INTERNAL NTRUPLUS_SYSV void poly_invntt_scale(poly *r);
 NTRUPLUS_INTERNAL NTRUPLUS_SYSV void poly_basemul(poly *r, const poly *a, const poly *b);
+NTRUPLUS_INTERNAL NTRUPLUS_SYSV void poly_basemul_add(poly *r, const poly *a, const poly *b, const poly *c);
 NTRUPLUS_INTERNAL NTRUPLUS_SYSV void poly_basemul_scale(poly *r, const poly *a, const poly *b);
 
 NTRUPLUS_INTERNAL int poly_baseinv(poly *r, const poly *a);
 
-NTRUPLUS_INTERNAL NTRUPLUS_SYSV void poly_add(poly *r, const poly *a, const poly *b);
 NTRUPLUS_INTERNAL NTRUPLUS_SYSV void poly_sub(poly *c, const poly *a, const poly *b);
 NTRUPLUS_INTERNAL NTRUPLUS_SYSV void poly_crepmod3(poly *r);
 

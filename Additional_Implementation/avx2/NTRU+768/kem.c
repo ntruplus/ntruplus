@@ -218,8 +218,7 @@ static inline int crypto_kem_enc_derand(uint8_t *ct, uint8_t *ss,
 	poly_sotp_encode(&m, msg, ct);
 	poly_ntt(&m);
 
-	poly_basemul(&c, &h, &r);
-	poly_add(&c, &c, &m);
+	poly_basemul_add(&c, &h, &r, &m);
 	poly_tobytes(ct, &c);
 
 	for (size_t i = 0; i < NTRUPLUS_SSBYTES; i++)
