@@ -119,7 +119,7 @@ static inline void crypto_kem_keypair_derand(uint8_t *pk, uint8_t *sk,
 	poly_tobytes(sk + NTRUPLUS_POLYBYTES, &h);
 	hash_f(sk + 2 * NTRUPLUS_POLYBYTES, pk);
 
-	u8_clear(&h, sizeof h);
+	poly_clear(&h);
 }
 
 /*************************************************
@@ -164,10 +164,10 @@ int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
 
 	u8_clear(coins, sizeof coins);
 	u8_clear(buf, sizeof buf);
-	u8_clear(&f, sizeof f);
-	u8_clear(&finv, sizeof finv);
-	u8_clear(&g, sizeof g);
-	u8_clear(&ginv, sizeof ginv);
+	poly_clear(&f);
+	poly_clear(&finv);
+	poly_clear(&g);
+	poly_clear(&ginv);
 
 	return 0;
 }
@@ -231,8 +231,8 @@ static inline int crypto_kem_enc_derand(uint8_t *ct, uint8_t *ss,
 
 	u8_clear(msg, sizeof msg);
 	u8_clear(buf, sizeof buf);
-	u8_clear(&r, sizeof r);
-	u8_clear(&m, sizeof m);
+	poly_clear(&r);
+	poly_clear(&m);
 
 	return 0;
 }
@@ -338,10 +338,10 @@ cleanup:
 	u8_clear(buf0, sizeof buf0);
 	u8_clear(buf1, sizeof buf1);
 	u8_clear(buf2, sizeof buf2);
-	u8_clear(&c, sizeof c);
-	u8_clear(&f, sizeof f);
-	u8_clear(&hinv, sizeof hinv);
-	u8_clear(&m, sizeof m);
+	poly_clear(&c);
+	poly_clear(&f);
+	poly_clear(&hinv);
+	poly_clear(&m);
 
 	return fail;
 }

@@ -1,6 +1,7 @@
 #ifndef POLY_H
 #define POLY_H
 
+#include "util.h"
 #include <stdint.h>
 #include "api.h"
 #include "params.h"
@@ -12,6 +13,11 @@
 typedef struct {
 	int16_t coeffs[NTRUPLUS_N];
 } poly __attribute__((aligned(32)));
+
+static inline void poly_clear(poly *r)
+{
+	u8_clear(r, sizeof *r);
+}
 
 NTRUPLUS_INTERNAL NTRUPLUS_SYSV void poly_tobytes(uint8_t r[NTRUPLUS_POLYBYTES], const poly *a);
 NTRUPLUS_INTERNAL NTRUPLUS_SYSV int  poly_frombytes(poly *r, const uint8_t a[NTRUPLUS_POLYBYTES]);
