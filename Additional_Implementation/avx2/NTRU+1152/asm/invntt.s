@@ -28,10 +28,10 @@ vpaddw %ymm7,  %ymm3, %ymm11
 vpaddw %ymm8,  %ymm4, %ymm12
 vpaddw %ymm9,  %ymm5, %ymm13
 vpaddw %ymm10, %ymm6, %ymm14
-vpsubw %ymm7,  %ymm3, %ymm7
-vpsubw %ymm8,  %ymm4, %ymm8
-vpsubw %ymm9,  %ymm5, %ymm9
-vpsubw %ymm10, %ymm6, %ymm10
+vpsubw  %ymm3,  %ymm7,  %ymm7
+vpsubw  %ymm4,  %ymm8,  %ymm8
+vpsubw  %ymm5,  %ymm9,  %ymm9
+vpsubw  %ymm6, %ymm10, %ymm10
 
 #mul
 vpmullw %ymm15, %ymm7,  %ymm3
@@ -95,10 +95,10 @@ vpaddw %ymm7,  %ymm3, %ymm11
 vpaddw %ymm8,  %ymm4, %ymm12
 vpaddw %ymm9,  %ymm5, %ymm13
 vpaddw %ymm10, %ymm6, %ymm14
-vpsubw %ymm7,  %ymm3, %ymm7
-vpsubw %ymm8,  %ymm4, %ymm8
-vpsubw %ymm9,  %ymm5, %ymm9
-vpsubw %ymm10, %ymm6, %ymm10
+vpsubw  %ymm3,  %ymm7,  %ymm7
+vpsubw  %ymm4,  %ymm8,  %ymm8
+vpsubw  %ymm5,  %ymm9,  %ymm9
+vpsubw  %ymm6, %ymm10, %ymm10
 
 #mul
 vpmullw %ymm15, %ymm7,  %ymm3
@@ -148,10 +148,10 @@ vpaddw %ymm7,  %ymm3, %ymm11
 vpaddw %ymm8,  %ymm4, %ymm12
 vpaddw %ymm9,  %ymm5, %ymm13
 vpaddw %ymm10, %ymm6, %ymm14
-vpsubw %ymm7,  %ymm3, %ymm7
-vpsubw %ymm8,  %ymm4, %ymm8
-vpsubw %ymm9,  %ymm5, %ymm9
-vpsubw %ymm10, %ymm6, %ymm10
+vpsubw  %ymm3,  %ymm7,  %ymm7
+vpsubw  %ymm4,  %ymm8,  %ymm8
+vpsubw  %ymm5,  %ymm9,  %ymm9
+vpsubw  %ymm6, %ymm10, %ymm10
 
 #mul
 vpmullw %ymm15, %ymm7,  %ymm3
@@ -193,10 +193,10 @@ vpaddw %ymm7,  %ymm3, %ymm11
 vpaddw %ymm8,  %ymm4, %ymm12
 vpaddw %ymm9,  %ymm5, %ymm13
 vpaddw %ymm10, %ymm6, %ymm14
-vpsubw %ymm7,  %ymm3, %ymm7
-vpsubw %ymm8,  %ymm4, %ymm8
-vpsubw %ymm9,  %ymm5, %ymm9
-vpsubw %ymm10, %ymm6, %ymm10
+vpsubw  %ymm3,  %ymm7,  %ymm7
+vpsubw  %ymm4,  %ymm8,  %ymm8
+vpsubw  %ymm5,  %ymm9,  %ymm9
+vpsubw  %ymm6, %ymm10, %ymm10
 
 #mul
 vpmullw %ymm15, %ymm7,  %ymm3
@@ -267,50 +267,51 @@ lea 2304(%rdi), %r8
 
 .p2align 5
 _looptop_start_2:
+
 #load
-vpbroadcastd 1728(%rdx), %ymm4 #z^-1qinv
-vpbroadcastd 1736(%rdx), %ymm5 #z^-2qinv
-vpbroadcastd 1732(%rdx), %ymm6 #z^-1
-vpbroadcastd 1740(%rdx), %ymm7 #z^-2
+vpbroadcastd 1728(%rdx), %ymm4 #zeta0qinv
+vpbroadcastd 1736(%rdx), %ymm5 #zeta1qinv
+vpbroadcastd 1732(%rdx), %ymm6 #zeta0
+vpbroadcastd 1740(%rdx), %ymm7 #zeta1
 
 lea 128(%rdi), %r9
 
 .p2align 5
 _looptop_j_2:
-vmovdqa    (%rdi), %ymm8  #X
-vmovdqa 128(%rdi), %ymm9  #Y
+vmovdqa    (%rdi),  %ymm8 #X
+vmovdqa 128(%rdi),  %ymm9 #Y
 vmovdqa 256(%rdi), %ymm10 #Z
 
 #sub
-vpsubw %ymm10, %ymm9, %ymm11 #Y-Z
+vpsubw %ymm8, %ymm9, %ymm11 #Y-X
 
 #mul
-vpmullw %ymm2, %ymm11, %ymm12 #w(Y-Z)
-vpmulhw %ymm3, %ymm11, %ymm11 #w(Y-Z)
+vpmullw %ymm2, %ymm11, %ymm12 #w(Y-X)
+vpmulhw %ymm3, %ymm11, %ymm11 #w(Y-X)
 
 #reduce
-vpmulhw %ymm0,  %ymm12, %ymm12 #w(Y-Z)
-vpsubw  %ymm12, %ymm11, %ymm11 #w(Y-Z)
+vpmulhw  %ymm0, %ymm12, %ymm12 #w(Y-X)
+vpsubw  %ymm12, %ymm11, %ymm11 #w(Y-X)
 
-vpsubw %ymm9,  %ymm8,  %ymm12 #X-Y
-vpsubw %ymm10, %ymm8,  %ymm13 #X-Z
-vpsubw %ymm11, %ymm12, %ymm12 #X-Y - w(Y-Z)
-vpaddw %ymm11, %ymm13, %ymm13 #X-Z + w(Y-Z)
+vpsubw  %ymm8, %ymm10, %ymm12 #Z-X
+vpsubw  %ymm9, %ymm10, %ymm13 #Z-Y
+vpaddw %ymm11, %ymm12, %ymm12 #Z-X + w(Y-X)
+vpsubw %ymm11, %ymm13, %ymm13 #Z-Y - w(Y-X)
 
 #mul
-vpmullw %ymm4, %ymm12, %ymm14 #alpha^-1(X-Y - w(Y-Z))
-vpmullw %ymm5, %ymm13, %ymm15 #alpha^-2(X-Z + w(Y-Z))
-vpmulhw %ymm6, %ymm12, %ymm12 #alpha^-1(X-Y - w(Y-Z))
-vpmulhw %ymm7, %ymm13, %ymm13 #alpha^-2(X-Z + w(Y-Z))
+vpmullw %ymm4, %ymm12, %ymm14 #zeta0(Z-X + w(Y-X))
+vpmullw %ymm5, %ymm13, %ymm15 #zeta1(Z-Y - w(Y-X))
+vpmulhw %ymm6, %ymm12, %ymm12 #zeta0(Z-X + w(Y-X))
+vpmulhw %ymm7, %ymm13, %ymm13 #zeta1(Z-Y - w(Y-X))
 
 #reduce
-vpmulhw %ymm0,  %ymm14, %ymm14 #alpha^-1(X-Y - w(Y-Z))
-vpmulhw %ymm0,  %ymm15, %ymm15 #alpha^-2(X-Z + w(Y-Z))
-vpsubw  %ymm14, %ymm12, %ymm12 #alpha^-1(X-Y - w(Y-Z))
-vpsubw  %ymm15, %ymm13, %ymm13 #alpha^-2(X-Z + w(Y-Z))
+vpmulhw  %ymm0, %ymm14, %ymm14 #zeta0(Z-X + w(Y-X))
+vpmulhw  %ymm0, %ymm15, %ymm15 #zeta1(Z-Y - w(Y-X))
+vpsubw  %ymm14, %ymm12, %ymm12 #zeta0(Z-X + w(Y-X))
+vpsubw  %ymm15, %ymm13, %ymm13 #zeta1(Z-Y - w(Y-X))
 
 #add
-vpaddw %ymm9,  %ymm8,  %ymm11 #X+Y
+vpaddw  %ymm9,  %ymm8, %ymm11 #X+Y
 vpaddw %ymm10, %ymm11, %ymm11 #X+Y+Z
 
 #store
@@ -320,12 +321,12 @@ vmovdqa %ymm13, 256(%rdi)
 
 add $32, %rdi
 cmp %r9, %rdi
-jb  _looptop_j_2
+jb _looptop_j_2
 
 add $256, %rdi
-add $16,  %rdx
-cmp %r8,  %rdi
-jb  _looptop_start_2
+add $16, %rdx
+cmp %r8, %rdi
+jb _looptop_start_2
 
 sub $2304, %rdi
 
@@ -337,56 +338,57 @@ lea 2304(%rdi), %r8
 
 .p2align 5
 _looptop_start_1:
+
 #load
-vpbroadcastd 1728(%rdx), %ymm4 #z^-1qinv
-vpbroadcastd 1736(%rdx), %ymm5 #z^-2qinv
-vpbroadcastd 1732(%rdx), %ymm6 #z^-1
-vpbroadcastd 1740(%rdx), %ymm7 #z^-2
+vpbroadcastd 1728(%rdx), %ymm4 #zeta0qinv
+vpbroadcastd 1736(%rdx), %ymm5 #zeta1qinv
+vpbroadcastd 1732(%rdx), %ymm6 #zeta0
+vpbroadcastd 1740(%rdx), %ymm7 #zeta1
 
 lea 384(%rdi), %r9
 
 .p2align 5
 _looptop_j_1:
-vmovdqa    (%rdi), %ymm8  #X
-vmovdqa 384(%rdi), %ymm9  #Y
+vmovdqa    (%rdi),  %ymm8 #X
+vmovdqa 384(%rdi),  %ymm9 #Y
 vmovdqa 768(%rdi), %ymm10 #Z
 
 #sub
-vpsubw %ymm10, %ymm9, %ymm11 #Y-Z
+vpsubw %ymm8, %ymm9, %ymm11 #Y-X
 
 #mul
-vpmullw %ymm2, %ymm11, %ymm12 #w(Y-Z)
-vpmulhw %ymm3, %ymm11, %ymm11 #w(Y-Z)
+vpmullw %ymm2, %ymm11, %ymm12 #w(Y-X)
+vpmulhw %ymm3, %ymm11, %ymm11 #w(Y-X)
 
 #reduce
-vpmulhw %ymm0,  %ymm12, %ymm12 #w(Y-Z)
-vpsubw  %ymm12, %ymm11, %ymm11 #w(Y-Z)
+vpmulhw  %ymm0, %ymm12, %ymm12 #w(Y-X)
+vpsubw  %ymm12, %ymm11, %ymm11 #w(Y-X)
 
-vpsubw %ymm9,  %ymm8,  %ymm12 #X-Y
-vpsubw %ymm10, %ymm8,  %ymm13 #X-Z
-vpsubw %ymm11, %ymm12, %ymm12 #X-Y - w(Y-Z)
-vpaddw %ymm11, %ymm13, %ymm13 #X-Z + w(Y-Z)
+vpsubw  %ymm8, %ymm10, %ymm12 #Z-X
+vpsubw  %ymm9, %ymm10, %ymm13 #Z-Y
+vpaddw %ymm11, %ymm12, %ymm12 #Z-X + w(Y-X)
+vpsubw %ymm11, %ymm13, %ymm13 #Z-Y - w(Y-X)
 
 #mul
-vpmullw %ymm4, %ymm12, %ymm14 #alpha^-1(X-Y - w(Y-Z))
-vpmullw %ymm5, %ymm13, %ymm15 #alpha^-2(X-Z + w(Y-Z))
-vpmulhw %ymm6, %ymm12, %ymm12 #alpha^-1(X-Y - w(Y-Z))
-vpmulhw %ymm7, %ymm13, %ymm13 #alpha^-2(X-Z + w(Y-Z))
+vpmullw %ymm4, %ymm12, %ymm14 #zeta0(Z-X + w(Y-X))
+vpmullw %ymm5, %ymm13, %ymm15 #zeta1(Z-Y - w(Y-X))
+vpmulhw %ymm6, %ymm12, %ymm12 #zeta0(Z-X + w(Y-X))
+vpmulhw %ymm7, %ymm13, %ymm13 #zeta1(Z-Y - w(Y-X))
 
 #reduce
-vpmulhw %ymm0,  %ymm14, %ymm14 #alpha^-1(X-Y - w(Y-Z))
-vpmulhw %ymm0,  %ymm15, %ymm15 #alpha^-2(X-Z + w(Y-Z))
-vpsubw  %ymm14, %ymm12, %ymm12 #alpha^-1(X-Y - w(Y-Z))
-vpsubw  %ymm15, %ymm13, %ymm13 #alpha^-2(X-Z + w(Y-Z))
+vpmulhw  %ymm0, %ymm14, %ymm14 #zeta0(Z-X + w(Y-X))
+vpmulhw  %ymm0, %ymm15, %ymm15 #zeta1(Z-Y - w(Y-X))
+vpsubw  %ymm14, %ymm12, %ymm12 #zeta0(Z-X + w(Y-X))
+vpsubw  %ymm15, %ymm13, %ymm13 #zeta1(Z-Y - w(Y-X))
 
 #add
-vpaddw %ymm9,  %ymm8,  %ymm11 #X+Y
+vpaddw  %ymm9,  %ymm8, %ymm11 #X+Y
 vpaddw %ymm10, %ymm11, %ymm11 #X+Y+Z
 
 #reduce2
-vpmulhrsw %ymm1, %ymm11, %ymm14
-vpmullw %ymm0,  %ymm14, %ymm14
-vpsubw  %ymm14, %ymm11, %ymm11
+vpmulhrsw  %ymm1, %ymm11, %ymm14
+vpmullw    %ymm0, %ymm14, %ymm14
+vpsubw    %ymm14, %ymm11, %ymm11
 
 #store
 vmovdqa %ymm11,    (%rdi)
@@ -395,12 +397,12 @@ vmovdqa %ymm13, 768(%rdi)
 
 add $32, %rdi
 cmp %r9, %rdi
-jb  _looptop_j_1
+jb _looptop_j_1
 
 add $768, %rdi
-add $16,  %rdx
-cmp %r8,  %rdi
-jb  _looptop_start_1
+add $16, %rdx
+cmp %r8, %rdi
+jb _looptop_start_1
 
 sub $2304, %rdi
 

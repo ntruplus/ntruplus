@@ -1,3 +1,17 @@
+/*
+ * References:
+ *
+ * [Sei18] Gregor Seiler,
+ * "Faster AVX2 optimized NTT multiplication for Ring-LWE lattice cryptography",
+ * Cryptology ePrint Archive, Paper 2018/039, 2018.
+ * https://eprint.iacr.org/2018/039
+ *
+ * [KCP26] Jonghyun Kim, Haehyun Cho, and Jong Hwan Park,
+ * "Accelerating NTRU+ Key Generation via Hierarchical Batch Inversion",
+ * Cryptology ePrint Archive, Paper 2026/1191, 2026.
+ * https://eprint.iacr.org/2026/1191
+ */
+
 #include "util.h"
 #include <immintrin.h>
 
@@ -6,33 +20,33 @@
 #include "consts.h"
 
 #define NTRUPLUS_QINV 12929
+#define NTRUPLUS_AVX2_BLOCKS (NTRUPLUS_N / (16 * NTRUPLUS_D))
 
-#define NTRUPLUS_R3          460
-#define NTRUPLUS_R3_QINV  -16436
-
-static inline __m256i fqmul(__m256i a, __m256i b, __m256i b_qinv, __m256i q)
+/* Signed Montgomery multiplication [Sei18]. */
+static inline __m256i fqmul(__m256i a, __m256i b, __m256i q, __m256i qinv)
 {
-    __m256i lo = _mm256_mullo_epi16(a, b_qinv);
+    __m256i B  = _mm256_mullo_epi16(b, qinv);
+    __m256i lo = _mm256_mullo_epi16(a, B);
     __m256i hi = _mm256_mulhi_epi16(a, b);
-    lo = _mm256_mulhi_epi16(lo, q);
+    lo         = _mm256_mulhi_epi16(lo, q);
     return _mm256_sub_epi16(hi, lo);
 }
 
-static inline __m256i fqmul_neg(__m256i a, __m256i b, __m256i b_qinv, __m256i q)
+/* Signed Montgomery multiplication with a precomputed factor [Sei18]. */
+static inline __m256i fqmul_precomp(__m256i a, __m256i b, __m256i B, __m256i q)
 {
-    __m256i lo = _mm256_mullo_epi16(a, b_qinv);
+    __m256i lo = _mm256_mullo_epi16(a, B);
     __m256i hi = _mm256_mulhi_epi16(a, b);
-    lo = _mm256_mulhi_epi16(lo, q);
+    lo         = _mm256_mulhi_epi16(lo, q);
+    return _mm256_sub_epi16(hi, lo);
+}
+
+static inline __m256i fqmul_precomp_neg(__m256i a, __m256i b, __m256i B, __m256i q)
+{
+    __m256i lo = _mm256_mullo_epi16(a, B);
+    __m256i hi = _mm256_mulhi_epi16(a, b);
+    lo         = _mm256_mulhi_epi16(lo, q);
     return _mm256_sub_epi16(lo, hi);
-}
-
-static inline __m256i fqsqr(__m256i a,  __m256i q, __m256i qinv)
-{
-    __m256i a_qinv = _mm256_mullo_epi16(a, qinv);
-    __m256i lo = _mm256_mullo_epi16(a, a_qinv);
-    __m256i hi = _mm256_mulhi_epi16(a, a);
-    lo = _mm256_mulhi_epi16(lo, q);
-    return _mm256_sub_epi16(hi, lo);
 }
 
 /*************************************************
@@ -42,7 +56,7 @@ static inline __m256i fqsqr(__m256i a,  __m256i q, __m256i qinv)
 *              The exponent q-2 = 3455 is evaluated using a shortest
 *              addition chain of length 15 (OEIS A003313).
 *
-* Arguments:   - __m256i a: input field elements
+* Arguments:   - __m256i a: input lanes with |a| < q
 *
 * Returns:     lane-wise multiplicative inverses of a
 **************************************************/
@@ -51,40 +65,42 @@ static inline __m256i fqinv(__m256i a)
     const __m256i qinv = _mm256_set1_epi16(NTRUPLUS_QINV);
     const __m256i q    = _mm256_set1_epi16(NTRUPLUS_Q);
 
-    __m256i t0, t1;
-    __m256i T;
+    __m256i t0, t1, T;
 
-    T = _mm256_mullo_epi16(a, qinv);
-    t0 = fqsqr(a, q, qinv);        // 10
-    t0 = fqsqr(t0, q, qinv);       // 100
-    t0 = fqsqr(t0, q, qinv);       // 1000
-    t0 = fqsqr(t0, q, qinv);       // 10000
-    t1 = fqmul(t0, a, T, q);       // 10001
+    t0 = fqmul(a, a, q, qinv);        //10
+    t0 = _mm256_slli_epi16(t0, 4);    //16^1720 = R^-2 mod q
+    t0 = fqmul(t0, t0, q, qinv);      //100
+    t0 = fqmul(t0, t0, q, qinv);      //1000
+    t0 = fqmul(t0, t0, q, qinv);      //10000
 
-    T = _mm256_mullo_epi16(t1, qinv);
-    t0 = fqsqr(t0, q, qinv);       // 100000
-    t0 = fqsqr(t0, q, qinv);       // 1000000
-    t0 = fqsqr(t0, q, qinv);       // 10000000
-    t1 = fqmul(t0, t1, T, q);      // 10010001
+    T  = _mm256_mullo_epi16(t0, qinv);
+    t1 = fqmul_precomp(a, t0, T, q);  //10001
+    t0 = fqmul_precomp(t0, t0, T, q); //100000
 
-    T = _mm256_mullo_epi16(t1, qinv);
-    t0 = fqmul(t0, t1, T, q);      // 100010001
-    t1 = fqmul(t0, t1, T, q);      // 110100010
-    T = _mm256_mullo_epi16(t0, qinv);
-    t1 = fqmul(t1, t0, T, q);      // 1010110011
-    t0 = fqsqr(t1, q, qinv);       // 10101100110
-    t0 = fqsqr(t0, q, qinv);       // 101011001100
+    t0 = fqmul(t0, t0, q, qinv);      //1000000
+    t0 = fqmul(t0, t0, q, qinv);      //10000000
 
-    T = _mm256_mullo_epi16(t1, qinv);
-    return fqmul(t0, t1, T, q);    // 110101111111
+    T  = _mm256_mullo_epi16(t0, qinv);
+    t1 = fqmul_precomp(t1, t0, T, q); //10010001
+    t0 = fqmul_precomp(t1, t0, T, q); //100010001
+
+    T  = _mm256_mullo_epi16(t0, qinv);
+    t1 = fqmul_precomp(t1, t0, T, q); //110100010
+    t1 = fqmul_precomp(t1, t0, T, q); //1010110011
+
+    T  = _mm256_mullo_epi16(t1, qinv);
+    t0 = fqmul_precomp(t1, t1, T, q); //10101100110
+    t0 = fqmul(t0, t0, q, qinv);      //101011001100
+    t0 = fqmul_precomp(t0, t1, T, q); //110101111111
+
+    return t0;
 }
 
 /*************************************************
 * Name:        fqinv_batch
 *
-* Description: Inverts batches of SIMD field elements using one vector fqinv.
-*              Six independent product and recovery chains are combined
-*              hierarchically to expose ILP while retaining Montgomery's trick.
+* Description: Inverts SIMD field elements through six strided prefix chains.
+*              Reuses the prefix tail for the product tree and recovery.
 *
 * Reference:   J. Kim, H. Cho, and J. H. Park, "Accelerating NTRU+ Key
 *              Generation via Hierarchical Batch Inversion," IACR ePrint
@@ -96,196 +112,175 @@ static inline __m256i fqinv(__m256i a)
 **************************************************/
 static inline int fqinv_batch(__m256i *restrict r)
 {
-    const int chunk = NTRUPLUS_N / (6 * 16 * NTRUPLUS_D);
-    const int off0 = 0 * chunk;
-    const int off1 = 1 * chunk;
-    const int off2 = 2 * chunk;
-    const int off3 = 3 * chunk;
-    const int off4 = 4 * chunk;
-    const int off5 = 5 * chunk;
+    const int chunk = NTRUPLUS_AVX2_BLOCKS/6;
 
     const __m256i qinv = _mm256_set1_epi16(NTRUPLUS_QINV);
     const __m256i q    = _mm256_set1_epi16(NTRUPLUS_Q);
-    const __m256i z    = _mm256_setzero_si256();
 
-    __m256i pc[NTRUPLUS_N / (16 * NTRUPLUS_D)];
-    __m256i R[NTRUPLUS_N / (16 * NTRUPLUS_D)];
+    __m256i pc[NTRUPLUS_AVX2_BLOCKS-1];
+    __m256i *p  = pc;
+    __m256i *ri = r+6;
 
-    // product_chain - level 0
-    pc[off0] = r[off0];
-    pc[off1] = r[off1];
-    pc[off2] = r[off2];
-    pc[off3] = r[off3];
-    pc[off4] = r[off4];
-    pc[off5] = r[off5];
+    //product_chain - level 0
+    p[0] = fqmul(r[0], ri[0], q, qinv);
+    p[1] = fqmul(r[1], ri[1], q, qinv);
+    p[2] = fqmul(r[2], ri[2], q, qinv);
+    p[3] = fqmul(r[3], ri[3], q, qinv);
+    p[4] = fqmul(r[4], ri[4], q, qinv);
+    p[5] = fqmul(r[5], ri[5], q, qinv);
 
-    for (size_t i = 1; i < chunk; i++)
+    for (int i = 2; i < chunk; i++)
     {
-        R[off0 + i] = _mm256_mullo_epi16(r[off0 + i], qinv);
-        R[off1 + i] = _mm256_mullo_epi16(r[off1 + i], qinv);
-        R[off2 + i] = _mm256_mullo_epi16(r[off2 + i], qinv);
-        R[off3 + i] = _mm256_mullo_epi16(r[off3 + i], qinv);
-        R[off4 + i] = _mm256_mullo_epi16(r[off4 + i], qinv);
-        R[off5 + i] = _mm256_mullo_epi16(r[off5 + i], qinv);
+        const __m256i *prev = p;
+        p                  += 6;
+        ri                 += 6;
 
-        pc[off0 + i] = fqmul(pc[off0 + i - 1], r[off0 + i], R[off0 + i], q);
-        pc[off1 + i] = fqmul(pc[off1 + i - 1], r[off1 + i], R[off1 + i], q);
-        pc[off2 + i] = fqmul(pc[off2 + i - 1], r[off2 + i], R[off2 + i], q);
-        pc[off3 + i] = fqmul(pc[off3 + i - 1], r[off3 + i], R[off3 + i], q);
-        pc[off4 + i] = fqmul(pc[off4 + i - 1], r[off4 + i], R[off4 + i], q);
-        pc[off5 + i] = fqmul(pc[off5 + i - 1], r[off5 + i], R[off5 + i], q);
+        p[0] = fqmul(prev[0], ri[0], q, qinv);
+        p[1] = fqmul(prev[1], ri[1], q, qinv);
+        p[2] = fqmul(prev[2], ri[2], q, qinv);
+        p[3] = fqmul(prev[3], ri[3], q, qinv);
+        p[4] = fqmul(prev[4], ri[4], q, qinv);
+        p[5] = fqmul(prev[5], ri[5], q, qinv);
     }
 
-    // zero check
-    __m256i mask_zero0 = _mm256_cmpeq_epi16(pc[off0 + chunk - 1], z);
-    __m256i mask_zero1 = _mm256_cmpeq_epi16(pc[off1 + chunk - 1], z);
-    __m256i mask_zero2 = _mm256_cmpeq_epi16(pc[off2 + chunk - 1], z);
-    __m256i mask_zero3 = _mm256_cmpeq_epi16(pc[off3 + chunk - 1], z);
-    __m256i mask_zero4 = _mm256_cmpeq_epi16(pc[off4 + chunk - 1], z);
-    __m256i mask_zero5 = _mm256_cmpeq_epi16(pc[off5 + chunk - 1], z);
+    //product_chain - level 1
+    __m256i *tree = p+6;
 
-    mask_zero0 = _mm256_or_si256(mask_zero0, mask_zero1);
-    mask_zero2 = _mm256_or_si256(mask_zero2, mask_zero3);
-    mask_zero4 = _mm256_or_si256(mask_zero4, mask_zero5);
-    mask_zero0 = _mm256_or_si256(mask_zero0, mask_zero2);
-    mask_zero0 = _mm256_or_si256(mask_zero0, mask_zero4);
-    if (!_mm256_testz_si256(mask_zero0, mask_zero0)) {
+    tree[0] = fqmul(p[0], p[1], q, qinv);
+    tree[1] = fqmul(p[2], p[3], q, qinv);
+    tree[2] = fqmul(p[4], p[5], q, qinv);
+
+    //product_chain - level 2
+    tree[3] = fqmul(tree[0], tree[1], q, qinv);
+    tree[4] = fqmul(tree[3], tree[2], q, qinv);
+
+    //check_zero
+    const __m256i z         = _mm256_setzero_si256();
+    const __m256i mask_zero = _mm256_cmpeq_epi16(tree[4], z);
+    volatile int aggregate  = !_mm256_testz_si256(mask_zero, mask_zero);
+    int fail                = aggregate;
+    ntruplus_declassify(&fail, sizeof fail);
+
+    if (fail)
+    {
         u8_clear(pc, sizeof pc);
-        u8_clear(R, sizeof R);
         return 1;
     }
 
-    // product_chain - level 1
-    __m256i r1[6];
+    //fqinv
+    tree[4] = fqinv(tree[4]);
 
-    r1[0] = pc[off0 + chunk - 1];
-    r1[1] = pc[off1 + chunk - 1];
-    r1[2] = pc[off2 + chunk - 1];
-    r1[3] = pc[off3 + chunk - 1];
-    r1[4] = pc[off4 + chunk - 1];
-    r1[5] = pc[off5 + chunk - 1];
-
-    __m256i R1[6];
-
-    R1[0] = _mm256_mullo_epi16(r1[0], qinv);
-    R1[1] = _mm256_mullo_epi16(r1[1], qinv);
-    R1[2] = _mm256_mullo_epi16(r1[2], qinv);
-    R1[3] = _mm256_mullo_epi16(r1[3], qinv);
-    R1[4] = _mm256_mullo_epi16(r1[4], qinv);
-    R1[5] = _mm256_mullo_epi16(r1[5], qinv);
-
-    __m256i r2[3];
-
-    r2[0] = fqmul(r1[0], r1[1], R1[1], q);
-    r2[1] = fqmul(r1[2], r1[3], R1[3], q);
-    r2[2] = fqmul(r1[4], r1[5], R1[5], q);
-
-    __m256i R2[3];
-
-    R2[0] = _mm256_mullo_epi16(r2[0], qinv);
-    R2[1] = _mm256_mullo_epi16(r2[1], qinv);
-    R2[2] = _mm256_mullo_epi16(r2[2], qinv);
-
-    // product_chain - level 2
-    __m256i pc2[3];
-
-    pc2[0] = r2[0];
-    pc2[1] = fqmul(pc2[0], r2[1], R2[1], q);
-    pc2[2] = fqmul(pc2[1], r2[2], R2[2], q);
-
-    __m256i PC2[3];
-
-    PC2[0] = _mm256_mullo_epi16(pc2[0], qinv);
-    PC2[1] = _mm256_mullo_epi16(pc2[1], qinv);
-    PC2[2] = _mm256_mullo_epi16(pc2[2], qinv);
-
-    // fqinv
-    const __m256i R3qinv_const = _mm256_set1_epi16(NTRUPLUS_R3_QINV);
-    const __m256i R3_const     = _mm256_set1_epi16(NTRUPLUS_R3);
-
-    __m256i inv = fqmul(pc2[2], R3_const, R3qinv_const, q);
-    inv = fqinv(inv);
-
-    // derive_fqinv - level 2
-    __m256i inv1[3];
-
-    inv1[2] = fqmul(inv, pc2[1], PC2[1], q);
-
-    inv = fqmul(inv, r2[2], R2[2], q);
-
-    inv1[1] = fqmul(inv, pc2[0], PC2[0], q);
-
-    inv = fqmul(inv, r2[1], R2[1], q);
-
-    inv1[0] = inv;
-    u8_clear(&inv, sizeof inv);
-
-    // derive_fqinv - level 1
-    __m256i inv0[6];
-    __m256i INV[6];
-    __m256i tmp[6];
-
-    inv0[1] = fqmul(inv1[0], r1[0], R1[0], q);
-    inv0[0] = fqmul(inv1[0], r1[1], R1[1], q);
-    inv0[3] = fqmul(inv1[1], r1[2], R1[2], q);
-    inv0[2] = fqmul(inv1[1], r1[3], R1[3], q);
-    inv0[5] = fqmul(inv1[2], r1[4], R1[4], q);
-    inv0[4] = fqmul(inv1[2], r1[5], R1[5], q);
-
-    u8_clear(r1, sizeof r1);
-    u8_clear(R1, sizeof R1);
-    u8_clear(r2, sizeof r2);
-    u8_clear(R2, sizeof R2);
-    u8_clear(pc2, sizeof pc2);
-    u8_clear(PC2, sizeof PC2);
-    u8_clear(inv1, sizeof inv1);
-
-    // derive_fqinv - level 0
-    for (size_t i = chunk - 1; i > 0; i--)
+    //recover_inv - level 2
     {
-        INV[0] = _mm256_mullo_epi16(inv0[0], qinv);
-        INV[1] = _mm256_mullo_epi16(inv0[1], qinv);
-        INV[2] = _mm256_mullo_epi16(inv0[2], qinv);
-        INV[3] = _mm256_mullo_epi16(inv0[3], qinv);
-        INV[4] = _mm256_mullo_epi16(inv0[4], qinv);
-        INV[5] = _mm256_mullo_epi16(inv0[5], qinv);
+        const __m256i T0 = _mm256_mullo_epi16(tree[4], qinv);
+        const __m256i t  = fqmul_precomp(tree[2], tree[4], T0, q);
+        tree[2]          = fqmul_precomp(tree[3], tree[4], T0, q);
 
-        tmp[0] = r[off0 + i];
-        tmp[1] = r[off1 + i];
-        tmp[2] = r[off2 + i];
-        tmp[3] = r[off3 + i];
-        tmp[4] = r[off4 + i];
-        tmp[5] = r[off5 + i];
-
-        r[off0 + i] = fqmul(pc[off0 + i - 1], inv0[0], INV[0], q);
-        r[off1 + i] = fqmul(pc[off1 + i - 1], inv0[1], INV[1], q);
-        r[off2 + i] = fqmul(pc[off2 + i - 1], inv0[2], INV[2], q);
-        r[off3 + i] = fqmul(pc[off3 + i - 1], inv0[3], INV[3], q);
-        r[off4 + i] = fqmul(pc[off4 + i - 1], inv0[4], INV[4], q);
-        r[off5 + i] = fqmul(pc[off5 + i - 1], inv0[5], INV[5], q);
-
-        inv0[0] = fqmul(inv0[0], tmp[0], R[off0 + i], q);
-        inv0[1] = fqmul(inv0[1], tmp[1], R[off1 + i], q);
-        inv0[2] = fqmul(inv0[2], tmp[2], R[off2 + i], q);
-        inv0[3] = fqmul(inv0[3], tmp[3], R[off3 + i], q);
-        inv0[4] = fqmul(inv0[4], tmp[4], R[off4 + i], q);
-        inv0[5] = fqmul(inv0[5], tmp[5], R[off5 + i], q);
+        const __m256i T1 = _mm256_mullo_epi16(t, qinv);
+        tree[3]          = fqmul_precomp(tree[1], t, T1, q);
+        tree[1]          = fqmul_precomp(tree[0], t, T1, q);
+        tree[0]          = tree[3];
     }
 
+    //recover_inv - level 1
+    {
+        const __m256i T0 = _mm256_mullo_epi16(tree[0], qinv);
+        const __m256i T1 = _mm256_mullo_epi16(tree[1], qinv);
+        const __m256i T2 = _mm256_mullo_epi16(tree[2], qinv);
+
+        p[0] = fqmul_precomp(p[0], tree[0], T0, q);
+        p[1] = fqmul_precomp(p[1], tree[0], T0, q);
+        p[2] = fqmul_precomp(p[2], tree[1], T1, q);
+        p[3] = fqmul_precomp(p[3], tree[1], T1, q);
+        p[4] = fqmul_precomp(p[4], tree[2], T2, q);
+        p[5] = fqmul_precomp(p[5], tree[2], T2, q);
+    }
+
+    //recover_inv - level 0
+    //acc[k^1] is the inverse of chain k.
+    __m256i *acc = p;
+
+    for (int i = chunk - 1; i > 1; i--)
+    {
+        p -= 6;
+
+        tree[0] = ri[0];
+        tree[1] = ri[1];
+        tree[2] = ri[2];
+
+        {
+            const __m256i T0 = _mm256_mullo_epi16(acc[1], qinv);
+            const __m256i T1 = _mm256_mullo_epi16(acc[0], qinv);
+            const __m256i T2 = _mm256_mullo_epi16(acc[3], qinv);
+
+            ri[0] = fqmul_precomp(p[0], acc[1], T0, q);
+            ri[1] = fqmul_precomp(p[1], acc[0], T1, q);
+            ri[2] = fqmul_precomp(p[2], acc[3], T2, q);
+
+            acc[1] = fqmul_precomp(tree[0], acc[1], T0, q);
+            acc[0] = fqmul_precomp(tree[1], acc[0], T1, q);
+            acc[3] = fqmul_precomp(tree[2], acc[3], T2, q);
+        }
+
+        tree[0] = ri[3];
+        tree[1] = ri[4];
+        tree[2] = ri[5];
+
+        {
+            const __m256i T0 = _mm256_mullo_epi16(acc[2], qinv);
+            const __m256i T1 = _mm256_mullo_epi16(acc[5], qinv);
+            const __m256i T2 = _mm256_mullo_epi16(acc[4], qinv);
+
+            ri[3] = fqmul_precomp(p[3], acc[2], T0, q);
+            ri[4] = fqmul_precomp(p[4], acc[5], T1, q);
+            ri[5] = fqmul_precomp(p[5], acc[4], T2, q);
+
+            acc[2] = fqmul_precomp(tree[0], acc[2], T0, q);
+            acc[5] = fqmul_precomp(tree[1], acc[5], T1, q);
+            acc[4] = fqmul_precomp(tree[2], acc[4], T2, q);
+        }
+
+        ri -= 6;
+    }
+
+    tree[0] = ri[0];
+    tree[1] = ri[1];
+    tree[2] = ri[2];
+
+    {
+        const __m256i T0 = _mm256_mullo_epi16(acc[1], qinv);
+        const __m256i T1 = _mm256_mullo_epi16(acc[0], qinv);
+        const __m256i T2 = _mm256_mullo_epi16(acc[3], qinv);
+
+        ri[0] = fqmul_precomp(r[0], acc[1], T0, q);
+        ri[1] = fqmul_precomp(r[1], acc[0], T1, q);
+        ri[2] = fqmul_precomp(r[2], acc[3], T2, q);
+
+        r[0] = fqmul_precomp(tree[0], acc[1], T0, q);
+        r[1] = fqmul_precomp(tree[1], acc[0], T1, q);
+        r[2] = fqmul_precomp(tree[2], acc[3], T2, q);
+    }
+
+    tree[0] = ri[3];
+    tree[1] = ri[4];
+    tree[2] = ri[5];
+
+    {
+        const __m256i T0 = _mm256_mullo_epi16(acc[2], qinv);
+        const __m256i T1 = _mm256_mullo_epi16(acc[5], qinv);
+        const __m256i T2 = _mm256_mullo_epi16(acc[4], qinv);
+
+        ri[3] = fqmul_precomp(r[3], acc[2], T0, q);
+        ri[4] = fqmul_precomp(r[4], acc[5], T1, q);
+        ri[5] = fqmul_precomp(r[5], acc[4], T2, q);
+
+        r[3] = fqmul_precomp(tree[0], acc[2], T0, q);
+        r[4] = fqmul_precomp(tree[1], acc[5], T1, q);
+        r[5] = fqmul_precomp(tree[2], acc[4], T2, q);
+    }
+
+    //clear
     u8_clear(pc, sizeof pc);
-    u8_clear(R, sizeof R);
-    u8_clear(INV, sizeof INV);
-    u8_clear(tmp, sizeof tmp);
-
-    r[off0] = inv0[0];
-    r[off1] = inv0[1];
-    r[off2] = inv0[2];
-    r[off3] = inv0[3];
-    r[off4] = inv0[4];
-    r[off5] = inv0[5];
-
-    u8_clear(inv0, sizeof inv0);
-
     return 0;
 }
 
@@ -523,10 +518,10 @@ static inline void poly_baseinv_2(poly *r, const __m256i den[12])
         __m256i t = den[i];
         __m256i T = _mm256_mullo_epi16(t, qinv);
 
-        r0 = fqmul(r0, t, T, q);
-        r1 = fqmul_neg(r1, t, T, q);
-        r2 = fqmul(r2, t, T, q);
-        r3 = fqmul_neg(r3, t, T, q);
+        r0 = fqmul_precomp(r0, t, T, q);
+        r1 = fqmul_precomp_neg(r1, t, T, q);
+        r2 = fqmul_precomp(r2, t, T, q);
+        r3 = fqmul_precomp_neg(r3, t, T, q);
 
         _mm256_store_si256((__m256i *)&r->coeffs[64*i +  0], r0);
         _mm256_store_si256((__m256i *)&r->coeffs[64*i + 16], r1);
@@ -558,16 +553,18 @@ int poly_baseinv(poly *r, const poly *a)
 
     poly_baseinv_1(r, den, a);
 
-    if (fqinv_batch(den))
+    const int fail = fqinv_batch(den);
+
+    if (fail)
     {
-        for (size_t j = 0; j < NTRUPLUS_N; ++j)
-            r->coeffs[j] = 0;
-        u8_clear(den, sizeof den);
-        return 1;
+        u8_clear(r->coeffs, sizeof r->coeffs);
+    }
+    else
+    {
+        poly_baseinv_2(r, den);
     }
 
-    poly_baseinv_2(r, den);
     u8_clear(den, sizeof den);
 
-    return 0;
+    return fail;
 }
