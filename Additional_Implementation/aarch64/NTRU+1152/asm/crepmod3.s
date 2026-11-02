@@ -12,10 +12,10 @@
 .global _poly_crepmod3
 poly_crepmod3:
 _poly_crepmod3:
-    dst        .req x0
-    src        .req x1
-    const_ptr  .req x2
-    counter    .req x3
+    dst       .req x0
+    src       .req x1
+    const_ptr .req x2
+    counter   .req x3
 
     mov src, dst
     adr const_ptr, crepmod3_consts
@@ -32,10 +32,10 @@ _looptop:
     sqdmulh v21.8h, v17.8h, v1.8h
     sqdmulh v22.8h, v18.8h, v1.8h
     sqdmulh v23.8h, v19.8h, v1.8h
-    srshr v20.8h, v20.8h, #11
-    srshr v21.8h, v21.8h, #11
-    srshr v22.8h, v22.8h, #11
-    srshr v23.8h, v23.8h, #11
+    srshr   v20.8h, v20.8h, #11
+    srshr   v21.8h, v21.8h, #11
+    srshr   v22.8h, v22.8h, #11
+    srshr   v23.8h, v23.8h, #11
 
     # q = 1 (mod 3): a - t*q = a - t (mod 3).
     sub v16.8h, v16.8h, v20.8h

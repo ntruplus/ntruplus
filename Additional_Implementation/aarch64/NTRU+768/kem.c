@@ -14,13 +14,26 @@
 #endif
 
 /*************************************************
+* Name:        verify
+*
+* Description: Compares two byte arrays for equality in constant time.
+*
+* Arguments:   - const uint8_t *a: first byte array
+*              - const uint8_t *b: second byte array
+*              - size_t len:      length of the arrays
+*
+* Returns 0 if the arrays are equal, 1 otherwise.
+**************************************************/
+
+
+/*************************************************
 * Name:        genf_derand
 *
 * Description: Deterministically generates a secret polynomial f and its
 *              multiplicative inverse finv in the NTT domain.
 *
-* Arguments:   - poly *f: output polynomial f (NTT domain)
-*              - poly *finv: output multiplicative inverse of f
+* Arguments:   - poly *f:     output polynomial f (NTT domain)
+*              - poly *finv:  output multiplicative inverse of f
 *                              in the NTT domain
 *              - uint8_t *buf: workspace of NTRUPLUS_N/4 bytes
 *              - const uint8_t *coins: 32-byte deterministic seed
@@ -28,18 +41,17 @@
 * Returns 0 on success; non-zero if f is not invertible in the NTT domain.
 **************************************************/
 static inline int genf_derand(poly *f, poly *finv,
-                              uint8_t buf[NTRUPLUS_N / 4],
+                              uint8_t        buf[NTRUPLUS_N / 4],
                               const uint8_t *coins)
 {
-    shake256(buf, NTRUPLUS_N / 4, coins, 32);
+	shake256(buf, NTRUPLUS_N / 4, coins, 32);
 
-    poly_cbd1(f, buf);
-    poly_triple(f);
-    f->coeffs[0] += 1;
+	poly_cbd1_triple(f, buf);
+	f->coeffs[0] += 1;
 
-    poly_ntt(f);
+	poly_ntt(f);
 
-    return poly_baseinv(finv, f);
+	return poly_baseinv(finv, f);
 }
 
 /*************************************************
@@ -48,8 +60,8 @@ static inline int genf_derand(poly *f, poly *finv,
 * Description: Deterministically generates a secret polynomial g and its
 *              multiplicative inverse ginv in the NTT domain.
 *
-* Arguments:   - poly *g: output polynomial g (NTT domain)
-*              - poly *ginv: output multiplicative inverse of g
+* Arguments:   - poly *g:      output polynomial g (NTT domain)
+*              - poly *ginv:   output multiplicative inverse of g
 *                               in the NTT domain
 *              - uint8_t *buf: workspace of NTRUPLUS_N/4 bytes
 *              - const uint8_t *coins: 32-byte deterministic seed
@@ -57,17 +69,16 @@ static inline int genf_derand(poly *f, poly *finv,
 * Returns 0 on success; non-zero if g is not invertible in the NTT domain.
 **************************************************/
 static inline int geng_derand(poly *g, poly *ginv,
-                              uint8_t buf[NTRUPLUS_N / 4],
+                              uint8_t        buf[NTRUPLUS_N / 4],
                               const uint8_t *coins)
 {
-    shake256(buf, NTRUPLUS_N / 4, coins, 32);
+	shake256(buf, NTRUPLUS_N / 4, coins, 32);
 
-    poly_cbd1(g, buf);
-    poly_triple(g);
+	poly_cbd1_triple(g, buf);
 
-    poly_ntt(g);
+	poly_ntt(g);
 
-    return poly_baseinv(ginv, g);
+	return poly_baseinv(ginv, g);
 }
 
 /*************************************************
@@ -77,30 +88,30 @@ static inline int geng_derand(poly *g, poly *ginv,
 *              the secret polynomials f and g and their multiplicative
 *              inverses finv and ginv in the NTT domain.
 *
-* Arguments:   - uint8_t *pk: output public key
-*              - uint8_t *sk: output secret key
-*              - const poly *f: secret polynomial f (NTT domain)
-*              - const poly *finv: multiplicative inverse of f (NTT domain)
-*              - const poly *g: secret polynomial g (NTT domain)
-*              - const poly *ginv: multiplicative inverse of g (NTT domain)
+* Arguments:   - uint8_t *pk:   output public key
+*              - uint8_t *sk:   output secret key
+*              - const poly *f:     secret polynomial f (NTT domain)
+*              - const poly *finv:  multiplicative inverse of f (NTT domain)
+*              - const poly *g:     secret polynomial g (NTT domain)
+*              - const poly *ginv:  multiplicative inverse of g (NTT domain)
 *
 * Returns:     void
 **************************************************/
 static inline void crypto_kem_keypair_derand(uint8_t *pk, uint8_t *sk,
-                                             const poly *f,  const poly *finv,
-                                             const poly *g,  const poly *ginv)
+                                             const poly *f, const poly *finv,
+                                             const poly *g, const poly *ginv)
 {
-    poly h;
+	poly h;
 
-    poly_basemul(&h, g, finv);
-    poly_tobytes(pk, &h);
+	poly_basemul(&h, g, finv);
+	poly_tobytes(pk, &h);
 
-    poly_basemul(&h, f, ginv);
-    poly_tobytes(sk, f);
-    poly_tobytes(sk + NTRUPLUS_POLYBYTES, &h);
-    hash_f(sk + 2 * NTRUPLUS_POLYBYTES, pk);
+	poly_basemul(&h, f, ginv);
+	poly_tobytes(sk, f);
+	poly_tobytes(sk + NTRUPLUS_POLYBYTES, &h);
+	hash_f(sk + 2 * NTRUPLUS_POLYBYTES, pk);
 
-    u8_clear(&h, sizeof h);
+	poly_clear(&h);
 }
 
 /*************************************************
@@ -120,35 +131,37 @@ static inline void crypto_kem_keypair_derand(uint8_t *pk, uint8_t *sk,
 **************************************************/
 int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
 {
-    uint8_t coins[NTRUPLUS_SYMBYTES];
-    uint8_t buf[NTRUPLUS_N / 4];
-    int r;
+	uint8_t coins[NTRUPLUS_SYMBYTES];
+	uint8_t buf[NTRUPLUS_N / 4];
+	int     r;
 
-    poly f, finv;
-    poly g, ginv;
+	poly f, finv;
+	poly g, ginv;
 
-    do {
-        randombytes(coins, sizeof coins);
-        r = genf_derand(&f, &finv, buf, coins);
-        ntruplus_declassify(&r, sizeof r);
-    } while (r);
+	do
+	{
+		randombytes(coins, sizeof coins);
+		r = genf_derand(&f, &finv, buf, coins);
+		ntruplus_declassify(&r, sizeof r);
+	} while (r);
 
-    do {
-        randombytes(coins, sizeof coins);
-        r = geng_derand(&g, &ginv, buf, coins);
-        ntruplus_declassify(&r, sizeof r);
-    } while (r);
+	do
+	{
+		randombytes(coins, sizeof coins);
+		r = geng_derand(&g, &ginv, buf, coins);
+		ntruplus_declassify(&r, sizeof r);
+	} while (r);
 
-    crypto_kem_keypair_derand(pk, sk, &f, &finv, &g, &ginv);
+	crypto_kem_keypair_derand(pk, sk, &f, &finv, &g, &ginv);
 
-    u8_clear(coins, sizeof coins);
-    u8_clear(buf, sizeof buf);
-    u8_clear(&f, sizeof f);
-    u8_clear(&finv, sizeof finv);
-    u8_clear(&g, sizeof g);
-    u8_clear(&ginv, sizeof ginv);
+	u8_clear(coins, sizeof coins);
+	u8_clear(buf, sizeof buf);
+	poly_clear(&f);
+	poly_clear(&finv);
+	poly_clear(&g);
+	poly_clear(&ginv);
 
-    return 0;
+	return 0;
 }
 
 /*************************************************
@@ -158,9 +171,9 @@ int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
 *              the public key pk and the supplied randomness coins,
 *              producing a ciphertext ct and shared secret ss.
 *
-* Arguments:   - uint8_t *ct: output ciphertext
-*              - uint8_t *ss: output shared secret
-*              - const uint8_t *pk: input public key
+* Arguments:   - uint8_t *ct:      output ciphertext
+*              - uint8_t *ss:      output shared secret
+*              - const uint8_t *pk:    input public key
 *              - const uint8_t *coins: input randomness for
 *                                      deterministic encapsulation
 *
@@ -171,46 +184,49 @@ static inline int crypto_kem_enc_derand(uint8_t *ct, uint8_t *ss,
                                         const uint8_t *pk,
                                         const uint8_t *coins)
 {
-    uint8_t msg[HASH_H_INBYTES];
-    uint8_t buf[HASH_H_OUTBYTES];
+	uint8_t msg[HASH_H_INBYTES];
+	uint8_t buf[HASH_H_OUTBYTES];
 
-    poly c, h, r, m;
+	poly c, h, r, m;
 
-    if (poly_frombytes(&h, pk))
-    {
-        for (size_t i = 0; i < NTRUPLUS_CIPHERTEXTBYTES; i++)
-            ct[i] = 0;
-        u8_clear(ss, NTRUPLUS_SSBYTES);
+	int fail = poly_frombytes(&h, pk);
+	ntruplus_declassify(&fail, sizeof fail);
 
-        return 1;
-    }
+	if (fail)
+	{
+		for (size_t i = 0; i < NTRUPLUS_CIPHERTEXTBYTES; i++)
+			ct[i] = 0;
+		u8_clear(ss, NTRUPLUS_SSBYTES);
 
-    for (size_t i = 0; i < NTRUPLUS_N / 8; i++)
-        msg[i] = coins[i];
+		return 1;
+	}
 
-    hash_f(msg + NTRUPLUS_N / 8, pk);
-    hash_h(buf, msg);
+	for (size_t i = 0; i < NTRUPLUS_N / 8; i++)
+		msg[i] = coins[i];
 
-    poly_cbd1(&r, buf + NTRUPLUS_SYMBYTES);
-    poly_ntt(&r);
+	hash_f(msg + NTRUPLUS_N / 8, pk);
+	hash_h(buf, msg);
 
-    poly_tobytes(ct, &r);
-    hash_g(ct, ct);
-    poly_sotp_encode(&m, msg, ct);
-    poly_ntt(&m);
+	poly_cbd1(&r, buf + NTRUPLUS_SYMBYTES);
+	poly_ntt(&r);
 
-    poly_basemul_add(&c, &h, &r, &m);
-    poly_tobytes(ct, &c);
+	poly_tobytes(ct, &r);
+	hash_g(ct, ct);
+	poly_sotp_encode(&m, msg, ct);
+	poly_ntt(&m);
 
-    for (size_t i = 0; i < NTRUPLUS_SSBYTES; i++)
-        ss[i] = buf[i];
+	poly_basemul_add(&c, &h, &r, &m);
+	poly_tobytes(ct, &c);
 
-    u8_clear(msg, sizeof msg);
-    u8_clear(buf, sizeof buf);
-    u8_clear(&r, sizeof r);
-    u8_clear(&m, sizeof m);
+	for (size_t i = 0; i < NTRUPLUS_SSBYTES; i++)
+		ss[i] = buf[i];
 
-    return 0;
+	u8_clear(msg, sizeof msg);
+	u8_clear(buf, sizeof buf);
+	poly_clear(&r);
+	poly_clear(&m);
+
+	return 0;
 }
 
 /*************************************************
@@ -233,13 +249,13 @@ static inline int crypto_kem_enc_derand(uint8_t *ct, uint8_t *ss,
 int crypto_kem_enc(unsigned char *ct, unsigned char *ss,
                    const unsigned char *pk)
 {
-    uint8_t coins[NTRUPLUS_N / 8];
-    int ret;
+	uint8_t coins[NTRUPLUS_N / 8];
+	int     ret;
 
-    randombytes(coins, sizeof coins);
-    ret = crypto_kem_enc_derand(ct, ss, pk, coins);
-    u8_clear(coins, sizeof coins);
-    return ret;
+	randombytes(coins, sizeof coins);
+	ret = crypto_kem_enc_derand(ct, ss, pk, coins);
+	u8_clear(coins, sizeof coins);
+	return ret;
 }
 
 /*************************************************
@@ -249,7 +265,7 @@ int crypto_kem_enc(unsigned char *ct, unsigned char *ss,
 *              and a secret key sk, computes the shared secret ss. If
 *              decapsulation fails, ss is set to all zero bytes.
 *
-* Arguments:   - uint8_t *ss: output shared secret
+* Arguments:   - uint8_t *ss:  output shared secret
 *                (array of CRYPTO_BYTES bytes)
 *              - const uint8_t *ct: input ciphertext
 *                (array of CRYPTO_CIPHERTEXTBYTES bytes)
@@ -261,60 +277,63 @@ int crypto_kem_enc(unsigned char *ct, unsigned char *ss,
 int crypto_kem_dec(unsigned char *ss, const unsigned char *ct,
                    const unsigned char *sk)
 {
-    uint8_t msg[HASH_H_INBYTES];
-    uint8_t buf1[HASH_G_INBYTES];
-    uint8_t buf2[HASH_G_INBYTES];
-    uint8_t buf3[HASH_H_OUTBYTES];
+	uint8_t msg[HASH_H_INBYTES];
+	uint8_t buf0[HASH_G_INBYTES];
+	uint8_t buf1[HASH_G_INBYTES];
+	uint8_t buf2[HASH_H_OUTBYTES];
 
-    int8_t fail = 1;
+	int8_t fail = 1;
 
-    poly c, f, hinv, m;
+	poly c, f, hinv, m;
 
-    if (poly_frombytes(&c, ct) ||
-       poly_frombytes(&f, sk) ||
-       poly_frombytes(&hinv, sk + NTRUPLUS_POLYBYTES))
-    {
-        u8_clear(ss, NTRUPLUS_SSBYTES);
+	int r  = poly_frombytes(&c, ct);
+	r     |= poly_frombytes(&f, sk);
+	r     |= poly_frombytes(&hinv, sk + NTRUPLUS_POLYBYTES);
+	ntruplus_declassify(&r, sizeof r);
 
-        goto cleanup;
-    }
+	if (r)
+	{
+		u8_clear(ss, NTRUPLUS_SSBYTES);
 
-    poly_basemul_scale(&m, &c, &f);
-    poly_invntt_scale(&m);
-    poly_crepmod3(&m);
+		goto cleanup;
+	}
 
-    f = m;
-    poly_ntt(&f);
-    poly_sub(&c, &c, &f);
-    poly_basemul(&f, &c, &hinv);
+	poly_basemul_scaled(&m, &c, &f);
+	poly_invntt_scale(&m);
+	poly_crepmod3(&m);
 
-    poly_tobytes(buf1, &f);
-    hash_g(buf2, buf1);
-    fail = poly_sotp_decode(msg, &m, buf2);
+	f = m;
+	poly_ntt(&f);
+	poly_sub(&c, &c, &f);
+	poly_basemul(&f, &c, &hinv);
 
-    for (size_t i = 0; i < HASH_F_OUTBYTES; i++)
-        msg[i + NTRUPLUS_N / 8] = sk[i + 2 * NTRUPLUS_POLYBYTES];
+	poly_tobytes(buf0, &f);
+	hash_g(buf1, buf0);
+	fail = poly_sotp_decode(msg, &m, buf1);
 
-    hash_h(buf3, msg);
+	for (size_t i = 0; i < HASH_F_OUTBYTES; i++)
+		msg[i + NTRUPLUS_N / 8] = sk[i + 2 * NTRUPLUS_POLYBYTES];
 
-    poly_cbd1(&f, buf3 + NTRUPLUS_SSBYTES);
-    poly_ntt(&f);
-    poly_tobytes(buf2, &f);
+	hash_h(buf2, msg);
 
-    fail |= u8_verify(buf1, buf2, NTRUPLUS_POLYBYTES);
+	poly_cbd1(&f, buf2 + NTRUPLUS_SSBYTES);
+	poly_ntt(&f);
+	poly_tobytes(buf1, &f);
 
-    for (size_t i = 0; i < NTRUPLUS_SSBYTES; i++)
-        ss[i] = buf3[i] & ~(-fail);
+	fail |= u8_verify(buf0, buf1, NTRUPLUS_POLYBYTES);
+
+	for (size_t i = 0; i < NTRUPLUS_SSBYTES; i++)
+		ss[i] = buf2[i] & ~(-fail);
 
 cleanup:
-    u8_clear(msg, sizeof msg);
-    u8_clear(buf1, sizeof buf1);
-    u8_clear(buf2, sizeof buf2);
-    u8_clear(buf3, sizeof buf3);
-    u8_clear(&c, sizeof c);
-    u8_clear(&f, sizeof f);
-    u8_clear(&hinv, sizeof hinv);
-    u8_clear(&m, sizeof m);
+	u8_clear(msg, sizeof msg);
+	u8_clear(buf0, sizeof buf0);
+	u8_clear(buf1, sizeof buf1);
+	u8_clear(buf2, sizeof buf2);
+	poly_clear(&c);
+	poly_clear(&f);
+	poly_clear(&hinv);
+	poly_clear(&m);
 
-    return fail;
+	return fail;
 }

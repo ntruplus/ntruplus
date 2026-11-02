@@ -1,0 +1,1 @@
+../NTRU+1152/consts.c
