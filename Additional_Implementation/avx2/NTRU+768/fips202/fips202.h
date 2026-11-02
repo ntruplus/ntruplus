@@ -34,4 +34,4 @@ NTRUPLUS_INTERNAL
 void shake256(uint8_t *output, size_t outlen, const uint8_t *input,
               size_t inlen);
 
-#endif // FIPS202_H
+#endif

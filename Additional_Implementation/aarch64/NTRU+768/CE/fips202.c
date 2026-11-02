@@ -103,6 +103,7 @@ void shake256_squeezeblocks(uint8_t *out, size_t nblocks, keccak_state *state) {
 
 void shake256(uint8_t *out, size_t outlen, const uint8_t *in, size_t inlen) {
     keccak_state state;
+
     shake256_absorb(&state, in, inlen);
     size_t nblocks = outlen / SHAKE256_RATE;
     shake256_squeezeblocks(out, nblocks, &state);
@@ -110,11 +111,12 @@ void shake256(uint8_t *out, size_t outlen, const uint8_t *in, size_t inlen) {
     outlen -= nblocks * SHAKE256_RATE;
     if (outlen > 0) {
         uint8_t temp[SHAKE256_RATE];
+
         shake256_squeezeblocks(temp, 1, &state);
         for (size_t i = 0; i < outlen; i++) {
             out[i] = temp[i];
         }
-        secure_clear(temp, sizeof(temp));
+        u8_clear(temp, sizeof(temp));
     }
-    secure_clear(&state, sizeof(state));
+    u8_clear(&state, sizeof(state));
 }

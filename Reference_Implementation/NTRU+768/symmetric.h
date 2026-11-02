@@ -19,4 +19,4 @@ NTRUPLUS_INTERNAL void hash_f(uint8_t *buf, const uint8_t *msg);
 NTRUPLUS_INTERNAL void hash_g(uint8_t *buf, const uint8_t *msg);
 NTRUPLUS_INTERNAL void hash_h(uint8_t *buf, const uint8_t *msg);
 
-#endif /* SYMMETRIC_H */
+#endif

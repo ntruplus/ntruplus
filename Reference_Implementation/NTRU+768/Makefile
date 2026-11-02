@@ -8,8 +8,8 @@ ifneq (,$(findstring mingw,$(shell $(CC) -dumpmachine)))
 MINGW_LDLIBS = -ladvapi32
 endif
 
-SOURCES= kem.c poly.c ntt.c symmetric.c fips202/fips202.c
-HEADERS= api.h params.h poly.h ntt.h symmetric.h util.h fips202/fips202.h
+SOURCES= kem.c poly.c symmetric.c fips202/fips202.c
+HEADERS= api.h params.h poly.h symmetric.h util.h fips202/fips202.h
 
 .PHONY: all PQCgenKAT_kem test clean
 

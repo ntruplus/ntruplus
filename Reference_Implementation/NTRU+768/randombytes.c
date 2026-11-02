@@ -22,38 +22,68 @@
 #endif
 
 #ifdef _WIN32
+/*************************************************
+* Name:        randombytes
+*
+* Description: Fill the output with random bytes from the operating system.
+*
+* Arguments:   - uint8_t *out: output buffer
+*              - size_t outlen: number of bytes to generate
+*
+* Returns:     none.
+**************************************************/
 void randombytes(uint8_t *out, size_t outlen) {
   HCRYPTPROV ctx;
   size_t len;
 
-  if(!CryptAcquireContext(&ctx, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT))
+  if (!CryptAcquireContext(&ctx, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT))
     abort();
 
-  while(outlen > 0) {
+  while (outlen > 0) {
     len = (outlen > 1048576) ? 1048576 : outlen;
-    if(!CryptGenRandom(ctx, len, (BYTE *)out))
+    if (!CryptGenRandom(ctx, len, (BYTE *)out))
       abort();
 
     out += len;
     outlen -= len;
   }
 
-  if(!CryptReleaseContext(ctx, 0))
+  if (!CryptReleaseContext(ctx, 0))
     abort();
 }
 #elif defined(__APPLE__)
+/*************************************************
+* Name:        randombytes
+*
+* Description: Fill the output with random bytes from the operating system.
+*
+* Arguments:   - uint8_t *out: output buffer
+*              - size_t outlen: number of bytes to generate
+*
+* Returns:     none.
+**************************************************/
 void randombytes(uint8_t *out, size_t outlen) {
   arc4random_buf(out, outlen);
 }
 #elif defined(__linux__) && defined(SYS_getrandom)
+/*************************************************
+* Name:        randombytes
+*
+* Description: Fill the output with random bytes from the operating system.
+*
+* Arguments:   - uint8_t *out: output buffer
+*              - size_t outlen: number of bytes to generate
+*
+* Returns:     none.
+**************************************************/
 void randombytes(uint8_t *out, size_t outlen) {
   ssize_t ret;
 
-  while(outlen > 0) {
+  while (outlen > 0) {
     ret = syscall(SYS_getrandom, out, outlen, 0);
-    if(ret == -1 && errno == EINTR)
+    if (ret == -1 && errno == EINTR)
       continue;
-    else if(ret == -1)
+    else if (ret == -1)
       abort();
 
     out += ret;
@@ -61,6 +91,16 @@ void randombytes(uint8_t *out, size_t outlen) {
   }
 }
 #else
+/*************************************************
+* Name:        randombytes
+*
+* Description: Fill the output with random bytes from the operating system.
+*
+* Arguments:   - uint8_t *out: output buffer
+*              - size_t outlen: number of bytes to generate
+*
+* Returns:     none.
+**************************************************/
 void randombytes(uint8_t *out, size_t outlen) {
   int fd;
   ssize_t ret;
@@ -71,24 +111,24 @@ void randombytes(uint8_t *out, size_t outlen) {
 #else
     fd = open("/dev/urandom", O_RDONLY);
 #endif
-    if(fd == -1 && errno == EINTR)
+    if (fd == -1 && errno == EINTR)
       continue;
-    else if(fd == -1)
+    else if (fd == -1)
       abort();
-  } while(fd == -1);
+  } while (fd == -1);
 
-  while(outlen > 0) {
+  while (outlen > 0) {
     ret = read(fd, out, outlen);
-    if(ret == -1 && errno == EINTR)
+    if (ret == -1 && errno == EINTR)
       continue;
-    else if(ret == -1)
+    else if (ret == -1)
       abort();
 
     out += ret;
     outlen -= ret;
   }
 
-  if(close(fd) == -1)
+  if (close(fd) == -1)
     abort();
 }
 #endif

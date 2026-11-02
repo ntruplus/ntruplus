@@ -6,10 +6,10 @@
 
 /*
  * Elements of R_q = Z_q[X]/(X^n - X^n/2 + 1). Represents polynomial
- * coeffs[0] + X*coeffs[1] + X^2*xoeffs[2] + ... + X^{n-1}*coeffs[n-1]
+ * coeffs[0] + X*coeffs[1] + X^2*coeffs[2] + ... + X^{n-1}*coeffs[n-1]
  */
-typedef struct{
-	int16_t coeffs[NTRUPLUS_N];
+typedef struct {
+    int16_t coeffs[NTRUPLUS_N];
 } poly;
 
 void poly_tobytes(uint8_t r[NTRUPLUS_POLYBYTES], const poly *a);
@@ -23,9 +23,12 @@ void poly_ntt(poly *r);
 void poly_invntt(poly *r);
 int  poly_baseinv(poly *r, const poly *a);
 void poly_basemul(poly *r, const poly *a, const poly *b);
-void poly_basemul_add(poly *r, const poly *a, const poly *b, const poly *c);
+
+void poly_add(poly *r, const poly *a, const poly *b);
 void poly_sub(poly *r, const poly *a, const poly *b);
 void poly_triple(poly *r);
 void poly_crepmod3(poly *r);
+
+void poly_clear(poly *r);
 
 #endif

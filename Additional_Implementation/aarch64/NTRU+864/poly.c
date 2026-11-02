@@ -45,7 +45,7 @@ static inline int16x8_t fqmul_precomp(int16x8_t x, int16x8_t y,
 *              The exponent q-2 = 3455 is evaluated using a shortest
 *              addition chain of length 15 (OEIS A003313).
 *
-* Arguments:   - int16x8_t a:   input field elements
+* Arguments:   - int16x8_t a: input field elements
 *              - int16x8_t con: vector of arithmetic constants
 *
 * Returns:     lane-wise multiplicative inverses of a
@@ -122,7 +122,7 @@ static inline int poly_fqinv_batch(int16x8_t *r, int16x8_t con)
     if (!vminvq_u16(vreinterpretq_u16_s16(x0)) ||
         !vminvq_u16(vreinterpretq_u16_s16(x1)) ||
         !vminvq_u16(vreinterpretq_u16_s16(x2))) {
-        secure_clear(t, sizeof t);
+        u8_clear(t, sizeof t);
         return 1;
     }
 
@@ -153,7 +153,7 @@ static inline int poly_fqinv_batch(int16x8_t *r, int16x8_t con)
     r[off1] = inv1;
     r[off2] = inv2;
 
-    secure_clear(t, sizeof t);
+    u8_clear(t, sizeof t);
     return 0;
 }
 
@@ -195,7 +195,7 @@ static inline void poly_baseinv_2(poly *r, const int16x8_t *den, int16x8_t con)
 *              Generation via Hierarchical Batch Inversion," IACR ePrint
 *              2026/1191, https://eprint.iacr.org/2026/1191.
 *
-* Arguments:   - poly *r:       pointer to output polynomial
+* Arguments:   - poly *r: pointer to output polynomial
 *              - const poly *a: pointer to input polynomial
 *
 * Returns:     1 if the polynomial is not invertible; otherwise 0
@@ -212,12 +212,12 @@ int poly_baseinv(poly *r, const poly *a)
         for (int i = 0; i < NTRUPLUS_N; i++)
             r->coeffs[i] = 0;
 
-        secure_clear(den, sizeof den);
+        u8_clear(den, sizeof den);
         return 1;
     }
 
     poly_baseinv_2(r, den, con);
-    secure_clear(den, sizeof den);
+    u8_clear(den, sizeof den);
 
     return 0;
 }

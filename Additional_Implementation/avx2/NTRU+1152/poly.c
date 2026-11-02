@@ -150,8 +150,8 @@ static inline int fqinv_batch(__m256i *restrict r)
     mask_zero0 = _mm256_or_si256(mask_zero0, mask_zero2);
     mask_zero0 = _mm256_or_si256(mask_zero0, mask_zero4);
     if (!_mm256_testz_si256(mask_zero0, mask_zero0)) {
-        secure_clear(pc, sizeof pc);
-        secure_clear(R, sizeof R);
+        u8_clear(pc, sizeof pc);
+        u8_clear(R, sizeof R);
         return 1;
     }
 
@@ -218,7 +218,7 @@ static inline int fqinv_batch(__m256i *restrict r)
     inv = fqmul(inv, r2[1], R2[1], q);
 
     inv1[0] = inv;
-    secure_clear(&inv, sizeof inv);
+    u8_clear(&inv, sizeof inv);
 
     // derive_fqinv - level 1
     __m256i inv0[6];
@@ -232,13 +232,13 @@ static inline int fqinv_batch(__m256i *restrict r)
     inv0[5] = fqmul(inv1[2], r1[4], R1[4], q);
     inv0[4] = fqmul(inv1[2], r1[5], R1[5], q);
 
-    secure_clear(r1, sizeof r1);
-    secure_clear(R1, sizeof R1);
-    secure_clear(r2, sizeof r2);
-    secure_clear(R2, sizeof R2);
-    secure_clear(pc2, sizeof pc2);
-    secure_clear(PC2, sizeof PC2);
-    secure_clear(inv1, sizeof inv1);
+    u8_clear(r1, sizeof r1);
+    u8_clear(R1, sizeof R1);
+    u8_clear(r2, sizeof r2);
+    u8_clear(R2, sizeof R2);
+    u8_clear(pc2, sizeof pc2);
+    u8_clear(PC2, sizeof PC2);
+    u8_clear(inv1, sizeof inv1);
 
     // derive_fqinv - level 0
     for (size_t i = chunk - 1; i > 0; i--)
@@ -272,10 +272,10 @@ static inline int fqinv_batch(__m256i *restrict r)
         inv0[5] = fqmul(inv0[5], tmp[5], R[off5 + i], q);
     }
 
-    secure_clear(pc, sizeof pc);
-    secure_clear(R, sizeof R);
-    secure_clear(INV, sizeof INV);
-    secure_clear(tmp, sizeof tmp);
+    u8_clear(pc, sizeof pc);
+    u8_clear(R, sizeof R);
+    u8_clear(INV, sizeof INV);
+    u8_clear(tmp, sizeof tmp);
 
     r[off0] = inv0[0];
     r[off1] = inv0[1];
@@ -284,70 +284,7 @@ static inline int fqinv_batch(__m256i *restrict r)
     r[off4] = inv0[4];
     r[off5] = inv0[5];
 
-    secure_clear(inv0, sizeof inv0);
-
-    return 0;
-}
-
-static inline void poly_baseinv_2(poly *r, const __m256i den[18])
-{
-    const __m256i qinv = _mm256_load_si256((const __m256i *)_16xqinv);
-    const __m256i q    = _mm256_load_si256((const __m256i *)_16xq);
-
-    for (size_t i = 0; i < 18; i++) {
-        __m256i r0 = _mm256_load_si256((const __m256i *)&r->coeffs[64*i +  0]);
-        __m256i r1 = _mm256_load_si256((const __m256i *)&r->coeffs[64*i + 16]);
-        __m256i r2 = _mm256_load_si256((const __m256i *)&r->coeffs[64*i + 32]);
-        __m256i r3 = _mm256_load_si256((const __m256i *)&r->coeffs[64*i + 48]);
-
-        __m256i t = den[i];
-        __m256i T = _mm256_mullo_epi16(t, qinv);
-
-        r0 = fqmul(r0, t, T, q);
-        r1 = fqmul_neg(r1, t, T, q);
-        r2 = fqmul(r2, t, T, q);
-        r3 = fqmul_neg(r3, t, T, q);
-
-        _mm256_store_si256((__m256i *)&r->coeffs[64*i +  0], r0);
-        _mm256_store_si256((__m256i *)&r->coeffs[64*i + 16], r1);
-        _mm256_store_si256((__m256i *)&r->coeffs[64*i + 32], r2);
-        _mm256_store_si256((__m256i *)&r->coeffs[64*i + 48], r3);
-    }
-}
-
-/*************************************************
-* Name:        poly_baseinv
-*
-* Description: Inversion of polynomial in NTT domain. poly_baseinv_1 exposes
-*              all base denominators, fqinv_batch inverts them hierarchically,
-*              and poly_baseinv_2 applies the inverses to complete each base
-*              inverse.
-*
-* Reference:   J. Kim, H. Cho, and J. H. Park, "Accelerating NTRU+ Key
-*              Generation via Hierarchical Batch Inversion," IACR ePrint
-*              2026/1191, https://eprint.iacr.org/2026/1191.
-*
-* Arguments:   - poly *r:       pointer to output polynomial
-*              - const poly *a: pointer to input polynomial
-* 
-* Returns:     integer
-**************************************************/
-int  poly_baseinv(poly *r, const poly *a)
-{
-    __m256i den[18];
-
-    poly_baseinv_1(r, den, a);
-
-    if(fqinv_batch(den))
-    {
-        for (size_t j = 0; j < NTRUPLUS_N; ++j)
-            r->coeffs[j] = 0;
-        secure_clear(den, sizeof den);
-        return 1;
-    }
-
-    poly_baseinv_2(r, den);
-    secure_clear(den, sizeof den);
+    u8_clear(inv0, sizeof inv0);
 
     return 0;
 }
@@ -744,4 +681,67 @@ int poly_sotp_decode(uint8_t msg[NTRUPLUS_N/8], const poly *a, const uint8_t buf
         msg[i] &= mask;
 
     return fail;
+}
+
+static inline void poly_baseinv_2(poly *r, const __m256i den[18])
+{
+    const __m256i qinv = _mm256_load_si256((const __m256i *)_16xqinv);
+    const __m256i q    = _mm256_load_si256((const __m256i *)_16xq);
+
+    for (size_t i = 0; i < 18; i++) {
+        __m256i r0 = _mm256_load_si256((const __m256i *)&r->coeffs[64*i +  0]);
+        __m256i r1 = _mm256_load_si256((const __m256i *)&r->coeffs[64*i + 16]);
+        __m256i r2 = _mm256_load_si256((const __m256i *)&r->coeffs[64*i + 32]);
+        __m256i r3 = _mm256_load_si256((const __m256i *)&r->coeffs[64*i + 48]);
+
+        __m256i t = den[i];
+        __m256i T = _mm256_mullo_epi16(t, qinv);
+
+        r0 = fqmul(r0, t, T, q);
+        r1 = fqmul_neg(r1, t, T, q);
+        r2 = fqmul(r2, t, T, q);
+        r3 = fqmul_neg(r3, t, T, q);
+
+        _mm256_store_si256((__m256i *)&r->coeffs[64*i +  0], r0);
+        _mm256_store_si256((__m256i *)&r->coeffs[64*i + 16], r1);
+        _mm256_store_si256((__m256i *)&r->coeffs[64*i + 32], r2);
+        _mm256_store_si256((__m256i *)&r->coeffs[64*i + 48], r3);
+    }
+}
+
+/*************************************************
+* Name:        poly_baseinv
+*
+* Description: Inversion of polynomial in NTT domain. poly_baseinv_1 exposes
+*              all base denominators, fqinv_batch inverts them hierarchically,
+*              and poly_baseinv_2 applies the inverses to complete each base
+*              inverse.
+*
+* Reference:   J. Kim, H. Cho, and J. H. Park, "Accelerating NTRU+ Key
+*              Generation via Hierarchical Batch Inversion," IACR ePrint
+*              2026/1191, https://eprint.iacr.org/2026/1191.
+*
+* Arguments:   - poly *r: pointer to output polynomial
+*              - const poly *a: pointer to input polynomial
+*
+* Returns:     integer
+**************************************************/
+int  poly_baseinv(poly *r, const poly *a)
+{
+    __m256i den[18];
+
+    poly_baseinv_1(r, den, a);
+
+    if (fqinv_batch(den))
+    {
+        for (size_t j = 0; j < NTRUPLUS_N; ++j)
+            r->coeffs[j] = 0;
+        u8_clear(den, sizeof den);
+        return 1;
+    }
+
+    poly_baseinv_2(r, den);
+    u8_clear(den, sizeof den);
+
+    return 0;
 }

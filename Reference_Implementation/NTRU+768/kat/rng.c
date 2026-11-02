@@ -6,6 +6,10 @@ NIST-developed software is expressly provided "AS IS." NIST MAKES NO WARRANTY OF
 You are solely responsible for determining the appropriateness of using and distributing the software and you assume all risks associated with its use, including but not limited to the risks and costs of program errors, compliance with applicable laws, damage to or loss of data, programs or equipment, and the unavailability or interruption of operation. This software is not intended to be used in any situation where a failure could cause risk of injury or damage to property. The software developed by NIST employees is not subject to copyright protection within the United States.
 */
 
+/* Modified 2026-10-31: match randombytes length and return types. */
+/* Modified 2026-11-01: make the maximum-length check match unsigned long width. */
+#include <limits.h>
+#include <stdint.h>
 #include <string.h>
 #include "rng.h"
 #include "aes.h"
@@ -27,8 +31,10 @@ seedexpander_init(AES_XOF_struct *ctx,
                   unsigned char *diversifier,
                   unsigned long maxlen)
 {
-    if ( maxlen >= 0x100000000 )
+#if ULONG_MAX > UINT32_MAX
+    if ( maxlen > UINT32_MAX )
         return RNG_BAD_MAXLEN;
+#endif
 
     ctx->length_remaining = maxlen;
 
@@ -138,11 +144,11 @@ randombytes_init(unsigned char *entropy_input,
     DRBG_ctx.reseed_counter = 1;
 }
 
-int
-randombytes(unsigned char *x, unsigned long long xlen)
+void
+randombytes(uint8_t *x, size_t xlen)
 {
-    unsigned char   block[16];
-    int             i = 0;
+    unsigned char block[16];
+    size_t        i = 0;
 
     while ( xlen > 0 ) {
         //increment V
@@ -167,8 +173,6 @@ randombytes(unsigned char *x, unsigned long long xlen)
     }
     AES256_CTR_DRBG_Update(NULL, DRBG_ctx.Key, DRBG_ctx.V);
     DRBG_ctx.reseed_counter++;
-
-    return RNG_SUCCESS;
 }
 
 void
