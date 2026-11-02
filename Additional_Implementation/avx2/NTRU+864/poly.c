@@ -733,14 +733,17 @@ int poly_baseinv(poly *r, const poly *a)
 
     if (fail)
     {
-        u8_clear(r->coeffs, sizeof r->coeffs);
+        poly_clear(r);
     }
     else
     {
         poly_baseinv_2(r, den);
     }
 
-    u8_clear(den, sizeof den);
+    volatile __m256i *vden = den;
+
+    for (size_t i = 0; i < sizeof den / sizeof den[0]; i++)
+        vden[i] = _mm256_setzero_si256();
 
     return fail;
 }

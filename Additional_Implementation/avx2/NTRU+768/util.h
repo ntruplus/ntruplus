@@ -1,11 +1,19 @@
 #ifndef UTIL_H
 #define UTIL_H
 
+#if defined(__APPLE__) && !defined(__STDC_WANT_LIB_EXT1__)
+#define __STDC_WANT_LIB_EXT1__ 1
+#endif
+
 #include <stddef.h>
 #include <stdint.h>
+#include <string.h>
+
+#ifdef _WIN32
+#include <windows.h>
+#endif
 
 #if defined(__GLIBC__) && defined(__USE_MISC) && defined(__GLIBC_PREREQ)
-#include <string.h>
 #if __GLIBC_PREREQ(2, 25)
 #define NTRUPLUS_EXPLICIT_BZERO
 #endif
@@ -51,7 +59,11 @@ static inline int u8_verify(const uint8_t *a, const uint8_t *b, size_t len)
 **************************************************/
 static inline void u8_clear(void *p, size_t n)
 {
-#ifdef NTRUPLUS_EXPLICIT_BZERO
+#if defined(_WIN32)
+    SecureZeroMemory(p, n);
+#elif defined(__APPLE__)
+    (void)memset_s(p, n, 0, n);
+#elif defined(NTRUPLUS_EXPLICIT_BZERO)
     if (n != 0)
         explicit_bzero(p, n);
 #else
@@ -74,7 +86,7 @@ static inline void u8_clear(void *p, size_t n)
 **************************************************/
 static inline void i16_clear(int16_t *p, size_t n)
 {
-#ifdef NTRUPLUS_EXPLICIT_BZERO
+#if defined(_WIN32) || defined(__APPLE__) || defined(NTRUPLUS_EXPLICIT_BZERO)
     u8_clear(p, n*sizeof *p);
 #else
     volatile int16_t *v = p;
