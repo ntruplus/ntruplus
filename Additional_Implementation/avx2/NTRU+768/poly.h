@@ -28,6 +28,8 @@ int poly_frombytes(poly *r, const uint8_t a[NTRUPLUS_POLYBYTES]);
 NTRUPLUS_INTERNAL NTRUPLUS_SYSV
 void poly_cbd1(poly *r, const uint8_t buf[NTRUPLUS_N/4]);
 NTRUPLUS_INTERNAL NTRUPLUS_SYSV
+void poly_cbd1_triple(poly *r, const uint8_t buf[NTRUPLUS_N/4]);
+NTRUPLUS_INTERNAL NTRUPLUS_SYSV
 void poly_sotp_encode(poly *r, const uint8_t msg[NTRUPLUS_N/8],
                       const uint8_t buf[NTRUPLUS_N/4]);
 NTRUPLUS_INTERNAL
@@ -39,17 +41,14 @@ NTRUPLUS_INTERNAL NTRUPLUS_SYSV void poly_invntt_scale(poly *r);
 NTRUPLUS_INTERNAL NTRUPLUS_SYSV
 void poly_basemul(poly *r, const poly *a, const poly *b);
 NTRUPLUS_INTERNAL NTRUPLUS_SYSV
-void poly_basemul_scale(poly *r, const poly *a, const poly *b);
-
+void poly_basemul_add(poly *r, const poly *a, const poly *b, const poly *c);
 NTRUPLUS_INTERNAL NTRUPLUS_SYSV
-void poly_baseinv_1(poly *r, __m256i den[12], const poly *a);
+void poly_basemul_scaled(poly *r, const poly *a, const poly *b);
+
 NTRUPLUS_INTERNAL int poly_baseinv(poly *r, const poly *a);
 
 NTRUPLUS_INTERNAL NTRUPLUS_SYSV
-void poly_add(poly *r, const poly *a, const poly *b);
-NTRUPLUS_INTERNAL NTRUPLUS_SYSV
 void poly_sub(poly *c, const poly *a, const poly *b);
-NTRUPLUS_INTERNAL NTRUPLUS_SYSV void poly_triple(poly *r);
 NTRUPLUS_INTERNAL NTRUPLUS_SYSV void poly_crepmod3(poly *r);
 
 #endif

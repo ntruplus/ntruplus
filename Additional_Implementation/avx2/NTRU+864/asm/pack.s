@@ -417,24 +417,18 @@ vpsubw  %ymm9,  %ymm3,  %ymm3
 vpsubw  %ymm10, %ymm4,  %ymm4
 vpsubw  %ymm11, %ymm5,  %ymm5
 
-vpsraw $15,    %ymm0,  %ymm6
-vpsraw $15,    %ymm1,  %ymm7
-vpsraw $15,    %ymm2,  %ymm8
-vpsraw $15,    %ymm3,  %ymm9
-vpsraw $15,    %ymm4,  %ymm10
-vpsraw $15,    %ymm5,  %ymm11
-vpand  %ymm14, %ymm6,  %ymm6
-vpand  %ymm14, %ymm7,  %ymm7
-vpand  %ymm14, %ymm8,  %ymm8
-vpand  %ymm14, %ymm9,  %ymm9
-vpand  %ymm14, %ymm10, %ymm10
-vpand  %ymm14, %ymm11, %ymm11
-vpaddw %ymm6,  %ymm0,  %ymm0
-vpaddw %ymm7,  %ymm1,  %ymm1
-vpaddw %ymm8,  %ymm2,  %ymm2
-vpaddw %ymm9,  %ymm3,  %ymm3
-vpaddw %ymm10, %ymm4,  %ymm4
-vpaddw %ymm11, %ymm5,  %ymm5
+vpaddw  %ymm14, %ymm0,  %ymm6
+vpaddw  %ymm14, %ymm1,  %ymm7
+vpaddw  %ymm14, %ymm2,  %ymm8
+vpaddw  %ymm14, %ymm3,  %ymm9
+vpaddw  %ymm14, %ymm4, %ymm10
+vpaddw  %ymm14, %ymm5, %ymm11
+vpminuw  %ymm6, %ymm0,  %ymm0
+vpminuw  %ymm7, %ymm1,  %ymm1
+vpminuw  %ymm8, %ymm2,  %ymm2
+vpminuw  %ymm9, %ymm3,  %ymm3
+vpminuw %ymm10, %ymm4,  %ymm4
+vpminuw %ymm11, %ymm5,  %ymm5
 
 #shuffle
 vpslld   $16,   %ymm1, %ymm6

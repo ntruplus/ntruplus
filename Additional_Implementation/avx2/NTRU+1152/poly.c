@@ -678,6 +678,9 @@ int poly_sotp_decode(uint8_t msg[NTRUPLUS_N/8], const poly *a, const uint8_t buf
     return fail;
 }
 
+NTRUPLUS_INTERNAL NTRUPLUS_SYSV
+extern void poly_baseinv_1(poly *r, __m256i den[12], const poly *a);
+
 static inline void poly_baseinv_2(poly *r, const __m256i den[18])
 {
     const __m256i qinv = _mm256_load_si256((const __m256i *)_16xqinv);

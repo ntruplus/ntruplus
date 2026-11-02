@@ -43,31 +43,23 @@ vpsubw %ymm11, %ymm5,  %ymm5
 vpsubw %ymm12, %ymm6,  %ymm6
 vpsubw %ymm13, %ymm7, %ymm7
 
-vpsraw $15,    %ymm0,  %ymm10
-vpsraw $15,    %ymm1,  %ymm11
-vpsraw $15,    %ymm2,  %ymm12
-vpsraw $15,    %ymm3,  %ymm13
-vpand  %ymm14,  %ymm10, %ymm10
-vpand  %ymm14,  %ymm11, %ymm11
-vpand  %ymm14,  %ymm12, %ymm12
-vpand  %ymm14,  %ymm13, %ymm13
-vpaddw %ymm10, %ymm0,  %ymm0
-vpaddw %ymm11, %ymm1,  %ymm1
-vpaddw %ymm12, %ymm2,  %ymm2
-vpaddw %ymm13, %ymm3,  %ymm3
+vpaddw  %ymm14, %ymm0, %ymm10
+vpaddw  %ymm14, %ymm1, %ymm11
+vpaddw  %ymm14, %ymm2, %ymm12
+vpaddw  %ymm14, %ymm3, %ymm13
+vpminuw %ymm10, %ymm0,  %ymm0
+vpminuw %ymm11, %ymm1,  %ymm1
+vpminuw %ymm12, %ymm2,  %ymm2
+vpminuw %ymm13, %ymm3,  %ymm3
 
-vpsraw $15,    %ymm4,  %ymm10
-vpsraw $15,    %ymm5,  %ymm11
-vpsraw $15,    %ymm6,  %ymm12
-vpsraw $15,    %ymm7, %ymm13
-vpand  %ymm14,  %ymm10, %ymm10
-vpand  %ymm14,  %ymm11, %ymm11
-vpand  %ymm14,  %ymm12, %ymm12
-vpand  %ymm14,  %ymm13, %ymm13
-vpaddw %ymm10, %ymm4,  %ymm4
-vpaddw %ymm11, %ymm5,  %ymm5
-vpaddw %ymm12, %ymm6,  %ymm6
-vpaddw %ymm13, %ymm7, %ymm7
+vpaddw  %ymm14, %ymm4, %ymm10
+vpaddw  %ymm14, %ymm5, %ymm11
+vpaddw  %ymm14, %ymm6, %ymm12
+vpaddw  %ymm14, %ymm7, %ymm13
+vpminuw %ymm10, %ymm4,  %ymm4
+vpminuw %ymm11, %ymm5,  %ymm5
+vpminuw %ymm12, %ymm6,  %ymm6
+vpminuw %ymm13, %ymm7,  %ymm7
 
 vpsllw $12,    %ymm1,  %ymm10
 vpsllw $12,    %ymm5,  %ymm11

@@ -28,8 +28,7 @@ static inline int genf_derand(poly *f, poly *finv,
 {
     shake256(buf, NTRUPLUS_N / 4, coins, 32);
 
-    poly_cbd1(f, buf);
-    poly_triple(f);
+    poly_cbd1_triple(f, buf);
     f->coeffs[0] += 1;
 
     poly_ntt(f);
@@ -57,8 +56,7 @@ static inline int geng_derand(poly *g, poly *ginv,
 {
     shake256(buf, NTRUPLUS_N / 4, coins, 32);
 
-    poly_cbd1(g, buf);
-    poly_triple(g);
+    poly_cbd1_triple(g, buf);
 
     poly_ntt(g);
 
@@ -171,7 +169,10 @@ static inline int crypto_kem_enc_derand(uint8_t *ct, uint8_t *ss,
 
     poly c, h, r, m;
 
-    if (poly_frombytes(&h, pk))
+    int fail = poly_frombytes(&h, pk);
+    ntruplus_declassify(&fail, sizeof fail);
+
+    if (fail)
     {
         for (size_t i = 0; i < NTRUPLUS_CIPHERTEXTBYTES; i++)
             ct[i] = 0;
@@ -194,8 +195,7 @@ static inline int crypto_kem_enc_derand(uint8_t *ct, uint8_t *ss,
     poly_sotp_encode(&m, msg, ct);
     poly_ntt(&m);
 
-    poly_basemul(&c, &h, &r);
-    poly_add(&c, &c, &m);
+    poly_basemul_add(&c, &h, &r, &m);
     poly_tobytes(ct, &c);
 
     for (size_t i = 0; i < NTRUPLUS_SSBYTES; i++)
@@ -268,16 +268,19 @@ int crypto_kem_dec(unsigned char *ss,
 
     poly c, f, hinv, m;
 
-    if (poly_frombytes(&c, ct) ||
-       poly_frombytes(&f, sk) ||
-       poly_frombytes(&hinv, sk + NTRUPLUS_POLYBYTES))
+    int r  = poly_frombytes(&c, ct);
+    r     |= poly_frombytes(&f, sk);
+    r     |= poly_frombytes(&hinv, sk + NTRUPLUS_POLYBYTES);
+    ntruplus_declassify(&r, sizeof r);
+
+    if (r)
     {
         u8_clear(ss, NTRUPLUS_SSBYTES);
 
         goto cleanup;
     }
 
-    poly_basemul_scale(&m, &c, &f);
+    poly_basemul_scaled(&m, &c, &f);
     poly_invntt_scale(&m);
     poly_crepmod3(&m);
 
