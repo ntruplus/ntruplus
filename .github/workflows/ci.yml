@@ -16,164 +16,75 @@ jobs:
   test:
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.runner }}
-    timeout-minutes: 20
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
         include:
-          - name: Reference / Linux x86_64 / Clang
-            implementation: Reference_Implementation
-            compiler: clang
+          - name: Linux x86_64 / GCC
             runner: ubuntu-24.04
-            target_flags: ""
-          - name: Reference / Linux x86_64 / GCC
-            implementation: Reference_Implementation
             compiler: gcc
+            backend: avx2
+          - name: Linux x86_64 / Clang
             runner: ubuntu-24.04
-            target_flags: ""
-          - name: Reference / Linux arm64 / Clang
-            implementation: Reference_Implementation
             compiler: clang
+            backend: avx2
+          - name: Linux arm64 / GCC
             runner: ubuntu-24.04-arm
-            target_flags: ""
-          - name: Reference / Linux arm64 / GCC
-            implementation: Reference_Implementation
             compiler: gcc
+            backend: aarch64
+          - name: Linux arm64 / Clang
             runner: ubuntu-24.04-arm
-            target_flags: ""
-          - name: Reference / Windows x86_64 / GCC (MinGW-w64 UCRT)
-            implementation: Reference_Implementation
-            compiler: gcc
-            runner: windows-2025
-            target_flags: ""
-            packages: mingw-w64-ucrt-x86_64-gcc
-          - name: Reference / Windows x86_64 / Clang (MinGW-w64 UCRT)
-            implementation: Reference_Implementation
             compiler: clang
-            runner: windows-2025
-            target_flags: ""
-            packages: mingw-w64-ucrt-x86_64-clang
-          - name: OptC / Linux x86_64 / Clang
-            implementation: Optimized_Implementation
-            compiler: clang
-            runner: ubuntu-24.04
-            target_flags: ""
-          - name: OptC / Linux x86_64 / GCC
-            implementation: Optimized_Implementation
-            compiler: gcc
-            runner: ubuntu-24.04
-            target_flags: ""
-          - name: OptC / Linux arm64 / Clang
-            implementation: Optimized_Implementation
-            compiler: clang
-            runner: ubuntu-24.04-arm
-            target_flags: ""
-          - name: OptC / Linux arm64 / GCC
-            implementation: Optimized_Implementation
-            compiler: gcc
-            runner: ubuntu-24.04-arm
-            target_flags: ""
-          - name: OptC / Windows x86_64 / GCC (MinGW-w64 UCRT)
-            implementation: Optimized_Implementation
-            compiler: gcc
-            runner: windows-2025
-            target_flags: ""
-            packages: mingw-w64-ucrt-x86_64-gcc
-          - name: OptC / Windows x86_64 / Clang (MinGW-w64 UCRT)
-            implementation: Optimized_Implementation
-            compiler: clang
-            runner: windows-2025
-            target_flags: ""
-            packages: mingw-w64-ucrt-x86_64-clang
-          - name: AVX2 / Linux x86_64 / Clang
-            implementation: Additional_Implementation/avx2
-            compiler: clang
-            runner: ubuntu-24.04
-            target_flags: ""
-          - name: AVX2 / Linux x86_64 / GCC
-            implementation: Additional_Implementation/avx2
-            compiler: gcc
-            runner: ubuntu-24.04
-            target_flags: ""
-          - name: AVX2 / macOS Intel / Apple Clang
-            implementation: Additional_Implementation/avx2
-            compiler: clang
+            backend: aarch64
+          - name: macOS Intel / Apple Clang
             runner: macos-15-intel
-            target_flags: ""
-          - name: AVX2 / Windows x86_64 / GCC (MinGW-w64 UCRT)
-            implementation: Additional_Implementation/avx2
-            compiler: gcc
+            compiler: clang
+            backend: avx2
+          - name: macOS arm64 / Apple Clang
+            runner: macos-15
+            compiler: clang
+            backend: aarch64
+          - name: Windows x86_64 / GCC (MinGW-w64 UCRT)
             runner: windows-2025
-            target_flags: ""
+            compiler: gcc
+            backend: avx2
+            msystem: UCRT64
             packages: mingw-w64-ucrt-x86_64-gcc
-          - name: AVX2 / Windows x86_64 / Clang (MinGW-w64 UCRT)
-            implementation: Additional_Implementation/avx2
-            compiler: clang
+          - name: Windows x86_64 / Clang (MinGW-w64 UCRT)
             runner: windows-2025
-            target_flags: ""
+            compiler: clang
+            backend: avx2
+            msystem: UCRT64
             packages: mingw-w64-ucrt-x86_64-clang
-          - name: AArch64 / Linux arm64 / Clang / SHA3
-            implementation: Additional_Implementation/aarch64
+          - name: Windows arm64 / Clang (MinGW-w64)
+            runner: windows-11-arm
             compiler: clang
-            runner: ubuntu-24.04-arm
-            target_flags: "-march=armv8.2-a+sha3"
-          - name: AArch64 / Linux arm64 / Clang / portable SHAKE256
-            implementation: Additional_Implementation/aarch64
-            compiler: clang
-            runner: ubuntu-24.04-arm
-            target_flags: "-march=armv8-a"
-          - name: AArch64 / Linux arm64 / GCC / SHA3
-            implementation: Additional_Implementation/aarch64
-            compiler: gcc
-            runner: ubuntu-24.04-arm
-            target_flags: "-march=armv8.2-a+sha3"
-          - name: AArch64 / Linux arm64 / GCC / portable SHAKE256
-            implementation: Additional_Implementation/aarch64
-            compiler: gcc
-            runner: ubuntu-24.04-arm
-            target_flags: "-march=armv8-a"
-          - name: AArch64 / macOS arm64 / Apple Clang / portable SHAKE256
-            implementation: Additional_Implementation/aarch64
-            compiler: clang
-            runner: macos-15
-            target_flags: "-march=armv8-a"
-          - name: AArch64 / macOS arm64 / Apple Clang / SHA3
-            implementation: Additional_Implementation/aarch64
-            compiler: clang
-            runner: macos-15
-            target_flags: "-march=armv8.2-a+sha3"
+            backend: portable
+            msystem: CLANGARM64
+            packages: mingw-w64-clang-aarch64-clang
 
     steps:
       - name: Check out repository
         uses: actions/checkout@v6
 
-      - name: Set up MinGW-w64 UCRT
+      - name: Set up MinGW-w64
         if: runner.os == 'Windows'
         uses: msys2/setup-msys2@ec48f7c5447b3140e2b088413ae3a55687bccb6e # v2.33.0
         with:
-          msystem: UCRT64
+          msystem: ${{ matrix.msystem }}
           update: true
           install: >-
             make
             diffutils
             ${{ matrix.packages }}
 
-      - name: Verify runner instruction set
-        if: runner.os != 'Windows' && contains(matrix.implementation, 'Additional_Implementation')
-        shell: bash
-        run: bash .github/scripts/check-cpu.sh "${{ matrix.implementation }}" "${{ matrix.target_flags }}" "${{ matrix.compiler }}"
-
-      - name: Verify Windows instruction set
-        if: runner.os == 'Windows' && contains(matrix.implementation, 'Additional_Implementation')
-        shell: msys2 {0}
-        run: bash .github/scripts/check-cpu.sh "${{ matrix.implementation }}" "${{ matrix.target_flags }}" "${{ matrix.compiler }}"
-
-      - name: Build, test, and compare KATs
+      - name: Check implementations and KATs
         if: runner.os != 'Windows'
         shell: bash
-        run: bash .github/scripts/test.sh "${{ matrix.implementation }}" "${{ matrix.compiler }}" "${{ matrix.target_flags }}"
+        run: bash .github/scripts/test-platform.sh "${{ matrix.compiler }}" "${{ matrix.backend }}"
 
-      - name: Build, test, and compare KATs on Windows
+      - name: Check implementations and KATs on Windows
         if: runner.os == 'Windows'
         shell: msys2 {0}
-        run: bash .github/scripts/test.sh "${{ matrix.implementation }}" "${{ matrix.compiler }}" "${{ matrix.target_flags }}"
+        run: bash .github/scripts/test-platform.sh "${{ matrix.compiler }}" "${{ matrix.backend }}"
