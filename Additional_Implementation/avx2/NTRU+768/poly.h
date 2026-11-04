@@ -15,17 +15,13 @@
 #define poly_sotp_encode    NTRUPLUS_NAMESPACE(poly_sotp_encode)
 #define poly_sotp_decode    NTRUPLUS_NAMESPACE(poly_sotp_decode)
 #define poly_ntt            NTRUPLUS_NAMESPACE(poly_ntt)
-#define poly_invntt_scale   NTRUPLUS_NAMESPACE(poly_invntt_scale)
+#define poly_invntt_scaled  NTRUPLUS_NAMESPACE(poly_invntt_scaled)
 #define poly_basemul        NTRUPLUS_NAMESPACE(poly_basemul)
 #define poly_basemul_add    NTRUPLUS_NAMESPACE(poly_basemul_add)
 #define poly_basemul_scaled NTRUPLUS_NAMESPACE(poly_basemul_scaled)
 #define poly_baseinv        NTRUPLUS_NAMESPACE(poly_baseinv)
 #define poly_sub            NTRUPLUS_NAMESPACE(poly_sub)
 #define poly_crepmod3       NTRUPLUS_NAMESPACE(poly_crepmod3)
-#define poly_frombytes_raw  NTRUPLUS_NAMESPACE(poly_frombytes_raw)
-#define poly_ntt_pack       NTRUPLUS_NAMESPACE(poly_ntt_pack)
-#define poly_ntt_unpack     NTRUPLUS_NAMESPACE(poly_ntt_unpack)
-#define poly_tobytes_raw    NTRUPLUS_NAMESPACE(poly_tobytes_raw)
 
 /*
  * Elements of R_q = Z_q[X]/(X^n - X^n/2 + 1). Represents polynomial
@@ -57,7 +53,7 @@ int poly_sotp_decode(uint8_t msg[NTRUPLUS_N/8], const poly *a,
                      const uint8_t buf[NTRUPLUS_N/4]);
 
 NTRUPLUS_INTERNAL NTRUPLUS_SYSV void poly_ntt(poly *r);
-NTRUPLUS_INTERNAL NTRUPLUS_SYSV void poly_invntt_scale(poly *r);
+NTRUPLUS_INTERNAL NTRUPLUS_SYSV void poly_invntt_scaled(poly *r);
 NTRUPLUS_INTERNAL NTRUPLUS_SYSV
 void poly_basemul(poly *r, const poly *a, const poly *b);
 NTRUPLUS_INTERNAL NTRUPLUS_SYSV

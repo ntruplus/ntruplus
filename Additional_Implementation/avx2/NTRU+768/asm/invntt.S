@@ -1,6 +1,6 @@
 #include "asm.h"
 
-NTRUPLUS_ASM_START(poly_invntt_scale)
+NTRUPLUS_ASM_START(poly_invntt_scaled)
 vmovdqa     NTRUPLUS_ASM_SYMBOL(16xq)(%rip), %ymm0
 vmovdqa     NTRUPLUS_ASM_SYMBOL(16xv)(%rip), %ymm1
 lea     NTRUPLUS_ASM_SYMBOL(zetas_inv)(%rip), %rdx
@@ -494,7 +494,7 @@ cmp %r8, %rdi
 jb  NTRUPLUS_ASM_LOCAL(looptop_start_0)
 
 ret
-NTRUPLUS_ASM_END(poly_invntt_scale)
+NTRUPLUS_ASM_END(poly_invntt_scaled)
 
 
 NTRUPLUS_ASM_GNU_STACK

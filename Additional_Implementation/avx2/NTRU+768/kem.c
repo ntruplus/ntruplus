@@ -281,7 +281,7 @@ int crypto_kem_dec(unsigned char *ss,
     }
 
     poly_basemul_scaled(&m, &c, &f);
-    poly_invntt_scale(&m);
+    poly_invntt_scaled(&m);
     poly_crepmod3(&m);
 
     f = m;
