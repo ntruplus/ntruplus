@@ -1,5 +1,6 @@
-The CE/f1600.S file is adapted from the mlkem-native
+The keccakf1600_sha3.S file is adapted from the mlkem-native
 implementations distributed with SUPERCOP 20261018:
+https://bench.cr.yp.to/supercop/supercop-20261018.tar.xz
 crypto_xof/shake128/mlkn-aarch64/keccak_f1600_x1_v84a_aarch64_asm.S
 
 This file is distributed here under the MIT option of its

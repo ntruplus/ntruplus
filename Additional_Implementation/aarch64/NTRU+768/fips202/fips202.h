@@ -6,7 +6,6 @@
 
 #include "params.h"
 
-#define f1600 NTRUPLUS_NAMESPACE(f1600)
 #define shake256 NTRUPLUS_NAMESPACE(shake256)
 #define shake256_absorb NTRUPLUS_NAMESPACE(shake256_absorb)
 #define shake256_ctx_clone NTRUPLUS_NAMESPACE(shake256_ctx_clone)

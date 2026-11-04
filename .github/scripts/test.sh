@@ -3,7 +3,7 @@ set -euo pipefail
 
 implementation_root=$1
 compiler=$2
-shake256_asm=$3
+target_flags=${3:-}
 
 set -eu
 repository=$PWD
@@ -15,9 +15,9 @@ for parameter in 768 864 1152; do
     kat_directory="KAT/NTRU+$parameter"
 
     echo "Building $implementation"
-    make -C "$implementation" clean test PQCgenKAT_kem \
-      "CC=${compiler}" \
-      "HAS_SHAKE256_ASM=${shake256_asm}"
+    CFLAGS="${CFLAGS:-} ${target_flags}" \
+      NISTFLAGS="${NISTFLAGS:-} ${target_flags}" \
+      make -C "$implementation" clean test PQCgenKAT_kem "CC=${compiler}"
 
     echo "Running encapsulation/decapsulation tests"
     set +e

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 implementation=$1
-shake256_asm=$2
+target_flags=${2:-}
 compiler=$3
 
 if [ "${implementation}" = "Additional_Implementation/avx2" ]; then
@@ -27,7 +27,7 @@ EOF
     grep -qw avx2 /proc/cpuinfo
     grep -qw aes /proc/cpuinfo
   fi
-elif [ "${shake256_asm}" = 1 ]; then
+elif [[ "${target_flags}" == *+sha3* ]]; then
   if [ "$(uname -s)" = Darwin ]; then
     test "$(sysctl -n hw.optional.arm.FEAT_SHA3)" = 1
   else

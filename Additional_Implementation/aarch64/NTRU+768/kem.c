@@ -7,24 +7,7 @@
 #include "poly.h"
 #include "randombytes.h"
 
-#ifdef SUPPORTS_SHAKE256_ASM
-#include "CE/fips202.h"
-#else
-#include "NO_CE/fips202.h"
-#endif
-
-/*************************************************
-* Name:        verify
-*
-* Description: Compares two byte arrays for equality in constant time.
-*
-* Arguments:   - const uint8_t *a: first byte array
-*              - const uint8_t *b: second byte array
-*              - size_t len:      length of the arrays
-*
-* Returns 0 if the arrays are equal, 1 otherwise.
-**************************************************/
-
+#include "fips202/fips202.h"
 
 /*************************************************
 * Name:        genf_derand

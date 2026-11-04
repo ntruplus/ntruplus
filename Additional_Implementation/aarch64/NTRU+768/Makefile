@@ -11,20 +11,15 @@ else
 ASFLAGS += -Wa,--noexecstack
 endif
 
-SOURCES= kem.c symmetric.c poly.c asm/add.S asm/ntt.S asm/base.S consts.c asm/crepmod3.S asm/pack.S asm/cbd.S
-HEADERS= asm.h api.h params.h poly.h symmetric.h util.h consts.h
+SOURCES= kem.c symmetric.c poly.c asm/add.S asm/ntt.S asm/base.S consts.c asm/crepmod3.S asm/pack.S asm/cbd.S fips202/fips202.c
+HEADERS= asm.h api.h params.h poly.h symmetric.h util.h consts.h fips202/fips202.h fips202/keccakf1600.h
 
 
-HAS_SHAKE256_ASM := 1
-
-ifeq ($(HAS_SHAKE256_ASM), 1)
-	SOURCES+=CE/fips202.c CE/f1600.S
-	HEADERS+=CE/fips202.h
-	CFLAGS += -march=armv8.2-a+sha3 -DSUPPORTS_SHAKE256_ASM
-	NISTFLAGS += -march=armv8.2-a+sha3 -DSUPPORTS_SHAKE256_ASM
+# Select the backend from the compiler target's SHA3 support.
+ifeq ($(shell printf '\n' | $(CC) $(CFLAGS) -dM -E -x c - 2>/dev/null | grep -c ' __ARM_FEATURE_SHA3 '),1)
+SOURCES += fips202/keccakf1600_sha3.S
 else
-	SOURCES+=NO_CE/fips202.c
-	HEADERS+=NO_CE/fips202.h
+SOURCES += fips202/keccakf1600.c
 endif
 
 .PHONY: all PQCgenKAT_kem test clean

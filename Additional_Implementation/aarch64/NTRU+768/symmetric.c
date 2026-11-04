@@ -2,11 +2,7 @@
 #include <string.h>
 #include "symmetric.h"
 
-#ifdef SUPPORTS_SHAKE256_ASM
-#include "CE/fips202.h"
-#else
-#include "NO_CE/fips202.h"
-#endif
+#include "fips202/fips202.h"
 
 void hash_f(uint8_t *buf, const uint8_t *msg)
 {

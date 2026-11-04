@@ -1,8 +1,0 @@
-Source: SUPERCOP 20261018
-https://bench.cr.yp.to/supercop/supercop-20261018.tar.xz
-
-Paths in source archive:
-k/lib/low/KeccakP-1600/AVX2/KeccakP-1600-AVX2.s
-
-Adaptations: use the shared NTRU+ assembly symbol and metadata macros;
-retain the existing SHAKE API and clearing behavior. Arithmetic is unchanged.
