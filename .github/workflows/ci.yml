@@ -155,6 +155,7 @@ jobs:
           update: true
           install: >-
             make
+            diffutils
             ${{ matrix.packages }}
 
       - name: Verify runner instruction set
