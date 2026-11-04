@@ -24,6 +24,8 @@
 #define _16xqm1 NTRUPLUS_NAMESPACE(16xqm1)
 #define _16xv NTRUPLUS_NAMESPACE(16xv)
 #define _16xv2 NTRUPLUS_NAMESPACE(16xv2)
+#define _16xv27 NTRUPLUS_NAMESPACE(16xv27)
+#define _16xv27_signed NTRUPLUS_NAMESPACE(16xv27_signed)
 #define _16xw NTRUPLUS_NAMESPACE(16xw)
 #define _16xwqinv NTRUPLUS_NAMESPACE(16xwqinv)
 #define _low_mask NTRUPLUS_NAMESPACE(low_mask)
@@ -36,6 +38,8 @@ NTRUPLUS_INTERNAL extern const int16_t zetas_inv[1224];
 NTRUPLUS_INTERNAL extern const int16_t _low_mask[16];
 NTRUPLUS_INTERNAL extern const int16_t _16xv[16];
 NTRUPLUS_INTERNAL extern const int16_t _16xv2[16];
+NTRUPLUS_INTERNAL extern const uint16_t _16xv27[16];
+NTRUPLUS_INTERNAL extern const int16_t _16xv27_signed[16];
 NTRUPLUS_INTERNAL extern const int16_t _16xq26[16];
 NTRUPLUS_INTERNAL extern const int16_t _16xq26round[16];
 NTRUPLUS_INTERNAL extern const int16_t _16x1[16];

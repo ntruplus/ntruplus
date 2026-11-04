@@ -7,6 +7,8 @@
 #define BARRETT_V(q) (((1U << 15) + (q)/2)/(q))
 #define V BARRETT_V(NTRUPLUS_Q)
 #define V2 BARRETT_V(3)
+#define V27 (((1U << 27) + NTRUPLUS_Q / 2) / NTRUPLUS_Q)
+#define V27_SIGNED (V27 - (1U << 15))
 #define Q26 (((1U << 26) + NTRUPLUS_Q / 2) / NTRUPLUS_Q)
 #define Q26_ROUND (1U << 9)
 
@@ -29,6 +31,8 @@
 const int16_t _low_mask[16]          __attribute__((aligned(32))) = FILL_16(LOW);
 const int16_t _16xv[16]              __attribute__((aligned(32))) = FILL_16(V);
 const int16_t _16xv2[16]             __attribute__((aligned(32))) = FILL_16(V2);
+const uint16_t _16xv27[16]           __attribute__((aligned(32))) = FILL_16(V27);
+const int16_t _16xv27_signed[16]     __attribute__((aligned(32))) = FILL_16(V27_SIGNED);
 const int16_t _16xq26[16]            __attribute__((aligned(32))) = FILL_16(Q26);
 const int16_t _16xq26round[16]       __attribute__((aligned(32))) = FILL_16(Q26_ROUND);
 const int16_t _16x1[16]              __attribute__((aligned(32))) = FILL_16(1);

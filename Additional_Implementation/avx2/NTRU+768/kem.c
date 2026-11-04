@@ -85,10 +85,10 @@ static inline void crypto_kem_keypair_derand(uint8_t *pk, uint8_t *sk,
 {
     poly h;
 
-    poly_basemul(&h, g, finv);
+    poly_basemul(&h, finv, g);
     poly_tobytes(pk, &h);
 
-    poly_basemul(&h, f, ginv);
+    poly_basemul(&h, ginv, f);
     poly_tobytes(sk, f);
     poly_tobytes(sk + NTRUPLUS_POLYBYTES, &h);
     hash_f(sk + 2 * NTRUPLUS_POLYBYTES, pk);
@@ -295,7 +295,7 @@ int crypto_kem_dec(unsigned char *ss,
     f = m;
     poly_ntt(&f);
     poly_sub(&c, &c, &f);
-    poly_basemul(&f, &c, &hinv);
+    poly_basemul(&f, &hinv, &c);
     poly_tobytes(buf1, &f);
 
     hash_g(buf2, buf1);

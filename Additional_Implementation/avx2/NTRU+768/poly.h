@@ -54,10 +54,14 @@ int poly_sotp_decode(uint8_t msg[NTRUPLUS_N/8], const poly *a,
 
 NTRUPLUS_INTERNAL NTRUPLUS_SYSV void poly_ntt(poly *r);
 NTRUPLUS_INTERNAL NTRUPLUS_SYSV void poly_invntt_scaled(poly *r);
+
+/* The small operand is a; Shoup/Barrett factors are computed from a.
+ * poly_basemul: a in (-q,q). poly_basemul_add: a in [0,q).
+ */
 NTRUPLUS_INTERNAL NTRUPLUS_SYSV
-void poly_basemul(poly *r, const poly *a, const poly *b);
+void poly_basemul(poly *c, const poly *a, const poly *b);
 NTRUPLUS_INTERNAL NTRUPLUS_SYSV
-void poly_basemul_add(poly *r, const poly *a, const poly *b, const poly *c);
+void poly_basemul_add(poly *c, const poly *a, const poly *b, const poly *m);
 NTRUPLUS_INTERNAL NTRUPLUS_SYSV
 void poly_basemul_scaled(poly *r, const poly *a, const poly *b);
 
