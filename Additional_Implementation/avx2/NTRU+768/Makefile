@@ -7,7 +7,7 @@ NISTFLAGS += -Wno-unused-result -mavx2 -mbmi2 -mpopcnt -maes \
 RM = /bin/rm -f
 
 ifneq (,$(findstring mingw,$(shell $(CC) -dumpmachine)))
-MINGW_ASFLAGS = -Wa,--defsym,no_type=1,--defsym,no_size=1,--defsym,no_gnu_stack=1
+MINGW_ASFLAGS = -Wa,--defsym,no_type=1 -Wa,--defsym,no_size=1 -Wa,--defsym,no_gnu_stack=1
 MINGW_LDLIBS = -ladvapi32
 endif
 

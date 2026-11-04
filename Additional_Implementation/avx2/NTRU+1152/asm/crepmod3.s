@@ -9,6 +9,9 @@
 * Returns:     none. Output coefficients lie in {-1,0,1}.
 **************************************************/
 .global poly_crepmod3
+.ifndef no_type
+.type poly_crepmod3, @function
+.endif
 poly_crepmod3:
 vmovdqa      _16xq26(%rip), %ymm0
 vmovdqa _16xq26round(%rip), %ymm1
@@ -18,7 +21,7 @@ vmovdqa        _16x3(%rip), %ymm3
 lea 2304(%rdi), %r8
 
 .p2align 5
-_loop_poly_crepmod3:
+.Llooptop_crepmod3:
 vmovdqa    (%rdi), %ymm4
 vmovdqa  32(%rdi), %ymm5
 vmovdqa  64(%rdi), %ymm6
@@ -69,9 +72,12 @@ vmovdqa %ymm7,  96(%rdi)
 
 add $128, %rdi
 cmp %r8,  %rdi
-jb  _loop_poly_crepmod3
+jb  .Llooptop_crepmod3
 
 ret
+.ifndef no_size
+.size poly_crepmod3, .-poly_crepmod3
+.endif
 
 .ifndef no_gnu_stack
 .section .note.GNU-stack,"",@progbits

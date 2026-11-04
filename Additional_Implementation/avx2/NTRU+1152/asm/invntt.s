@@ -1,4 +1,7 @@
 .global poly_invntt_scale
+.ifndef no_type
+.type poly_invntt_scale, @function
+.endif
 poly_invntt_scale:
 vmovdqa     _16xq(%rip), %ymm0
 vmovdqa     _16xv(%rip), %ymm1
@@ -7,7 +10,7 @@ lea     zetas_inv(%rip), %rdx
 lea 2304(%rdi), %r8
 
 .p2align 5
-_looptop_start_6543:
+.Llooptop_start_6543:
 #level6
 #load
 vmovdqa    (%rdi), %ymm3
@@ -255,7 +258,7 @@ vmovdqa %ymm10, 224(%rdi)
 add $256, %rdi
 add $64,  %rdx
 cmp %r8,  %rdi
-jb _looptop_start_6543
+jb .Llooptop_start_6543
 
 sub $2304, %rdi
 
@@ -266,7 +269,7 @@ vmovdqu     _16xw(%rip), %ymm3 #w
 lea 2304(%rdi), %r8
 
 .p2align 5
-_looptop_start_2:
+.Llooptop_start_2:
 
 #load
 vpbroadcastd 1728(%rdx), %ymm4 #zeta0qinv
@@ -277,7 +280,7 @@ vpbroadcastd 1740(%rdx), %ymm7 #zeta1
 lea 128(%rdi), %r9
 
 .p2align 5
-_looptop_j_2:
+.Llooptop_j_2:
 vmovdqa    (%rdi),  %ymm8 #X
 vmovdqa 128(%rdi),  %ymm9 #Y
 vmovdqa 256(%rdi), %ymm10 #Z
@@ -321,12 +324,12 @@ vmovdqa %ymm13, 256(%rdi)
 
 add $32, %rdi
 cmp %r9, %rdi
-jb _looptop_j_2
+jb .Llooptop_j_2
 
 add $256, %rdi
 add $16, %rdx
 cmp %r8, %rdi
-jb _looptop_start_2
+jb .Llooptop_start_2
 
 sub $2304, %rdi
 
@@ -337,7 +340,7 @@ vmovdqu     _16xw(%rip), %ymm3 #w
 lea 2304(%rdi), %r8
 
 .p2align 5
-_looptop_start_1:
+.Llooptop_start_1:
 
 #load
 vpbroadcastd 1728(%rdx), %ymm4 #zeta0qinv
@@ -348,7 +351,7 @@ vpbroadcastd 1740(%rdx), %ymm7 #zeta1
 lea 384(%rdi), %r9
 
 .p2align 5
-_looptop_j_1:
+.Llooptop_j_1:
 vmovdqa    (%rdi),  %ymm8 #X
 vmovdqa 384(%rdi),  %ymm9 #Y
 vmovdqa 768(%rdi), %ymm10 #Z
@@ -397,12 +400,12 @@ vmovdqa %ymm13, 768(%rdi)
 
 add $32, %rdi
 cmp %r9, %rdi
-jb _looptop_j_1
+jb .Llooptop_j_1
 
 add $768, %rdi
 add $16, %rdx
 cmp %r8, %rdi
-jb _looptop_start_1
+jb .Llooptop_start_1
 
 sub $2304, %rdi
 
@@ -420,7 +423,7 @@ vpsllw $1, %ymm14, %ymm1
 lea 1152(%rdi), %r8
 
 .p2align 5
-_looptop_start_0:
+.Llooptop_start_0:
 #load
 vmovdqa     (%rdi), %ymm4
 vmovdqa   32(%rdi), %ymm5
@@ -500,9 +503,12 @@ vmovdqa %ymm9, 1216(%rdi)
 
 add $96, %rdi
 cmp %r8, %rdi
-jb  _looptop_start_0
+jb  .Llooptop_start_0
 
 ret
+.ifndef no_size
+.size poly_invntt_scale, .-poly_invntt_scale
+.endif
 
 .ifndef no_gnu_stack
 .section .note.GNU-stack,"",@progbits

@@ -1,9 +1,12 @@
 .global poly_tobytes_raw
+.ifndef no_type
+.type poly_tobytes_raw, @function
+.endif
 poly_tobytes_raw:
 lea 1664(%rsi), %r8
 
 .p2align 5
-_looptop_poly_tobytes:
+.Llooptop_tobytes:
 #load
 vmovdqa   (%rsi), %ymm0
 vmovdqa 32(%rsi), %ymm1
@@ -74,7 +77,7 @@ vmovdqu %ymm2, 64(%rdi)
 add $96,  %rdi
 add $128, %rsi
 cmp %r8,  %rsi
-jb  _looptop_poly_tobytes
+jb  .Llooptop_tobytes
 
 #load
 vmovdqa   (%rsi), %xmm4
@@ -135,9 +138,15 @@ vmovdqu %xmm4, 16(%rdi)
 vmovdqu %xmm5, 32(%rdi)
 
 ret
+.ifndef no_size
+.size poly_tobytes_raw, .-poly_tobytes_raw
+.endif
 
 
 .global poly_frombytes_raw
+.ifndef no_type
+.type poly_frombytes_raw, @function
+.endif
 poly_frombytes_raw:
 vmovdqa _low_mask(%rip), %ymm15
 xor %eax, %eax
@@ -145,7 +154,7 @@ xor %eax, %eax
 lea 1664(%rdi), %r8
 
 .p2align 5
-_looptop_poly_frombytes:
+.Llooptop_frombytes:
 #load
 vmovdqu   (%rsi), %ymm4
 vmovdqu 32(%rsi), %ymm5
@@ -229,7 +238,7 @@ or %edx, %eax
 add $128, %rdi
 add $96,  %rsi
 cmp %r8,  %rdi
-jb  _looptop_poly_frombytes
+jb  .Llooptop_frombytes
 
 vmovdqu   (%rsi), %xmm0
 vmovdqu 16(%rsi), %xmm1
@@ -305,14 +314,20 @@ test %eax, %eax
 setne %al
 movzbl %al, %eax
 ret
+.ifndef no_size
+.size poly_frombytes_raw, .-poly_frombytes_raw
+.endif
 
 
 .global poly_ntt_unpack
+.ifndef no_type
+.type poly_ntt_unpack, @function
+.endif
 poly_ntt_unpack:
 lea 1728(%rsi), %r8
 
 .p2align 5
-_looptop_poly_ntt_unpack:
+.Llooptop_ntt_unpack:
 #load
 vmovdqa    (%rsi), %ymm0
 vmovdqa  32(%rsi), %ymm1
@@ -376,12 +391,18 @@ vmovdqa %ymm5, 160(%rdi)
 add $192, %rsi
 add $192, %rdi
 cmp %r8,  %rsi
-jb  _looptop_poly_ntt_unpack
+jb  .Llooptop_ntt_unpack
 
 ret
+.ifndef no_size
+.size poly_ntt_unpack, .-poly_ntt_unpack
+.endif
 
 
 .global poly_ntt_pack
+.ifndef no_type
+.type poly_ntt_pack, @function
+.endif
 poly_ntt_pack:
 vmovdqa _16xv(%rip), %ymm15
 vmovdqa _16xq(%rip), %ymm14
@@ -389,7 +410,7 @@ vmovdqa _16xq(%rip), %ymm14
 lea 1728(%rsi), %r8
 
 .p2align 5
-_looptop_poly_ntt_pack:
+.Llooptop_ntt_pack:
 #load
 vmovdqa    (%rsi), %ymm0
 vmovdqa  32(%rsi), %ymm1
@@ -485,9 +506,12 @@ vmovdqa %ymm5, 160(%rdi)
 add $192, %rsi
 add $192, %rdi
 cmp %r8,  %rsi
-jb  _looptop_poly_ntt_pack
+jb  .Llooptop_ntt_pack
 
 ret
+.ifndef no_size
+.size poly_ntt_pack, .-poly_ntt_pack
+.endif
 
 .ifndef no_gnu_stack
 .section .note.GNU-stack,"",@progbits

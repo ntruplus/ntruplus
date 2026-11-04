@@ -1,4 +1,7 @@
 .global poly_ntt
+.ifndef no_type
+.type poly_ntt, @function
+.endif
 poly_ntt:
 vmovdqa _16xq(%rip), %ymm0
 vmovdqa _16xv(%rip), %ymm1
@@ -13,7 +16,7 @@ vmovdqa _16xzeta1(%rip), %ymm15
 lea 1152(%rdi), %r8
 
 .p2align 5
-_looptop_j_0:
+.Llooptop_j_0:
 #load
 vmovdqa     (%rdi), %ymm3
 vmovdqa   32(%rdi), %ymm4
@@ -48,7 +51,7 @@ vmovdqa %ymm14, 1216(%rdi)
 
 add $96, %rdi
 cmp %r8, %rdi
-jb   _looptop_j_0
+jb   .Llooptop_j_0
 
 sub $1152, %rdi
 
@@ -60,7 +63,7 @@ vmovdqa     _16xw(%rip), %ymm3 #w
 lea 2304(%rdi), %r8
 
 .p2align 5
-_looptop_start_1:
+.Llooptop_start_1:
 #zetas
 vpbroadcastd   8(%rdx), %ymm4  #ainv
 vpbroadcastd  16(%rdx), %ymm5 #a^2inv
@@ -70,7 +73,7 @@ vpbroadcastd  20(%rdx), %ymm7 #a^2
 lea 384(%rdi), %r9
 
 .p2align 5
-_looptop_j_1:
+.Llooptop_j_1:
 #load
 vmovdqa    (%rdi), %ymm8
 vmovdqa 384(%rdi), %ymm9
@@ -114,12 +117,12 @@ vmovdqa %ymm14, 768(%rdi)
 
 add $32, %rdi
 cmp %r9, %rdi
-jb  _looptop_j_1
+jb  .Llooptop_j_1
 
 add $768, %rdi
 add $16,  %rdx
 cmp %r8,  %rdi
-jb  _looptop_start_1
+jb  .Llooptop_start_1
 
 sub $2304, %rdi
 
@@ -127,7 +130,7 @@ sub $2304, %rdi
 lea 2304(%rdi), %r8
 
 .p2align 5
-_looptop_start_2:
+.Llooptop_start_2:
 #zetas
 vpbroadcastd   8(%rdx), %ymm4 #ainv
 vpbroadcastd  16(%rdx), %ymm5 #a^2inv
@@ -137,7 +140,7 @@ vpbroadcastd  20(%rdx), %ymm7 #a^2
 lea 128(%rdi), %r9
 
 .p2align 5
-_looptop_j_2:
+.Llooptop_j_2:
 #load
 vmovdqa    (%rdi), %ymm8
 vmovdqa 128(%rdi), %ymm9
@@ -181,19 +184,19 @@ vmovdqa %ymm14, 256(%rdi)
 
 add $32, %rdi
 cmp %r9, %rdi
-jb  _looptop_j_2
+jb  .Llooptop_j_2
 
 add $256, %rdi
 add $16,  %rdx
 cmp %r8,  %rdi
-jb  _looptop_start_2
+jb  .Llooptop_start_2
 
 sub $2304, %rdi
 
 lea 2304(%rdi), %r8
 
 .p2align 5
-_looptop_start_3456:
+.Llooptop_start_3456:
 #load
 vmovdqa    (%rdi), %ymm11
 vmovdqa  32(%rdi), %ymm12
@@ -440,9 +443,12 @@ vmovdqa %ymm10, 224(%rdi)
 add $256, %rdi
 add $64,  %rdx
 cmp %r8,  %rdi
-jb  _looptop_start_3456
+jb  .Llooptop_start_3456
 
 ret
+.ifndef no_size
+.size poly_ntt, .-poly_ntt
+.endif
 
 .ifndef no_gnu_stack
 .section .note.GNU-stack,"",@progbits

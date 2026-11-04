@@ -1,4 +1,7 @@
 .global poly_cbd1
+.ifndef no_type
+.type poly_cbd1, @function
+.endif
 poly_cbd1:
     vmovdqa _16x5555(%rip), %ymm0
     vmovdqa _16x0303(%rip), %ymm1
@@ -142,7 +145,7 @@ poly_cbd1:
     lea 128(%rsi), %r8
 
 .p2align 5
-_looptop_poly_cbd1_1:
+.Llooptop_cbd1:
     vmovdqu   (%rsi), %ymm3
     vmovdqu 144(%rsi), %ymm4
 
@@ -281,12 +284,18 @@ _looptop_poly_cbd1_1:
     add $32,  %rsi
     add $512, %rdi
     cmp %r8,  %rsi
-    jb  _looptop_poly_cbd1_1
+    jb  .Llooptop_cbd1
 
     ret
+.ifndef no_size
+.size poly_cbd1, .-poly_cbd1
+.endif
 
 
 .global poly_cbd1_triple
+.ifndef no_type
+.type poly_cbd1_triple, @function
+.endif
 poly_cbd1_triple:
     vmovdqa _16x5555(%rip), %ymm0
     vmovdqa _16x0303(%rip), %ymm1
@@ -448,7 +457,7 @@ poly_cbd1_triple:
     lea 128(%rsi), %r8
 
 .p2align 5
-_looptop_poly_cbd1_triple_1:
+.Llooptop_cbd1_triple:
     vmovdqu   (%rsi), %ymm3
     vmovdqu 144(%rsi), %ymm4
 
@@ -605,11 +614,17 @@ _looptop_poly_cbd1_triple_1:
     add $32,  %rsi
     add $512, %rdi
     cmp %r8,  %rsi
-    jb  _looptop_poly_cbd1_triple_1
+    jb  .Llooptop_cbd1_triple
 
     ret
+.ifndef no_size
+.size poly_cbd1_triple, .-poly_cbd1_triple
+.endif
 
 .global poly_sotp_encode
+.ifndef no_type
+.type poly_sotp_encode, @function
+.endif
 poly_sotp_encode:
     vmovdqa _16x5555(%rip), %ymm0
     vmovdqa _16x0303(%rip), %ymm1
@@ -756,7 +771,7 @@ poly_sotp_encode:
     lea 128(%rsi), %r8
 
 .p2align 5
-_looptop_poly_sotp_1:
+.Llooptop_sotp_encode:
     vmovdqu   (%rsi), %ymm5
     vmovdqu   (%rdx), %ymm3
     vmovdqu 144(%rdx), %ymm4
@@ -899,9 +914,12 @@ _looptop_poly_sotp_1:
     add $32,  %rdx    
     add $512, %rdi
     cmp %r8,  %rsi
-    jb  _looptop_poly_sotp_1
+    jb  .Llooptop_sotp_encode
 
     ret
+.ifndef no_size
+.size poly_sotp_encode, .-poly_sotp_encode
+.endif
 
 .ifndef no_gnu_stack
 .section .note.GNU-stack,"",@progbits

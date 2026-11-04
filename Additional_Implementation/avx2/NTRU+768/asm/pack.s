@@ -1,4 +1,7 @@
 .global poly_tobytes
+.ifndef no_type
+.type poly_tobytes, @function
+.endif
 poly_tobytes:
 vmovdqa _16xv(%rip), %ymm15
 vmovdqa _16xq(%rip), %ymm14
@@ -6,7 +9,7 @@ vmovdqa _16xq(%rip), %ymm14
 lea 1536(%rsi), %r8
 
 .p2align 5
-_looptop_poly_tobytes:
+.Llooptop_tobytes:
 #load
 vmovdqa    (%rsi), %ymm0
 vmovdqa  32(%rsi), %ymm1
@@ -131,11 +134,17 @@ vmovdqu %ymm5, 160(%rdi)
 add $192, %rdi
 add $256, %rsi
 cmp %r8,  %rsi
-jb  _looptop_poly_tobytes
+jb  .Llooptop_tobytes
 
 ret
+.ifndef no_size
+.size poly_tobytes, .-poly_tobytes
+.endif
 
 .global poly_frombytes
+.ifndef no_type
+.type poly_frombytes, @function
+.endif
 poly_frombytes:
 vmovdqa _low_mask(%rip), %ymm15
 xor %eax, %eax
@@ -143,7 +152,7 @@ xor %eax, %eax
 lea 1152(%rsi), %r8
 
 .p2align 5
-_looptop_poly_frombytes:
+.Llooptop_frombytes:
 #load
 vmovdqu    (%rsi), %ymm0
 vmovdqu  32(%rsi), %ymm1
@@ -240,12 +249,15 @@ or %edx, %eax
 add $256, %rdi
 add $192, %rsi
 cmp %r8,  %rsi
-jb  _looptop_poly_frombytes
+jb  .Llooptop_frombytes
 
 test %eax, %eax
 setne %al
 movzbl %al, %eax
 ret
+.ifndef no_size
+.size poly_frombytes, .-poly_frombytes
+.endif
 
 .ifndef no_gnu_stack
 .section .note.GNU-stack,"",@progbits

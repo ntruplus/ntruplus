@@ -1,4 +1,7 @@
 .global poly_basemul
+.ifndef no_type
+.type poly_basemul, @function
+.endif
 poly_basemul:
 vmovdqa    _16xq(%rip), %ymm0
 vmovdqa _16xqinv(%rip), %ymm15
@@ -8,7 +11,7 @@ add              $1248, %rcx
 lea 1536(%rsi), %r8
 
 .p2align 5
-_looptop_basemul:
+.Llooptop_basemul:
 #load
 vmovdqa 96(%rsi), %ymm1 #a[3]
 vmovdqa 32(%rsi), %ymm2 #a[1]
@@ -370,7 +373,7 @@ add $128, %rdx
 add $128, %rdi
 add $64,  %rcx
 cmp %r8,  %rsi
-jb  _looptop_basemul
+jb  .Llooptop_basemul
 
 mov %rdi, %r8
 sub $1536, %rdi
@@ -379,7 +382,7 @@ vmovdqa _16xR2qinv(%rip), %ymm15
 vmovdqa _16xR2(%rip),     %ymm1
 
 .p2align 5
-_reduce_R2_loop:
+.Llooptop_basemul_2:
 
 #load
 vmovdqa   (%rdi), %ymm2
@@ -415,12 +418,18 @@ vmovdqa %ymm5, 96(%rdi)
 
 add $128, %rdi
 cmp %r8,  %rdi
-jb  _reduce_R2_loop
+jb  .Llooptop_basemul_2
 
 ret
+.ifndef no_size
+.size poly_basemul, .-poly_basemul
+.endif
 
 
 .global poly_basemul_scaled
+.ifndef no_type
+.type poly_basemul_scaled, @function
+.endif
 poly_basemul_scaled:
 vmovdqa    _16xq(%rip), %ymm0
 vmovdqa _16xqinv(%rip), %ymm15
@@ -430,7 +439,7 @@ add              $1248, %rcx
 lea 1536(%rsi), %r8
 
 .p2align 5
-_looptop_basemul_scaled:
+.Llooptop_basemul_scaled:
 #load
 vmovdqa 96(%rsi), %ymm1 #a[3]
 vmovdqa 32(%rsi), %ymm2 #a[1]
@@ -792,11 +801,17 @@ add $128, %rdx
 add $128, %rdi
 add $64,  %rcx
 cmp %r8,  %rsi
-jb  _looptop_basemul_scaled
+jb  .Llooptop_basemul_scaled
 
 ret
+.ifndef no_size
+.size poly_basemul_scaled, .-poly_basemul_scaled
+.endif
 
 .global poly_basemul_add
+.ifndef no_type
+.type poly_basemul_add, @function
+.endif
 poly_basemul_add:
 vmovdqa    _16xq(%rip),  %ymm0
 vmovdqa _16xqinv(%rip), %ymm15
@@ -806,7 +821,7 @@ add $1248, %r9
 lea 1536(%rsi), %r8
 
 .p2align 5
-_looptop_basemul_add:
+.Llooptop_basemul_add:
 
 #load
 vmovdqa 96(%rsi), %ymm1 #a[3]
@@ -1169,7 +1184,7 @@ add $128, %rdx
 add $128, %rdi
 add $64, %r9
 cmp %r8, %rsi
-jb _looptop_basemul_add
+jb .Llooptop_basemul_add
 
 mov %rdi, %r8
 sub $1536, %rdi
@@ -1178,7 +1193,7 @@ vmovdqa _16xR2qinv(%rip), %ymm15
 vmovdqa     _16xR2(%rip),  %ymm1
 
 .p2align 5
-_looptop_basemul_add_2:
+.Llooptop_basemul_add_2:
 
 #load
 vmovdqa   (%rdi), %ymm2
@@ -1221,9 +1236,12 @@ vmovdqa %ymm5, 96(%rdi)
 add $128, %rdi
 add $128, %rcx
 cmp  %r8, %rdi
-jb _looptop_basemul_add_2
+jb .Llooptop_basemul_add_2
 
 ret
+.ifndef no_size
+.size poly_basemul_add, .-poly_basemul_add
+.endif
 
 .ifndef no_gnu_stack
 .section .note.GNU-stack,"",@progbits

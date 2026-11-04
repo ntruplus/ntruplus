@@ -1,4 +1,7 @@
 .global poly_baseinv_1
+.ifndef no_type
+.type poly_baseinv_1, @function
+.endif
 poly_baseinv_1:
 vmovdqa    _16xq(%rip), %ymm0
 vmovdqa _16xqinv(%rip), %ymm15
@@ -8,7 +11,7 @@ add              $1888, %r9
 lea 1728(%rdi), %r8
 
 .p2align 5
-_looptop:
+.Llooptop_baseinv_1:
 #zeta
 vmovdqa   (%r9), %ymm14
 vmovdqa 32(%r9), %ymm1
@@ -197,9 +200,12 @@ add $192, %rdi
 add $192, %rdx
 
 cmp %r8,  %rdi
-jb  _looptop
+jb  .Llooptop_baseinv_1
 
 ret
+.ifndef no_size
+.size poly_baseinv_1, .-poly_baseinv_1
+.endif
 
 .ifndef no_gnu_stack
 .section .note.GNU-stack,"",@progbits

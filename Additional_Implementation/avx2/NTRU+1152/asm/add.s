@@ -1,9 +1,12 @@
 .global poly_sub
+.ifndef no_type
+.type poly_sub, @function
+.endif
 poly_sub:
     lea 2304(%rsi), %r8
 
 .p2align 5
-_looptop_sub:
+.Llooptop_sub:
     vmovdqa    (%rsi), %ymm0
     vmovdqa  32(%rsi), %ymm1
     vmovdqa  64(%rsi), %ymm2
@@ -29,9 +32,12 @@ _looptop_sub:
     add $192, %rdx
     add $192, %rdi
     cmp  %r8, %rsi
-    jb  _looptop_sub
+    jb  .Llooptop_sub
 
     ret
+.ifndef no_size
+.size poly_sub, .-poly_sub
+.endif
 
 
 .ifndef no_gnu_stack
