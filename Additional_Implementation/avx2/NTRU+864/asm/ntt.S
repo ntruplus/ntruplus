@@ -3,7 +3,6 @@
 /*
  * The fused level-0/radix-3 traversal follows the approach in
  * SUPERCOP 20261018, crypto_kem/ntruplus864/avx2-opt/ntt.s.
- * The existing arithmetic and table layout are retained.
  */
 
 NTRUPLUS_ASM_START(poly_ntt)
@@ -48,17 +47,11 @@ vpaddw  %ymm5,  %ymm9,  %ymm9
 vpaddw  %ymm6, %ymm10, %ymm10
 
 //level1
-//zetas
-vpbroadcastd  8(%rdx), %ymm4
-vpbroadcastd 16(%rdx), %ymm5
-vpbroadcastd 12(%rdx), %ymm6
-vpbroadcastd 20(%rdx), %ymm7
-
 //mul Ba, Ca^2
-vpmullw %ymm4,  %ymm9, %ymm14
-vpmullw %ymm5, %ymm10, %ymm15
-vpmulhw %ymm6,  %ymm9,  %ymm9
-vpmulhw %ymm7, %ymm10, %ymm10
+vpmullw  0(%rdx),  %ymm9, %ymm14
+vpmullw 32(%rdx), %ymm10, %ymm15
+vpmulhw 64(%rdx),  %ymm9,  %ymm9
+vpmulhw 96(%rdx), %ymm10, %ymm10
 
 //reduce
 vpmulhw  %ymm0, %ymm14, %ymm14
@@ -90,17 +83,11 @@ vmovdqa %ymm15,    (%rdi)
 vmovdqa  %ymm4, 288(%rdi)
 vmovdqa  %ymm5, 576(%rdi)
 
-//zetas
-vpbroadcastd 24(%rdx), %ymm4
-vpbroadcastd 32(%rdx), %ymm5
-vpbroadcastd 28(%rdx), %ymm6
-vpbroadcastd 36(%rdx), %ymm7
-
 //mul Ba, Ca^2
-vpmullw %ymm4, %ymm12, %ymm14
-vpmullw %ymm5, %ymm13, %ymm15
-vpmulhw %ymm6, %ymm12, %ymm12
-vpmulhw %ymm7, %ymm13, %ymm13
+vpmullw 128(%rdx), %ymm12, %ymm14
+vpmullw 160(%rdx), %ymm13, %ymm15
+vpmulhw 192(%rdx), %ymm12, %ymm12
+vpmulhw 224(%rdx), %ymm13, %ymm13
 
 //reduce
 vpmulhw  %ymm0, %ymm14, %ymm14
@@ -137,7 +124,7 @@ cmp %r8, %rdi
 jb NTRUPLUS_ASM_LOCAL(looptop_start_01)
 
 sub $288, %rdi
-add $32, %rdx
+add $256, %rdx
 vmovdqa NTRUPLUS_ASM_SYMBOL(16xv)(%rip), %ymm1
 
 //level 2

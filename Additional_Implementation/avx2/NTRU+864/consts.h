@@ -31,7 +31,7 @@
 #define zetas NTRUPLUS_NAMESPACE(zetas)
 #define zetas_inv NTRUPLUS_NAMESPACE(zetas_inv)
 
-NTRUPLUS_INTERNAL extern const int16_t zetas[1232];
+NTRUPLUS_INTERNAL extern const int16_t zetas[1344];
 NTRUPLUS_INTERNAL extern const int16_t zetas_inv[1224];
 
 NTRUPLUS_INTERNAL extern const int16_t _low_mask[16];
