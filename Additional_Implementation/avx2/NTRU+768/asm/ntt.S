@@ -133,7 +133,6 @@ jb NTRUPLUS_ASM_LOCAL(looptop_start_01)
 
 sub $256, %rdi
 add $32, %rdx
-vmovdqa NTRUPLUS_ASM_SYMBOL(16xv)(%rip), %ymm1
 
 //level 2
 lea 1536(%rdi), %r8
@@ -402,33 +401,6 @@ vpsubw  %ymm7, %ymm3,  %ymm7
 vpsubw  %ymm8, %ymm4,  %ymm8
 vpsubw  %ymm9, %ymm5,  %ymm9
 vpsubw %ymm10, %ymm6, %ymm10
-
-//reduce
-vpmulhrsw %ymm1, %ymm11,  %ymm3
-vpmulhrsw %ymm1, %ymm12,  %ymm4
-vpmulhrsw %ymm1, %ymm13,  %ymm5
-vpmulhrsw %ymm1, %ymm14,  %ymm6
-vpmullw   %ymm0,  %ymm3,  %ymm3
-vpmullw   %ymm0,  %ymm4,  %ymm4
-vpmullw   %ymm0,  %ymm5,  %ymm5
-vpmullw   %ymm0,  %ymm6,  %ymm6
-vpsubw    %ymm3, %ymm11, %ymm11
-vpsubw    %ymm4, %ymm12, %ymm12
-vpsubw    %ymm5, %ymm13, %ymm13
-vpsubw    %ymm6, %ymm14, %ymm14
-
-vpmulhrsw %ymm1,  %ymm7,  %ymm3
-vpmulhrsw %ymm1,  %ymm8,  %ymm4
-vpmulhrsw %ymm1,  %ymm9,  %ymm5
-vpmulhrsw %ymm1, %ymm10,  %ymm6
-vpmullw   %ymm0,  %ymm3,  %ymm3
-vpmullw   %ymm0,  %ymm4,  %ymm4
-vpmullw   %ymm0,  %ymm5,  %ymm5
-vpmullw   %ymm0,  %ymm6,  %ymm6
-vpsubw    %ymm3,  %ymm7,  %ymm7
-vpsubw    %ymm4,  %ymm8,  %ymm8
-vpsubw    %ymm5,  %ymm9,  %ymm9
-vpsubw    %ymm6, %ymm10, %ymm10
 
 //store
 vmovdqa %ymm11,    (%rdi)
