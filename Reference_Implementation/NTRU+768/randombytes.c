@@ -22,6 +22,21 @@
 #endif
 
 #ifdef _WIN32
+static HCRYPTPROV randombytes_ctx = 0;
+
+__attribute__((constructor))
+static void randombytes_init(void) {
+  if (!CryptAcquireContextA(&randombytes_ctx, NULL, NULL,
+                           PROV_RSA_FULL, CRYPT_VERIFYCONTEXT))
+    abort();
+}
+
+__attribute__((destructor))
+static void randombytes_cleanup(void) {
+  if (randombytes_ctx && !CryptReleaseContext(randombytes_ctx, 0))
+    abort();
+}
+
 /*************************************************
 * Name:        randombytes
 *
@@ -33,23 +48,16 @@
 * Returns:     none.
 **************************************************/
 void randombytes(uint8_t *out, size_t outlen) {
-  HCRYPTPROV ctx;
   size_t len;
-
-  if (!CryptAcquireContext(&ctx, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT))
-    abort();
 
   while (outlen > 0) {
     len = (outlen > 1048576) ? 1048576 : outlen;
-    if (!CryptGenRandom(ctx, len, (BYTE *)out))
+    if (!CryptGenRandom(randombytes_ctx, len, (BYTE *)out))
       abort();
 
     out += len;
     outlen -= len;
   }
-
-  if (!CryptReleaseContext(ctx, 0))
-    abort();
 }
 #elif defined(__APPLE__)
 /*************************************************
