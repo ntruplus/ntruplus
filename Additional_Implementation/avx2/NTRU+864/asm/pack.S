@@ -1,13 +1,11 @@
-.global poly_tobytes_raw
-#ifdef __ELF__
-.type poly_tobytes_raw, @function
-#endif
-poly_tobytes_raw:
+#include "asm.h"
+
+NTRUPLUS_ASM_START(poly_tobytes_raw)
 lea 1664(%rsi), %r8
 
 .p2align 5
-.Llooptop_tobytes:
-/* #load */
+NTRUPLUS_ASM_LOCAL(looptop_tobytes):
+//load
 vmovdqa   (%rsi), %ymm0
 vmovdqa 32(%rsi), %ymm1
 vmovdqa 64(%rsi), %ymm2
@@ -77,9 +75,9 @@ vmovdqu %ymm2, 64(%rdi)
 add $96,  %rdi
 add $128, %rsi
 cmp %r8,  %rsi
-jb  .Llooptop_tobytes
+jb  NTRUPLUS_ASM_LOCAL(looptop_tobytes)
 
-/* #load */
+//load
 vmovdqa   (%rsi), %xmm4
 vmovdqa 16(%rsi), %xmm5
 vmovdqa 32(%rsi), %xmm6
@@ -138,24 +136,18 @@ vmovdqu %xmm4, 16(%rdi)
 vmovdqu %xmm5, 32(%rdi)
 
 ret
-#ifdef __ELF__
-.size poly_tobytes_raw, .-poly_tobytes_raw
-#endif
+NTRUPLUS_ASM_END(poly_tobytes_raw)
 
 
-.global poly_frombytes_raw
-#ifdef __ELF__
-.type poly_frombytes_raw, @function
-#endif
-poly_frombytes_raw:
-vmovdqa _low_mask(%rip), %ymm15
+NTRUPLUS_ASM_START(poly_frombytes_raw)
+vmovdqa NTRUPLUS_ASM_SYMBOL(_low_mask)(%rip), %ymm15
 xor %eax, %eax
 
 lea 1664(%rdi), %r8
 
 .p2align 5
-.Llooptop_frombytes:
-/* #load */
+NTRUPLUS_ASM_LOCAL(looptop_frombytes):
+//load
 vmovdqu   (%rsi), %ymm4
 vmovdqu 32(%rsi), %ymm5
 vmovdqu 64(%rsi), %ymm6
@@ -231,14 +223,14 @@ vmovdqa %ymm3, 96(%rdi)
 vpmaxuw %ymm1, %ymm0, %ymm4
 vpmaxuw %ymm3, %ymm2, %ymm5
 vpmaxuw %ymm5, %ymm4, %ymm4
-vpcmpgtw _16xqm1(%rip), %ymm4, %ymm4
+vpcmpgtw NTRUPLUS_ASM_SYMBOL(_16xqm1)(%rip), %ymm4, %ymm4
 vpmovmskb %ymm4, %edx
 or %edx, %eax
 
 add $128, %rdi
 add $96,  %rsi
 cmp %r8,  %rdi
-jb  .Llooptop_frombytes
+jb  NTRUPLUS_ASM_LOCAL(looptop_frombytes)
 
 vmovdqu   (%rsi), %xmm0
 vmovdqu 16(%rsi), %xmm1
@@ -306,7 +298,7 @@ vmovdqa %xmm7, 48(%rdi)
 vpmaxuw %xmm5, %xmm4, %xmm0
 vpmaxuw %xmm7, %xmm6, %xmm1
 vpmaxuw %xmm1, %xmm0, %xmm0
-vpcmpgtw _16xqm1(%rip), %xmm0, %xmm0
+vpcmpgtw NTRUPLUS_ASM_SYMBOL(_16xqm1)(%rip), %xmm0, %xmm0
 vpmovmskb %xmm0, %edx
 or %edx, %eax
 
@@ -314,21 +306,15 @@ test %eax, %eax
 setne %al
 movzbl %al, %eax
 ret
-#ifdef __ELF__
-.size poly_frombytes_raw, .-poly_frombytes_raw
-#endif
+NTRUPLUS_ASM_END(poly_frombytes_raw)
 
 
-.global poly_ntt_unpack
-#ifdef __ELF__
-.type poly_ntt_unpack, @function
-#endif
-poly_ntt_unpack:
+NTRUPLUS_ASM_START(poly_ntt_unpack)
 lea 1728(%rsi), %r8
 
 .p2align 5
-.Llooptop_ntt_unpack:
-/* #load */
+NTRUPLUS_ASM_LOCAL(looptop_ntt_unpack):
+//load
 vmovdqa    (%rsi), %ymm0
 vmovdqa  32(%rsi), %ymm1
 vmovdqa  64(%rsi), %ymm2
@@ -336,7 +322,7 @@ vmovdqa  96(%rsi), %ymm3
 vmovdqa 128(%rsi), %ymm4
 vmovdqa 160(%rsi), %ymm5
 
-/* #shuffle */
+//shuffle
 vperm2i128 $0x20, %ymm3, %ymm0, %ymm10
 vperm2i128 $0x31, %ymm3, %ymm0, %ymm11
 vperm2i128 $0x20, %ymm4, %ymm1, %ymm12
@@ -344,7 +330,7 @@ vperm2i128 $0x31, %ymm4, %ymm1, %ymm13
 vperm2i128 $0x20, %ymm5, %ymm2, %ymm14
 vperm2i128 $0x31, %ymm5, %ymm2, %ymm15
 
-/* #shuffle */
+//shuffle
 vpunpcklqdq %ymm13, %ymm10, %ymm0
 vpunpckhqdq %ymm13, %ymm10, %ymm1
 vpunpcklqdq %ymm14, %ymm11, %ymm2
@@ -352,7 +338,7 @@ vpunpckhqdq %ymm14, %ymm11, %ymm3
 vpunpcklqdq %ymm15, %ymm12, %ymm4
 vpunpckhqdq %ymm15, %ymm12, %ymm5
 
-/* #shuffle */
+//shuffle
 vpsllq   $32,   %ymm3,  %ymm10
 vpsrlq   $32,   %ymm0,  %ymm11
 vpsllq   $32,   %ymm4,  %ymm12
@@ -366,7 +352,7 @@ vpblendd $0xAA, %ymm4,  %ymm13, %ymm13
 vpblendd $0xAA, %ymm14, %ymm2,  %ymm14
 vpblendd $0xAA, %ymm5,  %ymm15, %ymm15
 
-/* #shuffle */
+//shuffle
 vpsllq   $16,   %ymm13, %ymm0
 vpsrlq   $16,   %ymm10, %ymm1
 vpsllq   $16,   %ymm14, %ymm2
@@ -380,7 +366,7 @@ vpblendw $0xAA, %ymm14, %ymm3,  %ymm3
 vpblendw $0xAA, %ymm4,  %ymm12, %ymm4
 vpblendw $0xAA, %ymm15, %ymm5,  %ymm5
 
-/* #store */
+//store
 vmovdqa %ymm0,    (%rdi)
 vmovdqa %ymm1,  32(%rdi)
 vmovdqa %ymm2,  64(%rdi)
@@ -391,27 +377,21 @@ vmovdqa %ymm5, 160(%rdi)
 add $192, %rsi
 add $192, %rdi
 cmp %r8,  %rsi
-jb  .Llooptop_ntt_unpack
+jb  NTRUPLUS_ASM_LOCAL(looptop_ntt_unpack)
 
 ret
-#ifdef __ELF__
-.size poly_ntt_unpack, .-poly_ntt_unpack
-#endif
+NTRUPLUS_ASM_END(poly_ntt_unpack)
 
 
-.global poly_ntt_pack
-#ifdef __ELF__
-.type poly_ntt_pack, @function
-#endif
-poly_ntt_pack:
-vmovdqa _16xv(%rip), %ymm15
-vmovdqa _16xq(%rip), %ymm14
+NTRUPLUS_ASM_START(poly_ntt_pack)
+vmovdqa NTRUPLUS_ASM_SYMBOL(_16xv)(%rip), %ymm15
+vmovdqa NTRUPLUS_ASM_SYMBOL(_16xq)(%rip), %ymm14
 
 lea 1728(%rsi), %r8
 
 .p2align 5
-.Llooptop_ntt_pack:
-/* #load */
+NTRUPLUS_ASM_LOCAL(looptop_ntt_pack):
+//load
 vmovdqa    (%rsi), %ymm0
 vmovdqa  32(%rsi), %ymm1
 vmovdqa  64(%rsi), %ymm2
@@ -451,7 +431,7 @@ vpminuw  %ymm9, %ymm3,  %ymm3
 vpminuw %ymm10, %ymm4,  %ymm4
 vpminuw %ymm11, %ymm5,  %ymm5
 
-/* #shuffle */
+//shuffle
 vpslld   $16,   %ymm1, %ymm6
 vpslld   $16,   %ymm3, %ymm7
 vpslld   $16,   %ymm5, %ymm8
@@ -465,7 +445,7 @@ vpblendw $0xAA, %ymm1, %ymm9,  %ymm9
 vpblendw $0xAA, %ymm3, %ymm10, %ymm10
 vpblendw $0xAA, %ymm5, %ymm11, %ymm11
 
-/* #shuffle */
+//shuffle
 vpsllq   $32,   %ymm7,  %ymm0
 vpsllq   $32,   %ymm9,  %ymm1
 vpsllq   $32,   %ymm11, %ymm2
@@ -479,7 +459,7 @@ vpblendd $0xAA, %ymm7,  %ymm3,  %ymm3
 vpblendd $0xAA, %ymm9,  %ymm4,  %ymm4
 vpblendd $0xAA, %ymm11, %ymm5,  %ymm5
 
-/* #shuffle */
+//shuffle
 vpunpcklqdq %ymm1, %ymm0, %ymm6
 vpunpcklqdq %ymm3, %ymm2, %ymm7
 vpunpcklqdq %ymm5, %ymm4, %ymm8
@@ -487,7 +467,7 @@ vpunpckhqdq %ymm1, %ymm0, %ymm9
 vpunpckhqdq %ymm3, %ymm2, %ymm10
 vpunpckhqdq %ymm5, %ymm4, %ymm11
 
-/* #shuffle */
+//shuffle
 vperm2i128 $0x20, %ymm7,  %ymm6,  %ymm0
 vperm2i128 $0x20, %ymm9,  %ymm8,  %ymm1
 vperm2i128 $0x20, %ymm11, %ymm10, %ymm2
@@ -495,7 +475,7 @@ vperm2i128 $0x31, %ymm7,  %ymm6,  %ymm3
 vperm2i128 $0x31, %ymm9,  %ymm8,  %ymm4
 vperm2i128 $0x31, %ymm11, %ymm10, %ymm5
 
-/* #store */
+//store
 vmovdqa %ymm0,    (%rdi)
 vmovdqa %ymm1,  32(%rdi)
 vmovdqa %ymm2,  64(%rdi)
@@ -506,13 +486,10 @@ vmovdqa %ymm5, 160(%rdi)
 add $192, %rsi
 add $192, %rdi
 cmp %r8,  %rsi
-jb  .Llooptop_ntt_pack
+jb  NTRUPLUS_ASM_LOCAL(looptop_ntt_pack)
 
 ret
-#ifdef __ELF__
-.size poly_ntt_pack, .-poly_ntt_pack
-#endif
+NTRUPLUS_ASM_END(poly_ntt_pack)
 
-#ifdef __ELF__
-.section .note.GNU-stack,"",@progbits
-#endif
+
+NTRUPLUS_ASM_GNU_STACK

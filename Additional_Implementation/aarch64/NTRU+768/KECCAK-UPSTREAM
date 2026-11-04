@@ -1,0 +1,8 @@
+Source: SUPERCOP 20261018
+https://bench.cr.yp.to/supercop/supercop-20261018.tar.xz
+
+Paths in source archive:
+crypto_xof/shake128/mlkn-aarch64/keccak_f1600_x1_v84a_aarch64_asm.S
+
+Adaptations: use the shared NTRU+ assembly symbol and metadata macros;
+retain the existing SHAKE API and clearing behavior. Arithmetic is unchanged.

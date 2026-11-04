@@ -1,17 +1,15 @@
-.global poly_invntt_scale
-#ifdef __ELF__
-.type poly_invntt_scale, @function
-#endif
-poly_invntt_scale:
-vmovdqa     _16xq(%rip), %ymm0
-vmovdqa     _16xv(%rip), %ymm1
-lea     zetas_inv(%rip), %rdx
+#include "asm.h"
+
+NTRUPLUS_ASM_START(poly_invntt_scale)
+vmovdqa     NTRUPLUS_ASM_SYMBOL(_16xq)(%rip), %ymm0
+vmovdqa     NTRUPLUS_ASM_SYMBOL(_16xv)(%rip), %ymm1
+lea     NTRUPLUS_ASM_SYMBOL(zetas_inv)(%rip), %rdx
 
 lea 1536(%rdi), %r8
 
 .p2align 5
-.Llooptop_start_6543:
-/* #load */
+NTRUPLUS_ASM_LOCAL(looptop_start_6543):
+//load
 vmovdqa    (%rdi), %ymm3
 vmovdqa  32(%rdi), %ymm4
 vmovdqa  64(%rdi), %ymm5
@@ -21,12 +19,12 @@ vmovdqa 160(%rdi), %ymm8
 vmovdqa 192(%rdi), %ymm9
 vmovdqa 224(%rdi), %ymm10
 
-/* #level6 */
-/* #zetas */
+//level6
+//zetas
 vmovdqa   (%rdx), %ymm15
 vmovdqa 32(%rdx), %ymm2
 
-/* #update */
+//update
 vpaddw %ymm7,  %ymm3, %ymm11
 vpaddw %ymm8,  %ymm4, %ymm12
 vpaddw %ymm9,  %ymm5, %ymm13
@@ -36,7 +34,7 @@ vpsubw  %ymm4,  %ymm8,  %ymm8
 vpsubw  %ymm5,  %ymm9,  %ymm9
 vpsubw  %ymm6, %ymm10, %ymm10
 
-/* #mul */
+//mul
 vpmullw %ymm15, %ymm7,  %ymm3
 vpmullw %ymm15, %ymm8,  %ymm4
 vpmullw %ymm15, %ymm9,  %ymm5
@@ -46,7 +44,7 @@ vpmulhw %ymm2,  %ymm8,  %ymm8
 vpmulhw %ymm2,  %ymm9,  %ymm9
 vpmulhw %ymm2,  %ymm10, %ymm10
 
-/* #reduce */
+//reduce
 vpmulhw %ymm0, %ymm3,  %ymm3
 vpmulhw %ymm0, %ymm4,  %ymm4
 vpmulhw %ymm0, %ymm5,  %ymm5
@@ -56,7 +54,7 @@ vpsubw  %ymm4, %ymm8,  %ymm8
 vpsubw  %ymm5, %ymm9,  %ymm9
 vpsubw  %ymm6, %ymm10, %ymm10
 
-/* #reduce2 */
+//reduce2
 vpmulhrsw %ymm1, %ymm11, %ymm3
 vpmulhrsw %ymm1, %ymm12, %ymm4
 vpmulhrsw %ymm1, %ymm13, %ymm5
@@ -70,7 +68,7 @@ vpsubw  %ymm4, %ymm12, %ymm12
 vpsubw  %ymm5, %ymm13, %ymm13
 vpsubw  %ymm6, %ymm14, %ymm14
 
-/* #shuffle */
+//shuffle
 vpsllq   $16,   %ymm12, %ymm3
 vpsllq   $16,   %ymm14, %ymm4
 vpsllq   $16,   %ymm8,  %ymm5
@@ -88,12 +86,12 @@ vpblendw $0xAA, %ymm8,  %ymm7,  %ymm9
 vpblendw $0xAA, %ymm14, %ymm13, %ymm8
 vpblendw $0xAA, %ymm12, %ymm11, %ymm7
 
-/* #level5 */
-/* #zetas */
+//level5
+//zetas
 vmovdqa 384(%rdx), %ymm15
 vmovdqa 416(%rdx), %ymm2
 
-/* #update */
+//update
 vpaddw %ymm7,  %ymm3, %ymm11
 vpaddw %ymm8,  %ymm4, %ymm12
 vpaddw %ymm9,  %ymm5, %ymm13
@@ -103,7 +101,7 @@ vpsubw  %ymm4,  %ymm8,  %ymm8
 vpsubw  %ymm5,  %ymm9,  %ymm9
 vpsubw  %ymm6, %ymm10, %ymm10
 
-/* #mul */
+//mul
 vpmullw %ymm15, %ymm7,  %ymm3
 vpmullw %ymm15, %ymm8,  %ymm4
 vpmullw %ymm15, %ymm9,  %ymm5
@@ -113,7 +111,7 @@ vpmulhw %ymm2,  %ymm8,  %ymm8
 vpmulhw %ymm2,  %ymm9,  %ymm9
 vpmulhw %ymm2,  %ymm10, %ymm10
 
-/* #reduce */
+//reduce
 vpmulhw %ymm0, %ymm3,  %ymm3
 vpmulhw %ymm0, %ymm4,  %ymm4
 vpmulhw %ymm0, %ymm5,  %ymm5
@@ -123,7 +121,7 @@ vpsubw  %ymm4, %ymm8,  %ymm8
 vpsubw  %ymm5, %ymm9,  %ymm9
 vpsubw  %ymm6, %ymm10, %ymm10
 
-/* #shuffle */
+//shuffle
 vpsllq   $32,   %ymm12, %ymm3
 vpsllq   $32,   %ymm14, %ymm4
 vpsllq   $32,   %ymm8,  %ymm5
@@ -141,12 +139,12 @@ vpblendd $0xAA, %ymm8,  %ymm7,  %ymm9
 vpblendd $0xAA, %ymm14, %ymm13, %ymm8
 vpblendd $0xAA, %ymm12, %ymm11, %ymm7
 
-/* #level4 */
-/* #zetas */
+//level4
+//zetas
 vmovdqa 768(%rdx), %ymm15
 vmovdqa 800(%rdx), %ymm2
 
-/* #update */
+//update
 vpaddw %ymm7,  %ymm3, %ymm11
 vpaddw %ymm8,  %ymm4, %ymm12
 vpaddw %ymm9,  %ymm5, %ymm13
@@ -156,7 +154,7 @@ vpsubw  %ymm4,  %ymm8,  %ymm8
 vpsubw  %ymm5,  %ymm9,  %ymm9
 vpsubw  %ymm6, %ymm10, %ymm10
 
-/* #mul */
+//mul
 vpmullw %ymm15, %ymm7,  %ymm3
 vpmullw %ymm15, %ymm8,  %ymm4
 vpmullw %ymm15, %ymm9,  %ymm5
@@ -166,7 +164,7 @@ vpmulhw %ymm2,  %ymm8,  %ymm8
 vpmulhw %ymm2,  %ymm9,  %ymm9
 vpmulhw %ymm2,  %ymm10, %ymm10
 
-/* #reduce */
+//reduce
 vpmulhw %ymm0, %ymm3,  %ymm3
 vpmulhw %ymm0, %ymm4,  %ymm4
 vpmulhw %ymm0, %ymm5,  %ymm5
@@ -176,7 +174,7 @@ vpsubw  %ymm4, %ymm8,  %ymm8
 vpsubw  %ymm5, %ymm9,  %ymm9
 vpsubw  %ymm6, %ymm10, %ymm10
 
-/* #shuffle */
+//shuffle
 vpunpcklqdq %ymm12, %ymm11, %ymm3
 vpunpcklqdq %ymm14, %ymm13, %ymm4
 vpunpcklqdq %ymm8,  %ymm7,  %ymm5
@@ -186,12 +184,12 @@ vpunpckhqdq %ymm8,  %ymm7,  %ymm9
 vpunpckhqdq %ymm14, %ymm13, %ymm8
 vpunpckhqdq %ymm12, %ymm11, %ymm7
 
-/* #level3 */
-/* #zetas */
+//level3
+//zetas
 vmovdqa 1152(%rdx), %ymm15
 vmovdqa 1184(%rdx), %ymm2
 
-/* #update */
+//update
 vpaddw %ymm7,  %ymm3, %ymm11
 vpaddw %ymm8,  %ymm4, %ymm12
 vpaddw %ymm9,  %ymm5, %ymm13
@@ -201,7 +199,7 @@ vpsubw  %ymm4,  %ymm8,  %ymm8
 vpsubw  %ymm5,  %ymm9,  %ymm9
 vpsubw  %ymm6, %ymm10, %ymm10
 
-/* #mul */
+//mul
 vpmullw %ymm15, %ymm7,  %ymm3
 vpmullw %ymm15, %ymm8,  %ymm4
 vpmullw %ymm15, %ymm9,  %ymm5
@@ -211,7 +209,7 @@ vpmulhw %ymm2,  %ymm8,  %ymm8
 vpmulhw %ymm2,  %ymm9,  %ymm9
 vpmulhw %ymm2,  %ymm10, %ymm10
 
-/* #reduce */
+//reduce
 vpmulhw %ymm0, %ymm3,  %ymm3
 vpmulhw %ymm0, %ymm4,  %ymm4
 vpmulhw %ymm0, %ymm5,  %ymm5
@@ -221,7 +219,7 @@ vpsubw  %ymm4, %ymm8,  %ymm8
 vpsubw  %ymm5, %ymm9,  %ymm9
 vpsubw  %ymm6, %ymm10, %ymm10
 
-/* #reduce2 */
+//reduce2
 vpmulhrsw %ymm1, %ymm11, %ymm3
 vpmulhrsw %ymm1, %ymm12, %ymm4
 vpmulhrsw %ymm1, %ymm13, %ymm5
@@ -235,7 +233,7 @@ vpsubw  %ymm4, %ymm12, %ymm12
 vpsubw  %ymm5, %ymm13, %ymm13
 vpsubw  %ymm6, %ymm14, %ymm14
 
-/* #shuffle */
+//shuffle
 vperm2i128 $0x20, %ymm12, %ymm11, %ymm3
 vperm2i128 $0x20, %ymm14, %ymm13, %ymm4
 vperm2i128 $0x20, %ymm8,  %ymm7,  %ymm5
@@ -245,7 +243,7 @@ vperm2i128 $0x31, %ymm8,  %ymm7,  %ymm9
 vperm2i128 $0x31, %ymm14, %ymm13, %ymm8
 vperm2i128 $0x31, %ymm12, %ymm11, %ymm7
 
-/* #store */
+//store
 vmovdqa %ymm3,     (%rdi)
 vmovdqa %ymm4,   32(%rdi)
 vmovdqa %ymm5,   64(%rdi)
@@ -258,16 +256,16 @@ vmovdqa %ymm10, 224(%rdi)
 add $256, %rdi
 add $64,  %rdx
 cmp %r8,  %rdi
-jb  .Llooptop_start_6543
+jb  NTRUPLUS_ASM_LOCAL(looptop_start_6543)
 
 sub $1536, %rdi
 
-/* #level2 */
+//level2
 lea 1536(%rdi), %r8
 
 .p2align 5
-.Llooptop_start_2:
-/* #load */
+NTRUPLUS_ASM_LOCAL(looptop_start_2):
+//load
 vmovdqa    (%rdi), %ymm3
 vmovdqa  32(%rdi), %ymm4
 vmovdqa  64(%rdi), %ymm5
@@ -277,11 +275,11 @@ vmovdqa 160(%rdi), %ymm8
 vmovdqa 192(%rdi), %ymm9
 vmovdqa 224(%rdi), %ymm10
 
-/* #zetas */
-vpbroadcastd 1152(%rdx), %ymm15 /* #zetaqinv */
-vpbroadcastd 1156(%rdx), %ymm2  /* #zeta */
+//zetas
+vpbroadcastd 1152(%rdx), %ymm15 //zetaqinv
+vpbroadcastd 1156(%rdx), %ymm2  //zeta
 
-/* #update */
+//update
 vpaddw %ymm7,  %ymm3, %ymm11
 vpaddw %ymm8,  %ymm4, %ymm12
 vpaddw %ymm9,  %ymm5, %ymm13
@@ -291,7 +289,7 @@ vpsubw  %ymm4,  %ymm8,  %ymm8
 vpsubw  %ymm5,  %ymm9,  %ymm9
 vpsubw  %ymm6, %ymm10, %ymm10
 
-/* #mul */
+//mul
 vpmullw %ymm15, %ymm7,  %ymm3
 vpmullw %ymm15, %ymm8,  %ymm4
 vpmullw %ymm15, %ymm9,  %ymm5
@@ -301,7 +299,7 @@ vpmulhw %ymm2,  %ymm8,  %ymm8
 vpmulhw %ymm2,  %ymm9,  %ymm9
 vpmulhw %ymm2,  %ymm10, %ymm10
 
-/* #reduce */
+//reduce
 vpmulhw %ymm0, %ymm3, %ymm3
 vpmulhw %ymm0, %ymm4, %ymm4
 vpmulhw %ymm0, %ymm5, %ymm5
@@ -311,7 +309,7 @@ vpsubw  %ymm4, %ymm8, %ymm8
 vpsubw  %ymm5, %ymm9, %ymm9
 vpsubw  %ymm6, %ymm10, %ymm10
 
-/* #store */
+//store
 vmovdqa %ymm11,    (%rdi)
 vmovdqa %ymm12,  32(%rdi)
 vmovdqa %ymm13,  64(%rdi)
@@ -324,88 +322,88 @@ vmovdqa %ymm10, 224(%rdi)
 add $256, %rdi
 add $8,   %rdx
 cmp %r8,  %rdi
-jb  .Llooptop_start_2
+jb  NTRUPLUS_ASM_LOCAL(looptop_start_2)
 
 sub $1536, %rdi
 
-/* #level1 */
-vmovdqu _16xwqinv(%rip), %ymm2 /* #winv */
-vmovdqu     _16xw(%rip), %ymm3 /* #w */
+//level1
+vmovdqu NTRUPLUS_ASM_SYMBOL(_16xwqinv)(%rip), %ymm2 //winv
+vmovdqu     NTRUPLUS_ASM_SYMBOL(_16xw)(%rip), %ymm3 //w
 
 lea 1536(%rdi), %r8
 
 .p2align 5
-.Llooptop_start_1:
+NTRUPLUS_ASM_LOCAL(looptop_start_1):
 
-/* #zetas */
-vpbroadcastd 1152(%rdx), %ymm4 /* #zeta0qinv */
-vpbroadcastd 1160(%rdx), %ymm5 /* #zeta1qinv */
-vpbroadcastd 1156(%rdx), %ymm6 /* #zeta0 */
-vpbroadcastd 1164(%rdx), %ymm7 /* #zeta1 */
+//zetas
+vpbroadcastd 1152(%rdx), %ymm4 //zeta0qinv
+vpbroadcastd 1160(%rdx), %ymm5 //zeta1qinv
+vpbroadcastd 1156(%rdx), %ymm6 //zeta0
+vpbroadcastd 1164(%rdx), %ymm7 //zeta1
 
 lea 256(%rdi), %r9
 
 .p2align 5
-.Llooptop_j_1:
-vmovdqa    (%rdi),  %ymm8 /* #X */
-vmovdqa 256(%rdi),  %ymm9 /* #Y */
-vmovdqa 512(%rdi), %ymm10 /* #Z */
+NTRUPLUS_ASM_LOCAL(looptop_j_1):
+vmovdqa    (%rdi),  %ymm8 //X
+vmovdqa 256(%rdi),  %ymm9 //Y
+vmovdqa 512(%rdi), %ymm10 //Z
 
-/* #sub */
-vpsubw %ymm8, %ymm9, %ymm11 /* #Y-X */
+//sub
+vpsubw %ymm8, %ymm9, %ymm11 //Y-X
 
-/* #mul */
-vpmullw %ymm2, %ymm11, %ymm12 /* #w(Y-X) */
-vpmulhw %ymm3, %ymm11, %ymm11 /* #w(Y-X) */
+//mul
+vpmullw %ymm2, %ymm11, %ymm12 //w(Y-X)
+vpmulhw %ymm3, %ymm11, %ymm11 //w(Y-X)
 
-/* #reduce */
-vpmulhw  %ymm0, %ymm12, %ymm12 /* #w(Y-X) */
-vpsubw  %ymm12, %ymm11, %ymm11 /* #w(Y-X) */
+//reduce
+vpmulhw  %ymm0, %ymm12, %ymm12 //w(Y-X)
+vpsubw  %ymm12, %ymm11, %ymm11 //w(Y-X)
 
-vpsubw  %ymm8, %ymm10, %ymm12 /* #Z-X */
-vpsubw  %ymm9, %ymm10, %ymm13 /* #Z-Y */
-vpaddw %ymm11, %ymm12, %ymm12 /* #Z-X + w(Y-X) */
-vpsubw %ymm11, %ymm13, %ymm13 /* #Z-Y - w(Y-X) */
+vpsubw  %ymm8, %ymm10, %ymm12 //Z-X
+vpsubw  %ymm9, %ymm10, %ymm13 //Z-Y
+vpaddw %ymm11, %ymm12, %ymm12 //Z-X + w(Y-X)
+vpsubw %ymm11, %ymm13, %ymm13 //Z-Y - w(Y-X)
 
-/* #mul */
-vpmullw %ymm4, %ymm12, %ymm14 /* #zeta0(Z-X + w(Y-X)) */
-vpmullw %ymm5, %ymm13, %ymm15 /* #zeta1(Z-Y - w(Y-X)) */
-vpmulhw %ymm6, %ymm12, %ymm12 /* #zeta0(Z-X + w(Y-X)) */
-vpmulhw %ymm7, %ymm13, %ymm13 /* #zeta1(Z-Y - w(Y-X)) */
+//mul
+vpmullw %ymm4, %ymm12, %ymm14 //zeta0(Z-X + w(Y-X))
+vpmullw %ymm5, %ymm13, %ymm15 //zeta1(Z-Y - w(Y-X))
+vpmulhw %ymm6, %ymm12, %ymm12 //zeta0(Z-X + w(Y-X))
+vpmulhw %ymm7, %ymm13, %ymm13 //zeta1(Z-Y - w(Y-X))
 
-/* #reduce */
-vpmulhw  %ymm0, %ymm14, %ymm14 /* #zeta0(Z-X + w(Y-X)) */
-vpmulhw  %ymm0, %ymm15, %ymm15 /* #zeta1(Z-Y - w(Y-X)) */
-vpsubw  %ymm14, %ymm12, %ymm12 /* #zeta0(Z-X + w(Y-X)) */
-vpsubw  %ymm15, %ymm13, %ymm13 /* #zeta1(Z-Y - w(Y-X)) */
+//reduce
+vpmulhw  %ymm0, %ymm14, %ymm14 //zeta0(Z-X + w(Y-X))
+vpmulhw  %ymm0, %ymm15, %ymm15 //zeta1(Z-Y - w(Y-X))
+vpsubw  %ymm14, %ymm12, %ymm12 //zeta0(Z-X + w(Y-X))
+vpsubw  %ymm15, %ymm13, %ymm13 //zeta1(Z-Y - w(Y-X))
 
-/* #add */
-vpaddw  %ymm9,  %ymm8, %ymm11 /* #X+Y */
-vpaddw %ymm10, %ymm11, %ymm11 /* #X+Y+Z */
+//add
+vpaddw  %ymm9,  %ymm8, %ymm11 //X+Y
+vpaddw %ymm10, %ymm11, %ymm11 //X+Y+Z
 
-/* #store */
+//store
 vmovdqa %ymm11,    (%rdi)
 vmovdqa %ymm12, 256(%rdi)
 vmovdqa %ymm13, 512(%rdi)
 
 add $32, %rdi
 cmp %r9, %rdi
-jb .Llooptop_j_1
+jb NTRUPLUS_ASM_LOCAL(looptop_j_1)
 
 add $512, %rdi
 add $16, %rdx
 cmp %r8, %rdi
-jb .Llooptop_start_1
+jb NTRUPLUS_ASM_LOCAL(looptop_start_1)
 
 sub $1536, %rdi
 
-/* #level 0 */
-/* #zetas */
-vpbroadcastd 1152(%rdx), %ymm2  /* #(z-z^5)^-1 */
-vpbroadcastd 1156(%rdx), %ymm3  /* #(z-z^5)^-1 */
+//level 0
+//zetas
+vpbroadcastd 1152(%rdx), %ymm2  //(z-z^5)^-1
+vpbroadcastd 1156(%rdx), %ymm3  //(z-z^5)^-1
 
-vmovdqa _16xNinv_scaleqinv(%rip), %ymm13
-vmovdqa _16xNinv_scale(%rip),     %ymm14
+vmovdqa NTRUPLUS_ASM_SYMBOL(_16xNinv_scaleqinv)(%rip), %ymm13
+vmovdqa NTRUPLUS_ASM_SYMBOL(_16xNinv_scale)(%rip),     %ymm14
 
 vpsllw $1, %ymm13, %ymm15
 vpsllw $1, %ymm14, %ymm1
@@ -413,8 +411,8 @@ vpsllw $1, %ymm14, %ymm1
 lea 768(%rdi), %r8
 
 .p2align 5
-.Llooptop_start_0:
-/* #load */
+NTRUPLUS_ASM_LOCAL(looptop_start_0):
+//load
 vmovdqa    (%rdi), %ymm4
 vmovdqa  32(%rdi), %ymm5
 vmovdqa  64(%rdi), %ymm6
@@ -422,7 +420,7 @@ vmovdqa 768(%rdi), %ymm7
 vmovdqa 800(%rdi), %ymm8
 vmovdqa 832(%rdi), %ymm9
 
-/* #update */
+//update
 vpsubw %ymm7, %ymm4, %ymm10
 vpsubw %ymm8, %ymm5, %ymm11
 vpsubw %ymm9, %ymm6, %ymm12
@@ -430,7 +428,7 @@ vpaddw %ymm7, %ymm4, %ymm4
 vpaddw %ymm8, %ymm5, %ymm5
 vpaddw %ymm9, %ymm6, %ymm6
 
-/* #mul */
+//mul
 vpmullw %ymm2, %ymm10, %ymm7
 vpmullw %ymm2, %ymm11, %ymm8
 vpmullw %ymm2, %ymm12, %ymm9
@@ -438,7 +436,7 @@ vpmulhw %ymm3, %ymm10, %ymm10
 vpmulhw %ymm3, %ymm11, %ymm11
 vpmulhw %ymm3, %ymm12, %ymm12
 
-/* #reduce */
+//reduce
 vpmulhw %ymm0, %ymm7,  %ymm7
 vpmulhw %ymm0, %ymm8,  %ymm8
 vpmulhw %ymm0, %ymm9,  %ymm9
@@ -446,12 +444,12 @@ vpsubw  %ymm7, %ymm10, %ymm7
 vpsubw  %ymm8, %ymm11, %ymm8
 vpsubw  %ymm9, %ymm12, %ymm9
 
-/* #update */
+//update
 vpsubw %ymm7, %ymm4, %ymm4
 vpsubw %ymm8, %ymm5, %ymm5
 vpsubw %ymm9, %ymm6, %ymm6
 
-/* #mul */
+//mul
 vpmullw %ymm13, %ymm4, %ymm10
 vpmullw %ymm13, %ymm5, %ymm11
 vpmullw %ymm13, %ymm6, %ymm12
@@ -459,7 +457,7 @@ vpmulhw %ymm14, %ymm4, %ymm4
 vpmulhw %ymm14, %ymm5, %ymm5
 vpmulhw %ymm14, %ymm6, %ymm6
 
-/* #reduce */
+//reduce
 vpmulhw %ymm0,  %ymm10, %ymm10
 vpmulhw %ymm0,  %ymm11, %ymm11
 vpmulhw %ymm0,  %ymm12, %ymm12
@@ -467,7 +465,7 @@ vpsubw  %ymm10, %ymm4,  %ymm4
 vpsubw  %ymm11, %ymm5,  %ymm5
 vpsubw  %ymm12, %ymm6,  %ymm6
 
-/* #mul */
+//mul
 vpmullw %ymm15, %ymm7, %ymm10
 vpmullw %ymm15, %ymm8, %ymm11
 vpmullw %ymm15, %ymm9, %ymm12
@@ -475,7 +473,7 @@ vpmulhw %ymm1,  %ymm7, %ymm7
 vpmulhw %ymm1,  %ymm8, %ymm8
 vpmulhw %ymm1,  %ymm9, %ymm9
 
-/* #reduce */
+//reduce
 vpmulhw %ymm0,  %ymm10, %ymm10
 vpmulhw %ymm0,  %ymm11, %ymm11
 vpmulhw %ymm0,  %ymm12, %ymm12
@@ -483,7 +481,7 @@ vpsubw  %ymm10, %ymm7,  %ymm7
 vpsubw  %ymm11, %ymm8,  %ymm8
 vpsubw  %ymm12, %ymm9,  %ymm9
 
-/* #store */
+//store
 vmovdqa %ymm4,    (%rdi)
 vmovdqa %ymm5,  32(%rdi)
 vmovdqa %ymm6,  64(%rdi)
@@ -493,13 +491,10 @@ vmovdqa %ymm9, 832(%rdi)
 
 add $96, %rdi
 cmp %r8, %rdi
-jb  .Llooptop_start_0
+jb  NTRUPLUS_ASM_LOCAL(looptop_start_0)
 
 ret
-#ifdef __ELF__
-.size poly_invntt_scale, .-poly_invntt_scale
-#endif
+NTRUPLUS_ASM_END(poly_invntt_scale)
 
-#ifdef __ELF__
-.section .note.GNU-stack,"",@progbits
-#endif
+
+NTRUPLUS_ASM_GNU_STACK

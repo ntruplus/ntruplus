@@ -1,78 +1,76 @@
-.global poly_basemul
-#ifdef __ELF__
-.type poly_basemul, @function
-#endif
-poly_basemul:
-vmovdqa    _16xq(%rip), %ymm0
-vmovdqa _16xqinv(%rip), %ymm15
-lea        zetas(%rip), %rcx
+#include "asm.h"
+
+NTRUPLUS_ASM_START(poly_basemul)
+vmovdqa    NTRUPLUS_ASM_SYMBOL(_16xq)(%rip), %ymm0
+vmovdqa NTRUPLUS_ASM_SYMBOL(_16xqinv)(%rip), %ymm15
+lea        NTRUPLUS_ASM_SYMBOL(zetas)(%rip), %rcx
 add              $1888, %rcx
 
 lea 2304(%rsi), %r8
 
 .p2align 5
-.Llooptop_basemul:
-/* #load */
-vmovdqa 96(%rsi), %ymm1 /* #a[3] */
-vmovdqa 32(%rsi), %ymm2 /* #a[1] */
-vmovdqa 96(%rdx), %ymm3 /* #b[3] */
-vmovdqa 32(%rdx), %ymm4 /* #b[1] */
+NTRUPLUS_ASM_LOCAL(looptop_basemul):
+//load
+vmovdqa 96(%rsi), %ymm1 //a[3]
+vmovdqa 32(%rsi), %ymm2 //a[1]
+vmovdqa 96(%rdx), %ymm3 //b[3]
+vmovdqa 32(%rdx), %ymm4 //b[1]
 
-/* #premul */
+//premul
 vpmullw %ymm15, %ymm1, %ymm13
 vpmullw %ymm15, %ymm2, %ymm14
 
-/* #mul */
-vpmullw %ymm14, %ymm3, %ymm5  /* #a[1]*b[3] */
-vpmullw %ymm13, %ymm4, %ymm6  /* #a[3]*b[1] */
-vpmullw %ymm13, %ymm3, %ymm7  /* #a[3]*b[3] */
-vpmulhw %ymm2,  %ymm3, %ymm8  /* #a[1]*b[3] */
-vpmulhw %ymm1,  %ymm4, %ymm9  /* #a[3]*b[1] */
-vpmulhw %ymm1,  %ymm3, %ymm10 /* #a[3]*b[3] */
+//mul
+vpmullw %ymm14, %ymm3, %ymm5  //a[1]*b[3]
+vpmullw %ymm13, %ymm4, %ymm6  //a[3]*b[1]
+vpmullw %ymm13, %ymm3, %ymm7  //a[3]*b[3]
+vpmulhw %ymm2,  %ymm3, %ymm8  //a[1]*b[3]
+vpmulhw %ymm1,  %ymm4, %ymm9  //a[3]*b[1]
+vpmulhw %ymm1,  %ymm3, %ymm10 //a[3]*b[3]
 
-/* #reduce */
+//reduce
 vpmulhw %ymm0, %ymm5,  %ymm5
 vpmulhw %ymm0, %ymm6,  %ymm6
 vpmulhw %ymm0, %ymm7,  %ymm7
-vpsubw  %ymm5, %ymm8,  %ymm8  /* #a[1]*b[3] */
-vpsubw  %ymm6, %ymm9,  %ymm9  /* #a[3]*b[1] */
-vpsubw  %ymm7, %ymm10, %ymm10 /* #a[3]*b[3] */
+vpsubw  %ymm5, %ymm8,  %ymm8  //a[1]*b[3]
+vpsubw  %ymm6, %ymm9,  %ymm9  //a[3]*b[1]
+vpsubw  %ymm7, %ymm10, %ymm10 //a[3]*b[3]
 
-/* #add */
-vpaddw %ymm9, %ymm8, %ymm8 /* #c[0] = a[1]*b[3]+a[3]*b[1] */
+//add
+vpaddw %ymm9, %ymm8, %ymm8 //c[0] = a[1]*b[3]+a[3]*b[1]
 
-/* #load */
-vmovdqa 64(%rsi), %ymm2 /* #a[2] */
-vmovdqa 64(%rdx), %ymm4 /* #b[2] */
+//load
+vmovdqa 64(%rsi), %ymm2 //a[2]
+vmovdqa 64(%rdx), %ymm4 //b[2]
 
-/* #premul */
+//premul
 vpmullw %ymm15, %ymm2, %ymm14
 
-/* #mul */
-vpmullw %ymm14, %ymm4, %ymm5  /* #a[2]*b[2] */
-vpmullw %ymm14, %ymm3, %ymm6  /* #a[2]*b[3] */
-vpmullw %ymm13, %ymm4, %ymm7  /* #a[3]*b[2] */
-vpmulhw %ymm2,  %ymm4, %ymm11 /* #a[2]*b[2] */
-vpmulhw %ymm2,  %ymm3, %ymm12 /* #a[2]*b[3] */
-vpmulhw %ymm1,  %ymm4, %ymm13 /* #a[3]*b[2] */
+//mul
+vpmullw %ymm14, %ymm4, %ymm5  //a[2]*b[2]
+vpmullw %ymm14, %ymm3, %ymm6  //a[2]*b[3]
+vpmullw %ymm13, %ymm4, %ymm7  //a[3]*b[2]
+vpmulhw %ymm2,  %ymm4, %ymm11 //a[2]*b[2]
+vpmulhw %ymm2,  %ymm3, %ymm12 //a[2]*b[3]
+vpmulhw %ymm1,  %ymm4, %ymm13 //a[3]*b[2]
 
-/* #reduce */
+//reduce
 vpmulhw %ymm0, %ymm5,  %ymm5
 vpmulhw %ymm0, %ymm6,  %ymm6
 vpmulhw %ymm0, %ymm7,  %ymm7
-vpsubw  %ymm5, %ymm11, %ymm11 /* #a[2]*b[2] */
-vpsubw  %ymm6, %ymm12, %ymm12 /* #a[2]*b[3] */
-vpsubw  %ymm7, %ymm13, %ymm13 /* #a[3]*b[2] */
+vpsubw  %ymm5, %ymm11, %ymm11 //a[2]*b[2]
+vpsubw  %ymm6, %ymm12, %ymm12 //a[2]*b[3]
+vpsubw  %ymm7, %ymm13, %ymm13 //a[3]*b[2]
 
-/* #add */
-vpaddw %ymm11, %ymm8,  %ymm8 /* #c[0] */
-vpaddw %ymm13, %ymm12, %ymm9 /* #c[1] */
+//add
+vpaddw %ymm11, %ymm8,  %ymm8 //c[0]
+vpaddw %ymm13, %ymm12, %ymm9 //c[1]
 
-/* #load zeta */
+//load zeta
 vmovdqa   (%rcx), %ymm13
 vmovdqa 32(%rcx), %ymm1
 
-/* #mul */
+//mul
 vpmullw %ymm13, %ymm8,  %ymm5
 vpmullw %ymm13, %ymm9,  %ymm6
 vpmullw %ymm13, %ymm10, %ymm7
@@ -80,7 +78,7 @@ vpmulhw %ymm1,  %ymm8,  %ymm8
 vpmulhw %ymm1,  %ymm9,  %ymm9
 vpmulhw %ymm1,  %ymm10, %ymm10
 
-/* #reduce */
+//reduce
 vpmulhw %ymm0, %ymm5,  %ymm5
 vpmulhw %ymm0, %ymm6,  %ymm6
 vpmulhw %ymm0, %ymm7,  %ymm7
@@ -88,171 +86,171 @@ vpsubw  %ymm5, %ymm8,  %ymm5
 vpsubw  %ymm6, %ymm9,  %ymm6
 vpsubw  %ymm7, %ymm10, %ymm7
 
-/* #load */
-vmovdqa (%rsi), %ymm1 /* #a[0] */
-vmovdqa (%rdx), %ymm3 /* #b[0] */
+//load
+vmovdqa (%rsi), %ymm1 //a[0]
+vmovdqa (%rdx), %ymm3 //b[0]
 
-/* #premul */
+//premul
 vpmullw %ymm15, %ymm1, %ymm13
 
-/* #mul */
-vpmullw %ymm13, %ymm3, %ymm8  /* #a[0]*b[0] */
-vpmullw %ymm13, %ymm4, %ymm9  /* #a[0]*b[2] */
-vpmullw %ymm14, %ymm3, %ymm10 /* #a[2]*b[0] */
-vpmulhw %ymm1,  %ymm3, %ymm11 /* #a[0]*b[0] */
-vpmulhw %ymm1,  %ymm4, %ymm12 /* #a[0]*b[2] */
-vpmulhw %ymm2,  %ymm3, %ymm14 /* #a[2]*b[0] */
+//mul
+vpmullw %ymm13, %ymm3, %ymm8  //a[0]*b[0]
+vpmullw %ymm13, %ymm4, %ymm9  //a[0]*b[2]
+vpmullw %ymm14, %ymm3, %ymm10 //a[2]*b[0]
+vpmulhw %ymm1,  %ymm3, %ymm11 //a[0]*b[0]
+vpmulhw %ymm1,  %ymm4, %ymm12 //a[0]*b[2]
+vpmulhw %ymm2,  %ymm3, %ymm14 //a[2]*b[0]
 
-/* #reduce */
+//reduce
 vpmulhw %ymm0,  %ymm8,  %ymm8
 vpmulhw %ymm0,  %ymm9,  %ymm9
 vpmulhw %ymm0,  %ymm10, %ymm10
-vpsubw  %ymm8,  %ymm11, %ymm8  /* #a[0]*b[0] */
-vpsubw  %ymm9,  %ymm12, %ymm9  /* #a[0]*b[2] */
-vpsubw  %ymm10, %ymm14, %ymm10 /* #a[2]*b[0] */
+vpsubw  %ymm8,  %ymm11, %ymm8  //a[0]*b[0]
+vpsubw  %ymm9,  %ymm12, %ymm9  //a[0]*b[2]
+vpsubw  %ymm10, %ymm14, %ymm10 //a[2]*b[0]
 
-/* #add */
-vpaddw %ymm8,  %ymm5, %ymm5 /* #c[0] = c[0]*zeta+a[0]*b[0] */
-vpaddw %ymm9,  %ymm7, %ymm7 /* #c[2] = c[2]*zeta+a[0]*b[2]+a[2]*b[0] */
-vpaddw %ymm10, %ymm7, %ymm7 /* #c[2] = c[2]*zeta+a[0]*b[2]+a[2]*b[0] */
+//add
+vpaddw %ymm8,  %ymm5, %ymm5 //c[0] = c[0]*zeta+a[0]*b[0]
+vpaddw %ymm9,  %ymm7, %ymm7 //c[2] = c[2]*zeta+a[0]*b[2]+a[2]*b[0]
+vpaddw %ymm10, %ymm7, %ymm7 //c[2] = c[2]*zeta+a[0]*b[2]+a[2]*b[0]
 
-/* #load */
-vmovdqa 32(%rsi), %ymm2 /* #a[1] */
-vmovdqa 32(%rdx), %ymm4 /* #b[1] */
+//load
+vmovdqa 32(%rsi), %ymm2 //a[1]
+vmovdqa 32(%rdx), %ymm4 //b[1]
 
-/* #premul */
+//premul
 vpmullw %ymm15, %ymm2, %ymm14
 
-/* #mul */
-vpmullw %ymm13, %ymm4, %ymm8  /* #a[0]*b[1] */
-vpmullw %ymm14, %ymm3, %ymm9  /* #a[1]*b[0] */
-vpmullw %ymm14, %ymm4, %ymm10 /* #a[1]*b[1] */
-vpmulhw %ymm1,  %ymm4, %ymm11 /* #a[0]*b[1] */
-vpmulhw %ymm2,  %ymm3, %ymm12 /* #a[1]*b[0] */
-vpmulhw %ymm2,  %ymm4, %ymm13 /* #a[1]*b[1] */
+//mul
+vpmullw %ymm13, %ymm4, %ymm8  //a[0]*b[1]
+vpmullw %ymm14, %ymm3, %ymm9  //a[1]*b[0]
+vpmullw %ymm14, %ymm4, %ymm10 //a[1]*b[1]
+vpmulhw %ymm1,  %ymm4, %ymm11 //a[0]*b[1]
+vpmulhw %ymm2,  %ymm3, %ymm12 //a[1]*b[0]
+vpmulhw %ymm2,  %ymm4, %ymm13 //a[1]*b[1]
 
-/* #reduce */
+//reduce
 vpmulhw %ymm0,  %ymm8,  %ymm8
 vpmulhw %ymm0,  %ymm9,  %ymm9
 vpmulhw %ymm0,  %ymm10, %ymm10
-vpsubw  %ymm8,  %ymm11, %ymm8  /* #a[0]*b[1] */
-vpsubw  %ymm9,  %ymm12, %ymm9  /* #a[1]*b[0] */
-vpsubw  %ymm10, %ymm13, %ymm10 /* #a[1]*b[1] */
+vpsubw  %ymm8,  %ymm11, %ymm8  //a[0]*b[1]
+vpsubw  %ymm9,  %ymm12, %ymm9  //a[1]*b[0]
+vpsubw  %ymm10, %ymm13, %ymm10 //a[1]*b[1]
 
-/* #add */
-vpaddw %ymm8,  %ymm6, %ymm6 /* #c[1] = c[1]*zeta+a[0]*b[1]+a[1]*b[0] */
-vpaddw %ymm9,  %ymm6, %ymm6 /* #c[1] = c[1]*zeta+a[0]*b[1]+a[1]*b[0] */
-vpaddw %ymm10, %ymm7, %ymm7 /* #c[2] = c[2]*zeta+a[0]*b[2]+a[1]*b[1]+a[2]*b[0] */
+//add
+vpaddw %ymm8,  %ymm6, %ymm6 //c[1] = c[1]*zeta+a[0]*b[1]+a[1]*b[0]
+vpaddw %ymm9,  %ymm6, %ymm6 //c[1] = c[1]*zeta+a[0]*b[1]+a[1]*b[0]
+vpaddw %ymm10, %ymm7, %ymm7 //c[2] = c[2]*zeta+a[0]*b[2]+a[1]*b[1]+a[2]*b[0]
 
-/* #store */
+//store
 vmovdqa %ymm5,   (%rdi)
 vmovdqa %ymm6, 32(%rdi)
 vmovdqa %ymm7, 64(%rdi)
 
-/* #load */
-vmovdqa 64(%rsi), %ymm5 /* #a[2] */
-vmovdqa 96(%rsi), %ymm6 /* #a[3] */
-vmovdqa 64(%rdx), %ymm7 /* #b[2] */
-vmovdqa 96(%rdx), %ymm8 /* #b[3] */
+//load
+vmovdqa 64(%rsi), %ymm5 //a[2]
+vmovdqa 96(%rsi), %ymm6 //a[3]
+vmovdqa 64(%rdx), %ymm7 //b[2]
+vmovdqa 96(%rdx), %ymm8 //b[3]
 
-/* #premul */
+//premul
 vpmullw %ymm15, %ymm1, %ymm13
 vpmullw %ymm15, %ymm5, %ymm11
 vpmullw %ymm15, %ymm6, %ymm12
 
-/* #mul */
-vpmullw %ymm13, %ymm8, %ymm13 /* #a[0]*b[3] */
-vpmullw %ymm14, %ymm7, %ymm14 /* #a[1]*b[2] */
-vpmullw %ymm11, %ymm4, %ymm11 /* #a[2]*b[1] */
-vpmullw %ymm12, %ymm3, %ymm12 /* #a[3]*b[0] */
-vpmulhw %ymm1,  %ymm8, %ymm1  /* #a[0]*b[3] */
-vpmulhw %ymm2,  %ymm7, %ymm2  /* #a[1]*b[2] */
-vpmulhw %ymm5,  %ymm4, %ymm5  /* #a[2]*b[1] */
-vpmulhw %ymm6,  %ymm3, %ymm6  /* #a[3]*b[0] */
+//mul
+vpmullw %ymm13, %ymm8, %ymm13 //a[0]*b[3]
+vpmullw %ymm14, %ymm7, %ymm14 //a[1]*b[2]
+vpmullw %ymm11, %ymm4, %ymm11 //a[2]*b[1]
+vpmullw %ymm12, %ymm3, %ymm12 //a[3]*b[0]
+vpmulhw %ymm1,  %ymm8, %ymm1  //a[0]*b[3]
+vpmulhw %ymm2,  %ymm7, %ymm2  //a[1]*b[2]
+vpmulhw %ymm5,  %ymm4, %ymm5  //a[2]*b[1]
+vpmulhw %ymm6,  %ymm3, %ymm6  //a[3]*b[0]
 
-/* #reduce */
+//reduce
 vpmulhw %ymm0,  %ymm13, %ymm13
 vpmulhw %ymm0,  %ymm14, %ymm14
 vpmulhw %ymm0,  %ymm11, %ymm11
 vpmulhw %ymm0,  %ymm12, %ymm12
-vpsubw  %ymm13, %ymm1,  %ymm13 /* #a[0]*b[3] */
-vpsubw  %ymm14, %ymm2,  %ymm14 /* #a[2]*b[1] */
-vpsubw  %ymm11, %ymm5,  %ymm11 /* #a[0]*b[3] */
-vpsubw  %ymm12, %ymm6,  %ymm12 /* #a[2]*b[1] */
+vpsubw  %ymm13, %ymm1,  %ymm13 //a[0]*b[3]
+vpsubw  %ymm14, %ymm2,  %ymm14 //a[2]*b[1]
+vpsubw  %ymm11, %ymm5,  %ymm11 //a[0]*b[3]
+vpsubw  %ymm12, %ymm6,  %ymm12 //a[2]*b[1]
 
-/* #add */
+//add
 vpaddw %ymm14, %ymm13, %ymm1
 vpaddw %ymm12, %ymm11, %ymm2
-vpaddw %ymm2,  %ymm1,  %ymm1 /* #c[3] */
+vpaddw %ymm2,  %ymm1,  %ymm1 //c[3]
 
-/* #store */
-vmovdqa %ymm1, 96(%rdi) /* #c[3] */
+//store
+vmovdqa %ymm1, 96(%rdi) //c[3]
 
 add $128, %rsi
 add $128, %rdx
 add $128, %rdi
 
-/* #load */
-vmovdqa 96(%rsi), %ymm1 /* #a[3] */
-vmovdqa 32(%rsi), %ymm2 /* #a[1] */
-vmovdqa 96(%rdx), %ymm3 /* #b[3] */
-vmovdqa 32(%rdx), %ymm4 /* #b[1] */
+//load
+vmovdqa 96(%rsi), %ymm1 //a[3]
+vmovdqa 32(%rsi), %ymm2 //a[1]
+vmovdqa 96(%rdx), %ymm3 //b[3]
+vmovdqa 32(%rdx), %ymm4 //b[1]
 
-/* #premul */
+//premul
 vpmullw %ymm15, %ymm1, %ymm13
 vpmullw %ymm15, %ymm2, %ymm14
 
-/* #mul */
-vpmullw %ymm14, %ymm3, %ymm5  /* #a[1]*b[3] */
-vpmullw %ymm13, %ymm4, %ymm6  /* #a[3]*b[1] */
-vpmullw %ymm13, %ymm3, %ymm7  /* #a[3]*b[3] */
-vpmulhw %ymm2,  %ymm3, %ymm8  /* #a[1]*b[3] */
-vpmulhw %ymm1,  %ymm4, %ymm9  /* #a[3]*b[1] */
-vpmulhw %ymm1,  %ymm3, %ymm10 /* #a[3]*b[3] */
+//mul
+vpmullw %ymm14, %ymm3, %ymm5  //a[1]*b[3]
+vpmullw %ymm13, %ymm4, %ymm6  //a[3]*b[1]
+vpmullw %ymm13, %ymm3, %ymm7  //a[3]*b[3]
+vpmulhw %ymm2,  %ymm3, %ymm8  //a[1]*b[3]
+vpmulhw %ymm1,  %ymm4, %ymm9  //a[3]*b[1]
+vpmulhw %ymm1,  %ymm3, %ymm10 //a[3]*b[3]
 
-/* #reduce */
+//reduce
 vpmulhw %ymm0, %ymm5,  %ymm5
 vpmulhw %ymm0, %ymm6,  %ymm6
 vpmulhw %ymm0, %ymm7,  %ymm7
-vpsubw  %ymm5, %ymm8,  %ymm8  /* #a[1]*b[3] */
-vpsubw  %ymm6, %ymm9,  %ymm9  /* #a[3]*b[1] */
-vpsubw  %ymm7, %ymm10, %ymm10 /* #a[3]*b[3] */
+vpsubw  %ymm5, %ymm8,  %ymm8  //a[1]*b[3]
+vpsubw  %ymm6, %ymm9,  %ymm9  //a[3]*b[1]
+vpsubw  %ymm7, %ymm10, %ymm10 //a[3]*b[3]
 
-/* #add */
-vpaddw %ymm9, %ymm8, %ymm8 /* #c[0] = a[1]*b[3]+a[3]*b[1] */
+//add
+vpaddw %ymm9, %ymm8, %ymm8 //c[0] = a[1]*b[3]+a[3]*b[1]
 
-/* #load */
-vmovdqa 64(%rsi), %ymm2 /* #a[2] */
-vmovdqa 64(%rdx), %ymm4 /* #b[2] */
+//load
+vmovdqa 64(%rsi), %ymm2 //a[2]
+vmovdqa 64(%rdx), %ymm4 //b[2]
 
-/* #premul */
+//premul
 vpmullw %ymm15, %ymm2, %ymm14
 
-/* #mul */
-vpmullw %ymm14, %ymm4, %ymm5  /* #a[2]*b[2] */
-vpmullw %ymm14, %ymm3, %ymm6  /* #a[2]*b[3] */
-vpmullw %ymm13, %ymm4, %ymm7  /* #a[3]*b[2] */
-vpmulhw %ymm2,  %ymm4, %ymm11 /* #a[2]*b[2] */
-vpmulhw %ymm2,  %ymm3, %ymm12 /* #a[2]*b[3] */
-vpmulhw %ymm1,  %ymm4, %ymm13 /* #a[3]*b[2] */
+//mul
+vpmullw %ymm14, %ymm4, %ymm5  //a[2]*b[2]
+vpmullw %ymm14, %ymm3, %ymm6  //a[2]*b[3]
+vpmullw %ymm13, %ymm4, %ymm7  //a[3]*b[2]
+vpmulhw %ymm2,  %ymm4, %ymm11 //a[2]*b[2]
+vpmulhw %ymm2,  %ymm3, %ymm12 //a[2]*b[3]
+vpmulhw %ymm1,  %ymm4, %ymm13 //a[3]*b[2]
 
-/* #reduce */
+//reduce
 vpmulhw %ymm0, %ymm5,  %ymm5
 vpmulhw %ymm0, %ymm6,  %ymm6
 vpmulhw %ymm0, %ymm7,  %ymm7
-vpsubw  %ymm5, %ymm11, %ymm11 /* #a[2]*b[2] */
-vpsubw  %ymm6, %ymm12, %ymm12 /* #a[2]*b[3] */
-vpsubw  %ymm7, %ymm13, %ymm13 /* #a[3]*b[2] */
+vpsubw  %ymm5, %ymm11, %ymm11 //a[2]*b[2]
+vpsubw  %ymm6, %ymm12, %ymm12 //a[2]*b[3]
+vpsubw  %ymm7, %ymm13, %ymm13 //a[3]*b[2]
 
-/* #add */
-vpaddw %ymm11, %ymm8,  %ymm8 /* #c[0] */
-vpaddw %ymm13, %ymm12, %ymm9 /* #c[1] */
+//add
+vpaddw %ymm11, %ymm8,  %ymm8 //c[0]
+vpaddw %ymm13, %ymm12, %ymm9 //c[1]
 
-/* #load zeta */
+//load zeta
 vmovdqa   (%rcx), %ymm13
 vmovdqa 32(%rcx), %ymm1
 
-/* #mul */
+//mul
 vpmullw %ymm13, %ymm8,  %ymm5
 vpmullw %ymm13, %ymm9,  %ymm6
 vpmullw %ymm13, %ymm10, %ymm7
@@ -260,7 +258,7 @@ vpmulhw %ymm1,  %ymm8,  %ymm8
 vpmulhw %ymm1,  %ymm9,  %ymm9
 vpmulhw %ymm1,  %ymm10, %ymm10
 
-/* #reduce */
+//reduce
 vpmulhw %ymm0,  %ymm5, %ymm5
 vpmulhw %ymm0,  %ymm6, %ymm6
 vpmulhw %ymm0,  %ymm7, %ymm7
@@ -268,129 +266,129 @@ vpsubw  %ymm8,  %ymm5, %ymm5
 vpsubw  %ymm9,  %ymm6, %ymm6
 vpsubw  %ymm10, %ymm7, %ymm7
 
-/* #load */
-vmovdqa (%rsi), %ymm1 /* #a[0] */
-vmovdqa (%rdx), %ymm3 /* #b[0] */
+//load
+vmovdqa (%rsi), %ymm1 //a[0]
+vmovdqa (%rdx), %ymm3 //b[0]
 
-/* #premul */
+//premul
 vpmullw %ymm15, %ymm1, %ymm13
 
-/* #mul */
-vpmullw %ymm13, %ymm3, %ymm8  /* #a[0]*b[0] */
-vpmullw %ymm13, %ymm4, %ymm9  /* #a[0]*b[2] */
-vpmullw %ymm14, %ymm3, %ymm10 /* #a[2]*b[0] */
-vpmulhw %ymm1,  %ymm3, %ymm11 /* #a[0]*b[0] */
-vpmulhw %ymm1,  %ymm4, %ymm12 /* #a[0]*b[2] */
-vpmulhw %ymm2,  %ymm3, %ymm14 /* #a[2]*b[0] */
+//mul
+vpmullw %ymm13, %ymm3, %ymm8  //a[0]*b[0]
+vpmullw %ymm13, %ymm4, %ymm9  //a[0]*b[2]
+vpmullw %ymm14, %ymm3, %ymm10 //a[2]*b[0]
+vpmulhw %ymm1,  %ymm3, %ymm11 //a[0]*b[0]
+vpmulhw %ymm1,  %ymm4, %ymm12 //a[0]*b[2]
+vpmulhw %ymm2,  %ymm3, %ymm14 //a[2]*b[0]
 
-/* #reduce */
+//reduce
 vpmulhw %ymm0,  %ymm8,  %ymm8
 vpmulhw %ymm0,  %ymm9,  %ymm9
 vpmulhw %ymm0,  %ymm10, %ymm10
-vpsubw  %ymm8,  %ymm11, %ymm8  /* #a[0]*b[0] */
-vpsubw  %ymm9,  %ymm12, %ymm9  /* #a[0]*b[2] */
-vpsubw  %ymm10, %ymm14, %ymm10 /* #a[2]*b[0] */
+vpsubw  %ymm8,  %ymm11, %ymm8  //a[0]*b[0]
+vpsubw  %ymm9,  %ymm12, %ymm9  //a[0]*b[2]
+vpsubw  %ymm10, %ymm14, %ymm10 //a[2]*b[0]
 
-/* #add */
-vpaddw %ymm8,  %ymm5, %ymm5 /* #c[0] = c[0]*zeta+a[0]*b[0] */
-vpaddw %ymm9,  %ymm7, %ymm7 /* #c[2] = c[2]*zeta+a[0]*b[2]+a[2]*b[0] */
-vpaddw %ymm10, %ymm7, %ymm7 /* #c[2] = c[2]*zeta+a[0]*b[2]+a[2]*b[0] */
+//add
+vpaddw %ymm8,  %ymm5, %ymm5 //c[0] = c[0]*zeta+a[0]*b[0]
+vpaddw %ymm9,  %ymm7, %ymm7 //c[2] = c[2]*zeta+a[0]*b[2]+a[2]*b[0]
+vpaddw %ymm10, %ymm7, %ymm7 //c[2] = c[2]*zeta+a[0]*b[2]+a[2]*b[0]
 
-/* #load */
-vmovdqa 32(%rsi), %ymm2 /* #a[1] */
-vmovdqa 32(%rdx), %ymm4 /* #b[1] */
+//load
+vmovdqa 32(%rsi), %ymm2 //a[1]
+vmovdqa 32(%rdx), %ymm4 //b[1]
 
-/* #premul */
+//premul
 vpmullw %ymm15, %ymm2, %ymm14
 
-/* #mul */
-vpmullw %ymm13, %ymm4, %ymm8  /* #a[0]*b[1] */
-vpmullw %ymm14, %ymm3, %ymm9  /* #a[1]*b[0] */
-vpmullw %ymm14, %ymm4, %ymm10 /* #a[1]*b[1] */
-vpmulhw %ymm1,  %ymm4, %ymm11 /* #a[0]*b[1] */
-vpmulhw %ymm2,  %ymm3, %ymm12 /* #a[1]*b[0] */
-vpmulhw %ymm2,  %ymm4, %ymm13 /* #a[1]*b[1] */
+//mul
+vpmullw %ymm13, %ymm4, %ymm8  //a[0]*b[1]
+vpmullw %ymm14, %ymm3, %ymm9  //a[1]*b[0]
+vpmullw %ymm14, %ymm4, %ymm10 //a[1]*b[1]
+vpmulhw %ymm1,  %ymm4, %ymm11 //a[0]*b[1]
+vpmulhw %ymm2,  %ymm3, %ymm12 //a[1]*b[0]
+vpmulhw %ymm2,  %ymm4, %ymm13 //a[1]*b[1]
 
-/* #reduce */
+//reduce
 vpmulhw %ymm0,  %ymm8,  %ymm8
 vpmulhw %ymm0,  %ymm9,  %ymm9
 vpmulhw %ymm0,  %ymm10, %ymm10
-vpsubw  %ymm8,  %ymm11, %ymm8  /* #a[0]*b[1] */
-vpsubw  %ymm9,  %ymm12, %ymm9  /* #a[1]*b[0] */
-vpsubw  %ymm10, %ymm13, %ymm10 /* #a[1]*b[1] */
+vpsubw  %ymm8,  %ymm11, %ymm8  //a[0]*b[1]
+vpsubw  %ymm9,  %ymm12, %ymm9  //a[1]*b[0]
+vpsubw  %ymm10, %ymm13, %ymm10 //a[1]*b[1]
 
-/* #add */
-vpaddw %ymm8,  %ymm6, %ymm6 /* #c[1] = c[1]*zeta+a[0]*b[1]+a[1]*b[0] */
-vpaddw %ymm9,  %ymm6, %ymm6 /* #c[1] = c[1]*zeta+a[0]*b[1]+a[1]*b[0] */
-vpaddw %ymm10, %ymm7, %ymm7 /* #c[2] = c[2]*zeta+a[0]*b[2]+a[1]*b[1]+a[2]*b[0] */
+//add
+vpaddw %ymm8,  %ymm6, %ymm6 //c[1] = c[1]*zeta+a[0]*b[1]+a[1]*b[0]
+vpaddw %ymm9,  %ymm6, %ymm6 //c[1] = c[1]*zeta+a[0]*b[1]+a[1]*b[0]
+vpaddw %ymm10, %ymm7, %ymm7 //c[2] = c[2]*zeta+a[0]*b[2]+a[1]*b[1]+a[2]*b[0]
 
-/* #store */
+//store
 vmovdqa %ymm5,   (%rdi)
 vmovdqa %ymm6, 32(%rdi)
 vmovdqa %ymm7, 64(%rdi)
 
-/* #load */
-vmovdqa 64(%rsi), %ymm5 /* #a[2] */
-vmovdqa 96(%rsi), %ymm6 /* #a[3] */
-vmovdqa 64(%rdx), %ymm7 /* #b[2] */
-vmovdqa 96(%rdx), %ymm8 /* #b[3] */
+//load
+vmovdqa 64(%rsi), %ymm5 //a[2]
+vmovdqa 96(%rsi), %ymm6 //a[3]
+vmovdqa 64(%rdx), %ymm7 //b[2]
+vmovdqa 96(%rdx), %ymm8 //b[3]
 
-/* #premul */
+//premul
 vpmullw %ymm15, %ymm1, %ymm13
 vpmullw %ymm15, %ymm5, %ymm11
 vpmullw %ymm15, %ymm6, %ymm12
 
-/* #mul */
-vpmullw %ymm13, %ymm8, %ymm13 /* #a[0]*b[3] */
-vpmullw %ymm14, %ymm7, %ymm14 /* #a[1]*b[2] */
-vpmullw %ymm11, %ymm4, %ymm11 /* #a[2]*b[1] */
-vpmullw %ymm12, %ymm3, %ymm12 /* #a[3]*b[0] */
-vpmulhw %ymm1,  %ymm8, %ymm1  /* #a[0]*b[3] */
-vpmulhw %ymm2,  %ymm7, %ymm2  /* #a[1]*b[2] */
-vpmulhw %ymm5,  %ymm4, %ymm5  /* #a[2]*b[1] */
-vpmulhw %ymm6,  %ymm3, %ymm6  /* #a[3]*b[0] */
+//mul
+vpmullw %ymm13, %ymm8, %ymm13 //a[0]*b[3]
+vpmullw %ymm14, %ymm7, %ymm14 //a[1]*b[2]
+vpmullw %ymm11, %ymm4, %ymm11 //a[2]*b[1]
+vpmullw %ymm12, %ymm3, %ymm12 //a[3]*b[0]
+vpmulhw %ymm1,  %ymm8, %ymm1  //a[0]*b[3]
+vpmulhw %ymm2,  %ymm7, %ymm2  //a[1]*b[2]
+vpmulhw %ymm5,  %ymm4, %ymm5  //a[2]*b[1]
+vpmulhw %ymm6,  %ymm3, %ymm6  //a[3]*b[0]
 
-/* #reduce */
+//reduce
 vpmulhw %ymm0,  %ymm13, %ymm13
 vpmulhw %ymm0,  %ymm14, %ymm14
 vpmulhw %ymm0,  %ymm11, %ymm11
 vpmulhw %ymm0,  %ymm12, %ymm12
-vpsubw  %ymm13, %ymm1,  %ymm13 /* #a[0]*b[3] */
-vpsubw  %ymm14, %ymm2,  %ymm14 /* #a[2]*b[1] */
-vpsubw  %ymm11, %ymm5,  %ymm11 /* #a[0]*b[3] */
-vpsubw  %ymm12, %ymm6,  %ymm12 /* #a[2]*b[1] */
+vpsubw  %ymm13, %ymm1,  %ymm13 //a[0]*b[3]
+vpsubw  %ymm14, %ymm2,  %ymm14 //a[2]*b[1]
+vpsubw  %ymm11, %ymm5,  %ymm11 //a[0]*b[3]
+vpsubw  %ymm12, %ymm6,  %ymm12 //a[2]*b[1]
 
-/* #add */
+//add
 vpaddw %ymm14, %ymm13, %ymm1
 vpaddw %ymm12, %ymm11, %ymm2
-vpaddw %ymm2,  %ymm1,  %ymm1 /* #c[3] */
+vpaddw %ymm2,  %ymm1,  %ymm1 //c[3]
 
-/* #store */
-vmovdqa %ymm1, 96(%rdi) /* #c[3] */
+//store
+vmovdqa %ymm1, 96(%rdi) //c[3]
 
 add $128, %rsi
 add $128, %rdx
 add $128, %rdi
 add $64,  %rcx
 cmp %r8,  %rsi
-jb  .Llooptop_basemul
+jb  NTRUPLUS_ASM_LOCAL(looptop_basemul)
 
 mov %rdi, %r8
 sub $2304, %rdi
 
-vmovdqa _16xR2qinv(%rip), %ymm15
-vmovdqa _16xR2(%rip),     %ymm1
+vmovdqa NTRUPLUS_ASM_SYMBOL(_16xR2qinv)(%rip), %ymm15
+vmovdqa NTRUPLUS_ASM_SYMBOL(_16xR2)(%rip),     %ymm1
 
 .p2align 5
-.Llooptop_basemul_2:
+NTRUPLUS_ASM_LOCAL(looptop_basemul_2):
 
-/* #load */
+//load
 vmovdqa   (%rdi), %ymm2
 vmovdqa 32(%rdi), %ymm3
 vmovdqa 64(%rdi), %ymm4
 vmovdqa 96(%rdi), %ymm5
 
-/* #mul */
+//mul
 vpmullw %ymm15, %ymm2, %ymm11
 vpmullw %ymm15, %ymm3, %ymm12
 vpmullw %ymm15, %ymm4, %ymm13
@@ -400,7 +398,7 @@ vpmulhw %ymm1,  %ymm3, %ymm3
 vpmulhw %ymm1,  %ymm4, %ymm4
 vpmulhw %ymm1,  %ymm5, %ymm5
 
-/* #reduce */
+//reduce
 vpmulhw %ymm0,  %ymm11, %ymm11
 vpmulhw %ymm0,  %ymm12, %ymm12
 vpmulhw %ymm0,  %ymm13, %ymm13
@@ -410,7 +408,7 @@ vpsubw  %ymm12, %ymm3,  %ymm3
 vpsubw  %ymm13, %ymm4,  %ymm4
 vpsubw  %ymm14, %ymm5,  %ymm5
 
-/* #store */
+//store
 vmovdqa %ymm2,   (%rdi)
 vmovdqa %ymm3, 32(%rdi)
 vmovdqa %ymm4, 64(%rdi)
@@ -418,89 +416,83 @@ vmovdqa %ymm5, 96(%rdi)
 
 add $128, %rdi
 cmp %r8,  %rdi
-jb  .Llooptop_basemul_2
+jb  NTRUPLUS_ASM_LOCAL(looptop_basemul_2)
 
 ret
-#ifdef __ELF__
-.size poly_basemul, .-poly_basemul
-#endif
+NTRUPLUS_ASM_END(poly_basemul)
 
 
-.global poly_basemul_scaled
-#ifdef __ELF__
-.type poly_basemul_scaled, @function
-#endif
-poly_basemul_scaled:
-vmovdqa    _16xq(%rip), %ymm0
-vmovdqa _16xqinv(%rip), %ymm15
-lea        zetas(%rip), %rcx
+NTRUPLUS_ASM_START(poly_basemul_scaled)
+vmovdqa    NTRUPLUS_ASM_SYMBOL(_16xq)(%rip), %ymm0
+vmovdqa NTRUPLUS_ASM_SYMBOL(_16xqinv)(%rip), %ymm15
+lea        NTRUPLUS_ASM_SYMBOL(zetas)(%rip), %rcx
 add              $1888, %rcx
 
 lea 2304(%rsi), %r8
 
 .p2align 5
-.Llooptop_basemul_scaled:
-/* #load */
-vmovdqa 96(%rsi), %ymm1 /* #a[3] */
-vmovdqa 32(%rsi), %ymm2 /* #a[1] */
-vmovdqa 96(%rdx), %ymm3 /* #b[3] */
-vmovdqa 32(%rdx), %ymm4 /* #b[1] */
+NTRUPLUS_ASM_LOCAL(looptop_basemul_scaled):
+//load
+vmovdqa 96(%rsi), %ymm1 //a[3]
+vmovdqa 32(%rsi), %ymm2 //a[1]
+vmovdqa 96(%rdx), %ymm3 //b[3]
+vmovdqa 32(%rdx), %ymm4 //b[1]
 
-/* #premul */
+//premul
 vpmullw %ymm15, %ymm1, %ymm13
 vpmullw %ymm15, %ymm2, %ymm14
 
-/* #mul */
-vpmullw %ymm14, %ymm3, %ymm5  /* #a[1]*b[3] */
-vpmullw %ymm13, %ymm4, %ymm6  /* #a[3]*b[1] */
-vpmullw %ymm13, %ymm3, %ymm7  /* #a[3]*b[3] */
-vpmulhw %ymm2,  %ymm3, %ymm8  /* #a[1]*b[3] */
-vpmulhw %ymm1,  %ymm4, %ymm9  /* #a[3]*b[1] */
-vpmulhw %ymm1,  %ymm3, %ymm10 /* #a[3]*b[3] */
+//mul
+vpmullw %ymm14, %ymm3, %ymm5  //a[1]*b[3]
+vpmullw %ymm13, %ymm4, %ymm6  //a[3]*b[1]
+vpmullw %ymm13, %ymm3, %ymm7  //a[3]*b[3]
+vpmulhw %ymm2,  %ymm3, %ymm8  //a[1]*b[3]
+vpmulhw %ymm1,  %ymm4, %ymm9  //a[3]*b[1]
+vpmulhw %ymm1,  %ymm3, %ymm10 //a[3]*b[3]
 
-/* #reduce */
+//reduce
 vpmulhw %ymm0, %ymm5,  %ymm5
 vpmulhw %ymm0, %ymm6,  %ymm6
 vpmulhw %ymm0, %ymm7,  %ymm7
-vpsubw  %ymm5, %ymm8,  %ymm8  /* #a[1]*b[3] */
-vpsubw  %ymm6, %ymm9,  %ymm9  /* #a[3]*b[1] */
-vpsubw  %ymm7, %ymm10, %ymm10 /* #a[3]*b[3] */
+vpsubw  %ymm5, %ymm8,  %ymm8  //a[1]*b[3]
+vpsubw  %ymm6, %ymm9,  %ymm9  //a[3]*b[1]
+vpsubw  %ymm7, %ymm10, %ymm10 //a[3]*b[3]
 
-/* #add */
-vpaddw %ymm9, %ymm8, %ymm8 /* #c[0] = a[1]*b[3]+a[3]*b[1] */
+//add
+vpaddw %ymm9, %ymm8, %ymm8 //c[0] = a[1]*b[3]+a[3]*b[1]
 
-/* #load */
-vmovdqa 64(%rsi), %ymm2 /* #a[2] */
-vmovdqa 64(%rdx), %ymm4 /* #b[2] */
+//load
+vmovdqa 64(%rsi), %ymm2 //a[2]
+vmovdqa 64(%rdx), %ymm4 //b[2]
 
-/* #premul */
+//premul
 vpmullw %ymm15, %ymm2, %ymm14
 
-/* #mul */
-vpmullw %ymm14, %ymm4, %ymm5  /* #a[2]*b[2] */
-vpmullw %ymm14, %ymm3, %ymm6  /* #a[2]*b[3] */
-vpmullw %ymm13, %ymm4, %ymm7  /* #a[3]*b[2] */
-vpmulhw %ymm2,  %ymm4, %ymm11 /* #a[2]*b[2] */
-vpmulhw %ymm2,  %ymm3, %ymm12 /* #a[2]*b[3] */
-vpmulhw %ymm1,  %ymm4, %ymm13 /* #a[3]*b[2] */
+//mul
+vpmullw %ymm14, %ymm4, %ymm5  //a[2]*b[2]
+vpmullw %ymm14, %ymm3, %ymm6  //a[2]*b[3]
+vpmullw %ymm13, %ymm4, %ymm7  //a[3]*b[2]
+vpmulhw %ymm2,  %ymm4, %ymm11 //a[2]*b[2]
+vpmulhw %ymm2,  %ymm3, %ymm12 //a[2]*b[3]
+vpmulhw %ymm1,  %ymm4, %ymm13 //a[3]*b[2]
 
-/* #reduce */
+//reduce
 vpmulhw %ymm0, %ymm5,  %ymm5
 vpmulhw %ymm0, %ymm6,  %ymm6
 vpmulhw %ymm0, %ymm7,  %ymm7
-vpsubw  %ymm5, %ymm11, %ymm11 /* #a[2]*b[2] */
-vpsubw  %ymm6, %ymm12, %ymm12 /* #a[2]*b[3] */
-vpsubw  %ymm7, %ymm13, %ymm13 /* #a[3]*b[2] */
+vpsubw  %ymm5, %ymm11, %ymm11 //a[2]*b[2]
+vpsubw  %ymm6, %ymm12, %ymm12 //a[2]*b[3]
+vpsubw  %ymm7, %ymm13, %ymm13 //a[3]*b[2]
 
-/* #add */
-vpaddw %ymm11, %ymm8,  %ymm8 /* #c[0] */
-vpaddw %ymm13, %ymm12, %ymm9 /* #c[1] */
+//add
+vpaddw %ymm11, %ymm8,  %ymm8 //c[0]
+vpaddw %ymm13, %ymm12, %ymm9 //c[1]
 
-/* #load zeta */
+//load zeta
 vmovdqa   (%rcx), %ymm13
 vmovdqa 32(%rcx), %ymm1
 
-/* #mul */
+//mul
 vpmullw %ymm13, %ymm8,  %ymm5
 vpmullw %ymm13, %ymm9,  %ymm6
 vpmullw %ymm13, %ymm10, %ymm7
@@ -508,7 +500,7 @@ vpmulhw %ymm1,  %ymm8,  %ymm8
 vpmulhw %ymm1,  %ymm9,  %ymm9
 vpmulhw %ymm1,  %ymm10, %ymm10
 
-/* #reduce */
+//reduce
 vpmulhw %ymm0, %ymm5,  %ymm5
 vpmulhw %ymm0, %ymm6,  %ymm6
 vpmulhw %ymm0, %ymm7,  %ymm7
@@ -516,171 +508,171 @@ vpsubw  %ymm5, %ymm8,  %ymm5
 vpsubw  %ymm6, %ymm9,  %ymm6
 vpsubw  %ymm7, %ymm10, %ymm7
 
-/* #load */
-vmovdqa (%rsi), %ymm1 /* #a[0] */
-vmovdqa (%rdx), %ymm3 /* #b[0] */
+//load
+vmovdqa (%rsi), %ymm1 //a[0]
+vmovdqa (%rdx), %ymm3 //b[0]
 
-/* #premul */
+//premul
 vpmullw %ymm15, %ymm1, %ymm13
 
-/* #mul */
-vpmullw %ymm13, %ymm3, %ymm8  /* #a[0]*b[0] */
-vpmullw %ymm13, %ymm4, %ymm9  /* #a[0]*b[2] */
-vpmullw %ymm14, %ymm3, %ymm10 /* #a[2]*b[0] */
-vpmulhw %ymm1,  %ymm3, %ymm11 /* #a[0]*b[0] */
-vpmulhw %ymm1,  %ymm4, %ymm12 /* #a[0]*b[2] */
-vpmulhw %ymm2,  %ymm3, %ymm14 /* #a[2]*b[0] */
+//mul
+vpmullw %ymm13, %ymm3, %ymm8  //a[0]*b[0]
+vpmullw %ymm13, %ymm4, %ymm9  //a[0]*b[2]
+vpmullw %ymm14, %ymm3, %ymm10 //a[2]*b[0]
+vpmulhw %ymm1,  %ymm3, %ymm11 //a[0]*b[0]
+vpmulhw %ymm1,  %ymm4, %ymm12 //a[0]*b[2]
+vpmulhw %ymm2,  %ymm3, %ymm14 //a[2]*b[0]
 
-/* #reduce */
+//reduce
 vpmulhw %ymm0,  %ymm8,  %ymm8
 vpmulhw %ymm0,  %ymm9,  %ymm9
 vpmulhw %ymm0,  %ymm10, %ymm10
-vpsubw  %ymm8,  %ymm11, %ymm8  /* #a[0]*b[0] */
-vpsubw  %ymm9,  %ymm12, %ymm9  /* #a[0]*b[2] */
-vpsubw  %ymm10, %ymm14, %ymm10 /* #a[2]*b[0] */
+vpsubw  %ymm8,  %ymm11, %ymm8  //a[0]*b[0]
+vpsubw  %ymm9,  %ymm12, %ymm9  //a[0]*b[2]
+vpsubw  %ymm10, %ymm14, %ymm10 //a[2]*b[0]
 
-/* #add */
-vpaddw %ymm8,  %ymm5, %ymm5 /* #c[0] = c[0]*zeta+a[0]*b[0] */
-vpaddw %ymm9,  %ymm7, %ymm7 /* #c[2] = c[2]*zeta+a[0]*b[2]+a[2]*b[0] */
-vpaddw %ymm10, %ymm7, %ymm7 /* #c[2] = c[2]*zeta+a[0]*b[2]+a[2]*b[0] */
+//add
+vpaddw %ymm8,  %ymm5, %ymm5 //c[0] = c[0]*zeta+a[0]*b[0]
+vpaddw %ymm9,  %ymm7, %ymm7 //c[2] = c[2]*zeta+a[0]*b[2]+a[2]*b[0]
+vpaddw %ymm10, %ymm7, %ymm7 //c[2] = c[2]*zeta+a[0]*b[2]+a[2]*b[0]
 
-/* #load */
-vmovdqa 32(%rsi), %ymm2 /* #a[1] */
-vmovdqa 32(%rdx), %ymm4 /* #b[1] */
+//load
+vmovdqa 32(%rsi), %ymm2 //a[1]
+vmovdqa 32(%rdx), %ymm4 //b[1]
 
-/* #premul */
+//premul
 vpmullw %ymm15, %ymm2, %ymm14
 
-/* #mul */
-vpmullw %ymm13, %ymm4, %ymm8  /* #a[0]*b[1] */
-vpmullw %ymm14, %ymm3, %ymm9  /* #a[1]*b[0] */
-vpmullw %ymm14, %ymm4, %ymm10 /* #a[1]*b[1] */
-vpmulhw %ymm1,  %ymm4, %ymm11 /* #a[0]*b[1] */
-vpmulhw %ymm2,  %ymm3, %ymm12 /* #a[1]*b[0] */
-vpmulhw %ymm2,  %ymm4, %ymm13 /* #a[1]*b[1] */
+//mul
+vpmullw %ymm13, %ymm4, %ymm8  //a[0]*b[1]
+vpmullw %ymm14, %ymm3, %ymm9  //a[1]*b[0]
+vpmullw %ymm14, %ymm4, %ymm10 //a[1]*b[1]
+vpmulhw %ymm1,  %ymm4, %ymm11 //a[0]*b[1]
+vpmulhw %ymm2,  %ymm3, %ymm12 //a[1]*b[0]
+vpmulhw %ymm2,  %ymm4, %ymm13 //a[1]*b[1]
 
-/* #reduce */
+//reduce
 vpmulhw %ymm0,  %ymm8,  %ymm8
 vpmulhw %ymm0,  %ymm9,  %ymm9
 vpmulhw %ymm0,  %ymm10, %ymm10
-vpsubw  %ymm8,  %ymm11, %ymm8  /* #a[0]*b[1] */
-vpsubw  %ymm9,  %ymm12, %ymm9  /* #a[1]*b[0] */
-vpsubw  %ymm10, %ymm13, %ymm10 /* #a[1]*b[1] */
+vpsubw  %ymm8,  %ymm11, %ymm8  //a[0]*b[1]
+vpsubw  %ymm9,  %ymm12, %ymm9  //a[1]*b[0]
+vpsubw  %ymm10, %ymm13, %ymm10 //a[1]*b[1]
 
-/* #add */
-vpaddw %ymm8,  %ymm6, %ymm6 /* #c[1] = c[1]*zeta+a[0]*b[1]+a[1]*b[0] */
-vpaddw %ymm9,  %ymm6, %ymm6 /* #c[1] = c[1]*zeta+a[0]*b[1]+a[1]*b[0] */
-vpaddw %ymm10, %ymm7, %ymm7 /* #c[2] = c[2]*zeta+a[0]*b[2]+a[1]*b[1]+a[2]*b[0] */
+//add
+vpaddw %ymm8,  %ymm6, %ymm6 //c[1] = c[1]*zeta+a[0]*b[1]+a[1]*b[0]
+vpaddw %ymm9,  %ymm6, %ymm6 //c[1] = c[1]*zeta+a[0]*b[1]+a[1]*b[0]
+vpaddw %ymm10, %ymm7, %ymm7 //c[2] = c[2]*zeta+a[0]*b[2]+a[1]*b[1]+a[2]*b[0]
 
-/* #store */
+//store
 vmovdqa %ymm5,   (%rdi)
 vmovdqa %ymm6, 32(%rdi)
 vmovdqa %ymm7, 64(%rdi)
 
-/* #load */
-vmovdqa 64(%rsi), %ymm5 /* #a[2] */
-vmovdqa 96(%rsi), %ymm6 /* #a[3] */
-vmovdqa 64(%rdx), %ymm7 /* #b[2] */
-vmovdqa 96(%rdx), %ymm8 /* #b[3] */
+//load
+vmovdqa 64(%rsi), %ymm5 //a[2]
+vmovdqa 96(%rsi), %ymm6 //a[3]
+vmovdqa 64(%rdx), %ymm7 //b[2]
+vmovdqa 96(%rdx), %ymm8 //b[3]
 
-/* #premul */
+//premul
 vpmullw %ymm15, %ymm1, %ymm13
 vpmullw %ymm15, %ymm5, %ymm11
 vpmullw %ymm15, %ymm6, %ymm12
 
-/* #mul */
-vpmullw %ymm13, %ymm8, %ymm13 /* #a[0]*b[3] */
-vpmullw %ymm14, %ymm7, %ymm14 /* #a[1]*b[2] */
-vpmullw %ymm11, %ymm4, %ymm11 /* #a[2]*b[1] */
-vpmullw %ymm12, %ymm3, %ymm12 /* #a[3]*b[0] */
-vpmulhw %ymm1,  %ymm8, %ymm1  /* #a[0]*b[3] */
-vpmulhw %ymm2,  %ymm7, %ymm2  /* #a[1]*b[2] */
-vpmulhw %ymm5,  %ymm4, %ymm5  /* #a[2]*b[1] */
-vpmulhw %ymm6,  %ymm3, %ymm6  /* #a[3]*b[0] */
+//mul
+vpmullw %ymm13, %ymm8, %ymm13 //a[0]*b[3]
+vpmullw %ymm14, %ymm7, %ymm14 //a[1]*b[2]
+vpmullw %ymm11, %ymm4, %ymm11 //a[2]*b[1]
+vpmullw %ymm12, %ymm3, %ymm12 //a[3]*b[0]
+vpmulhw %ymm1,  %ymm8, %ymm1  //a[0]*b[3]
+vpmulhw %ymm2,  %ymm7, %ymm2  //a[1]*b[2]
+vpmulhw %ymm5,  %ymm4, %ymm5  //a[2]*b[1]
+vpmulhw %ymm6,  %ymm3, %ymm6  //a[3]*b[0]
 
-/* #reduce */
+//reduce
 vpmulhw %ymm0,  %ymm13, %ymm13
 vpmulhw %ymm0,  %ymm14, %ymm14
 vpmulhw %ymm0,  %ymm11, %ymm11
 vpmulhw %ymm0,  %ymm12, %ymm12
-vpsubw  %ymm13, %ymm1,  %ymm13 /* #a[0]*b[3] */
-vpsubw  %ymm14, %ymm2,  %ymm14 /* #a[2]*b[1] */
-vpsubw  %ymm11, %ymm5,  %ymm11 /* #a[0]*b[3] */
-vpsubw  %ymm12, %ymm6,  %ymm12 /* #a[2]*b[1] */
+vpsubw  %ymm13, %ymm1,  %ymm13 //a[0]*b[3]
+vpsubw  %ymm14, %ymm2,  %ymm14 //a[2]*b[1]
+vpsubw  %ymm11, %ymm5,  %ymm11 //a[0]*b[3]
+vpsubw  %ymm12, %ymm6,  %ymm12 //a[2]*b[1]
 
-/* #add */
+//add
 vpaddw %ymm14, %ymm13, %ymm1
 vpaddw %ymm12, %ymm11, %ymm2
-vpaddw %ymm2,  %ymm1,  %ymm1 /* #c[3] */
+vpaddw %ymm2,  %ymm1,  %ymm1 //c[3]
 
-/* #store */
-vmovdqa %ymm1, 96(%rdi) /* #c[3] */
+//store
+vmovdqa %ymm1, 96(%rdi) //c[3]
 
 add $128, %rsi
 add $128, %rdx
 add $128, %rdi
 
-/* #load */
-vmovdqa 96(%rsi), %ymm1 /* #a[3] */
-vmovdqa 32(%rsi), %ymm2 /* #a[1] */
-vmovdqa 96(%rdx), %ymm3 /* #b[3] */
-vmovdqa 32(%rdx), %ymm4 /* #b[1] */
+//load
+vmovdqa 96(%rsi), %ymm1 //a[3]
+vmovdqa 32(%rsi), %ymm2 //a[1]
+vmovdqa 96(%rdx), %ymm3 //b[3]
+vmovdqa 32(%rdx), %ymm4 //b[1]
 
-/* #premul */
+//premul
 vpmullw %ymm15, %ymm1, %ymm13
 vpmullw %ymm15, %ymm2, %ymm14
 
-/* #mul */
-vpmullw %ymm14, %ymm3, %ymm5  /* #a[1]*b[3] */
-vpmullw %ymm13, %ymm4, %ymm6  /* #a[3]*b[1] */
-vpmullw %ymm13, %ymm3, %ymm7  /* #a[3]*b[3] */
-vpmulhw %ymm2,  %ymm3, %ymm8  /* #a[1]*b[3] */
-vpmulhw %ymm1,  %ymm4, %ymm9  /* #a[3]*b[1] */
-vpmulhw %ymm1,  %ymm3, %ymm10 /* #a[3]*b[3] */
+//mul
+vpmullw %ymm14, %ymm3, %ymm5  //a[1]*b[3]
+vpmullw %ymm13, %ymm4, %ymm6  //a[3]*b[1]
+vpmullw %ymm13, %ymm3, %ymm7  //a[3]*b[3]
+vpmulhw %ymm2,  %ymm3, %ymm8  //a[1]*b[3]
+vpmulhw %ymm1,  %ymm4, %ymm9  //a[3]*b[1]
+vpmulhw %ymm1,  %ymm3, %ymm10 //a[3]*b[3]
 
-/* #reduce */
+//reduce
 vpmulhw %ymm0, %ymm5,  %ymm5
 vpmulhw %ymm0, %ymm6,  %ymm6
 vpmulhw %ymm0, %ymm7,  %ymm7
-vpsubw  %ymm5, %ymm8,  %ymm8  /* #a[1]*b[3] */
-vpsubw  %ymm6, %ymm9,  %ymm9  /* #a[3]*b[1] */
-vpsubw  %ymm7, %ymm10, %ymm10 /* #a[3]*b[3] */
+vpsubw  %ymm5, %ymm8,  %ymm8  //a[1]*b[3]
+vpsubw  %ymm6, %ymm9,  %ymm9  //a[3]*b[1]
+vpsubw  %ymm7, %ymm10, %ymm10 //a[3]*b[3]
 
-/* #add */
-vpaddw %ymm9, %ymm8, %ymm8 /* #c[0] = a[1]*b[3]+a[3]*b[1] */
+//add
+vpaddw %ymm9, %ymm8, %ymm8 //c[0] = a[1]*b[3]+a[3]*b[1]
 
-/* #load */
-vmovdqa 64(%rsi), %ymm2 /* #a[2] */
-vmovdqa 64(%rdx), %ymm4 /* #b[2] */
+//load
+vmovdqa 64(%rsi), %ymm2 //a[2]
+vmovdqa 64(%rdx), %ymm4 //b[2]
 
-/* #premul */
+//premul
 vpmullw %ymm15, %ymm2, %ymm14
 
-/* #mul */
-vpmullw %ymm14, %ymm4, %ymm5  /* #a[2]*b[2] */
-vpmullw %ymm14, %ymm3, %ymm6  /* #a[2]*b[3] */
-vpmullw %ymm13, %ymm4, %ymm7  /* #a[3]*b[2] */
-vpmulhw %ymm2,  %ymm4, %ymm11 /* #a[2]*b[2] */
-vpmulhw %ymm2,  %ymm3, %ymm12 /* #a[2]*b[3] */
-vpmulhw %ymm1,  %ymm4, %ymm13 /* #a[3]*b[2] */
+//mul
+vpmullw %ymm14, %ymm4, %ymm5  //a[2]*b[2]
+vpmullw %ymm14, %ymm3, %ymm6  //a[2]*b[3]
+vpmullw %ymm13, %ymm4, %ymm7  //a[3]*b[2]
+vpmulhw %ymm2,  %ymm4, %ymm11 //a[2]*b[2]
+vpmulhw %ymm2,  %ymm3, %ymm12 //a[2]*b[3]
+vpmulhw %ymm1,  %ymm4, %ymm13 //a[3]*b[2]
 
-/* #reduce */
+//reduce
 vpmulhw %ymm0, %ymm5,  %ymm5
 vpmulhw %ymm0, %ymm6,  %ymm6
 vpmulhw %ymm0, %ymm7,  %ymm7
-vpsubw  %ymm5, %ymm11, %ymm11 /* #a[2]*b[2] */
-vpsubw  %ymm6, %ymm12, %ymm12 /* #a[2]*b[3] */
-vpsubw  %ymm7, %ymm13, %ymm13 /* #a[3]*b[2] */
+vpsubw  %ymm5, %ymm11, %ymm11 //a[2]*b[2]
+vpsubw  %ymm6, %ymm12, %ymm12 //a[2]*b[3]
+vpsubw  %ymm7, %ymm13, %ymm13 //a[3]*b[2]
 
-/* #add */
-vpaddw %ymm11, %ymm8,  %ymm8 /* #c[0] */
-vpaddw %ymm13, %ymm12, %ymm9 /* #c[1] */
+//add
+vpaddw %ymm11, %ymm8,  %ymm8 //c[0]
+vpaddw %ymm13, %ymm12, %ymm9 //c[1]
 
-/* #load zeta */
+//load zeta
 vmovdqa   (%rcx), %ymm13
 vmovdqa 32(%rcx), %ymm1
 
-/* #mul */
+//mul
 vpmullw %ymm13, %ymm8,  %ymm5
 vpmullw %ymm13, %ymm9,  %ymm6
 vpmullw %ymm13, %ymm10, %ymm7
@@ -688,7 +680,7 @@ vpmulhw %ymm1,  %ymm8,  %ymm8
 vpmulhw %ymm1,  %ymm9,  %ymm9
 vpmulhw %ymm1,  %ymm10, %ymm10
 
-/* #reduce */
+//reduce
 vpmulhw %ymm0,  %ymm5, %ymm5
 vpmulhw %ymm0,  %ymm6, %ymm6
 vpmulhw %ymm0,  %ymm7, %ymm7
@@ -696,194 +688,189 @@ vpsubw  %ymm8,  %ymm5, %ymm5
 vpsubw  %ymm9,  %ymm6, %ymm6
 vpsubw  %ymm10, %ymm7, %ymm7
 
-/* #load */
-vmovdqa (%rsi), %ymm1 /* #a[0] */
-vmovdqa (%rdx), %ymm3 /* #b[0] */
+//load
+vmovdqa (%rsi), %ymm1 //a[0]
+vmovdqa (%rdx), %ymm3 //b[0]
 
-/* #premul */
+//premul
 vpmullw %ymm15, %ymm1, %ymm13
 
-/* #mul */
-vpmullw %ymm13, %ymm3, %ymm8  /* #a[0]*b[0] */
-vpmullw %ymm13, %ymm4, %ymm9  /* #a[0]*b[2] */
-vpmullw %ymm14, %ymm3, %ymm10 /* #a[2]*b[0] */
-vpmulhw %ymm1,  %ymm3, %ymm11 /* #a[0]*b[0] */
-vpmulhw %ymm1,  %ymm4, %ymm12 /* #a[0]*b[2] */
-vpmulhw %ymm2,  %ymm3, %ymm14 /* #a[2]*b[0] */
+//mul
+vpmullw %ymm13, %ymm3, %ymm8  //a[0]*b[0]
+vpmullw %ymm13, %ymm4, %ymm9  //a[0]*b[2]
+vpmullw %ymm14, %ymm3, %ymm10 //a[2]*b[0]
+vpmulhw %ymm1,  %ymm3, %ymm11 //a[0]*b[0]
+vpmulhw %ymm1,  %ymm4, %ymm12 //a[0]*b[2]
+vpmulhw %ymm2,  %ymm3, %ymm14 //a[2]*b[0]
 
-/* #reduce */
+//reduce
 vpmulhw %ymm0,  %ymm8,  %ymm8
 vpmulhw %ymm0,  %ymm9,  %ymm9
 vpmulhw %ymm0,  %ymm10, %ymm10
-vpsubw  %ymm8,  %ymm11, %ymm8  /* #a[0]*b[0] */
-vpsubw  %ymm9,  %ymm12, %ymm9  /* #a[0]*b[2] */
-vpsubw  %ymm10, %ymm14, %ymm10 /* #a[2]*b[0] */
+vpsubw  %ymm8,  %ymm11, %ymm8  //a[0]*b[0]
+vpsubw  %ymm9,  %ymm12, %ymm9  //a[0]*b[2]
+vpsubw  %ymm10, %ymm14, %ymm10 //a[2]*b[0]
 
-/* #add */
-vpaddw %ymm8,  %ymm5, %ymm5 /* #c[0] = c[0]*zeta+a[0]*b[0] */
-vpaddw %ymm9,  %ymm7, %ymm7 /* #c[2] = c[2]*zeta+a[0]*b[2]+a[2]*b[0] */
-vpaddw %ymm10, %ymm7, %ymm7 /* #c[2] = c[2]*zeta+a[0]*b[2]+a[2]*b[0] */
+//add
+vpaddw %ymm8,  %ymm5, %ymm5 //c[0] = c[0]*zeta+a[0]*b[0]
+vpaddw %ymm9,  %ymm7, %ymm7 //c[2] = c[2]*zeta+a[0]*b[2]+a[2]*b[0]
+vpaddw %ymm10, %ymm7, %ymm7 //c[2] = c[2]*zeta+a[0]*b[2]+a[2]*b[0]
 
-/* #load */
-vmovdqa 32(%rsi), %ymm2 /* #a[1] */
-vmovdqa 32(%rdx), %ymm4 /* #b[1] */
+//load
+vmovdqa 32(%rsi), %ymm2 //a[1]
+vmovdqa 32(%rdx), %ymm4 //b[1]
 
-/* #premul */
+//premul
 vpmullw %ymm15, %ymm2, %ymm14
 
-/* #mul */
-vpmullw %ymm13, %ymm4, %ymm8  /* #a[0]*b[1] */
-vpmullw %ymm14, %ymm3, %ymm9  /* #a[1]*b[0] */
-vpmullw %ymm14, %ymm4, %ymm10 /* #a[1]*b[1] */
-vpmulhw %ymm1,  %ymm4, %ymm11 /* #a[0]*b[1] */
-vpmulhw %ymm2,  %ymm3, %ymm12 /* #a[1]*b[0] */
-vpmulhw %ymm2,  %ymm4, %ymm13 /* #a[1]*b[1] */
+//mul
+vpmullw %ymm13, %ymm4, %ymm8  //a[0]*b[1]
+vpmullw %ymm14, %ymm3, %ymm9  //a[1]*b[0]
+vpmullw %ymm14, %ymm4, %ymm10 //a[1]*b[1]
+vpmulhw %ymm1,  %ymm4, %ymm11 //a[0]*b[1]
+vpmulhw %ymm2,  %ymm3, %ymm12 //a[1]*b[0]
+vpmulhw %ymm2,  %ymm4, %ymm13 //a[1]*b[1]
 
-/* #reduce */
+//reduce
 vpmulhw %ymm0,  %ymm8,  %ymm8
 vpmulhw %ymm0,  %ymm9,  %ymm9
 vpmulhw %ymm0,  %ymm10, %ymm10
-vpsubw  %ymm8,  %ymm11, %ymm8  /* #a[0]*b[1] */
-vpsubw  %ymm9,  %ymm12, %ymm9  /* #a[1]*b[0] */
-vpsubw  %ymm10, %ymm13, %ymm10 /* #a[1]*b[1] */
+vpsubw  %ymm8,  %ymm11, %ymm8  //a[0]*b[1]
+vpsubw  %ymm9,  %ymm12, %ymm9  //a[1]*b[0]
+vpsubw  %ymm10, %ymm13, %ymm10 //a[1]*b[1]
 
-/* #add */
-vpaddw %ymm8,  %ymm6, %ymm6 /* #c[1] = c[1]*zeta+a[0]*b[1]+a[1]*b[0] */
-vpaddw %ymm9,  %ymm6, %ymm6 /* #c[1] = c[1]*zeta+a[0]*b[1]+a[1]*b[0] */
-vpaddw %ymm10, %ymm7, %ymm7 /* #c[2] = c[2]*zeta+a[0]*b[2]+a[1]*b[1]+a[2]*b[0] */
+//add
+vpaddw %ymm8,  %ymm6, %ymm6 //c[1] = c[1]*zeta+a[0]*b[1]+a[1]*b[0]
+vpaddw %ymm9,  %ymm6, %ymm6 //c[1] = c[1]*zeta+a[0]*b[1]+a[1]*b[0]
+vpaddw %ymm10, %ymm7, %ymm7 //c[2] = c[2]*zeta+a[0]*b[2]+a[1]*b[1]+a[2]*b[0]
 
-/* #store */
+//store
 vmovdqa %ymm5,   (%rdi)
 vmovdqa %ymm6, 32(%rdi)
 vmovdqa %ymm7, 64(%rdi)
 
-/* #load */
-vmovdqa 64(%rsi), %ymm5 /* #a[2] */
-vmovdqa 96(%rsi), %ymm6 /* #a[3] */
-vmovdqa 64(%rdx), %ymm7 /* #b[2] */
-vmovdqa 96(%rdx), %ymm8 /* #b[3] */
+//load
+vmovdqa 64(%rsi), %ymm5 //a[2]
+vmovdqa 96(%rsi), %ymm6 //a[3]
+vmovdqa 64(%rdx), %ymm7 //b[2]
+vmovdqa 96(%rdx), %ymm8 //b[3]
 
-/* #premul */
+//premul
 vpmullw %ymm15, %ymm1, %ymm13
 vpmullw %ymm15, %ymm5, %ymm11
 vpmullw %ymm15, %ymm6, %ymm12
 
-/* #mul */
-vpmullw %ymm13, %ymm8, %ymm13 /* #a[0]*b[3] */
-vpmullw %ymm14, %ymm7, %ymm14 /* #a[1]*b[2] */
-vpmullw %ymm11, %ymm4, %ymm11 /* #a[2]*b[1] */
-vpmullw %ymm12, %ymm3, %ymm12 /* #a[3]*b[0] */
-vpmulhw %ymm1,  %ymm8, %ymm1  /* #a[0]*b[3] */
-vpmulhw %ymm2,  %ymm7, %ymm2  /* #a[1]*b[2] */
-vpmulhw %ymm5,  %ymm4, %ymm5  /* #a[2]*b[1] */
-vpmulhw %ymm6,  %ymm3, %ymm6  /* #a[3]*b[0] */
+//mul
+vpmullw %ymm13, %ymm8, %ymm13 //a[0]*b[3]
+vpmullw %ymm14, %ymm7, %ymm14 //a[1]*b[2]
+vpmullw %ymm11, %ymm4, %ymm11 //a[2]*b[1]
+vpmullw %ymm12, %ymm3, %ymm12 //a[3]*b[0]
+vpmulhw %ymm1,  %ymm8, %ymm1  //a[0]*b[3]
+vpmulhw %ymm2,  %ymm7, %ymm2  //a[1]*b[2]
+vpmulhw %ymm5,  %ymm4, %ymm5  //a[2]*b[1]
+vpmulhw %ymm6,  %ymm3, %ymm6  //a[3]*b[0]
 
-/* #reduce */
+//reduce
 vpmulhw %ymm0,  %ymm13, %ymm13
 vpmulhw %ymm0,  %ymm14, %ymm14
 vpmulhw %ymm0,  %ymm11, %ymm11
 vpmulhw %ymm0,  %ymm12, %ymm12
-vpsubw  %ymm13, %ymm1,  %ymm13 /* #a[0]*b[3] */
-vpsubw  %ymm14, %ymm2,  %ymm14 /* #a[2]*b[1] */
-vpsubw  %ymm11, %ymm5,  %ymm11 /* #a[0]*b[3] */
-vpsubw  %ymm12, %ymm6,  %ymm12 /* #a[2]*b[1] */
+vpsubw  %ymm13, %ymm1,  %ymm13 //a[0]*b[3]
+vpsubw  %ymm14, %ymm2,  %ymm14 //a[2]*b[1]
+vpsubw  %ymm11, %ymm5,  %ymm11 //a[0]*b[3]
+vpsubw  %ymm12, %ymm6,  %ymm12 //a[2]*b[1]
 
-/* #add */
+//add
 vpaddw %ymm14, %ymm13, %ymm1
 vpaddw %ymm12, %ymm11, %ymm2
-vpaddw %ymm2,  %ymm1,  %ymm1 /* #c[3] */
+vpaddw %ymm2,  %ymm1,  %ymm1 //c[3]
 
-/* #store */
-vmovdqa %ymm1, 96(%rdi) /* #c[3] */
+//store
+vmovdqa %ymm1, 96(%rdi) //c[3]
 
 add $128, %rsi
 add $128, %rdx
 add $128, %rdi
 add $64,  %rcx
 cmp %r8,  %rsi
-jb  .Llooptop_basemul_scaled
+jb  NTRUPLUS_ASM_LOCAL(looptop_basemul_scaled)
 
 ret
-#ifdef __ELF__
-.size poly_basemul_scaled, .-poly_basemul_scaled
-#endif
+NTRUPLUS_ASM_END(poly_basemul_scaled)
 
-.global poly_basemul_add
-#ifdef __ELF__
-.type poly_basemul_add, @function
-#endif
-poly_basemul_add:
-vmovdqa    _16xq(%rip),  %ymm0
-vmovdqa _16xqinv(%rip), %ymm15
-lea zetas(%rip), %r9
+
+NTRUPLUS_ASM_START(poly_basemul_add)
+vmovdqa    NTRUPLUS_ASM_SYMBOL(_16xq)(%rip),  %ymm0
+vmovdqa NTRUPLUS_ASM_SYMBOL(_16xqinv)(%rip), %ymm15
+lea NTRUPLUS_ASM_SYMBOL(zetas)(%rip), %r9
 add $1888, %r9
 
 lea 2304(%rsi), %r8
 
 .p2align 5
-.Llooptop_basemul_add:
+NTRUPLUS_ASM_LOCAL(looptop_basemul_add):
 
-/* #load */
-vmovdqa 96(%rsi), %ymm1 /* #a[3] */
-vmovdqa 32(%rsi), %ymm2 /* #a[1] */
-vmovdqa 96(%rdx), %ymm3 /* #b[3] */
-vmovdqa 32(%rdx), %ymm4 /* #b[1] */
+//load
+vmovdqa 96(%rsi), %ymm1 //a[3]
+vmovdqa 32(%rsi), %ymm2 //a[1]
+vmovdqa 96(%rdx), %ymm3 //b[3]
+vmovdqa 32(%rdx), %ymm4 //b[1]
 
-/* #premul */
+//premul
 vpmullw %ymm15, %ymm1, %ymm13
 vpmullw %ymm15, %ymm2, %ymm14
 
-/* #mul */
-vpmullw %ymm14, %ymm3,  %ymm5 /* #a[1]*b[3] */
-vpmullw %ymm13, %ymm4,  %ymm6 /* #a[3]*b[1] */
-vpmullw %ymm13, %ymm3,  %ymm7 /* #a[3]*b[3] */
-vpmulhw  %ymm2, %ymm3,  %ymm8 /* #a[1]*b[3] */
-vpmulhw  %ymm1, %ymm4,  %ymm9 /* #a[3]*b[1] */
-vpmulhw  %ymm1, %ymm3, %ymm10 /* #a[3]*b[3] */
+//mul
+vpmullw %ymm14, %ymm3,  %ymm5 //a[1]*b[3]
+vpmullw %ymm13, %ymm4,  %ymm6 //a[3]*b[1]
+vpmullw %ymm13, %ymm3,  %ymm7 //a[3]*b[3]
+vpmulhw  %ymm2, %ymm3,  %ymm8 //a[1]*b[3]
+vpmulhw  %ymm1, %ymm4,  %ymm9 //a[3]*b[1]
+vpmulhw  %ymm1, %ymm3, %ymm10 //a[3]*b[3]
 
-/* #reduce */
+//reduce
 vpmulhw %ymm0,  %ymm5,  %ymm5
 vpmulhw %ymm0,  %ymm6,  %ymm6
 vpmulhw %ymm0,  %ymm7,  %ymm7
-vpsubw  %ymm5,  %ymm8,  %ymm8 /* #a[1]*b[3] */
-vpsubw  %ymm6,  %ymm9,  %ymm9 /* #a[3]*b[1] */
-vpsubw  %ymm7, %ymm10, %ymm10 /* #a[3]*b[3] */
+vpsubw  %ymm5,  %ymm8,  %ymm8 //a[1]*b[3]
+vpsubw  %ymm6,  %ymm9,  %ymm9 //a[3]*b[1]
+vpsubw  %ymm7, %ymm10, %ymm10 //a[3]*b[3]
 
-/* #add */
-vpaddw %ymm9, %ymm8, %ymm8 /* #c[0] = a[1]*b[3]+a[3]*b[1] */
+//add
+vpaddw %ymm9, %ymm8, %ymm8 //c[0] = a[1]*b[3]+a[3]*b[1]
 
-/* #load */
-vmovdqa 64(%rsi), %ymm2 /* #a[2] */
-vmovdqa 64(%rdx), %ymm4 /* #b[2] */
+//load
+vmovdqa 64(%rsi), %ymm2 //a[2]
+vmovdqa 64(%rdx), %ymm4 //b[2]
 
-/* #premul */
+//premul
 vpmullw %ymm15, %ymm2, %ymm14
 
-/* #mul */
-vpmullw %ymm14, %ymm4,  %ymm5 /* #a[2]*b[2] */
-vpmullw %ymm14, %ymm3,  %ymm6 /* #a[2]*b[3] */
-vpmullw %ymm13, %ymm4,  %ymm7 /* #a[3]*b[2] */
-vpmulhw  %ymm2, %ymm4, %ymm11 /* #a[2]*b[2] */
-vpmulhw  %ymm2, %ymm3, %ymm12 /* #a[2]*b[3] */
-vpmulhw  %ymm1, %ymm4, %ymm13 /* #a[3]*b[2] */
+//mul
+vpmullw %ymm14, %ymm4,  %ymm5 //a[2]*b[2]
+vpmullw %ymm14, %ymm3,  %ymm6 //a[2]*b[3]
+vpmullw %ymm13, %ymm4,  %ymm7 //a[3]*b[2]
+vpmulhw  %ymm2, %ymm4, %ymm11 //a[2]*b[2]
+vpmulhw  %ymm2, %ymm3, %ymm12 //a[2]*b[3]
+vpmulhw  %ymm1, %ymm4, %ymm13 //a[3]*b[2]
 
-/* #reduce */
+//reduce
 vpmulhw %ymm0,  %ymm5,  %ymm5
 vpmulhw %ymm0,  %ymm6,  %ymm6
 vpmulhw %ymm0,  %ymm7,  %ymm7
-vpsubw  %ymm5, %ymm11, %ymm11 /* #a[2]*b[2] */
-vpsubw  %ymm6, %ymm12, %ymm12 /* #a[2]*b[3] */
-vpsubw  %ymm7, %ymm13, %ymm13 /* #a[3]*b[2] */
+vpsubw  %ymm5, %ymm11, %ymm11 //a[2]*b[2]
+vpsubw  %ymm6, %ymm12, %ymm12 //a[2]*b[3]
+vpsubw  %ymm7, %ymm13, %ymm13 //a[3]*b[2]
 
-/* #add */
-vpaddw %ymm11,  %ymm8, %ymm8 /* #c[0] */
-vpaddw %ymm13, %ymm12, %ymm9 /* #c[1] */
+//add
+vpaddw %ymm11,  %ymm8, %ymm8 //c[0]
+vpaddw %ymm13, %ymm12, %ymm9 //c[1]
 
-/* #load zeta */
+//load zeta
 vmovdqa   (%r9), %ymm13
 vmovdqa 32(%r9),  %ymm1
 
-/* #mul */
+//mul
 vpmullw %ymm13,  %ymm8,  %ymm5
 vpmullw %ymm13,  %ymm9,  %ymm6
 vpmullw %ymm13, %ymm10,  %ymm7
@@ -891,7 +878,7 @@ vpmulhw  %ymm1,  %ymm8,  %ymm8
 vpmulhw  %ymm1,  %ymm9,  %ymm9
 vpmulhw  %ymm1, %ymm10, %ymm10
 
-/* #reduce */
+//reduce
 vpmulhw %ymm0,  %ymm5, %ymm5
 vpmulhw %ymm0,  %ymm6, %ymm6
 vpmulhw %ymm0,  %ymm7, %ymm7
@@ -899,171 +886,171 @@ vpsubw  %ymm5,  %ymm8, %ymm5
 vpsubw  %ymm6,  %ymm9, %ymm6
 vpsubw  %ymm7, %ymm10, %ymm7
 
-/* #load */
-vmovdqa (%rsi), %ymm1 /* #a[0] */
-vmovdqa (%rdx), %ymm3 /* #b[0] */
+//load
+vmovdqa (%rsi), %ymm1 //a[0]
+vmovdqa (%rdx), %ymm3 //b[0]
 
-/* #premul */
+//premul
 vpmullw %ymm15, %ymm1, %ymm13
 
-/* #mul */
-vpmullw %ymm13, %ymm3,  %ymm8 /* #a[0]*b[0] */
-vpmullw %ymm13, %ymm4,  %ymm9 /* #a[0]*b[2] */
-vpmullw %ymm14, %ymm3, %ymm10 /* #a[2]*b[0] */
-vpmulhw  %ymm1, %ymm3, %ymm11 /* #a[0]*b[0] */
-vpmulhw  %ymm1, %ymm4, %ymm12 /* #a[0]*b[2] */
-vpmulhw  %ymm2, %ymm3, %ymm14 /* #a[2]*b[0] */
+//mul
+vpmullw %ymm13, %ymm3,  %ymm8 //a[0]*b[0]
+vpmullw %ymm13, %ymm4,  %ymm9 //a[0]*b[2]
+vpmullw %ymm14, %ymm3, %ymm10 //a[2]*b[0]
+vpmulhw  %ymm1, %ymm3, %ymm11 //a[0]*b[0]
+vpmulhw  %ymm1, %ymm4, %ymm12 //a[0]*b[2]
+vpmulhw  %ymm2, %ymm3, %ymm14 //a[2]*b[0]
 
-/* #reduce */
+//reduce
 vpmulhw  %ymm0,  %ymm8,  %ymm8
 vpmulhw  %ymm0,  %ymm9,  %ymm9
 vpmulhw  %ymm0, %ymm10, %ymm10
-vpsubw   %ymm8, %ymm11,  %ymm8 /* #a[0]*b[0] */
-vpsubw   %ymm9, %ymm12,  %ymm9 /* #a[0]*b[2] */
-vpsubw  %ymm10, %ymm14, %ymm10 /* #a[2]*b[0] */
+vpsubw   %ymm8, %ymm11,  %ymm8 //a[0]*b[0]
+vpsubw   %ymm9, %ymm12,  %ymm9 //a[0]*b[2]
+vpsubw  %ymm10, %ymm14, %ymm10 //a[2]*b[0]
 
-/* #add */
-vpaddw  %ymm8, %ymm5, %ymm5 /* #c[0] = c[0]*zeta+a[0]*b[0] */
-vpaddw  %ymm9, %ymm7, %ymm7 /* #c[2] = c[2]*zeta+a[0]*b[2]+a[2]*b[0] */
-vpaddw %ymm10, %ymm7, %ymm7 /* #c[2] = c[2]*zeta+a[0]*b[2]+a[2]*b[0] */
+//add
+vpaddw  %ymm8, %ymm5, %ymm5 //c[0] = c[0]*zeta+a[0]*b[0]
+vpaddw  %ymm9, %ymm7, %ymm7 //c[2] = c[2]*zeta+a[0]*b[2]+a[2]*b[0]
+vpaddw %ymm10, %ymm7, %ymm7 //c[2] = c[2]*zeta+a[0]*b[2]+a[2]*b[0]
 
-/* #load */
-vmovdqa 32(%rsi), %ymm2 /* #a[1] */
-vmovdqa 32(%rdx), %ymm4 /* #b[1] */
+//load
+vmovdqa 32(%rsi), %ymm2 //a[1]
+vmovdqa 32(%rdx), %ymm4 //b[1]
 
-/* #premul */
+//premul
 vpmullw %ymm15, %ymm2, %ymm14
 
-/* #mul */
-vpmullw %ymm13, %ymm4,  %ymm8 /* #a[0]*b[1] */
-vpmullw %ymm14, %ymm3,  %ymm9 /* #a[1]*b[0] */
-vpmullw %ymm14, %ymm4, %ymm10 /* #a[1]*b[1] */
-vpmulhw  %ymm1, %ymm4, %ymm11 /* #a[0]*b[1] */
-vpmulhw  %ymm2, %ymm3, %ymm12 /* #a[1]*b[0] */
-vpmulhw  %ymm2, %ymm4, %ymm13 /* #a[1]*b[1] */
+//mul
+vpmullw %ymm13, %ymm4,  %ymm8 //a[0]*b[1]
+vpmullw %ymm14, %ymm3,  %ymm9 //a[1]*b[0]
+vpmullw %ymm14, %ymm4, %ymm10 //a[1]*b[1]
+vpmulhw  %ymm1, %ymm4, %ymm11 //a[0]*b[1]
+vpmulhw  %ymm2, %ymm3, %ymm12 //a[1]*b[0]
+vpmulhw  %ymm2, %ymm4, %ymm13 //a[1]*b[1]
 
-/* #reduce */
+//reduce
 vpmulhw  %ymm0,  %ymm8,  %ymm8
 vpmulhw  %ymm0,  %ymm9,  %ymm9
 vpmulhw  %ymm0, %ymm10, %ymm10
-vpsubw   %ymm8, %ymm11,  %ymm8 /* #a[0]*b[1] */
-vpsubw   %ymm9, %ymm12,  %ymm9 /* #a[1]*b[0] */
-vpsubw  %ymm10, %ymm13, %ymm10 /* #a[1]*b[1] */
+vpsubw   %ymm8, %ymm11,  %ymm8 //a[0]*b[1]
+vpsubw   %ymm9, %ymm12,  %ymm9 //a[1]*b[0]
+vpsubw  %ymm10, %ymm13, %ymm10 //a[1]*b[1]
 
-/* #add */
-vpaddw  %ymm8, %ymm6, %ymm6 /* #c[1] = c[1]*zeta+a[0]*b[1]+a[1]*b[0] */
-vpaddw  %ymm9, %ymm6, %ymm6 /* #c[1] = c[1]*zeta+a[0]*b[1]+a[1]*b[0] */
-vpaddw %ymm10, %ymm7, %ymm7 /* #c[2] = c[2]*zeta+a[0]*b[2]+a[1]*b[1]+a[2]*b[0] */
+//add
+vpaddw  %ymm8, %ymm6, %ymm6 //c[1] = c[1]*zeta+a[0]*b[1]+a[1]*b[0]
+vpaddw  %ymm9, %ymm6, %ymm6 //c[1] = c[1]*zeta+a[0]*b[1]+a[1]*b[0]
+vpaddw %ymm10, %ymm7, %ymm7 //c[2] = c[2]*zeta+a[0]*b[2]+a[1]*b[1]+a[2]*b[0]
 
-/* #store */
+//store
 vmovdqa %ymm5,   (%rdi)
 vmovdqa %ymm6, 32(%rdi)
 vmovdqa %ymm7, 64(%rdi)
 
-/* #load */
-vmovdqa 64(%rsi), %ymm5 /* #a[2] */
-vmovdqa 96(%rsi), %ymm6 /* #a[3] */
-vmovdqa 64(%rdx), %ymm7 /* #b[2] */
-vmovdqa 96(%rdx), %ymm8 /* #b[3] */
+//load
+vmovdqa 64(%rsi), %ymm5 //a[2]
+vmovdqa 96(%rsi), %ymm6 //a[3]
+vmovdqa 64(%rdx), %ymm7 //b[2]
+vmovdqa 96(%rdx), %ymm8 //b[3]
 
-/* #premul */
+//premul
 vpmullw %ymm15, %ymm1, %ymm13
 vpmullw %ymm15, %ymm5, %ymm11
 vpmullw %ymm15, %ymm6, %ymm12
 
-/* #mul */
-vpmullw %ymm13, %ymm8, %ymm13 /* #a[0]*b[3] */
-vpmullw %ymm14, %ymm7, %ymm14 /* #a[1]*b[2] */
-vpmullw %ymm11, %ymm4, %ymm11 /* #a[2]*b[1] */
-vpmullw %ymm12, %ymm3, %ymm12 /* #a[3]*b[0] */
-vpmulhw  %ymm1, %ymm8,  %ymm1 /* #a[0]*b[3] */
-vpmulhw  %ymm2, %ymm7,  %ymm2 /* #a[1]*b[2] */
-vpmulhw  %ymm5, %ymm4,  %ymm5 /* #a[2]*b[1] */
-vpmulhw  %ymm6, %ymm3,  %ymm6 /* #a[3]*b[0] */
+//mul
+vpmullw %ymm13, %ymm8, %ymm13 //a[0]*b[3]
+vpmullw %ymm14, %ymm7, %ymm14 //a[1]*b[2]
+vpmullw %ymm11, %ymm4, %ymm11 //a[2]*b[1]
+vpmullw %ymm12, %ymm3, %ymm12 //a[3]*b[0]
+vpmulhw  %ymm1, %ymm8,  %ymm1 //a[0]*b[3]
+vpmulhw  %ymm2, %ymm7,  %ymm2 //a[1]*b[2]
+vpmulhw  %ymm5, %ymm4,  %ymm5 //a[2]*b[1]
+vpmulhw  %ymm6, %ymm3,  %ymm6 //a[3]*b[0]
 
-/* #reduce */
+//reduce
 vpmulhw  %ymm0, %ymm13, %ymm13
 vpmulhw  %ymm0, %ymm14, %ymm14
 vpmulhw  %ymm0, %ymm11, %ymm11
 vpmulhw  %ymm0, %ymm12, %ymm12
-vpsubw  %ymm13,  %ymm1, %ymm13 /* #a[0]*b[3] */
-vpsubw  %ymm14,  %ymm2, %ymm14 /* #a[2]*b[1] */
-vpsubw  %ymm11,  %ymm5, %ymm11 /* #a[0]*b[3] */
-vpsubw  %ymm12,  %ymm6, %ymm12 /* #a[2]*b[1] */
+vpsubw  %ymm13,  %ymm1, %ymm13 //a[0]*b[3]
+vpsubw  %ymm14,  %ymm2, %ymm14 //a[2]*b[1]
+vpsubw  %ymm11,  %ymm5, %ymm11 //a[0]*b[3]
+vpsubw  %ymm12,  %ymm6, %ymm12 //a[2]*b[1]
 
-/* #add */
+//add
 vpaddw %ymm14, %ymm13, %ymm1
 vpaddw %ymm12, %ymm11, %ymm2
-vpaddw  %ymm2,  %ymm1, %ymm1 /* #c[3] */
+vpaddw  %ymm2,  %ymm1, %ymm1 //c[3]
 
-/* #store */
-vmovdqa %ymm1, 96(%rdi) /* #c[3] */
+//store
+vmovdqa %ymm1, 96(%rdi) //c[3]
 
 add $128, %rsi
 add $128, %rdx
 add $128, %rdi
 
-/* #load */
-vmovdqa 96(%rsi), %ymm1 /* #a[3] */
-vmovdqa 32(%rsi), %ymm2 /* #a[1] */
-vmovdqa 96(%rdx), %ymm3 /* #b[3] */
-vmovdqa 32(%rdx), %ymm4 /* #b[1] */
+//load
+vmovdqa 96(%rsi), %ymm1 //a[3]
+vmovdqa 32(%rsi), %ymm2 //a[1]
+vmovdqa 96(%rdx), %ymm3 //b[3]
+vmovdqa 32(%rdx), %ymm4 //b[1]
 
-/* #premul */
+//premul
 vpmullw %ymm15, %ymm1, %ymm13
 vpmullw %ymm15, %ymm2, %ymm14
 
-/* #mul */
-vpmullw %ymm14, %ymm3,  %ymm5 /* #a[1]*b[3] */
-vpmullw %ymm13, %ymm4,  %ymm6 /* #a[3]*b[1] */
-vpmullw %ymm13, %ymm3,  %ymm7 /* #a[3]*b[3] */
-vpmulhw  %ymm2, %ymm3,  %ymm8 /* #a[1]*b[3] */
-vpmulhw  %ymm1, %ymm4,  %ymm9 /* #a[3]*b[1] */
-vpmulhw  %ymm1, %ymm3, %ymm10 /* #a[3]*b[3] */
+//mul
+vpmullw %ymm14, %ymm3,  %ymm5 //a[1]*b[3]
+vpmullw %ymm13, %ymm4,  %ymm6 //a[3]*b[1]
+vpmullw %ymm13, %ymm3,  %ymm7 //a[3]*b[3]
+vpmulhw  %ymm2, %ymm3,  %ymm8 //a[1]*b[3]
+vpmulhw  %ymm1, %ymm4,  %ymm9 //a[3]*b[1]
+vpmulhw  %ymm1, %ymm3, %ymm10 //a[3]*b[3]
 
-/* #reduce */
+//reduce
 vpmulhw %ymm0,  %ymm5,  %ymm5
 vpmulhw %ymm0,  %ymm6,  %ymm6
 vpmulhw %ymm0,  %ymm7,  %ymm7
-vpsubw  %ymm5,  %ymm8,  %ymm8 /* #a[1]*b[3] */
-vpsubw  %ymm6,  %ymm9,  %ymm9 /* #a[3]*b[1] */
-vpsubw  %ymm7, %ymm10, %ymm10 /* #a[3]*b[3] */
+vpsubw  %ymm5,  %ymm8,  %ymm8 //a[1]*b[3]
+vpsubw  %ymm6,  %ymm9,  %ymm9 //a[3]*b[1]
+vpsubw  %ymm7, %ymm10, %ymm10 //a[3]*b[3]
 
-/* #add */
-vpaddw %ymm9, %ymm8, %ymm8 /* #c[0] = a[1]*b[3]+a[3]*b[1] */
+//add
+vpaddw %ymm9, %ymm8, %ymm8 //c[0] = a[1]*b[3]+a[3]*b[1]
 
-/* #load */
-vmovdqa 64(%rsi), %ymm2 /* #a[2] */
-vmovdqa 64(%rdx), %ymm4 /* #b[2] */
+//load
+vmovdqa 64(%rsi), %ymm2 //a[2]
+vmovdqa 64(%rdx), %ymm4 //b[2]
 
-/* #premul */
+//premul
 vpmullw %ymm15, %ymm2, %ymm14
 
-/* #mul */
-vpmullw %ymm14, %ymm4,  %ymm5 /* #a[2]*b[2] */
-vpmullw %ymm14, %ymm3,  %ymm6 /* #a[2]*b[3] */
-vpmullw %ymm13, %ymm4,  %ymm7 /* #a[3]*b[2] */
-vpmulhw  %ymm2, %ymm4, %ymm11 /* #a[2]*b[2] */
-vpmulhw  %ymm2, %ymm3, %ymm12 /* #a[2]*b[3] */
-vpmulhw  %ymm1, %ymm4, %ymm13 /* #a[3]*b[2] */
+//mul
+vpmullw %ymm14, %ymm4,  %ymm5 //a[2]*b[2]
+vpmullw %ymm14, %ymm3,  %ymm6 //a[2]*b[3]
+vpmullw %ymm13, %ymm4,  %ymm7 //a[3]*b[2]
+vpmulhw  %ymm2, %ymm4, %ymm11 //a[2]*b[2]
+vpmulhw  %ymm2, %ymm3, %ymm12 //a[2]*b[3]
+vpmulhw  %ymm1, %ymm4, %ymm13 //a[3]*b[2]
 
-/* #reduce */
+//reduce
 vpmulhw %ymm0,  %ymm5,  %ymm5
 vpmulhw %ymm0,  %ymm6,  %ymm6
 vpmulhw %ymm0,  %ymm7,  %ymm7
-vpsubw  %ymm5, %ymm11, %ymm11 /* #a[2]*b[2] */
-vpsubw  %ymm6, %ymm12, %ymm12 /* #a[2]*b[3] */
-vpsubw  %ymm7, %ymm13, %ymm13 /* #a[3]*b[2] */
+vpsubw  %ymm5, %ymm11, %ymm11 //a[2]*b[2]
+vpsubw  %ymm6, %ymm12, %ymm12 //a[2]*b[3]
+vpsubw  %ymm7, %ymm13, %ymm13 //a[3]*b[2]
 
-/* #add */
-vpaddw %ymm11,  %ymm8, %ymm8 /* #c[0] */
-vpaddw %ymm13, %ymm12, %ymm9 /* #c[1] */
+//add
+vpaddw %ymm11,  %ymm8, %ymm8 //c[0]
+vpaddw %ymm13, %ymm12, %ymm9 //c[1]
 
-/* #load zeta */
+//load zeta
 vmovdqa   (%r9), %ymm13
 vmovdqa 32(%r9),  %ymm1
 
-/* #mul */
+//mul
 vpmullw %ymm13,  %ymm8,  %ymm5
 vpmullw %ymm13,  %ymm9,  %ymm6
 vpmullw %ymm13, %ymm10,  %ymm7
@@ -1071,7 +1058,7 @@ vpmulhw  %ymm1,  %ymm8,  %ymm8
 vpmulhw  %ymm1,  %ymm9,  %ymm9
 vpmulhw  %ymm1, %ymm10, %ymm10
 
-/* #reduce */
+//reduce
 vpmulhw  %ymm0, %ymm5, %ymm5
 vpmulhw  %ymm0, %ymm6, %ymm6
 vpmulhw  %ymm0, %ymm7, %ymm7
@@ -1079,129 +1066,129 @@ vpsubw   %ymm8, %ymm5, %ymm5
 vpsubw   %ymm9, %ymm6, %ymm6
 vpsubw  %ymm10, %ymm7, %ymm7
 
-/* #load */
-vmovdqa (%rsi), %ymm1 /* #a[0] */
-vmovdqa (%rdx), %ymm3 /* #b[0] */
+//load
+vmovdqa (%rsi), %ymm1 //a[0]
+vmovdqa (%rdx), %ymm3 //b[0]
 
-/* #premul */
+//premul
 vpmullw %ymm15, %ymm1, %ymm13
 
-/* #mul */
-vpmullw %ymm13, %ymm3,  %ymm8 /* #a[0]*b[0] */
-vpmullw %ymm13, %ymm4,  %ymm9 /* #a[0]*b[2] */
-vpmullw %ymm14, %ymm3, %ymm10 /* #a[2]*b[0] */
-vpmulhw  %ymm1, %ymm3, %ymm11 /* #a[0]*b[0] */
-vpmulhw  %ymm1, %ymm4, %ymm12 /* #a[0]*b[2] */
-vpmulhw  %ymm2, %ymm3, %ymm14 /* #a[2]*b[0] */
+//mul
+vpmullw %ymm13, %ymm3,  %ymm8 //a[0]*b[0]
+vpmullw %ymm13, %ymm4,  %ymm9 //a[0]*b[2]
+vpmullw %ymm14, %ymm3, %ymm10 //a[2]*b[0]
+vpmulhw  %ymm1, %ymm3, %ymm11 //a[0]*b[0]
+vpmulhw  %ymm1, %ymm4, %ymm12 //a[0]*b[2]
+vpmulhw  %ymm2, %ymm3, %ymm14 //a[2]*b[0]
 
-/* #reduce */
+//reduce
 vpmulhw  %ymm0,  %ymm8,  %ymm8
 vpmulhw  %ymm0,  %ymm9,  %ymm9
 vpmulhw  %ymm0, %ymm10, %ymm10
-vpsubw   %ymm8, %ymm11,  %ymm8 /* #a[0]*b[0] */
-vpsubw   %ymm9, %ymm12,  %ymm9 /* #a[0]*b[2] */
-vpsubw  %ymm10, %ymm14, %ymm10 /* #a[2]*b[0] */
+vpsubw   %ymm8, %ymm11,  %ymm8 //a[0]*b[0]
+vpsubw   %ymm9, %ymm12,  %ymm9 //a[0]*b[2]
+vpsubw  %ymm10, %ymm14, %ymm10 //a[2]*b[0]
 
-/* #add */
-vpaddw  %ymm8, %ymm5, %ymm5 /* #c[0] = c[0]*zeta+a[0]*b[0] */
-vpaddw  %ymm9, %ymm7, %ymm7 /* #c[2] = c[2]*zeta+a[0]*b[2]+a[2]*b[0] */
-vpaddw %ymm10, %ymm7, %ymm7 /* #c[2] = c[2]*zeta+a[0]*b[2]+a[2]*b[0] */
+//add
+vpaddw  %ymm8, %ymm5, %ymm5 //c[0] = c[0]*zeta+a[0]*b[0]
+vpaddw  %ymm9, %ymm7, %ymm7 //c[2] = c[2]*zeta+a[0]*b[2]+a[2]*b[0]
+vpaddw %ymm10, %ymm7, %ymm7 //c[2] = c[2]*zeta+a[0]*b[2]+a[2]*b[0]
 
-/* #load */
-vmovdqa 32(%rsi), %ymm2 /* #a[1] */
-vmovdqa 32(%rdx), %ymm4 /* #b[1] */
+//load
+vmovdqa 32(%rsi), %ymm2 //a[1]
+vmovdqa 32(%rdx), %ymm4 //b[1]
 
-/* #premul */
+//premul
 vpmullw %ymm15, %ymm2, %ymm14
 
-/* #mul */
-vpmullw %ymm13, %ymm4,  %ymm8 /* #a[0]*b[1] */
-vpmullw %ymm14, %ymm3,  %ymm9 /* #a[1]*b[0] */
-vpmullw %ymm14, %ymm4, %ymm10 /* #a[1]*b[1] */
-vpmulhw  %ymm1, %ymm4, %ymm11 /* #a[0]*b[1] */
-vpmulhw  %ymm2, %ymm3, %ymm12 /* #a[1]*b[0] */
-vpmulhw  %ymm2, %ymm4, %ymm13 /* #a[1]*b[1] */
+//mul
+vpmullw %ymm13, %ymm4,  %ymm8 //a[0]*b[1]
+vpmullw %ymm14, %ymm3,  %ymm9 //a[1]*b[0]
+vpmullw %ymm14, %ymm4, %ymm10 //a[1]*b[1]
+vpmulhw  %ymm1, %ymm4, %ymm11 //a[0]*b[1]
+vpmulhw  %ymm2, %ymm3, %ymm12 //a[1]*b[0]
+vpmulhw  %ymm2, %ymm4, %ymm13 //a[1]*b[1]
 
-/* #reduce */
+//reduce
 vpmulhw  %ymm0,  %ymm8,  %ymm8
 vpmulhw  %ymm0,  %ymm9,  %ymm9
 vpmulhw  %ymm0, %ymm10, %ymm10
-vpsubw   %ymm8, %ymm11,  %ymm8 /* #a[0]*b[1] */
-vpsubw   %ymm9, %ymm12,  %ymm9 /* #a[1]*b[0] */
-vpsubw  %ymm10, %ymm13, %ymm10 /* #a[1]*b[1] */
+vpsubw   %ymm8, %ymm11,  %ymm8 //a[0]*b[1]
+vpsubw   %ymm9, %ymm12,  %ymm9 //a[1]*b[0]
+vpsubw  %ymm10, %ymm13, %ymm10 //a[1]*b[1]
 
-/* #add */
-vpaddw  %ymm8, %ymm6, %ymm6 /* #c[1] = c[1]*zeta+a[0]*b[1]+a[1]*b[0] */
-vpaddw  %ymm9, %ymm6, %ymm6 /* #c[1] = c[1]*zeta+a[0]*b[1]+a[1]*b[0] */
-vpaddw %ymm10, %ymm7, %ymm7 /* #c[2] = c[2]*zeta+a[0]*b[2]+a[1]*b[1]+a[2]*b[0] */
+//add
+vpaddw  %ymm8, %ymm6, %ymm6 //c[1] = c[1]*zeta+a[0]*b[1]+a[1]*b[0]
+vpaddw  %ymm9, %ymm6, %ymm6 //c[1] = c[1]*zeta+a[0]*b[1]+a[1]*b[0]
+vpaddw %ymm10, %ymm7, %ymm7 //c[2] = c[2]*zeta+a[0]*b[2]+a[1]*b[1]+a[2]*b[0]
 
-/* #store */
+//store
 vmovdqa %ymm5,   (%rdi)
 vmovdqa %ymm6, 32(%rdi)
 vmovdqa %ymm7, 64(%rdi)
 
-/* #load */
-vmovdqa 64(%rsi), %ymm5 /* #a[2] */
-vmovdqa 96(%rsi), %ymm6 /* #a[3] */
-vmovdqa 64(%rdx), %ymm7 /* #b[2] */
-vmovdqa 96(%rdx), %ymm8 /* #b[3] */
+//load
+vmovdqa 64(%rsi), %ymm5 //a[2]
+vmovdqa 96(%rsi), %ymm6 //a[3]
+vmovdqa 64(%rdx), %ymm7 //b[2]
+vmovdqa 96(%rdx), %ymm8 //b[3]
 
-/* #premul */
+//premul
 vpmullw %ymm15, %ymm1, %ymm13
 vpmullw %ymm15, %ymm5, %ymm11
 vpmullw %ymm15, %ymm6, %ymm12
 
-/* #mul */
-vpmullw %ymm13, %ymm8, %ymm13 /* #a[0]*b[3] */
-vpmullw %ymm14, %ymm7, %ymm14 /* #a[1]*b[2] */
-vpmullw %ymm11, %ymm4, %ymm11 /* #a[2]*b[1] */
-vpmullw %ymm12, %ymm3, %ymm12 /* #a[3]*b[0] */
-vpmulhw  %ymm1, %ymm8,  %ymm1 /* #a[0]*b[3] */
-vpmulhw  %ymm2, %ymm7,  %ymm2 /* #a[1]*b[2] */
-vpmulhw  %ymm5, %ymm4,  %ymm5 /* #a[2]*b[1] */
-vpmulhw  %ymm6, %ymm3,  %ymm6 /* #a[3]*b[0] */
+//mul
+vpmullw %ymm13, %ymm8, %ymm13 //a[0]*b[3]
+vpmullw %ymm14, %ymm7, %ymm14 //a[1]*b[2]
+vpmullw %ymm11, %ymm4, %ymm11 //a[2]*b[1]
+vpmullw %ymm12, %ymm3, %ymm12 //a[3]*b[0]
+vpmulhw  %ymm1, %ymm8,  %ymm1 //a[0]*b[3]
+vpmulhw  %ymm2, %ymm7,  %ymm2 //a[1]*b[2]
+vpmulhw  %ymm5, %ymm4,  %ymm5 //a[2]*b[1]
+vpmulhw  %ymm6, %ymm3,  %ymm6 //a[3]*b[0]
 
-/* #reduce */
+//reduce
 vpmulhw  %ymm0, %ymm13, %ymm13
 vpmulhw  %ymm0, %ymm14, %ymm14
 vpmulhw  %ymm0, %ymm11, %ymm11
 vpmulhw  %ymm0, %ymm12, %ymm12
-vpsubw  %ymm13,  %ymm1, %ymm13 /* #a[0]*b[3] */
-vpsubw  %ymm14,  %ymm2, %ymm14 /* #a[2]*b[1] */
-vpsubw  %ymm11,  %ymm5, %ymm11 /* #a[0]*b[3] */
-vpsubw  %ymm12,  %ymm6, %ymm12 /* #a[2]*b[1] */
+vpsubw  %ymm13,  %ymm1, %ymm13 //a[0]*b[3]
+vpsubw  %ymm14,  %ymm2, %ymm14 //a[2]*b[1]
+vpsubw  %ymm11,  %ymm5, %ymm11 //a[0]*b[3]
+vpsubw  %ymm12,  %ymm6, %ymm12 //a[2]*b[1]
 
-/* #add */
+//add
 vpaddw %ymm14, %ymm13, %ymm1
 vpaddw %ymm12, %ymm11, %ymm2
-vpaddw  %ymm2,  %ymm1, %ymm1 /* #c[3] */
+vpaddw  %ymm2,  %ymm1, %ymm1 //c[3]
 
-/* #store */
-vmovdqa %ymm1, 96(%rdi) /* #c[3] */
+//store
+vmovdqa %ymm1, 96(%rdi) //c[3]
 
 add $128, %rsi
 add $128, %rdx
 add $128, %rdi
 add $64, %r9
 cmp %r8, %rsi
-jb .Llooptop_basemul_add
+jb NTRUPLUS_ASM_LOCAL(looptop_basemul_add)
 
 mov %rdi, %r8
 sub $2304, %rdi
 
-vmovdqa _16xR2qinv(%rip), %ymm15
-vmovdqa     _16xR2(%rip),  %ymm1
+vmovdqa NTRUPLUS_ASM_SYMBOL(_16xR2qinv)(%rip), %ymm15
+vmovdqa     NTRUPLUS_ASM_SYMBOL(_16xR2)(%rip),  %ymm1
 
 .p2align 5
-.Llooptop_basemul_add_2:
+NTRUPLUS_ASM_LOCAL(looptop_basemul_add_2):
 
-/* #load */
+//load
 vmovdqa   (%rdi), %ymm2
 vmovdqa 32(%rdi), %ymm3
 vmovdqa 64(%rdi), %ymm4
 vmovdqa 96(%rdi), %ymm5
 
-/* #mul */
+//mul
 vpmullw %ymm15, %ymm2, %ymm11
 vpmullw %ymm15, %ymm3, %ymm12
 vpmullw %ymm15, %ymm4, %ymm13
@@ -1211,7 +1198,7 @@ vpmulhw  %ymm1, %ymm3,  %ymm3
 vpmulhw  %ymm1, %ymm4,  %ymm4
 vpmulhw  %ymm1, %ymm5,  %ymm5
 
-/* #reduce */
+//reduce
 vpmulhw  %ymm0, %ymm11, %ymm11
 vpmulhw  %ymm0, %ymm12, %ymm12
 vpmulhw  %ymm0, %ymm13, %ymm13
@@ -1221,13 +1208,13 @@ vpsubw  %ymm12,  %ymm3,  %ymm3
 vpsubw  %ymm13,  %ymm4,  %ymm4
 vpsubw  %ymm14,  %ymm5,  %ymm5
 
-/* #add */
+//add
 vpaddw   (%rcx), %ymm2, %ymm2
 vpaddw 32(%rcx), %ymm3, %ymm3
 vpaddw 64(%rcx), %ymm4, %ymm4
 vpaddw 96(%rcx), %ymm5, %ymm5
 
-/* #store */
+//store
 vmovdqa %ymm2,   (%rdi)
 vmovdqa %ymm3, 32(%rdi)
 vmovdqa %ymm4, 64(%rdi)
@@ -1236,13 +1223,10 @@ vmovdqa %ymm5, 96(%rdi)
 add $128, %rdi
 add $128, %rcx
 cmp  %r8, %rdi
-jb .Llooptop_basemul_add_2
+jb NTRUPLUS_ASM_LOCAL(looptop_basemul_add_2)
 
 ret
-#ifdef __ELF__
-.size poly_basemul_add, .-poly_basemul_add
-#endif
+NTRUPLUS_ASM_END(poly_basemul_add)
 
-#ifdef __ELF__
-.section .note.GNU-stack,"",@progbits
-#endif
+
+NTRUPLUS_ASM_GNU_STACK

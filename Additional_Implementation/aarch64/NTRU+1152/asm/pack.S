@@ -1,3 +1,5 @@
+#include "asm.h"
+
 /*************************************************
 * Name:        poly_frombytes
 *
@@ -10,26 +12,23 @@
 * Returns:     0 on success, 1 if any coefficient is greater than or equal to q.
 *              Output coefficients lie in [0,4095].
 **************************************************/
-.global poly_frombytes
-.global _poly_frombytes
-poly_frombytes:
-_poly_frombytes:
+NTRUPLUS_ASM_START(poly_frombytes)
 
     dst     .req x0
     src     .req x1
     counter .req x8
 
-    adr x2, const_mask_0fff
+    adr x2, NTRUPLUS_ASM_LOCAL(const_mask_0fff)
     ldr q0, [x2]
     movi v7.8h, #0
 
-    mov counter, #1536
+    mov counter, #2304
 
-_loop_frombytes:
+NTRUPLUS_ASM_LOCAL(loop_frombytes):
     ld3 {v1.8h - v3.8h}, [src], #48
     ld3 {v4.8h - v6.8h}, [src], #48
 
-    # Separate the packed words for coefficients 0..3 and 4..7.
+    // Separate the packed words for coefficients 0..3 and 4..7.
     uzp1 v26.8h, v1.8h, v4.8h
     uzp1 v27.8h, v2.8h, v5.8h
     uzp1 v28.8h, v3.8h, v6.8h
@@ -69,7 +68,7 @@ _loop_frombytes:
     umax  v7.8h,  v7.8h, v25.8h
 
     subs counter, counter, #128
-    b.ne _loop_frombytes
+    b.ne NTRUPLUS_ASM_LOCAL(loop_frombytes)
 
     .unreq dst
     .unreq src
@@ -81,6 +80,7 @@ _loop_frombytes:
     cset w0, hs
 
     ret
+NTRUPLUS_ASM_END(poly_frombytes)
 
 
 /*************************************************
@@ -95,27 +95,24 @@ _loop_frombytes:
 *
 * Returns:     none.
 **************************************************/
-.global poly_tobytes
-.global _poly_tobytes
-poly_tobytes:
-_poly_tobytes:
+NTRUPLUS_ASM_START(poly_tobytes)
 
     dst     .req x0
     src     .req x1
     counter .req x8
 
-    adr x2, const_q
+    adr x2, NTRUPLUS_ASM_LOCAL(const_q)
     ldr q0, [x2]
 
-    mov counter, #1536
+    mov counter, #2304
 
-_loop_tobytes:
+NTRUPLUS_ASM_LOCAL(loop_tobytes):
 
-    #load
+    //load
     ld1 {v16.8h - v19.8h}, [src], #64
     ld1 {v20.8h - v23.8h}, [src], #64
 
-    # Barrett reduction with round(2^15/q) = 9
+    // Barrett reduction with round(2^15/q) = 9
     sqrdmulh v25.8h, v16.8h, v0.h[1]
     sqrdmulh v26.8h, v17.8h, v0.h[1]
     sqrdmulh v27.8h, v18.8h, v0.h[1]
@@ -161,7 +158,7 @@ _loop_tobytes:
     ushr v27.8h, v22.8h, #8
     sli  v27.8h, v23.8h, #4
 
-    # Interleave the two groups of three packed halfword streams.
+    // Interleave the two groups of three packed halfword streams.
     zip1 v1.8h, v16.8h, v20.8h
     zip1 v2.8h, v24.8h, v26.8h
     zip1 v3.8h, v25.8h, v27.8h
@@ -173,20 +170,24 @@ _loop_tobytes:
     st3 {v4.8h - v6.8h}, [dst], #48
 
     subs counter, counter, #128
-    b.ne _loop_tobytes
+    b.ne NTRUPLUS_ASM_LOCAL(loop_tobytes)
 
     .unreq dst
     .unreq src
     .unreq counter
 
     ret
+NTRUPLUS_ASM_END(poly_tobytes)
 
-.align 4
-const_mask_0fff:
+
+.balign 16
+NTRUPLUS_ASM_LOCAL(const_mask_0fff):
     .hword 0x0fff, 0x0fff, 0x0fff, 0x0fff
     .hword 0x0fff, 0x0fff, 0x0fff, 0x0fff
 
-.align 4
-const_q:
+.balign 16
+NTRUPLUS_ASM_LOCAL(const_q):
     .hword 0x0d81, 0x0009, 0x0000, 0x0000
     .hword 0x0000, 0x0000, 0x0000, 0x0000
+
+NTRUPLUS_ASM_GNU_STACK

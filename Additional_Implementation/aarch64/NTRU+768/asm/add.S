@@ -1,17 +1,16 @@
-.global poly_sub
-.global _poly_sub
-poly_sub:
-_poly_sub:
+#include "asm.h"
+
+NTRUPLUS_ASM_START(poly_sub)
+
     dst     .req x0
     src1    .req x1
     src2    .req x2
     counter .req x8
 
-    mov counter, #1728
+    mov counter, #1536
 
-    # v8-v15 are callee-saved; use v0-v7 and v16-v31 only.
-.align 2
-_loop_sub:
+.balign 4
+NTRUPLUS_ASM_LOCAL(loop_sub):
     ld1 { v0.8h -  v3.8h}, [src1], #64
     ld1 { v4.8h -  v7.8h}, [src1], #64
     ld1 {v16.8h - v19.8h}, [src1], #64
@@ -40,7 +39,7 @@ _loop_sub:
     st1 {v18.8h, v19.8h}, [dst], #32
 
     subs counter, counter, #192
-    b.ne _loop_sub
+    b.ne NTRUPLUS_ASM_LOCAL(loop_sub)
 
     .unreq dst
     .unreq src1
@@ -48,23 +47,22 @@ _loop_sub:
     .unreq counter
 
     ret
+NTRUPLUS_ASM_END(poly_sub)
 
 
-.global poly_triple
-.global _poly_triple
-poly_triple:
-_poly_triple:
+NTRUPLUS_ASM_START(poly_triple)
+
     dst     .req x0
     src     .req x9
     counter .req x8
 
     mov src, dst
     movi v0.8h, #3
-    mov counter, #1728
+    mov counter, #1536
 
-    # v8-v15 are callee-saved; use v0-v4 and v16-v23 only.
-.align 2
-_loop_triple:
+    // v8-v15 are callee-saved; use v0-v4 and v16-v23 only.
+.balign 4
+NTRUPLUS_ASM_LOCAL(loop_triple):
     ld1 { v1.8h -  v4.8h}, [src], #64
     ld1 {v16.8h - v19.8h}, [src], #64
     ld1 {v20.8h - v23.8h}, [src], #64
@@ -91,10 +89,14 @@ _loop_triple:
     st1 {v22.8h, v23.8h}, [dst], #32
 
     subs counter, counter, #192
-    b.ne _loop_triple
+    b.ne NTRUPLUS_ASM_LOCAL(loop_triple)
 
     .unreq dst
     .unreq src
     .unreq counter
 
     ret
+NTRUPLUS_ASM_END(poly_triple)
+
+
+NTRUPLUS_ASM_GNU_STACK

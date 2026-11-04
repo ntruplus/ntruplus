@@ -92,6 +92,23 @@ jobs:
             runner: ubuntu-24.04-arm
             shake256_asm: 0
 
+          - name: AVX2 (Apple Clang, Intel Mac)
+            implementation: Additional_Implementation/avx2
+            compiler: clang
+            runner: macos-15-intel
+            shake256_asm: 0
+          - name: AArch64 portable SHAKE256 (Apple Clang, Apple Silicon)
+            implementation: Additional_Implementation/aarch64
+            compiler: clang
+            runner: macos-15
+            shake256_asm: 0
+
+          - name: AArch64 SHA3 assembly (Apple Clang, Apple Silicon)
+            implementation: Additional_Implementation/aarch64
+            compiler: clang
+            runner: macos-15
+            shake256_asm: 1
+
     steps:
       - name: Check out repository
         uses: actions/checkout@v6
@@ -100,10 +117,19 @@ jobs:
         if: contains(matrix.implementation, 'Additional_Implementation')
         run: |
           if [ "${{ matrix.implementation }}" = "Additional_Implementation/avx2" ]; then
-            grep -qw avx2 /proc/cpuinfo
-            grep -qw aes /proc/cpuinfo
+            if [ "$(uname -s)" = Darwin ]; then
+              sysctl -n machdep.cpu.leaf7_features | grep -qw AVX2
+              sysctl -n machdep.cpu.features | grep -qw AES
+            else
+              grep -qw avx2 /proc/cpuinfo
+              grep -qw aes /proc/cpuinfo
+            fi
           elif [ "${{ matrix.shake256_asm }}" = 1 ]; then
-            grep -qw sha3 /proc/cpuinfo
+            if [ "$(uname -s)" = Darwin ]; then
+              test "$(sysctl -n hw.optional.arm.FEAT_SHA3)" = 1
+            else
+              grep -qw sha3 /proc/cpuinfo
+            fi
           fi
 
       - name: Build, test, and compare KATs
@@ -143,8 +169,13 @@ jobs:
               )
 
               for extension in req rsp; do
-                expected=$(find "$kat_directory" -maxdepth 1 -type f \
-                  -name "*.$extension" -print -quit)
+                expected=
+                for candidate in "$kat_directory"/*."$extension"; do
+                  if [ -f "$candidate" ]; then
+                    expected=$candidate
+                    break
+                  fi
+                done
                 if [ -z "$expected" ]; then
                   echo "no .$extension KAT file found in $kat_directory" >&2
                   exit 1

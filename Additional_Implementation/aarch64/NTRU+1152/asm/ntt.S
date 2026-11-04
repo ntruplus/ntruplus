@@ -1,3 +1,4 @@
+#include "asm.h"
 #include "consts.h"
 
 /*
@@ -35,10 +36,8 @@
 *
 * Returns:     none. Output coefficients lie in [-q+1,q-1].
 **************************************************/
-.global poly_ntt
-.global _poly_ntt
-poly_ntt:
-_poly_ntt:
+NTRUPLUS_ASM_START(poly_ntt)
+
     stp  d8,  d9, [sp, #-64]!
     stp d10, d11, [sp, #16]
     stp d12, d13, [sp, #32]
@@ -57,11 +56,11 @@ _poly_ntt:
 
     mov counter, #128
 
-_looptop_012:
+NTRUPLUS_ASM_LOCAL(looptop_012):
 
-    # v0-v4: constants; v5-v22: coefficients; v23-v31: temporaries.
-    # Input range: [-3,4].
-    #level 0
+    // v0-v4: constants; v5-v22: coefficients; v23-v31: temporaries.
+    // Input range: [-3,4].
+    //level 0
     ldr q14, [src, #9*128]
     ldr q15, [src, #10*128]
     ldr q16, [src, #11*128]
@@ -72,7 +71,7 @@ _looptop_012:
     ldr q21, [src, #16*128]
     ldr q22, [src, #17*128]
 
-    # The raw -722 products fit in signed 16 bits.
+    // The raw -722 products fit in signed 16 bits.
     mul v23.8h, v14.8h, v0.h[4]
     mul v24.8h, v15.8h, v0.h[4]
     mul v25.8h, v16.8h, v0.h[4]
@@ -83,7 +82,7 @@ _looptop_012:
     mul v30.8h, v21.8h, v0.h[4]
     mul v31.8h, v22.8h, v0.h[4]
 
-    #update 1
+    //update 1
     sub v14.8h, v14.8h, v23.8h
     sub v15.8h, v15.8h, v24.8h
     sub v16.8h, v16.8h, v25.8h
@@ -94,7 +93,7 @@ _looptop_012:
     sub v21.8h, v21.8h, v30.8h
     sub v22.8h, v22.8h, v31.8h
 
-    #load 2
+    //load 2
     ldr  q5, [src, #0*128]
     ldr  q6, [src, #1*128]
     ldr  q7, [src, #2*128]
@@ -105,7 +104,7 @@ _looptop_012:
     ldr q12, [src, #7*128]
     ldr q13, [src, #8*128]
 
-    #update 2
+    //update 2
     add v14.8h, v14.8h,  v5.8h
     add v15.8h, v15.8h,  v6.8h
     add v16.8h, v16.8h,  v7.8h
@@ -126,9 +125,9 @@ _looptop_012:
     add v12.8h, v12.8h, v30.8h
     add v13.8h, v13.8h, v31.8h
 
-    # Range after level 0: [-2891,2896].
-    #level 1
-    #mul 1
+    // Range after level 0: [-2891,2896].
+    //level 1
+    //mul 1
     mul v23.8h,  v8.8h, v0.h[6]
     mul v24.8h,  v9.8h, v0.h[6]
     mul v25.8h, v10.8h, v0.h[6]
@@ -157,7 +156,7 @@ _looptop_012:
     sub  v9.8h, v24.8h, v27.8h
     sub v10.8h, v25.8h, v28.8h
 
-    #mul 2
+    //mul 2
     mul v29.8h,  v8.8h, v0.h[2]
     mul v30.8h,  v9.8h, v0.h[2]
     mul v31.8h, v10.8h, v0.h[2]
@@ -170,7 +169,7 @@ _looptop_012:
     mls v30.8h,  v9.8h, v0.h[0]  //t3
     mls v31.8h, v10.8h, v0.h[0]  //t3
 
-    #update
+    //update
     sub v11.8h, v5.8h, v23.8h  //r[i] - t1
     sub v12.8h, v6.8h, v24.8h  //r[i] - t1
     sub v13.8h, v7.8h, v25.8h  //r[i] - t1
@@ -195,7 +194,7 @@ _looptop_012:
     add v6.8h, v6.8h, v27.8h  //r[i] + t1 + t2
     add v7.8h, v7.8h, v28.8h  //r[i] + t1 + t2
 
-    #mul 1
+    //mul 1
     mul v23.8h, v17.8h, v1.h[2]
     mul v24.8h, v18.8h, v1.h[2]
     mul v25.8h, v19.8h, v1.h[2]
@@ -224,7 +223,7 @@ _looptop_012:
     sub v18.8h, v24.8h, v27.8h
     sub v19.8h, v25.8h, v28.8h
 
-    #mul 2
+    //mul 2
     mul v29.8h, v17.8h, v0.h[2]
     mul v30.8h, v18.8h, v0.h[2]
     mul v31.8h, v19.8h, v0.h[2]
@@ -237,7 +236,7 @@ _looptop_012:
     mls v30.8h, v18.8h, v0.h[0]  //t3
     mls v31.8h, v19.8h, v0.h[0]  //t3
 
-    #update
+    //update
     sub v20.8h, v14.8h, v23.8h  //r[i] - t1
     sub v21.8h, v15.8h, v24.8h  //r[i] - t1
     sub v22.8h, v16.8h, v25.8h  //r[i] - t1
@@ -262,10 +261,10 @@ _looptop_012:
     add v15.8h, v15.8h, v27.8h  //r[i] + t1 + t2
     add v16.8h, v16.8h, v28.8h  //r[i] + t1 + t2
 
-    # Range after level 1: [-6459,6476].
-    # Radix-3 intermediate ranges: t1-t2 in [-3556,3554], t3 in [-1767,1767].
-    #level 2
-    #mul 1
+    // Range after level 1: [-6459,6476].
+    // Radix-3 intermediate ranges: t1-t2 in [-3556,3554], t3 in [-1767,1767].
+    //level 2
+    //mul 1
     mul v23.8h,  v6.8h, v1.h[6]
     mul v26.8h,  v9.8h, v2.h[2]
     mul v29.8h, v12.8h, v2.h[6]
@@ -291,7 +290,7 @@ _looptop_012:
     sub  v9.8h, v26.8h, v27.8h
     sub v12.8h, v29.8h, v30.8h
 
-    #mul 2
+    //mul 2
     mul v25.8h,  v6.8h, v0.h[2]
     mul v28.8h,  v9.8h, v0.h[2]
     mul v31.8h, v12.8h, v0.h[2]
@@ -304,7 +303,7 @@ _looptop_012:
     mls v28.8h,  v9.8h, v0.h[0]  //t3
     mls v31.8h, v12.8h, v0.h[0]  //t3
 
-    #update
+    //update
     sub  v7.8h,  v5.8h, v23.8h  //r[i] - t1
     sub v10.8h,  v8.8h, v26.8h  //r[i] - t1
     sub v13.8h, v11.8h, v29.8h  //r[i] - t1
@@ -329,7 +328,7 @@ _looptop_012:
     add  v8.8h,  v8.8h, v27.8h  //r[i] + t1 + t2
     add v11.8h, v11.8h, v30.8h  //r[i] + t1 + t2
 
-    #mul 1
+    //mul 1
     mul v23.8h, v15.8h, v3.h[2]
     mul v26.8h, v18.8h, v3.h[6]
     mul v29.8h, v21.8h, v4.h[2]
@@ -355,7 +354,7 @@ _looptop_012:
     sub v18.8h, v26.8h, v27.8h
     sub v21.8h, v29.8h, v30.8h
 
-    #mul 2
+    //mul 2
     mul v25.8h, v15.8h, v0.h[2]
     mul v28.8h, v18.8h, v0.h[2]
     mul v31.8h, v21.8h, v0.h[2]
@@ -368,7 +367,7 @@ _looptop_012:
     mls v28.8h, v18.8h, v0.h[0]  //t3
     mls v31.8h, v21.8h, v0.h[0]  //t3
 
-    #update
+    //update
     sub v16.8h, v14.8h, v23.8h  //r[i] - t1
     sub v19.8h, v17.8h, v26.8h  //r[i] - t1
     sub v22.8h, v20.8h, v29.8h  //r[i] - t1
@@ -393,7 +392,7 @@ _looptop_012:
     add v17.8h, v17.8h, v27.8h  //r[i] + t1 + t2
     add v20.8h, v20.8h, v30.8h  //r[i] + t1 + t2
 
-    # Range after level 2: [-10462,10144].
+    // Range after level 2: [-10462,10144].
     str  q5, [dst, #0*128]
     str  q6, [dst, #1*128]
     str  q7, [dst, #2*128]
@@ -417,20 +416,20 @@ _looptop_012:
     add src, src, #16
     add dst, dst, #16
     subs counter, counter, #16
-    b.ne _looptop_012
+    b.ne NTRUPLUS_ASM_LOCAL(looptop_012)
 
     sub src, src, #128
     sub dst, dst, #128
 
     mov counter, #2304
 
-_looptop_3456:
+NTRUPLUS_ASM_LOCAL(looptop_3456):
 
-    # v0-v3: constants; v4-v11: coefficients; v12-v31: temporaries.
-    #load zetas
+    // v0-v3: constants; v4-v11: coefficients; v12-v31: temporaries.
+    //load zetas
     ld1 {v0.8h - v3.8h}, [zetas_ptr], #64
 
-    #load coefficients
+    //load coefficients
     ldr  q4, [dst, #0*16]
     ldr  q5, [dst, #1*16]
     ldr  q6, [dst, #2*16]
@@ -440,8 +439,8 @@ _looptop_3456:
     ldr q10, [dst, #6*16]
     ldr q11, [dst, #7*16]
 
-    #level 3
-    #mul
+    //level 3
+    //mul
     mul v12.8h,  v8.8h, v0.h[2]
     mul v13.8h,  v9.8h, v0.h[2]
     mul v14.8h, v10.8h, v0.h[2]
@@ -457,7 +456,7 @@ _looptop_3456:
     mls v14.8h, v10.8h, v0.h[0]
     mls v15.8h, v11.8h, v0.h[0]
 
-    #update
+    //update
     sub  v8.8h, v4.8h, v12.8h
     sub  v9.8h, v5.8h, v13.8h
     sub v10.8h, v6.8h, v14.8h
@@ -468,9 +467,9 @@ _looptop_3456:
     add v6.8h, v6.8h, v14.8h
     add v7.8h, v7.8h, v15.8h
 
-    # Range after level 3: [-12743,12425].
-    #level 4
-    #mul
+    // Range after level 3: [-12743,12425].
+    //level 4
+    //mul
     mul v12.8h,  v6.8h, v0.h[4]
     mul v13.8h,  v7.8h, v0.h[4]
     mul v14.8h, v10.8h, v0.h[6]
@@ -486,7 +485,7 @@ _looptop_3456:
     mls v14.8h, v10.8h, v0.h[0]
     mls v15.8h, v11.8h, v0.h[0]
 
-    #update
+    //update
     sub  v6.8h, v4.8h, v12.8h
     sub  v7.8h, v5.8h, v13.8h
     sub v10.8h, v8.8h, v14.8h
@@ -497,9 +496,9 @@ _looptop_3456:
     add v8.8h, v8.8h, v14.8h
     add v9.8h, v9.8h, v15.8h
 
-    # Range after level 4: [-15144,14826].
-    #level 5
-    #mul
+    // Range after level 4: [-15144,14826].
+    //level 5
+    //mul
     mul v28.8h,  v5.8h, v1.h[0]
     mul v29.8h,  v7.8h, v1.h[2]
     mul v30.8h,  v9.8h, v1.h[4]
@@ -515,7 +514,7 @@ _looptop_3456:
     mls v30.8h,  v9.8h, v0.h[0]
     mls v31.8h, v11.8h, v0.h[0]
 
-    #update
+    //update
     sub  v5.8h,  v4.8h, v28.8h
     sub  v7.8h,  v6.8h, v29.8h
     sub  v9.8h,  v8.8h, v30.8h
@@ -526,8 +525,8 @@ _looptop_3456:
     add  v8.8h,  v8.8h, v30.8h
     add v10.8h, v10.8h, v31.8h
 
-    # Range after level 5: [-17672,17354].
-    #shuffle
+    // Range after level 5: [-17672,17354].
+    //shuffle
     trn1 v12.2d, v4.2d,  v8.2d
     trn2 v13.2d, v4.2d,  v8.2d
     trn1 v14.2d, v5.2d,  v9.2d
@@ -555,8 +554,8 @@ _looptop_3456:
     trn1 v10.8h, v23.8h, v27.8h
     trn2 v11.8h, v23.8h, v27.8h
 
-    #level 6
-    #mul
+    //level 6
+    //mul
     mul v28.8h,  v8.8h, v2.8h
     mul v29.8h,  v9.8h, v2.8h
     mul v30.8h, v10.8h, v2.8h
@@ -572,7 +571,7 @@ _looptop_3456:
     mls v30.8h, v10.8h, v0.h[0]
     mls v31.8h, v11.8h, v0.h[0]
 
-    #update
+    //update
     sub  v8.8h, v4.8h, v28.8h
     sub  v9.8h, v5.8h, v29.8h
     sub v10.8h, v6.8h, v30.8h
@@ -583,8 +582,8 @@ _looptop_3456:
     add v6.8h, v6.8h, v30.8h
     add v7.8h, v7.8h, v31.8h
 
-    # Range after level 6: [-20333,20015].
-    #Barrett reduction
+    // Range after level 6: [-20333,20015].
+    //Barrett reduction
     sqrdmulh v28.8h,  v8.8h, v0.h[1]
     sqrdmulh v29.8h,  v9.8h, v0.h[1]
     sqrdmulh v30.8h, v10.8h, v0.h[1]
@@ -605,13 +604,13 @@ _looptop_3456:
     mls v6.8h, v26.8h, v0.h[0]
     mls v7.8h, v27.8h, v0.h[0]
 
-    # Range after R=2^15 Barrett reduction: [-2739,2730].
-    #store
+    // Range after R=2^15 Barrett reduction: [-2739,2730].
+    //store
     st1 {v4.8h -  v7.8h}, [dst], #64
     st1 {v8.8h - v11.8h}, [dst], #64
 
     subs counter, counter, #128
-    b.ne _looptop_3456
+    b.ne NTRUPLUS_ASM_LOCAL(looptop_3456)
 
     .unreq dst
     .unreq src
@@ -624,6 +623,7 @@ _looptop_3456:
     ldp  d8,  d9, [sp], #64
 
     ret
+NTRUPLUS_ASM_END(poly_ntt)
 
 
 /*************************************************
@@ -641,10 +641,8 @@ _looptop_3456:
 *
 * Returns:     none. Output coefficients lie in [-q+1,q-1].
 **************************************************/
-.global poly_invntt_scale
-.global _poly_invntt_scale
-poly_invntt_scale:
-_poly_invntt_scale:
+NTRUPLUS_ASM_START(poly_invntt_scale)
+
     stp  d8,  d9, [sp, #-64]!
     stp d10, d11, [sp, #16]
     stp d12, d13, [sp, #32]
@@ -663,23 +661,23 @@ _poly_invntt_scale:
     load_address x9, consts_inverse_masks, 32
     ldr q31, [x9]
 
-_looptop_6543:
+NTRUPLUS_ASM_LOCAL(looptop_6543):
 
-    # v0-v3: constants; v4-v11: coefficients; v12-v30: temporaries; v31: mask.
-    #load zetas
+    // v0-v3: constants; v4-v11: coefficients; v12-v30: temporaries; v31: mask.
+    //load zetas
     ldp q0, q1, [zetas_ptr], #-64
     ldp q2, q3, [zetas_ptr, #96]
 
     tbl v2.16b, {v2.16b}, v31.16b
     tbl v3.16b, {v3.16b}, v31.16b
 
-    #load coefficients
+    //load coefficients
     ld1 {v4.8h -  v7.8h}, [src], #64
     ld1 {v8.8h - v11.8h}, [src], #64
 
-    # Input range: [-3456,3456].
-    #level 6
-    #update
+    // Input range: [-3456,3456].
+    //level 6
+    //update
     sub v12.8h,  v8.8h, v4.8h
     sub v13.8h,  v9.8h, v5.8h
     sub v14.8h, v10.8h, v6.8h
@@ -690,7 +688,7 @@ _looptop_6543:
     add v6.8h, v6.8h, v10.8h
     add v7.8h, v7.8h, v11.8h
 
-    #mul
+    //mul
     mul  v8.8h, v12.8h, v2.8h
     mul  v9.8h, v13.8h, v2.8h
     mul v10.8h, v14.8h, v2.8h
@@ -706,8 +704,8 @@ _looptop_6543:
     mls v10.8h, v14.8h, v0.h[0]
     mls v11.8h, v15.8h, v0.h[0]
 
-    # Range after level 6: [-6912,6912].
-    #shuffle
+    // Range after level 6: [-6912,6912].
+    //shuffle
     trn1 v12.2d, v4.2d,  v8.2d
     trn2 v13.2d, v4.2d,  v8.2d
     trn1 v14.2d, v5.2d,  v9.2d
@@ -735,8 +733,8 @@ _looptop_6543:
     trn1 v10.8h, v23.8h, v27.8h
     trn2 v11.8h, v23.8h, v27.8h
 
-    #level 5
-    #update
+    //level 5
+    //update
     sub v12.8h,  v5.8h,  v4.8h
     sub v13.8h,  v7.8h,  v6.8h
     sub v14.8h,  v9.8h,  v8.8h
@@ -747,7 +745,7 @@ _looptop_6543:
     add  v8.8h,  v9.8h,  v8.8h
     add v10.8h, v11.8h, v10.8h
 
-    #mul
+    //mul
     mul  v5.8h, v12.8h, v1.h[6]
     mul  v7.8h, v13.8h, v1.h[4]
     mul  v9.8h, v14.8h, v1.h[2]
@@ -763,9 +761,9 @@ _looptop_6543:
     mls  v9.8h, v14.8h, v0.h[0]
     mls v11.8h, v15.8h, v0.h[0]
 
-    # Range after level 5: [-13824,13824].
-    #level 4
-    #update
+    // Range after level 5: [-13824,13824].
+    //level 4
+    //update
     sub v12.8h,  v6.8h, v4.8h
     sub v13.8h,  v7.8h, v5.8h
     sub v14.8h, v10.8h, v8.8h
@@ -776,7 +774,7 @@ _looptop_6543:
     add v8.8h, v10.8h, v8.8h
     add v9.8h, v11.8h, v9.8h
 
-    #mul
+    //mul
     mul  v6.8h, v12.8h, v0.h[6]
     mul  v7.8h, v13.8h, v0.h[6]
     mul v10.8h, v14.8h, v0.h[4]
@@ -792,8 +790,8 @@ _looptop_6543:
     mls v10.8h, v14.8h, v0.h[0]
     mls v11.8h, v15.8h, v0.h[0]
 
-    # Range before Barrett reduction: [-27648,27648].
-    #Barrett reduction
+    // Range before Barrett reduction: [-27648,27648].
+    //Barrett reduction
     sqrdmulh v28.8h, v4.8h, v0.h[1]
     sqrdmulh v29.8h, v5.8h, v0.h[1]
     sqrdmulh v30.8h, v8.8h, v0.h[1]
@@ -804,9 +802,9 @@ _looptop_6543:
     mls v8.8h, v30.8h, v0.h[0]
     mls v9.8h, v16.8h, v0.h[0]
 
-    # Range after level 4: [-3187,3187].
-    #level 3
-    #update
+    // Range after level 4: [-3187,3187].
+    //level 3
+    //update
     sub v12.8h,  v8.8h, v4.8h
     sub v13.8h,  v9.8h, v5.8h
     sub v14.8h, v10.8h, v6.8h
@@ -817,7 +815,7 @@ _looptop_6543:
     add v6.8h, v10.8h, v6.8h
     add v7.8h, v11.8h, v7.8h
 
-    #mul
+    //mul
     mul  v8.8h, v12.8h, v0.h[2]
     mul  v9.8h, v13.8h, v0.h[2]
     mul v10.8h, v14.8h, v0.h[2]
@@ -833,13 +831,13 @@ _looptop_6543:
     mls v10.8h, v14.8h, v0.h[0]
     mls v11.8h, v15.8h, v0.h[0]
 
-    # Range after level 3: [-6374,6374].
-    #store
+    // Range after level 3: [-6374,6374].
+    //store
     st1 {v4.8h -  v7.8h}, [dst], #64
     st1 {v8.8h - v11.8h}, [dst], #64
 
     subs counter, counter, #128
-    b.ne _looptop_6543
+    b.ne NTRUPLUS_ASM_LOCAL(looptop_6543)
 
     sub dst, dst, #2304
     sub zetas_ptr, zetas_ptr, #16
@@ -849,16 +847,16 @@ _looptop_6543:
 
     load_address zetas_ptr, consts_inv
     ldr d5, [zetas_ptr], #8
-    # Patch only header pairs unused by subsequent inverse butterflies.
+    // Patch only header pairs unused by subsequent inverse butterflies.
     ins v0.s[2], v5.s[0]
     ins v4.s[3], v5.s[1]
 
     mov counter, #128
 
-_looptop_210:
+NTRUPLUS_ASM_LOCAL(looptop_210):
 
-    # v0-v4: constants; v5-v22: coefficients; v23-v31: temporaries.
-    #load
+    // v0-v4: constants; v5-v22: coefficients; v23-v31: temporaries.
+    //load
     ldr  q5, [dst, #0*128]
     ldr  q6, [dst, #1*128]
     ldr  q7, [dst, #2*128]
@@ -879,13 +877,13 @@ _looptop_210:
     ldr q21, [dst, #16*128]
     ldr q22, [dst, #17*128]
 
-    #level 2
-    #update 1
+    //level 2
+    //update 1
     sub v29.8h,  v6.8h,  v5.8h
     sub v30.8h,  v9.8h,  v8.8h
     sub v31.8h, v12.8h, v11.8h
 
-    #mul 1
+    //mul 1
     mul v23.8h, v29.8h, v0.h[2]
     mul v24.8h, v30.8h, v0.h[2]
     mul v25.8h, v31.8h, v0.h[2]
@@ -898,7 +896,7 @@ _looptop_210:
     mls v24.8h, v30.8h, v0.h[0]
     mls v25.8h, v31.8h, v0.h[0]
 
-    #update 2
+    //update 2
     sub v29.8h,  v7.8h,  v6.8h  //r[i + 2*step] - r[i + step]
     sub v30.8h, v10.8h,  v9.8h  //r[i + 2*step] - r[i + step]
     sub v31.8h, v13.8h, v12.8h  //r[i + 2*step] - r[i + step]
@@ -923,7 +921,7 @@ _looptop_210:
     add  v8.8h,  v8.8h, v10.8h  //r[i] + r[i + step] + r[i + 2*step]
     add v11.8h, v11.8h, v13.8h  //r[i] + r[i + step] + r[i + 2*step]
 
-    #mul 2
+    //mul 2
     mul  v7.8h, v29.8h, v4.h[4]  //fqmul(zeta2, r[i + 2*step] - r[i + step] - t1);
     mul v10.8h, v30.8h, v4.h[0]  //fqmul(zeta2, r[i + 2*step] - r[i + step] - t1);
     mul v13.8h, v31.8h, v3.h[4]  //fqmul(zeta2, r[i + 2*step] - r[i + step] - t1);
@@ -948,8 +946,8 @@ _looptop_210:
     mls  v9.8h, v27.8h, v0.h[0]
     mls v12.8h, v28.8h, v0.h[0]
 
-    # Range before Barrett reduction: [-19122,19122].
-    #Barrett reduction
+    // Range before Barrett reduction: [-19122,19122].
+    //Barrett reduction
     sqrdmulh v28.8h,  v5.8h, v0.h[1]
     sqrdmulh v29.8h,  v8.8h, v0.h[1]
     sqrdmulh v30.8h, v11.8h, v0.h[1]
@@ -958,12 +956,12 @@ _looptop_210:
     mls  v8.8h, v29.8h, v0.h[0]
     mls v11.8h, v30.8h, v0.h[0]
 
-    #update 1
+    //update 1
     sub v29.8h, v15.8h, v14.8h
     sub v30.8h, v18.8h, v17.8h
     sub v31.8h, v21.8h, v20.8h
 
-    #mul 1
+    //mul 1
     mul v23.8h, v29.8h, v0.h[2]
     mul v24.8h, v30.8h, v0.h[2]
     mul v25.8h, v31.8h, v0.h[2]
@@ -976,7 +974,7 @@ _looptop_210:
     mls v24.8h, v30.8h, v0.h[0]
     mls v25.8h, v31.8h, v0.h[0]
 
-    #update 2
+    //update 2
     sub v29.8h, v16.8h, v15.8h  //r[i + 2*step] - r[i + step]
     sub v30.8h, v19.8h, v18.8h  //r[i + 2*step] - r[i + step]
     sub v31.8h, v22.8h, v21.8h  //r[i + 2*step] - r[i + step]
@@ -1001,7 +999,7 @@ _looptop_210:
     add v17.8h, v17.8h, v19.8h  //r[i] + r[i + step] + r[i + 2*step]
     add v20.8h, v20.8h, v22.8h  //r[i] + r[i + step] + r[i + 2*step]
 
-    #mul 2
+    //mul 2
     mul v16.8h, v29.8h, v3.h[0]  //fqmul(zeta2, r[i + 2*step] - r[i + step] - t1);
     mul v19.8h, v30.8h, v2.h[4]  //fqmul(zeta2, r[i + 2*step] - r[i + step] - t1);
     mul v22.8h, v31.8h, v2.h[0]  //fqmul(zeta2, r[i + 2*step] - r[i + step] - t1);
@@ -1026,7 +1024,7 @@ _looptop_210:
     mls v18.8h, v27.8h, v0.h[0]
     mls v21.8h, v28.8h, v0.h[0]
 
-    #Barrett reduction
+    //Barrett reduction
     sqrdmulh v28.8h, v14.8h, v0.h[1]
     sqrdmulh v29.8h, v17.8h, v0.h[1]
     sqrdmulh v30.8h, v20.8h, v0.h[1]
@@ -1035,14 +1033,14 @@ _looptop_210:
     mls v17.8h, v29.8h, v0.h[0]
     mls v20.8h, v30.8h, v0.h[0]
 
-    # Range after level 2: [-2556,2555].
-    #level 1
-    #update 1
+    // Range after level 2: [-2556,2555].
+    //level 1
+    //update 1
     sub v29.8h,  v8.8h, v5.8h
     sub v30.8h,  v9.8h, v6.8h
     sub v31.8h, v10.8h, v7.8h
 
-    #mul 1
+    //mul 1
     mul v23.8h, v29.8h, v0.h[2]
     mul v24.8h, v30.8h, v0.h[2]
     mul v25.8h, v31.8h, v0.h[2]
@@ -1055,7 +1053,7 @@ _looptop_210:
     mls v24.8h, v30.8h, v0.h[0]
     mls v25.8h, v31.8h, v0.h[0]
 
-    #update 2
+    //update 2
     sub v29.8h, v11.8h,  v8.8h  //r[i + 2*step] - r[i + step]
     sub v30.8h, v12.8h,  v9.8h  //r[i + 2*step] - r[i + step]
     sub v31.8h, v13.8h, v10.8h  //r[i + 2*step] - r[i + step]
@@ -1080,7 +1078,7 @@ _looptop_210:
     add v6.8h, v6.8h, v12.8h  //r[i] + r[i + step] + r[i + 2*step]
     add v7.8h, v7.8h, v13.8h  //r[i] + r[i + step] + r[i + 2*step]
 
-    #mul 2
+    //mul 2
     mul v11.8h, v29.8h, v1.h[4]  //fqmul(zeta2, r[i + 2*step] - r[i + step] - t1);
     mul v12.8h, v30.8h, v1.h[4]  //fqmul(zeta2, r[i + 2*step] - r[i + step] - t1);
     mul v13.8h, v31.8h, v1.h[4]  //fqmul(zeta2, r[i + 2*step] - r[i + step] - t1);
@@ -1105,12 +1103,12 @@ _looptop_210:
     mls  v9.8h, v27.8h, v0.h[0]
     mls v10.8h, v28.8h, v0.h[0]
 
-    #update 1
+    //update 1
     sub v29.8h, v17.8h, v14.8h
     sub v30.8h, v18.8h, v15.8h
     sub v31.8h, v19.8h, v16.8h
 
-    #mul 1
+    //mul 1
     mul v23.8h, v29.8h, v0.h[2]
     mul v24.8h, v30.8h, v0.h[2]
     mul v25.8h, v31.8h, v0.h[2]
@@ -1123,7 +1121,7 @@ _looptop_210:
     mls v24.8h, v30.8h, v0.h[0]
     mls v25.8h, v31.8h, v0.h[0]
 
-    #update 2
+    //update 2
     sub v29.8h, v20.8h, v17.8h  //r[i + 2*step] - r[i + step]
     sub v30.8h, v21.8h, v18.8h  //r[i + 2*step] - r[i + step]
     sub v31.8h, v22.8h, v19.8h  //r[i + 2*step] - r[i + step]
@@ -1148,7 +1146,7 @@ _looptop_210:
     add v15.8h, v15.8h, v21.8h  //r[i] + r[i + step] + r[i + 2*step]
     add v16.8h, v16.8h, v22.8h  //r[i] + r[i + step] + r[i + 2*step]
 
-    #mul 2
+    //mul 2
     mul v20.8h, v29.8h, v1.h[0]  //fqmul(zeta2, r[i + 2*step] - r[i + step] - t1);
     mul v21.8h, v30.8h, v1.h[0]  //fqmul(zeta2, r[i + 2*step] - r[i + step] - t1);
     mul v22.8h, v31.8h, v1.h[0]  //fqmul(zeta2, r[i + 2*step] - r[i + step] - t1);
@@ -1173,9 +1171,9 @@ _looptop_210:
     mls v18.8h, v27.8h, v0.h[0]
     mls v19.8h, v28.8h, v0.h[0]
 
-    # Range after level 1: [-7668,7665].
-    #level 0
-    #update 1
+    // Range after level 1: [-7668,7665].
+    //level 0
+    //update 1
     sub v23.8h,  v5.8h, v14.8h
     sub v24.8h,  v6.8h, v15.8h
     sub v25.8h,  v7.8h, v16.8h
@@ -1196,7 +1194,7 @@ _looptop_210:
     add v12.8h, v12.8h, v21.8h
     add v13.8h, v13.8h, v22.8h
 
-    #mul 1
+    //mul 1
     mul v14.8h, v23.8h, v0.h[4]
     mul v15.8h, v24.8h, v0.h[4]
     mul v16.8h, v25.8h, v0.h[4]
@@ -1233,7 +1231,7 @@ _looptop_210:
     mls v21.8h, v30.8h, v0.h[0]
     mls v22.8h, v31.8h, v0.h[0]
 
-    #update 2
+    //update 2
     sub v23.8h,  v5.8h, v14.8h
     sub v24.8h,  v6.8h, v15.8h
     sub v25.8h,  v7.8h, v16.8h
@@ -1244,7 +1242,7 @@ _looptop_210:
     sub v30.8h, v12.8h, v21.8h
     sub v31.8h, v13.8h, v22.8h
 
-    #mul 2
+    //mul 2
     mul v5.8h, v23.8h, v4.h[6]
     mul v6.8h, v24.8h, v4.h[6]
     mul v7.8h, v25.8h, v4.h[6]
@@ -1281,7 +1279,7 @@ _looptop_210:
     mls v12.8h, v30.8h, v0.h[0]
     mls v13.8h, v31.8h, v0.h[0]
 
-    #store 1
+    //store 1
     str  q5, [dst, #0*128]
     str  q6, [dst, #1*128]
     str  q7, [dst, #2*128]
@@ -1292,7 +1290,7 @@ _looptop_210:
     str q12, [dst, #7*128]
     str q13, [dst, #8*128]
 
-    # v5 is free after store 1 and holds the final scale constants.
+    // v5 is free after store 1 and holds the final scale constants.
 
     ldr s5, [zetas_ptr]
 
@@ -1327,9 +1325,9 @@ _looptop_210:
     mul      v22.8h, v22.8h, v5.h[0]
     mls      v22.8h, v24.8h, v0.h[0]
 
-    # Range after level 0: [-2672,2672].
+    // Range after level 0: [-2672,2672].
 
-    #store 2
+    //store 2
     str q14, [dst, #9*128]
     str q15, [dst, #10*128]
     str q16, [dst, #11*128]
@@ -1342,7 +1340,7 @@ _looptop_210:
 
     add dst, dst, #16
     subs counter, counter, #16
-    b.ne _looptop_210
+    b.ne NTRUPLUS_ASM_LOCAL(looptop_210)
 
     .unreq dst
     .unreq src
@@ -1355,3 +1353,7 @@ _looptop_210:
     ldp  d8,  d9, [sp], #64
 
     ret
+NTRUPLUS_ASM_END(poly_invntt_scale)
+
+
+NTRUPLUS_ASM_GNU_STACK

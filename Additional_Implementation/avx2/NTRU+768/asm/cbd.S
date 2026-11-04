@@ -1,16 +1,14 @@
-.global poly_cbd1
-#ifdef __ELF__
-.type poly_cbd1, @function
-#endif
-poly_cbd1:
-    vmovdqa _16x5555(%rip), %ymm0
-    vmovdqa _16x0303(%rip), %ymm1
-    vmovdqa _16x0101(%rip), %ymm2
+#include "asm.h"
+
+NTRUPLUS_ASM_START(poly_cbd1)
+    vmovdqa NTRUPLUS_ASM_SYMBOL(_16x5555)(%rip), %ymm0
+    vmovdqa NTRUPLUS_ASM_SYMBOL(_16x0303)(%rip), %ymm1
+    vmovdqa NTRUPLUS_ASM_SYMBOL(_16x0101)(%rip), %ymm2
 
     lea 96(%rsi), %r8
 
 .p2align 5
-.Llooptop_cbd1:
+NTRUPLUS_ASM_LOCAL(looptop_cbd1):
     vmovdqu   (%rsi), %ymm3
     vmovdqu 96(%rsi), %ymm4
 
@@ -149,27 +147,21 @@ poly_cbd1:
     add $32,  %rsi
     add $512, %rdi
     cmp %r8,  %rsi
-    jb  .Llooptop_cbd1
+    jb  NTRUPLUS_ASM_LOCAL(looptop_cbd1)
 
     ret
-#ifdef __ELF__
-.size poly_cbd1, .-poly_cbd1
-#endif
+NTRUPLUS_ASM_END(poly_cbd1)
 
 
-.global poly_cbd1_triple
-#ifdef __ELF__
-.type poly_cbd1_triple, @function
-#endif
-poly_cbd1_triple:
-    vmovdqa _16x5555(%rip), %ymm0
-    vmovdqa _16x0303(%rip), %ymm1
-    vmovdqa _16x0101(%rip), %ymm2
+NTRUPLUS_ASM_START(poly_cbd1_triple)
+    vmovdqa NTRUPLUS_ASM_SYMBOL(_16x5555)(%rip), %ymm0
+    vmovdqa NTRUPLUS_ASM_SYMBOL(_16x0303)(%rip), %ymm1
+    vmovdqa NTRUPLUS_ASM_SYMBOL(_16x0101)(%rip), %ymm2
 
     lea 96(%rsi), %r8
 
 .p2align 5
-.Llooptop_cbd1_triple:
+NTRUPLUS_ASM_LOCAL(looptop_cbd1_triple):
     vmovdqu   (%rsi), %ymm3
     vmovdqu 96(%rsi), %ymm4
 
@@ -215,7 +207,7 @@ poly_cbd1_triple:
     vpsubb %ymm2, %ymm9, %ymm9
     vpsubb %ymm2, %ymm10, %ymm10
 
-    /* #triple */
+    //triple
     vpaddb  %ymm3,  %ymm3, %ymm15
     vpaddb %ymm15,  %ymm3,  %ymm3
     vpaddb  %ymm4,  %ymm4, %ymm15
@@ -326,26 +318,21 @@ poly_cbd1_triple:
     add $32,  %rsi
     add $512, %rdi
     cmp %r8,  %rsi
-    jb  .Llooptop_cbd1_triple
+    jb  NTRUPLUS_ASM_LOCAL(looptop_cbd1_triple)
 
     ret
-#ifdef __ELF__
-.size poly_cbd1_triple, .-poly_cbd1_triple
-#endif
+NTRUPLUS_ASM_END(poly_cbd1_triple)
 
-.global poly_sotp_encode
-#ifdef __ELF__
-.type poly_sotp_encode, @function
-#endif
-poly_sotp_encode:
-    vmovdqa _16x5555(%rip), %ymm0
-    vmovdqa _16x0303(%rip), %ymm1
-    vmovdqa _16x0101(%rip), %ymm2
+
+NTRUPLUS_ASM_START(poly_sotp_encode)
+    vmovdqa NTRUPLUS_ASM_SYMBOL(_16x5555)(%rip), %ymm0
+    vmovdqa NTRUPLUS_ASM_SYMBOL(_16x0303)(%rip), %ymm1
+    vmovdqa NTRUPLUS_ASM_SYMBOL(_16x0101)(%rip), %ymm2
 
     lea 96(%rsi), %r8
 
 .p2align 5
-.Llooptop_sotp_encode:
+NTRUPLUS_ASM_LOCAL(looptop_sotp_encode):
     vmovdqu   (%rsi), %ymm5
     vmovdqu   (%rdx), %ymm3
     vmovdqu 96(%rdx), %ymm4
@@ -488,13 +475,10 @@ poly_sotp_encode:
     add $32,  %rdx
     add $512, %rdi
     cmp %r8,  %rsi
-    jb  .Llooptop_sotp_encode
+    jb  NTRUPLUS_ASM_LOCAL(looptop_sotp_encode)
 
     ret
-#ifdef __ELF__
-.size poly_sotp_encode, .-poly_sotp_encode
-#endif
+NTRUPLUS_ASM_END(poly_sotp_encode)
 
-#ifdef __ELF__
-.section .note.GNU-stack,"",@progbits
-#endif
+
+NTRUPLUS_ASM_GNU_STACK

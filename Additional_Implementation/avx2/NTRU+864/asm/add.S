@@ -1,12 +1,10 @@
-.global poly_sub
-#ifdef __ELF__
-.type poly_sub, @function
-#endif
-poly_sub:
+#include "asm.h"
+
+NTRUPLUS_ASM_START(poly_sub)
     lea 1728(%rsi), %r8
 
 .p2align 5
-.Llooptop_sub:
+NTRUPLUS_ASM_LOCAL(looptop_sub):
     vmovdqa    (%rsi), %ymm0
     vmovdqa  32(%rsi), %ymm1
     vmovdqa  64(%rsi), %ymm2
@@ -32,14 +30,10 @@ poly_sub:
     add $192, %rdx
     add $192, %rdi
     cmp %r8,  %rsi
-    jb  .Llooptop_sub
+    jb  NTRUPLUS_ASM_LOCAL(looptop_sub)
 
     ret
-#ifdef __ELF__
-.size poly_sub, .-poly_sub
-#endif
+NTRUPLUS_ASM_END(poly_sub)
 
 
-#ifdef __ELF__
-.section .note.GNU-stack,"",@progbits
-#endif
+NTRUPLUS_ASM_GNU_STACK

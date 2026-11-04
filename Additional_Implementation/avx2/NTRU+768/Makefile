@@ -7,13 +7,16 @@ NISTFLAGS += -Wno-unused-result -mavx2 -mbmi2 -mpopcnt -maes \
 RM = /bin/rm -f
 
 ifneq (,$(findstring mingw,$(shell $(CC) -dumpmachine)))
-# The bundled Keccak .s file still uses assembler-defined guards.
-MINGW_ASFLAGS = -Wa,--defsym,no_type=1 -Wa,--defsym,no_size=1 -Wa,--defsym,no_gnu_stack=1
 MINGW_LDLIBS = -ladvapi32
 endif
 
-SOURCES= asm/add.S asm/baseinv.S asm/basemul.S asm/cbd.S asm/crepmod3.S asm/invntt.S asm/ntt.S asm/pack.S consts.c kem.c poly.c symmetric.c fips202/fips202.c fips202/KeccakP-1600-AVX2.s
-HEADERS= params.h api.h poly.h symmetric.h util.h fips202/fips202.h fips202/KeccakP-1600-SnP.h
+ifneq (,$(findstring darwin,$(shell $(CC) -dumpmachine)))
+CFLAGS += -D__STDC_WANT_LIB_EXT1__=1
+NISTFLAGS += -D__STDC_WANT_LIB_EXT1__=1
+endif
+
+SOURCES= asm/add.S asm/baseinv.S asm/basemul.S asm/cbd.S asm/crepmod3.S asm/invntt.S asm/ntt.S asm/pack.S consts.c kem.c poly.c symmetric.c fips202/fips202.c fips202/KeccakP-1600-AVX2.S
+HEADERS= asm.h params.h api.h poly.h symmetric.h util.h fips202/fips202.h fips202/KeccakP-1600-SnP.h
 
 .PHONY: all PQCgenKAT_kem test clean
 
@@ -25,11 +28,11 @@ all: \
 
 PQCgenKAT_kem: $(HEADERS) kat/aes.h kat/rng.h $(SOURCES) kat/PQCgenKAT_kem.c kat/aes.c kat/rng.c
 	@mkdir -p $(BUILD_DIR)
-	$(CC) $(NISTFLAGS) $(MINGW_ASFLAGS) -I. -o $(BUILD_DIR)/PQCgenKAT_kem kat/PQCgenKAT_kem.c kat/aes.c kat/rng.c $(SOURCES)
+	$(CC) $(NISTFLAGS) -I. -o $(BUILD_DIR)/PQCgenKAT_kem kat/PQCgenKAT_kem.c kat/aes.c kat/rng.c $(SOURCES)
 
 test: $(HEADERS) randombytes.h $(SOURCES) randombytes.c test/test.c
 	@mkdir -p $(BUILD_DIR)
-	$(CC) $(CFLAGS) $(MINGW_ASFLAGS) -I. -o $(BUILD_DIR)/test randombytes.c test/test.c $(SOURCES) $(MINGW_LDLIBS)
+	$(CC) $(CFLAGS) -I. -o $(BUILD_DIR)/test randombytes.c test/test.c $(SOURCES) $(MINGW_LDLIBS)
 
 clean:
 	$(RM) PQCkemKAT_*.req PQCkemKAT_*.rsp

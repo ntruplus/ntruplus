@@ -1,3 +1,5 @@
+#include "asm.h"
+
 /*************************************************
 * Name:        poly_cbd1
 *
@@ -9,10 +11,7 @@
 *
 * Returns:     none. Output coefficients lie in {-1,0,1}.
 **************************************************/
-.global poly_cbd1
-.global _poly_cbd1
-poly_cbd1:
-_poly_cbd1:
+NTRUPLUS_ASM_START(poly_cbd1)
 
     dst     .req x0
     src     .req x1
@@ -24,9 +23,9 @@ _poly_cbd1:
 
     mov counter, #2304
 
-_loop_cbd:
+NTRUPLUS_ASM_LOCAL(loop_cbd):
 
-    #load
+    //load
     ldr q20, [src], #16
     ldr q16, [src, #128]
 
@@ -47,7 +46,7 @@ _loop_cbd:
     ushr v17.16b, v20.16b, #2
     ushr v18.16b, v16.16b, #2
 
-    #extract 1
+    //extract 1
     and v3.16b, v20.16b, v1.16b
     and v4.16b, v16.16b, v1.16b
     and v5.16b, v17.16b, v1.16b
@@ -58,13 +57,13 @@ _loop_cbd:
     ushr v17.16b, v17.16b, #4
     ushr v18.16b, v18.16b, #4
 
-    #extract 2
+    //extract 2
     and  v7.16b, v20.16b, v1.16b
     and v20.16b, v16.16b, v1.16b
     and v21.16b, v17.16b, v1.16b
     and v22.16b, v18.16b, v1.16b
 
-    #shuffles
+    //shuffles
     trn1 v23.16b,  v3.16b,  v4.16b
     trn1 v24.16b,  v5.16b,  v6.16b
     trn1 v25.16b,  v7.16b, v20.16b
@@ -95,7 +94,7 @@ _loop_cbd:
     trn2 v6.4s, v31.4s, v21.4s
     trn2 v7.4s, v22.4s, v20.4s
 
-    #expand
+    //expand
     usubl v20.8h, v16.8b, v2.8b
     usubl v21.8h, v17.8b, v2.8b
     usubl v22.8h, v18.8b, v2.8b
@@ -116,21 +115,21 @@ _loop_cbd:
     usubl2 v30.8h, v6.16b, v2.16b
     usubl2 v31.8h, v7.16b, v2.16b
 
-    #store
+    //store
     st1 {v20.8h - v23.8h}, [dst], #64
     st1 {v24.8h - v27.8h}, [dst], #64
     st1 {v16.8h - v19.8h}, [dst], #64
     st1 {v28.8h - v31.8h}, [dst], #64
 
     subs counter, counter, #256
-    b.ne _loop_cbd
+    b.ne NTRUPLUS_ASM_LOCAL(loop_cbd)
 
     .unreq dst
     .unreq src
     .unreq counter
 
-
     ret
+NTRUPLUS_ASM_END(poly_cbd1)
 
 
 /*************************************************
@@ -144,10 +143,7 @@ _loop_cbd:
 *
 * Returns:     none. Output coefficients lie in {-3,0,3}.
 **************************************************/
-.global poly_cbd1_triple
-.global _poly_cbd1_triple
-poly_cbd1_triple:
-_poly_cbd1_triple:
+NTRUPLUS_ASM_START(poly_cbd1_triple)
 
     dst     .req x0
     src     .req x1
@@ -159,9 +155,9 @@ _poly_cbd1_triple:
 
     mov counter, #2304
 
-_loop_cbd_triple:
+NTRUPLUS_ASM_LOCAL(loop_cbd_triple):
 
-    #load
+    //load
     ldr q20, [src], #16
     ldr q16, [src, #128]
 
@@ -182,7 +178,7 @@ _loop_cbd_triple:
     ushr v17.16b, v20.16b, #2
     ushr v18.16b, v16.16b, #2
 
-    #extract 1
+    //extract 1
     and v3.16b, v20.16b, v1.16b
     and v4.16b, v16.16b, v1.16b
     and v5.16b, v17.16b, v1.16b
@@ -198,7 +194,7 @@ _loop_cbd_triple:
     ushr v17.16b, v17.16b, #4
     ushr v18.16b, v18.16b, #4
 
-    #extract 2
+    //extract 2
     and  v7.16b, v20.16b, v1.16b
     and v20.16b, v16.16b, v1.16b
     and v21.16b, v17.16b, v1.16b
@@ -209,7 +205,7 @@ _loop_cbd_triple:
     sub v21.16b, v21.16b, v2.16b
     sub v22.16b, v22.16b, v2.16b
 
-    #shuffles
+    //shuffles
     trn1 v23.16b,  v3.16b,  v4.16b
     trn1 v24.16b,  v5.16b,  v6.16b
     trn1 v25.16b,  v7.16b, v20.16b
@@ -240,8 +236,8 @@ _loop_cbd_triple:
     trn2 v6.4s, v31.4s, v21.4s
     trn2 v7.4s, v22.4s, v20.4s
 
-    #triple
-    #expand
+    //triple
+    //expand
     smull v20.8h, v16.8b, v1.8b
     smull v21.8h, v17.8b, v1.8b
     smull v22.8h, v18.8b, v1.8b
@@ -262,21 +258,21 @@ _loop_cbd_triple:
     smull2 v30.8h, v6.16b, v1.16b
     smull2 v31.8h, v7.16b, v1.16b
 
-    #store
+    //store
     st1 {v20.8h - v23.8h}, [dst], #64
     st1 {v24.8h - v27.8h}, [dst], #64
     st1 {v16.8h - v19.8h}, [dst], #64
     st1 {v28.8h - v31.8h}, [dst], #64
 
     subs counter, counter, #256
-    b.ne _loop_cbd_triple
+    b.ne NTRUPLUS_ASM_LOCAL(loop_cbd_triple)
 
     .unreq dst
     .unreq src
     .unreq counter
 
-
     ret
+NTRUPLUS_ASM_END(poly_cbd1_triple)
 
 
 /*************************************************
@@ -291,10 +287,7 @@ _loop_cbd_triple:
 *
 * Returns:     none. Output coefficients lie in {-1,0,1}.
 **************************************************/
-.global poly_sotp_encode
-.global _poly_sotp_encode
-poly_sotp_encode:
-_poly_sotp_encode:
+NTRUPLUS_ASM_START(poly_sotp_encode)
 
     dst     .req x0
     src1    .req x1
@@ -307,14 +300,14 @@ _poly_sotp_encode:
 
     mov counter, #2304
 
-_loop_sotp_encode:
+NTRUPLUS_ASM_LOCAL(loop_sotp_encode):
 
-    #load
+    //load
     ldr q7, [src1], #16
     ldr q3, [src2], #16
     ldr q4, [src2, #128]
 
-    #xor
+    //xor
     eor v3.16b, v7.16b, v3.16b
 
     ushr v5.16b, v3.16b, #1
@@ -334,7 +327,7 @@ _loop_sotp_encode:
     ushr v5.16b, v3.16b, #2
     ushr v6.16b, v4.16b, #2
 
-    #extract 1
+    //extract 1
     and v16.16b, v3.16b, v1.16b
     and v17.16b, v4.16b, v1.16b
     and v18.16b, v5.16b, v1.16b
@@ -345,13 +338,13 @@ _loop_sotp_encode:
     ushr v5.16b, v5.16b, #4
     ushr v6.16b, v6.16b, #4
 
-    #extract 2
+    //extract 2
     and v20.16b, v3.16b, v1.16b
     and v21.16b, v4.16b, v1.16b
     and v22.16b, v5.16b, v1.16b
     and v23.16b, v6.16b, v1.16b
 
-    #shuffles
+    //shuffles
     trn1 v24.16b, v16.16b, v17.16b
     trn1 v25.16b, v18.16b, v19.16b
     trn1 v26.16b, v20.16b, v21.16b
@@ -382,7 +375,7 @@ _loop_sotp_encode:
     trn2 v30.4s, v20.4s, v21.4s
     trn2 v31.4s, v22.4s, v23.4s
 
-    #expand
+    //expand
     usubl v16.8h, v24.8b, v2.8b
     usubl v17.8h, v25.8b, v2.8b
     usubl v18.8h, v26.8b, v2.8b
@@ -403,14 +396,14 @@ _loop_sotp_encode:
     usubl2 v30.8h, v30.16b, v2.16b
     usubl2 v31.8h, v31.16b, v2.16b
 
-    #store
+    //store
     st1 {v16.8h - v19.8h}, [dst], #64
     st1 {v20.8h - v23.8h}, [dst], #64
     st1 {v24.8h - v27.8h}, [dst], #64
     st1 {v28.8h - v31.8h}, [dst], #64
 
     subs counter, counter, #256
-    b.ne _loop_sotp_encode
+    b.ne NTRUPLUS_ASM_LOCAL(loop_sotp_encode)
 
     .unreq dst
     .unreq src1
@@ -418,6 +411,7 @@ _loop_sotp_encode:
     .unreq counter
 
     ret
+NTRUPLUS_ASM_END(poly_sotp_encode)
 
 
 /*************************************************
@@ -432,10 +426,7 @@ _loop_sotp_encode:
 *
 * Returns:     0 on success and 1 on failure.
 **************************************************/
-.global poly_sotp_decode
-.global _poly_sotp_decode
-poly_sotp_decode:
-_poly_sotp_decode:
+NTRUPLUS_ASM_START(poly_sotp_decode)
 
     dst       .req x0
     src1      .req x1
@@ -445,18 +436,18 @@ _poly_sotp_decode:
 
     mov dst_start, dst
 
-    #load
+    //load
     movi v0.16b, #0x55
     movi v1.16b, #0x01
 
-    #global error
+    //global error
     movi v3.16b, #0xff
 
     mov counter, #2304
 
-_loop_sotp_decode:
+NTRUPLUS_ASM_LOCAL(loop_sotp_decode):
 
-    #load
+    //load
     ld1 {v16.8h - v19.8h}, [src1], #64
     ld1 {v20.8h - v23.8h}, [src1], #64
     ld1 {v24.8h - v27.8h}, [src1], #64
@@ -482,7 +473,7 @@ _loop_sotp_decode:
     sqxtn2 v22.16b, v30.8h
     sqxtn2 v23.16b, v31.8h
 
-    #shuffles
+    //shuffles
     trn1 v24.4s, v16.4s, v20.4s
     trn2 v25.4s, v16.4s, v20.4s
     trn1 v26.4s, v17.4s, v21.4s
@@ -538,7 +529,7 @@ _loop_sotp_decode:
     eor v20.16b, v16.16b, v18.16b
     eor v21.16b, v17.16b, v19.16b
 
-    #load
+    //load
     ldr q4, [src2], #16
     ldr q5, [src2, #128]
 
@@ -550,7 +541,7 @@ _loop_sotp_decode:
     add v17.16b, v20.16b,  v7.16b
     add v18.16b, v21.16b, v16.16b
 
-    #handling error
+    //handling error
     ushr v19.16b, v17.16b, #1
     ushr v22.16b, v18.16b, #1
 
@@ -560,7 +551,7 @@ _loop_sotp_decode:
     and v25.16b, v23.16b, v24.16b
     and  v3.16b,  v3.16b, v25.16b
 
-    #extract bits
+    //extract bits
     and v17.16b, v17.16b, v0.16b
     and v18.16b, v18.16b, v0.16b
     shl v19.16b, v18.16b, #1
@@ -570,11 +561,11 @@ _loop_sotp_decode:
 
     eor v22.16b, v21.16b, v4.16b
 
-    #store
+    //store
     str q22, [dst], #16
 
     subs counter, counter, #256
-    b.ne _loop_sotp_decode
+    b.ne NTRUPLUS_ASM_LOCAL(loop_sotp_decode)
 
     bic v3.16b, v0.16b, v3.16b
 
@@ -620,5 +611,8 @@ _loop_sotp_decode:
     .unreq counter
     .unreq dst_start
 
-
     ret
+NTRUPLUS_ASM_END(poly_sotp_decode)
+
+
+NTRUPLUS_ASM_GNU_STACK

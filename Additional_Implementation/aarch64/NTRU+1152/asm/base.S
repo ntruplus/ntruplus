@@ -1,3 +1,4 @@
+#include "asm.h"
 #include "consts.h"
 
 /*
@@ -37,10 +38,7 @@
 * Returns:     none. Output coefficients lie in (-3q/2,3q/2) and are
 *              reduced by poly_tobytes before serialization.
 **************************************************/
-.global poly_basemul
-.global _poly_basemul
-poly_basemul:
-_poly_basemul:
+NTRUPLUS_ASM_START(poly_basemul)
 
     dst       .req x0
     src1      .req x1
@@ -55,10 +53,10 @@ _poly_basemul:
 
     mov counter, #2304
 
-_looptop_pair:
+NTRUPLUS_ASM_LOCAL(looptop_pair):
     ldp q1, q2, [zetas_ptr], #64
 
-_looptop:
+NTRUPLUS_ASM_LOCAL(looptop):
     /* Read both inputs before storing either output half. */
     ld1 { v4.8h -  v7.8h}, [src1], #64
     ld1 {v16.8h - v19.8h}, [src2], #64
@@ -162,15 +160,15 @@ _looptop:
 
     subs counter, counter, #64
     /* The public counter selects the +zeta/-zeta block order. */
-    tbz counter, #6, _looptop_pair_check
+    tbz counter, #6, NTRUPLUS_ASM_LOCAL(looptop_pair_check)
 
     /* Negate zeta and its Barrett factor to reuse them for the next -zeta block. */
     neg v1.8h, v1.8h
     neg v2.8h, v2.8h
-    b _looptop
+    b NTRUPLUS_ASM_LOCAL(looptop)
 
-_looptop_pair_check:
-    b.ne _looptop_pair
+NTRUPLUS_ASM_LOCAL(looptop_pair_check):
+    b.ne NTRUPLUS_ASM_LOCAL(looptop_pair)
 
     .unreq dst
     .unreq src1
@@ -179,6 +177,7 @@ _looptop_pair_check:
     .unreq counter
 
     ret
+NTRUPLUS_ASM_END(poly_basemul)
 
 
 /*************************************************
@@ -196,10 +195,7 @@ _looptop_pair_check:
 * Returns:     none. Output coefficients lie in [-q+1,q-1] in the
 *              R^-1 representation.
 **************************************************/
-.global poly_basemul_scaled
-.global _poly_basemul_scaled
-poly_basemul_scaled:
-_poly_basemul_scaled:
+NTRUPLUS_ASM_START(poly_basemul_scaled)
 
     dst       .req x0
     src1      .req x1
@@ -214,10 +210,10 @@ _poly_basemul_scaled:
 
     mov counter, #2304
 
-_looptop_scale_pair:
+NTRUPLUS_ASM_LOCAL(looptop_scale_pair):
     ldp q1, q2, [zetas_ptr], #64
 
-_looptop_scale:
+NTRUPLUS_ASM_LOCAL(looptop_scale):
     /* Read both inputs before storing either output half. */
     ld1 { v4.8h -  v7.8h}, [src1], #64
     ld1 {v16.8h - v19.8h}, [src2], #64
@@ -305,15 +301,15 @@ _looptop_scale:
 
     subs counter, counter, #64
     /* The public counter selects the +zeta/-zeta block order. */
-    tbz counter, #6, _looptop_scale_pair_check
+    tbz counter, #6, NTRUPLUS_ASM_LOCAL(looptop_scale_pair_check)
 
     /* Negate zeta and its Barrett factor to reuse them for the next -zeta block. */
     neg v1.8h, v1.8h
     neg v2.8h, v2.8h
-    b _looptop_scale
+    b NTRUPLUS_ASM_LOCAL(looptop_scale)
 
-_looptop_scale_pair_check:
-    b.ne _looptop_scale_pair
+NTRUPLUS_ASM_LOCAL(looptop_scale_pair_check):
+    b.ne NTRUPLUS_ASM_LOCAL(looptop_scale_pair)
 
     .unreq dst
     .unreq src1
@@ -322,6 +318,7 @@ _looptop_scale_pair_check:
     .unreq counter
 
     ret
+NTRUPLUS_ASM_END(poly_basemul_scaled)
 
 
 /*************************************************
@@ -341,10 +338,7 @@ _looptop_scale_pair_check:
 * Returns:     none. Output coefficients lie in (-5q/2,5q/2) and are
 *              reduced by poly_tobytes before serialization.
 **************************************************/
-.global poly_basemul_add
-.global _poly_basemul_add
-poly_basemul_add:
-_poly_basemul_add:
+NTRUPLUS_ASM_START(poly_basemul_add)
 
     dst       .req x0
     src1      .req x1
@@ -360,10 +354,10 @@ _poly_basemul_add:
 
     mov counter, #2304
 
-_looptop_add_pair:
+NTRUPLUS_ASM_LOCAL(looptop_add_pair):
     ldp q1, q2, [zetas_ptr], #64
 
-_looptop_add:
+NTRUPLUS_ASM_LOCAL(looptop_add):
     /* Read both inputs before storing either output half. */
     ld1 { v4.8h -  v7.8h}, [src1], #64
     ld1 {v16.8h - v19.8h}, [src2], #64
@@ -474,15 +468,15 @@ _looptop_add:
 
     subs counter, counter, #64
     /* The public counter selects the +zeta/-zeta block order. */
-    tbz counter, #6, _looptop_add_pair_check
+    tbz counter, #6, NTRUPLUS_ASM_LOCAL(looptop_add_pair_check)
 
     /* Negate zeta and its Barrett factor to reuse them for the next -zeta block. */
     neg v1.8h, v1.8h
     neg v2.8h, v2.8h
-    b _looptop_add
+    b NTRUPLUS_ASM_LOCAL(looptop_add)
 
-_looptop_add_pair_check:
-    b.ne _looptop_add_pair
+NTRUPLUS_ASM_LOCAL(looptop_add_pair_check):
+    b.ne NTRUPLUS_ASM_LOCAL(looptop_add_pair)
 
     .unreq dst
     .unreq src1
@@ -492,6 +486,7 @@ _looptop_add_pair_check:
     .unreq counter
 
     ret
+NTRUPLUS_ASM_END(poly_basemul_add)
 
 
 /*************************************************
@@ -510,10 +505,8 @@ _looptop_add_pair_check:
 *              factors R^-2 and R^-3 respectively, where R = 2^16.
 **************************************************/
 
-.global poly_baseinv_1
-.global _poly_baseinv_1
-poly_baseinv_1:
-_poly_baseinv_1:
+NTRUPLUS_ASM_START(poly_baseinv_1)
+
     dst       .req x0
     den       .req x1
     src       .req x2
@@ -527,10 +520,10 @@ _poly_baseinv_1:
 
     mov counter, #2304
 
-_looptop_baseinv_1_pair:
+NTRUPLUS_ASM_LOCAL(looptop_baseinv_1_pair):
     ldp q1, q2, [zetas_ptr], #64
 
-_looptop_baseinv_1:
+NTRUPLUS_ASM_LOCAL(looptop_baseinv_1):
     ld1 {v3.8h - v6.8h}, [src], #64
 
     /*
@@ -655,15 +648,15 @@ _looptop_baseinv_1:
 
     subs counter, counter, #64
     /* The public counter selects the +zeta/-zeta block order. */
-    tbz counter, #6, _looptop_baseinv_1_pair_check
+    tbz counter, #6, NTRUPLUS_ASM_LOCAL(looptop_baseinv_1_pair_check)
 
     /* Negate zeta and its Barrett factor to reuse them for the next -zeta block. */
     neg v1.8h, v1.8h
     neg v2.8h, v2.8h
-    b _looptop_baseinv_1
+    b NTRUPLUS_ASM_LOCAL(looptop_baseinv_1)
 
-_looptop_baseinv_1_pair_check:
-    b.ne _looptop_baseinv_1_pair
+NTRUPLUS_ASM_LOCAL(looptop_baseinv_1_pair_check):
+    b.ne NTRUPLUS_ASM_LOCAL(looptop_baseinv_1_pair)
 
     .unreq dst
     .unreq den
@@ -671,3 +664,7 @@ _looptop_baseinv_1_pair_check:
     .unreq zetas_ptr
     .unreq counter
     ret
+NTRUPLUS_ASM_END(poly_baseinv_1)
+
+
+NTRUPLUS_ASM_GNU_STACK

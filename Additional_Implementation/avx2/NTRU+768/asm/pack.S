@@ -1,16 +1,14 @@
-.global poly_tobytes
-#ifdef __ELF__
-.type poly_tobytes, @function
-#endif
-poly_tobytes:
-vmovdqa _16xv(%rip), %ymm15
-vmovdqa _16xq(%rip), %ymm14
+#include "asm.h"
+
+NTRUPLUS_ASM_START(poly_tobytes)
+vmovdqa NTRUPLUS_ASM_SYMBOL(_16xv)(%rip), %ymm15
+vmovdqa NTRUPLUS_ASM_SYMBOL(_16xq)(%rip), %ymm14
 
 lea 1536(%rsi), %r8
 
 .p2align 5
-.Llooptop_tobytes:
-/* #load */
+NTRUPLUS_ASM_LOCAL(looptop_tobytes):
+//load
 vmovdqa    (%rsi), %ymm0
 vmovdqa  32(%rsi), %ymm1
 vmovdqa  64(%rsi), %ymm2
@@ -81,7 +79,7 @@ vpsrlw $8,     %ymm6,  %ymm13
 vpxor  %ymm10, %ymm12, %ymm2
 vpxor  %ymm11, %ymm13, %ymm6
 
-/* #shuffle */
+//shuffle
 vpslld      $16, %ymm1, %ymm7
 vpslld      $16, %ymm4, %ymm8
 vpslld      $16, %ymm6, %ymm9
@@ -134,26 +132,21 @@ vmovdqu %ymm5, 160(%rdi)
 add $192, %rdi
 add $256, %rsi
 cmp %r8,  %rsi
-jb  .Llooptop_tobytes
+jb  NTRUPLUS_ASM_LOCAL(looptop_tobytes)
 
 ret
-#ifdef __ELF__
-.size poly_tobytes, .-poly_tobytes
-#endif
+NTRUPLUS_ASM_END(poly_tobytes)
 
-.global poly_frombytes
-#ifdef __ELF__
-.type poly_frombytes, @function
-#endif
-poly_frombytes:
-vmovdqa _low_mask(%rip), %ymm15
+
+NTRUPLUS_ASM_START(poly_frombytes)
+vmovdqa NTRUPLUS_ASM_SYMBOL(_low_mask)(%rip), %ymm15
 xor %eax, %eax
 
 lea 1152(%rsi), %r8
 
 .p2align 5
-.Llooptop_frombytes:
-/* #load */
+NTRUPLUS_ASM_LOCAL(looptop_frombytes):
+//load
 vmovdqu    (%rsi), %ymm0
 vmovdqu  32(%rsi), %ymm1
 vmovdqu  64(%rsi), %ymm2
@@ -175,7 +168,7 @@ vpunpckhqdq %ymm10, %ymm7, %ymm3
 vpunpcklqdq %ymm11, %ymm8, %ymm4
 vpunpckhqdq %ymm11, %ymm8, %ymm5
 
-/* #shuffle */
+//shuffle
 vpsllq   $32,   %ymm3,  %ymm8
 vpsrlq   $32,   %ymm0,  %ymm9
 vpsllq   $32,   %ymm4,  %ymm10
@@ -189,7 +182,7 @@ vpblendd $0xAA, %ymm4,  %ymm11, %ymm11
 vpblendd $0xAA, %ymm12, %ymm2,  %ymm12
 vpblendd $0xAA, %ymm5,  %ymm13, %ymm13
 
-/* #shuffle */
+//shuffle
 vpsllq   $16,   %ymm11, %ymm0
 vpsrlq   $16,   %ymm8,  %ymm1
 vpsllq   $16,   %ymm12, %ymm2
@@ -242,23 +235,20 @@ vpmaxuw %ymm10, %ymm9,  %ymm3
 vpmaxuw %ymm1,  %ymm0,  %ymm0
 vpmaxuw %ymm3,  %ymm2,  %ymm2
 vpmaxuw %ymm2,  %ymm0,  %ymm0
-vpcmpgtw _16xqm1(%rip), %ymm0, %ymm0
+vpcmpgtw NTRUPLUS_ASM_SYMBOL(_16xqm1)(%rip), %ymm0, %ymm0
 vpmovmskb %ymm0, %edx
 or %edx, %eax
 
 add $256, %rdi
 add $192, %rsi
 cmp %r8,  %rsi
-jb  .Llooptop_frombytes
+jb  NTRUPLUS_ASM_LOCAL(looptop_frombytes)
 
 test %eax, %eax
 setne %al
 movzbl %al, %eax
 ret
-#ifdef __ELF__
-.size poly_frombytes, .-poly_frombytes
-#endif
+NTRUPLUS_ASM_END(poly_frombytes)
 
-#ifdef __ELF__
-.section .note.GNU-stack,"",@progbits
-#endif
+
+NTRUPLUS_ASM_GNU_STACK
