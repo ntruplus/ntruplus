@@ -15,7 +15,7 @@ CFLAGS += -D__STDC_WANT_LIB_EXT1__=1
 NISTFLAGS += -D__STDC_WANT_LIB_EXT1__=1
 endif
 
-SOURCES= asm/add.S asm/baseinv.S asm/basemul.S asm/cbd.S asm/crepmod3.S asm/invntt.S asm/ntt.S asm/pack.S asm/sotp.S consts.c kem.c poly.c symmetric.c fips202/fips202.c fips202/KeccakP-1600-AVX2.S
+SOURCES= asm/add.S asm/baseinv.S asm/basemul.S asm/cbd.S asm/crepmod3.S asm/invntt.S asm/ntt.S asm/pack.S asm/sotp.S consts.c kem.c $(wildcard poly.c) symmetric.c fips202/fips202.c fips202/KeccakP-1600-AVX2.S
 HEADERS= asm.h params.h api.h poly.h symmetric.h util.h fips202/fips202.h fips202/KeccakP-1600-SnP.h
 
 .PHONY: all PQCgenKAT_kem test clean

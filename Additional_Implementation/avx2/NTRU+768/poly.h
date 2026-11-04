@@ -22,7 +22,6 @@
 #define poly_baseinv        NTRUPLUS_NAMESPACE(poly_baseinv)
 #define poly_sub            NTRUPLUS_NAMESPACE(poly_sub)
 #define poly_crepmod3       NTRUPLUS_NAMESPACE(poly_crepmod3)
-#define poly_baseinv_1      NTRUPLUS_NAMESPACE(poly_baseinv_1)
 #define poly_frombytes_raw  NTRUPLUS_NAMESPACE(poly_frombytes_raw)
 #define poly_ntt_pack       NTRUPLUS_NAMESPACE(poly_ntt_pack)
 #define poly_ntt_unpack     NTRUPLUS_NAMESPACE(poly_ntt_unpack)
@@ -66,7 +65,7 @@ void poly_basemul_add(poly *r, const poly *a, const poly *b, const poly *c);
 NTRUPLUS_INTERNAL NTRUPLUS_SYSV
 void poly_basemul_scaled(poly *r, const poly *a, const poly *b);
 
-NTRUPLUS_INTERNAL int poly_baseinv(poly *r, const poly *a);
+NTRUPLUS_INTERNAL NTRUPLUS_SYSV int poly_baseinv(poly *r, const poly *a);
 
 NTRUPLUS_INTERNAL NTRUPLUS_SYSV
 void poly_sub(poly *c, const poly *a, const poly *b);

@@ -382,4 +382,5 @@ NTRUPLUS_ASM_LOCAL(sotp_mask_lo):
 NTRUPLUS_ASM_LOCAL(sotp_mask_hi):
 .quad 0xff00ff00ff00ff00, 0xff00ff00ff00ff00, 0xff00ff00ff00ff00, 0xff00ff00ff00ff00
 
+
 NTRUPLUS_ASM_GNU_STACK
