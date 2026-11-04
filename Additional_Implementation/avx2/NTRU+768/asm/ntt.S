@@ -1,11 +1,9 @@
 #include "asm.h"
 
 /*
- * References:
- * [SUPERCOP26] SUPERCOP 20261018,
- * crypto_kem/ntruplus768/avx2-opt/ntt.s.
- * https://bench.cr.yp.to/supercop/supercop-20261018.tar.xz
- * Fused level-0/radix-3 traversal with the existing arithmetic and table layout.
+ * The fused level-0/radix-3 traversal follows the approach in
+ * SUPERCOP 20261018, crypto_kem/ntruplus768/avx2-opt/ntt.s.
+ * The existing arithmetic and table layout are retained.
  */
 
 NTRUPLUS_ASM_START(poly_ntt)
