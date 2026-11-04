@@ -53,7 +53,7 @@ void poly_cbd1_triple(poly *r, const uint8_t buf[NTRUPLUS_N/4]);
 NTRUPLUS_INTERNAL NTRUPLUS_SYSV
 void poly_sotp_encode(poly *r, const uint8_t msg[NTRUPLUS_N/8],
                       const uint8_t buf[NTRUPLUS_N/4]);
-NTRUPLUS_INTERNAL
+NTRUPLUS_INTERNAL NTRUPLUS_SYSV
 int poly_sotp_decode(uint8_t msg[NTRUPLUS_N/8], const poly *a,
                      const uint8_t buf[NTRUPLUS_N/4]);
 
