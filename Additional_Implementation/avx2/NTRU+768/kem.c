@@ -111,6 +111,14 @@ static inline void crypto_kem_keypair_derand(uint8_t *pk, uint8_t *sk,
 *
 * Returns 0 on success.
 **************************************************/
+/* Key generation uses three top-level deterministic components:
+ * genf_derand, geng_derand, and crypto_kem_keypair_derand. Fresh seeds
+ * are supplied by the caller for each attempt, allowing early rejection
+ * without maintaining a shared seed-expansion stream.
+ *
+ * We intentionally preserve the specified input representation at these
+ * interfaces, including finv and ginv without an extra factor of R,
+ * to support interface-level testing and validation. */
 int crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
 {
     uint8_t coins[NTRUPLUS_SYMBYTES];
