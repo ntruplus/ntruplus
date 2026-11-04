@@ -1,128 +1,146 @@
 #include "asm.h"
 
+/*
+ * References:
+ * [SUPERCOP26] SUPERCOP 20261018,
+ * crypto_kem/ntruplus1152/avx2-opt/ntt.s.
+ * https://bench.cr.yp.to/supercop/supercop-20261018.tar.xz
+ * Fused level-0/radix-3 traversal with the existing arithmetic and table layout.
+ */
+
 NTRUPLUS_ASM_START(poly_ntt)
-vmovdqa NTRUPLUS_ASM_SYMBOL(16xq)(%rip), %ymm0
-vmovdqa NTRUPLUS_ASM_SYMBOL(16xv)(%rip), %ymm1
-lea     NTRUPLUS_ASM_SYMBOL(zetas)(%rip), %rdx
+vmovdqa     NTRUPLUS_ASM_SYMBOL(16xq)(%rip), %ymm0
+vmovdqa NTRUPLUS_ASM_SYMBOL(16xzeta1)(%rip), %ymm1
+vmovdqa NTRUPLUS_ASM_SYMBOL(16xwqinv)(%rip), %ymm2
+vmovdqa     NTRUPLUS_ASM_SYMBOL(16xw)(%rip), %ymm3
+lea NTRUPLUS_ASM_SYMBOL(zetas)(%rip), %rdx
+
+//level0+1
+lea 384(%rdi), %r8
+
+.balign 32
+NTRUPLUS_ASM_LOCAL(looptop_start_01):
+
+//load
+vmovdqa     (%rdi),  %ymm8
+vmovdqa  384(%rdi),  %ymm9
+vmovdqa  768(%rdi), %ymm10
+vmovdqa 1152(%rdi), %ymm11
+vmovdqa 1536(%rdi), %ymm12
+vmovdqa 1920(%rdi), %ymm13
 
 //level0
-//zetas
 // Input coefficients are in [-3,4].  The raw -722 product keeps this
 // butterfly in [-2891,2896], so its Montgomery reduction is unnecessary.
-vmovdqa NTRUPLUS_ASM_SYMBOL(16xzeta1)(%rip), %ymm15
-
-lea 1152(%rdi), %r8
-
-.balign 32
-NTRUPLUS_ASM_LOCAL(looptop_j_0):
-//load
-vmovdqa     (%rdi), %ymm3
-vmovdqa   32(%rdi), %ymm4
-vmovdqa   64(%rdi), %ymm5
-vmovdqa 1152(%rdi), %ymm6
-vmovdqa 1184(%rdi), %ymm7
-vmovdqa 1216(%rdi), %ymm8
 
 //mul
-vpmullw %ymm15, %ymm6, %ymm12
-vpmullw %ymm15, %ymm7, %ymm13
-vpmullw %ymm15, %ymm8, %ymm14
+vpmullw %ymm1, %ymm11, %ymm4
+vpmullw %ymm1, %ymm12, %ymm5
+vpmullw %ymm1, %ymm13, %ymm6
 
 //update
-vpaddw %ymm12, %ymm3, %ymm9
-vpaddw %ymm13, %ymm4, %ymm10
-vpaddw %ymm14, %ymm5, %ymm11
-vpsubw %ymm12, %ymm3, %ymm12
-vpsubw %ymm13, %ymm4, %ymm13
-vpsubw %ymm14, %ymm5, %ymm14
-vpaddw %ymm6,  %ymm12, %ymm12
-vpaddw %ymm7,  %ymm13, %ymm13
-vpaddw %ymm8,  %ymm14, %ymm14
+vpsubw  %ymm4, %ymm11, %ymm11
+vpsubw  %ymm5, %ymm12, %ymm12
+vpsubw  %ymm6, %ymm13, %ymm13
+vpaddw  %ymm8, %ymm11, %ymm11
+vpaddw  %ymm9, %ymm12, %ymm12
+vpaddw %ymm10, %ymm13, %ymm13
+vpaddw  %ymm4,  %ymm8,  %ymm8
+vpaddw  %ymm5,  %ymm9,  %ymm9
+vpaddw  %ymm6, %ymm10, %ymm10
 
-//store
-vmovdqa %ymm9,      (%rdi)
-vmovdqa %ymm10,   32(%rdi)
-vmovdqa %ymm11,   64(%rdi)
-vmovdqa %ymm12, 1152(%rdi)
-vmovdqa %ymm13, 1184(%rdi)
-vmovdqa %ymm14, 1216(%rdi)
-
-add $96, %rdi
-cmp %r8, %rdi
-jb   NTRUPLUS_ASM_LOCAL(looptop_j_0)
-
-sub $1152, %rdi
-
-//level 1
-//load
-vmovdqa NTRUPLUS_ASM_SYMBOL(16xwqinv)(%rip), %ymm2 //winv
-vmovdqa     NTRUPLUS_ASM_SYMBOL(16xw)(%rip), %ymm3 //w
-
-lea 2304(%rdi), %r8
-
-.balign 32
-NTRUPLUS_ASM_LOCAL(looptop_start_1):
+//level1
 //zetas
-vpbroadcastd   8(%rdx), %ymm4  //ainv
-vpbroadcastd  16(%rdx), %ymm5 //a^2inv
-vpbroadcastd  12(%rdx), %ymm6 //a
-vpbroadcastd  20(%rdx), %ymm7 //a^2
-
-lea 384(%rdi), %r9
-
-.balign 32
-NTRUPLUS_ASM_LOCAL(looptop_j_1):
-//load
-vmovdqa    (%rdi), %ymm8
-vmovdqa 384(%rdi), %ymm9
-vmovdqa 768(%rdi), %ymm10
+vpbroadcastd  8(%rdx), %ymm4
+vpbroadcastd 16(%rdx), %ymm5
+vpbroadcastd 12(%rdx), %ymm6
+vpbroadcastd 20(%rdx), %ymm7
 
 //mul Ba, Ca^2
-vpmullw %ymm4, %ymm9,  %ymm11
-vpmullw %ymm5, %ymm10, %ymm12
-vpmulhw %ymm6, %ymm9,  %ymm9
+vpmullw %ymm4,  %ymm9, %ymm14
+vpmullw %ymm5, %ymm10, %ymm15
+vpmulhw %ymm6,  %ymm9,  %ymm9
 vpmulhw %ymm7, %ymm10, %ymm10
 
 //reduce
-vpmulhw %ymm0,  %ymm11, %ymm11
-vpmulhw %ymm0,  %ymm12, %ymm12
-vpsubw  %ymm11, %ymm9,  %ymm9
-vpsubw  %ymm12, %ymm10, %ymm10
+vpmulhw  %ymm0, %ymm14, %ymm14
+vpmulhw  %ymm0, %ymm15, %ymm15
+vpsubw  %ymm14,  %ymm9,  %ymm9
+vpsubw  %ymm15, %ymm10, %ymm10
 
 //sub (Ba-Ca^2)
-vpsubw %ymm10, %ymm9, %ymm11
+vpsubw %ymm10, %ymm9, %ymm14
 
 //mul w(Ba-Ca^2)
-vpmullw %ymm2, %ymm11, %ymm12
-vpmulhw %ymm3, %ymm11, %ymm11
+vpmullw %ymm2, %ymm14, %ymm15
+vpmulhw %ymm3, %ymm14, %ymm14
 
 //reduce
-vpmulhw %ymm0,  %ymm12, %ymm12
-vpsubw  %ymm12, %ymm11, %ymm11
+vpmulhw  %ymm0, %ymm15, %ymm15
+vpsubw  %ymm15, %ymm14, %ymm14
 
 //update
-vpaddw %ymm9,  %ymm8,  %ymm12 //A + Ba
-vpsubw %ymm10, %ymm8,  %ymm13 //A - Ca^2
-vpsubw %ymm9,  %ymm8,  %ymm14 //A - Ba
-vpaddw %ymm10, %ymm12, %ymm12 //A + Ba + Ca^2
-vpaddw %ymm11, %ymm13, %ymm13 //A - Ca^2 + w(Ba-Ca^2)
-vpsubw %ymm11, %ymm14, %ymm14 //A - Ba - w(Ba-Ca^2)
+vpaddw  %ymm9,  %ymm8, %ymm15 //A + Ba
+vpsubw %ymm10,  %ymm8,  %ymm4 //A - Ca^2
+vpsubw  %ymm9,  %ymm8,  %ymm5 //A - Ba
+vpaddw %ymm10, %ymm15, %ymm15 //A + Ba + Ca^2
+vpaddw %ymm14,  %ymm4,  %ymm4 //A - Ca^2 + w(Ba-Ca^2)
+vpsubw %ymm14,  %ymm5,  %ymm5 //A - Ba - w(Ba-Ca^2)
 
 //store
-vmovdqa %ymm12, (%rdi)
-vmovdqa %ymm13, 384(%rdi)
-vmovdqa %ymm14, 768(%rdi)
+vmovdqa %ymm15,    (%rdi)
+vmovdqa  %ymm4, 384(%rdi)
+vmovdqa  %ymm5, 768(%rdi)
+
+//zetas
+vpbroadcastd 24(%rdx), %ymm4
+vpbroadcastd 32(%rdx), %ymm5
+vpbroadcastd 28(%rdx), %ymm6
+vpbroadcastd 36(%rdx), %ymm7
+
+//mul Ba, Ca^2
+vpmullw %ymm4, %ymm12, %ymm14
+vpmullw %ymm5, %ymm13, %ymm15
+vpmulhw %ymm6, %ymm12, %ymm12
+vpmulhw %ymm7, %ymm13, %ymm13
+
+//reduce
+vpmulhw  %ymm0, %ymm14, %ymm14
+vpmulhw  %ymm0, %ymm15, %ymm15
+vpsubw  %ymm14, %ymm12, %ymm12
+vpsubw  %ymm15, %ymm13, %ymm13
+
+//sub (Ba-Ca^2)
+vpsubw %ymm13, %ymm12, %ymm14
+
+//mul w(Ba-Ca^2)
+vpmullw %ymm2, %ymm14, %ymm15
+vpmulhw %ymm3, %ymm14, %ymm14
+
+//reduce
+vpmulhw  %ymm0, %ymm15, %ymm15
+vpsubw  %ymm15, %ymm14, %ymm14
+
+//update
+vpaddw %ymm12, %ymm11,  %ymm8 //A + Ba
+vpsubw %ymm13, %ymm11,  %ymm9 //A - Ca^2
+vpsubw %ymm12, %ymm11, %ymm10 //A - Ba
+vpaddw %ymm13,  %ymm8,  %ymm8 //A + Ba + Ca^2
+vpaddw %ymm14,  %ymm9,  %ymm9 //A - Ca^2 + w(Ba-Ca^2)
+vpsubw %ymm14, %ymm10, %ymm10 //A - Ba - w(Ba-Ca^2)
+
+//store
+vmovdqa  %ymm8, 1152(%rdi)
+vmovdqa  %ymm9, 1536(%rdi)
+vmovdqa %ymm10, 1920(%rdi)
 
 add $32, %rdi
-cmp %r9, %rdi
-jb  NTRUPLUS_ASM_LOCAL(looptop_j_1)
+cmp %r8, %rdi
+jb NTRUPLUS_ASM_LOCAL(looptop_start_01)
 
-add $768, %rdi
-add $16,  %rdx
-cmp %r8,  %rdi
-jb  NTRUPLUS_ASM_LOCAL(looptop_start_1)
-
-sub $2304, %rdi
+sub $384, %rdi
+add $32, %rdx
+vmovdqa NTRUPLUS_ASM_SYMBOL(16xv)(%rip), %ymm1
 
 //level 2
 lea 2304(%rdi), %r8
