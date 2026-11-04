@@ -23,7 +23,23 @@ Please refer to SnP-documentation.h for more details.
 #define _KeccakP_1600_SnP_h_
 
 #include <stddef.h>
+
+#include "params.h"
 #include "../api.h"
+
+#define KeccakF1600_FastLoop_Absorb NTRUPLUS_NAMESPACE(KeccakF1600_FastLoop_Absorb)
+#define KeccakP1600_12rounds_FastLoop_Absorb NTRUPLUS_NAMESPACE(KeccakP1600_12rounds_FastLoop_Absorb)
+#define KeccakP1600_AddByte NTRUPLUS_NAMESPACE(KeccakP1600_AddByte)
+#define KeccakP1600_AddBytes NTRUPLUS_NAMESPACE(KeccakP1600_AddBytes)
+#define KeccakP1600_ExtractAndAddBytes NTRUPLUS_NAMESPACE(KeccakP1600_ExtractAndAddBytes)
+#define KeccakP1600_ExtractBytes NTRUPLUS_NAMESPACE(KeccakP1600_ExtractBytes)
+#define KeccakP1600_Initialize NTRUPLUS_NAMESPACE(KeccakP1600_Initialize)
+#define KeccakP1600_OverwriteBytes NTRUPLUS_NAMESPACE(KeccakP1600_OverwriteBytes)
+#define KeccakP1600_OverwriteWithZeroes NTRUPLUS_NAMESPACE(KeccakP1600_OverwriteWithZeroes)
+#define KeccakP1600_Permute_12rounds NTRUPLUS_NAMESPACE(KeccakP1600_Permute_12rounds)
+#define KeccakP1600_Permute_24rounds NTRUPLUS_NAMESPACE(KeccakP1600_Permute_24rounds)
+#define KeccakP1600_Permute_Nrounds NTRUPLUS_NAMESPACE(KeccakP1600_Permute_Nrounds)
+#define KeccakP1600_StaticInitialize NTRUPLUS_NAMESPACE(KeccakP1600_StaticInitialize)
 
 #define KeccakP1600_implementation "AVX2 optimized implementation"
 #define KeccakP1600_stateSizeInBytes 200

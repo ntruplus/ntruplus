@@ -6,7 +6,7 @@ NISTFLAGS += -Wno-unused-result -mavx2 -mbmi2 -mpopcnt -maes \
   -march=native -mtune=native -O3 -fomit-frame-pointer
 RM = /bin/rm -f
 
-ifneq (,$(findstring mingw,$(shell $(CC) -dumpmachine)))
+ifneq (,$(filter %mingw32 %windows-gnu,$(shell $(CC) -dumpmachine)))
 MINGW_LDLIBS = -ladvapi32
 endif
 

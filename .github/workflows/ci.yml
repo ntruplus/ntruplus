@@ -21,105 +21,185 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: Reference (Clang, x86-64)
+          - name: Reference / Linux x86_64 / Clang
             implementation: Reference_Implementation
             compiler: clang
             runner: ubuntu-24.04
             shake256_asm: 0
-          - name: Reference (GCC, x86-64)
+            shell: bash
+          - name: Reference / Linux x86_64 / GCC
             implementation: Reference_Implementation
             compiler: gcc
             runner: ubuntu-24.04
             shake256_asm: 0
-          - name: Reference (Clang, AArch64)
+            shell: bash
+          - name: Reference / Linux arm64 / Clang
             implementation: Reference_Implementation
             compiler: clang
             runner: ubuntu-24.04-arm
             shake256_asm: 0
-          - name: Reference (GCC, AArch64)
+            shell: bash
+          - name: Reference / Linux arm64 / GCC
             implementation: Reference_Implementation
             compiler: gcc
             runner: ubuntu-24.04-arm
             shake256_asm: 0
-          - name: Optimized (Clang, x86-64)
+            shell: bash
+          - name: Reference / Windows x86_64 / GCC (MinGW-w64 UCRT)
+            implementation: Reference_Implementation
+            compiler: gcc
+            runner: windows-2025
+            shake256_asm: 0
+            shell: msys2 {0}
+            packages: mingw-w64-ucrt-x86_64-gcc
+          - name: Reference / Windows x86_64 / Clang (MinGW-w64 UCRT)
+            implementation: Reference_Implementation
+            compiler: clang
+            runner: windows-2025
+            shake256_asm: 0
+            shell: msys2 {0}
+            packages: mingw-w64-ucrt-x86_64-clang
+          - name: OptC / Linux x86_64 / Clang
             implementation: Optimized_Implementation
             compiler: clang
             runner: ubuntu-24.04
             shake256_asm: 0
-          - name: Optimized (GCC, x86-64)
+            shell: bash
+          - name: OptC / Linux x86_64 / GCC
             implementation: Optimized_Implementation
             compiler: gcc
             runner: ubuntu-24.04
             shake256_asm: 0
-          - name: Optimized (Clang, AArch64)
+            shell: bash
+          - name: OptC / Linux arm64 / Clang
             implementation: Optimized_Implementation
             compiler: clang
             runner: ubuntu-24.04-arm
             shake256_asm: 0
-          - name: Optimized (GCC, AArch64)
+            shell: bash
+          - name: OptC / Linux arm64 / GCC
             implementation: Optimized_Implementation
             compiler: gcc
             runner: ubuntu-24.04-arm
             shake256_asm: 0
-          - name: AVX2 (Clang)
+            shell: bash
+          - name: OptC / Windows x86_64 / GCC (MinGW-w64 UCRT)
+            implementation: Optimized_Implementation
+            compiler: gcc
+            runner: windows-2025
+            shake256_asm: 0
+            shell: msys2 {0}
+            packages: mingw-w64-ucrt-x86_64-gcc
+          - name: OptC / Windows x86_64 / Clang (MinGW-w64 UCRT)
+            implementation: Optimized_Implementation
+            compiler: clang
+            runner: windows-2025
+            shake256_asm: 0
+            shell: msys2 {0}
+            packages: mingw-w64-ucrt-x86_64-clang
+          - name: AVX2 / Linux x86_64 / Clang
             implementation: Additional_Implementation/avx2
             compiler: clang
             runner: ubuntu-24.04
             shake256_asm: 0
-          - name: AVX2 (GCC)
+            shell: bash
+          - name: AVX2 / Linux x86_64 / GCC
             implementation: Additional_Implementation/avx2
             compiler: gcc
             runner: ubuntu-24.04
             shake256_asm: 0
-          - name: AArch64 SHA3 assembly (Clang)
-            implementation: Additional_Implementation/aarch64
-            compiler: clang
-            runner: ubuntu-24.04-arm
-            shake256_asm: 1
-          - name: AArch64 portable SHAKE256 (Clang)
-            implementation: Additional_Implementation/aarch64
-            compiler: clang
-            runner: ubuntu-24.04-arm
-            shake256_asm: 0
-          - name: AArch64 SHA3 assembly (GCC)
-            implementation: Additional_Implementation/aarch64
-            compiler: gcc
-            runner: ubuntu-24.04-arm
-            shake256_asm: 1
-          - name: AArch64 portable SHAKE256 (GCC)
-            implementation: Additional_Implementation/aarch64
-            compiler: gcc
-            runner: ubuntu-24.04-arm
-            shake256_asm: 0
-
-          - name: AVX2 (Apple Clang, Intel Mac)
+            shell: bash
+          - name: AVX2 / macOS Intel / Apple Clang
             implementation: Additional_Implementation/avx2
             compiler: clang
             runner: macos-15-intel
             shake256_asm: 0
-          - name: AArch64 portable SHAKE256 (Apple Clang, Apple Silicon)
+            shell: bash
+          - name: AVX2 / Windows x86_64 / GCC (MinGW-w64 UCRT)
+            implementation: Additional_Implementation/avx2
+            compiler: gcc
+            runner: windows-2025
+            shake256_asm: 0
+            shell: msys2 {0}
+            packages: mingw-w64-ucrt-x86_64-gcc
+          - name: AVX2 / Windows x86_64 / Clang (MinGW-w64 UCRT)
+            implementation: Additional_Implementation/avx2
+            compiler: clang
+            runner: windows-2025
+            shake256_asm: 0
+            shell: msys2 {0}
+            packages: mingw-w64-ucrt-x86_64-clang
+          - name: AArch64 / Linux arm64 / Clang / SHA3
+            implementation: Additional_Implementation/aarch64
+            compiler: clang
+            runner: ubuntu-24.04-arm
+            shake256_asm: 1
+            shell: bash
+          - name: AArch64 / Linux arm64 / Clang / portable SHAKE256
+            implementation: Additional_Implementation/aarch64
+            compiler: clang
+            runner: ubuntu-24.04-arm
+            shake256_asm: 0
+            shell: bash
+          - name: AArch64 / Linux arm64 / GCC / SHA3
+            implementation: Additional_Implementation/aarch64
+            compiler: gcc
+            runner: ubuntu-24.04-arm
+            shake256_asm: 1
+            shell: bash
+          - name: AArch64 / Linux arm64 / GCC / portable SHAKE256
+            implementation: Additional_Implementation/aarch64
+            compiler: gcc
+            runner: ubuntu-24.04-arm
+            shake256_asm: 0
+            shell: bash
+          - name: AArch64 / macOS arm64 / Apple Clang / portable SHAKE256
             implementation: Additional_Implementation/aarch64
             compiler: clang
             runner: macos-15
             shake256_asm: 0
-
-          - name: AArch64 SHA3 assembly (Apple Clang, Apple Silicon)
+            shell: bash
+          - name: AArch64 / macOS arm64 / Apple Clang / SHA3
             implementation: Additional_Implementation/aarch64
             compiler: clang
             runner: macos-15
             shake256_asm: 1
+            shell: bash
 
     steps:
       - name: Check out repository
         uses: actions/checkout@v6
 
+      - name: Set up MinGW-w64 UCRT
+        if: runner.os == 'Windows'
+        uses: msys2/setup-msys2@ec48f7c5447b3140e2b088413ae3a55687bccb6e # v2.33.0
+        with:
+          msystem: UCRT64
+          update: true
+          install: >-
+            make
+            ${{ matrix.packages }}
+
       - name: Verify runner instruction set
         if: contains(matrix.implementation, 'Additional_Implementation')
+        shell: ${{ matrix.shell }}
         run: |
           if [ "${{ matrix.implementation }}" = "Additional_Implementation/avx2" ]; then
             if [ "$(uname -s)" = Darwin ]; then
               sysctl -n machdep.cpu.leaf7_features | grep -qw AVX2
               sysctl -n machdep.cpu.features | grep -qw AES
+            elif [ "${{ runner.os }}" = Windows ]; then
+              cat > "$RUNNER_TEMP/avx2.c" <<'EOF'
+          int main(void) {
+            __builtin_cpu_init();
+            return !(__builtin_cpu_supports("avx2") &&
+                     __builtin_cpu_supports("aes") &&
+                     __builtin_cpu_supports("bmi2") &&
+                     __builtin_cpu_supports("popcnt"));
+          }
+          EOF
+              "${{ matrix.compiler }}" -O2 -mavx2 "$RUNNER_TEMP/avx2.c" -o "$RUNNER_TEMP/avx2.exe"
+              "$RUNNER_TEMP/avx2.exe"
             else
               grep -qw avx2 /proc/cpuinfo
               grep -qw aes /proc/cpuinfo
@@ -133,57 +213,5 @@ jobs:
           fi
 
       - name: Build, test, and compare KATs
-        run: |
-          set -eu
-          repository=$PWD
-
-          for parameter in 768 864 1152; do
-            (
-              set -eu
-              implementation="${{ matrix.implementation }}/NTRU+$parameter"
-              kat_directory="KAT/NTRU+$parameter"
-
-              echo "Building $implementation"
-              make -C "$implementation" clean test PQCgenKAT_kem \
-                "CC=${{ matrix.compiler }}" \
-                "HAS_SHAKE256_ASM=${{ matrix.shake256_asm }}"
-
-              echo "Running encapsulation/decapsulation tests"
-              set +e
-              test_output=$("$implementation/build/test")
-              test_status=$?
-              set -e
-              printf '%s\n' "$test_output"
-              if [ "$test_status" -ne 0 ] || \
-                 ! printf '%s\n' "$test_output" | grep -qx 'count: 0'; then
-                echo "encapsulation/decapsulation test failed" >&2
-                exit 1
-              fi
-
-              echo "Checking generated known-answer tests"
-              kat_workdir=$(mktemp -d "${TMPDIR:-/tmp}/ntruplus-kat.XXXXXX")
-              trap 'rm -rf "$kat_workdir"' EXIT HUP INT TERM
-              (
-                cd "$kat_workdir"
-                "$repository/$implementation/build/PQCgenKAT_kem"
-              )
-
-              for extension in req rsp; do
-                expected=
-                for candidate in "$kat_directory"/*."$extension"; do
-                  if [ -f "$candidate" ]; then
-                    expected=$candidate
-                    break
-                  fi
-                done
-                if [ -z "$expected" ]; then
-                  echo "no .$extension KAT file found in $kat_directory" >&2
-                  exit 1
-                fi
-                generated="$kat_workdir/${expected##*/}"
-                cmp "$generated" "$expected"
-              done
-
-              echo "$implementation passed"
-            )
-          done
+        shell: ${{ matrix.shell }}
+        run: bash .github/scripts/test.sh "${{ matrix.implementation }}" "${{ matrix.compiler }}" "${{ matrix.shake256_asm }}"

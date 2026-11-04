@@ -1,19 +1,19 @@
 #include "asm.h"
 
 NTRUPLUS_ASM_START(poly_ntt)
-vmovdqa NTRUPLUS_ASM_SYMBOL(_16xq)(%rip), %ymm0
-vmovdqa NTRUPLUS_ASM_SYMBOL(_16xv)(%rip), %ymm1
+vmovdqa NTRUPLUS_ASM_SYMBOL(16xq)(%rip), %ymm0
+vmovdqa NTRUPLUS_ASM_SYMBOL(16xv)(%rip), %ymm1
 lea     NTRUPLUS_ASM_SYMBOL(zetas)(%rip), %rdx
 
 //level0
 //zetas
 // Input coefficients are in [-3,4].  The raw -722 product keeps this
 // butterfly in [-2891,2896], so its Montgomery reduction is unnecessary.
-vmovdqa NTRUPLUS_ASM_SYMBOL(_16xzeta1)(%rip), %ymm15
+vmovdqa NTRUPLUS_ASM_SYMBOL(16xzeta1)(%rip), %ymm15
 
 lea 864(%rdi), %r8
 
-.p2align 5
+.balign 32
 NTRUPLUS_ASM_LOCAL(looptop_j_0):
 //load
 vmovdqa    (%rdi), %ymm3
@@ -55,12 +55,12 @@ sub $864, %rdi
 
 //level 1
 //load
-vmovdqa NTRUPLUS_ASM_SYMBOL(_16xwqinv)(%rip), %ymm2 //winv
-vmovdqa     NTRUPLUS_ASM_SYMBOL(_16xw)(%rip), %ymm3 //w
+vmovdqa NTRUPLUS_ASM_SYMBOL(16xwqinv)(%rip), %ymm2 //winv
+vmovdqa     NTRUPLUS_ASM_SYMBOL(16xw)(%rip), %ymm3 //w
 
 lea 1728(%rdi), %r8
 
-.p2align 5
+.balign 32
 NTRUPLUS_ASM_LOCAL(looptop_start_1):
 //zetas
 vpbroadcastd  8(%rdx), %ymm4 //ainv
@@ -70,7 +70,7 @@ vpbroadcastd 20(%rdx), %ymm7 //a^2
 
 lea 288(%rdi), %r9
 
-.p2align 5
+.balign 32
 NTRUPLUS_ASM_LOCAL(looptop_j_1):
 //load
 vmovdqa    (%rdi), %ymm8
@@ -127,7 +127,7 @@ sub $1728, %rdi
 //level 2
 lea 1728(%rdi), %r8
 
-.p2align 5
+.balign 32
 NTRUPLUS_ASM_LOCAL(looptop_start_2):
 //zetas
 vpbroadcastd  8(%rdx), %ymm4 //ainv
@@ -137,7 +137,7 @@ vpbroadcastd 20(%rdx), %ymm7 //a^2
 
 lea 96(%rdi), %r9
 
-.p2align 5
+.balign 32
 NTRUPLUS_ASM_LOCAL(looptop_j_2):
 //load
 vmovdqa    (%rdi), %ymm8
@@ -193,7 +193,7 @@ sub $1728, %rdi
 
 lea 1728(%rdi), %r8
 
-.p2align 5
+.balign 32
 NTRUPLUS_ASM_LOCAL(looptop_start_3456):
 //load
 vmovdqa    (%rdi), %ymm3

@@ -4,11 +4,13 @@
 #include <immintrin.h>
 #include <stddef.h>
 #include <stdint.h>
+
+#include "params.h"
 #include "../api.h"
 
 #define SHAKE256_RATE 136
 
-#define FIPS202AVX_NAMESPACE(s) fips202avx_##s
+#define FIPS202AVX_NAMESPACE(s) NTRUPLUS_NAMESPACE(s)
 
 #define _ALIGNED_UINT64(N)                                                     \
     union {                                                                    \

@@ -1,14 +1,13 @@
 #include "asm.h"
 
 NTRUPLUS_ASM_START(poly_baseinv_1)
-vmovdqa NTRUPLUS_ASM_SYMBOL(_16xqinv)(%rip), %ymm15
-vmovdqa    NTRUPLUS_ASM_SYMBOL(_16xq)(%rip), %ymm0
-lea        NTRUPLUS_ASM_SYMBOL(zetas)(%rip), %r9
-add              $1248, %r9
+vmovdqa NTRUPLUS_ASM_SYMBOL(16xqinv)(%rip), %ymm15
+vmovdqa    NTRUPLUS_ASM_SYMBOL(16xq)(%rip), %ymm0
+lea NTRUPLUS_ASM_SYMBOL(zetas)+1248(%rip), %r9
 
 lea 1536(%rdi), %r8
 
-.p2align 5
+.balign 32
 NTRUPLUS_ASM_LOCAL(looptop_baseinv_1):
 
 //zeta

@@ -1,5 +1,4 @@
 #include "asm.h"
-#include "consts.h"
 
 /*
  * References:
@@ -46,10 +45,10 @@ NTRUPLUS_ASM_START(poly_basemul)
     zetas_ptr .req x3
     counter   .req x8
 
-    load_address zetas_ptr, consts_base
+    load_address zetas_ptr, NTRUPLUS_NAMESPACE(consts_base)
     ld1 {v0.8h}, [zetas_ptr]
 
-    load_address zetas_ptr, zetas, ZETAS_MUL_OFFSET
+    load_address zetas_ptr, NTRUPLUS_NAMESPACE(zetas), ZETAS_MUL_OFFSET
 
     mov counter, #2304
 
@@ -203,10 +202,10 @@ NTRUPLUS_ASM_START(poly_basemul_scaled)
     zetas_ptr .req x3
     counter   .req x8
 
-    load_address zetas_ptr, consts_base
+    load_address zetas_ptr, NTRUPLUS_NAMESPACE(consts_base)
     ld1 {v0.8h}, [zetas_ptr]
 
-    load_address zetas_ptr, zetas, ZETAS_MUL_OFFSET
+    load_address zetas_ptr, NTRUPLUS_NAMESPACE(zetas), ZETAS_MUL_OFFSET
 
     mov counter, #2304
 
@@ -347,10 +346,10 @@ NTRUPLUS_ASM_START(poly_basemul_add)
     zetas_ptr .req x4
     counter   .req x8
 
-    load_address zetas_ptr, consts_base
+    load_address zetas_ptr, NTRUPLUS_NAMESPACE(consts_base)
     ld1 {v0.8h}, [zetas_ptr]
 
-    load_address zetas_ptr, zetas, ZETAS_MUL_OFFSET
+    load_address zetas_ptr, NTRUPLUS_NAMESPACE(zetas), ZETAS_MUL_OFFSET
 
     mov counter, #2304
 
@@ -513,10 +512,10 @@ NTRUPLUS_ASM_START(poly_baseinv_1)
     zetas_ptr .req x3
     counter   .req x8
 
-    load_address zetas_ptr, consts_base
+    load_address zetas_ptr, NTRUPLUS_NAMESPACE(consts_base)
     ld1 {v0.8h}, [zetas_ptr]
 
-    load_address zetas_ptr, zetas, ZETAS_MUL_OFFSET
+    load_address zetas_ptr, NTRUPLUS_NAMESPACE(zetas), ZETAS_MUL_OFFSET
 
     mov counter, #2304
 

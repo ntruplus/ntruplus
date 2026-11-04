@@ -1,11 +1,15 @@
 #ifndef NTRUPLUS_ASM_H
 #define NTRUPLUS_ASM_H
 
+#include <params.h>
+
 #ifdef __APPLE__
-#define NTRUPLUS_ASM_SYMBOL(name) _##name
+#define NTRUPLUS_ASM_CONCAT_(a, b) a##b
+#define NTRUPLUS_ASM_CONCAT(a, b) NTRUPLUS_ASM_CONCAT_(a, b)
+#define NTRUPLUS_ASM_SYMBOL(name) NTRUPLUS_ASM_CONCAT(_, NTRUPLUS_NAMESPACE(name))
 #define NTRUPLUS_ASM_LOCAL(name) L##name
 #else
-#define NTRUPLUS_ASM_SYMBOL(name) name
+#define NTRUPLUS_ASM_SYMBOL(name) NTRUPLUS_NAMESPACE(name)
 #define NTRUPLUS_ASM_LOCAL(name) .L##name
 #endif
 
@@ -34,7 +38,7 @@ _\name:
 #endif
 .endm
 
-#define NTRUPLUS_ASM_START(name) ntruplus_asm_start name
+#define NTRUPLUS_ASM_START(name) ntruplus_asm_start NTRUPLUS_NAMESPACE(name)
 #define NTRUPLUS_ASM_END(name) NTRUPLUS_ASM_SIZE(name)
 
 #endif

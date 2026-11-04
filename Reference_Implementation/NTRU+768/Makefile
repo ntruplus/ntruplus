@@ -4,7 +4,7 @@ CFLAGS += -Wall -Wextra -Wpedantic -Wmissing-prototypes -Wredundant-decls \
 NISTFLAGS += -Wno-unused-result -O3 -fomit-frame-pointer
 RM = /bin/rm -f
 
-ifneq (,$(findstring mingw,$(shell $(CC) -dumpmachine)))
+ifneq (,$(filter %mingw32 %windows-gnu,$(shell $(CC) -dumpmachine)))
 MINGW_LDLIBS = -ladvapi32
 endif
 

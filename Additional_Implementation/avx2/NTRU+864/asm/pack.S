@@ -3,7 +3,7 @@
 NTRUPLUS_ASM_START(poly_tobytes_raw)
 lea 1664(%rsi), %r8
 
-.p2align 5
+.balign 32
 NTRUPLUS_ASM_LOCAL(looptop_tobytes):
 //load
 vmovdqa   (%rsi), %ymm0
@@ -140,12 +140,12 @@ NTRUPLUS_ASM_END(poly_tobytes_raw)
 
 
 NTRUPLUS_ASM_START(poly_frombytes_raw)
-vmovdqa NTRUPLUS_ASM_SYMBOL(_low_mask)(%rip), %ymm15
+vmovdqa NTRUPLUS_ASM_SYMBOL(low_mask)(%rip), %ymm15
 xor %eax, %eax
 
 lea 1664(%rdi), %r8
 
-.p2align 5
+.balign 32
 NTRUPLUS_ASM_LOCAL(looptop_frombytes):
 //load
 vmovdqu   (%rsi), %ymm4
@@ -223,7 +223,7 @@ vmovdqa %ymm3, 96(%rdi)
 vpmaxuw %ymm1, %ymm0, %ymm4
 vpmaxuw %ymm3, %ymm2, %ymm5
 vpmaxuw %ymm5, %ymm4, %ymm4
-vpcmpgtw NTRUPLUS_ASM_SYMBOL(_16xqm1)(%rip), %ymm4, %ymm4
+vpcmpgtw NTRUPLUS_ASM_SYMBOL(16xqm1)(%rip), %ymm4, %ymm4
 vpmovmskb %ymm4, %edx
 or %edx, %eax
 
@@ -298,7 +298,7 @@ vmovdqa %xmm7, 48(%rdi)
 vpmaxuw %xmm5, %xmm4, %xmm0
 vpmaxuw %xmm7, %xmm6, %xmm1
 vpmaxuw %xmm1, %xmm0, %xmm0
-vpcmpgtw NTRUPLUS_ASM_SYMBOL(_16xqm1)(%rip), %xmm0, %xmm0
+vpcmpgtw NTRUPLUS_ASM_SYMBOL(16xqm1)(%rip), %xmm0, %xmm0
 vpmovmskb %xmm0, %edx
 or %edx, %eax
 
@@ -312,7 +312,7 @@ NTRUPLUS_ASM_END(poly_frombytes_raw)
 NTRUPLUS_ASM_START(poly_ntt_unpack)
 lea 1728(%rsi), %r8
 
-.p2align 5
+.balign 32
 NTRUPLUS_ASM_LOCAL(looptop_ntt_unpack):
 //load
 vmovdqa    (%rsi), %ymm0
@@ -384,12 +384,12 @@ NTRUPLUS_ASM_END(poly_ntt_unpack)
 
 
 NTRUPLUS_ASM_START(poly_ntt_pack)
-vmovdqa NTRUPLUS_ASM_SYMBOL(_16xv)(%rip), %ymm15
-vmovdqa NTRUPLUS_ASM_SYMBOL(_16xq)(%rip), %ymm14
+vmovdqa NTRUPLUS_ASM_SYMBOL(16xv)(%rip), %ymm15
+vmovdqa NTRUPLUS_ASM_SYMBOL(16xq)(%rip), %ymm14
 
 lea 1728(%rsi), %r8
 
-.p2align 5
+.balign 32
 NTRUPLUS_ASM_LOCAL(looptop_ntt_pack):
 //load
 vmovdqa    (%rsi), %ymm0

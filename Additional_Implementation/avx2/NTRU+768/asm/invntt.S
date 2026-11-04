@@ -1,13 +1,13 @@
 #include "asm.h"
 
 NTRUPLUS_ASM_START(poly_invntt_scale)
-vmovdqa     NTRUPLUS_ASM_SYMBOL(_16xq)(%rip), %ymm0
-vmovdqa     NTRUPLUS_ASM_SYMBOL(_16xv)(%rip), %ymm1
+vmovdqa     NTRUPLUS_ASM_SYMBOL(16xq)(%rip), %ymm0
+vmovdqa     NTRUPLUS_ASM_SYMBOL(16xv)(%rip), %ymm1
 lea     NTRUPLUS_ASM_SYMBOL(zetas_inv)(%rip), %rdx
 
 lea 1536(%rdi), %r8
 
-.p2align 5
+.balign 32
 NTRUPLUS_ASM_LOCAL(looptop_start_6543):
 //load
 vmovdqa    (%rdi), %ymm3
@@ -263,7 +263,7 @@ sub $1536, %rdi
 //level2
 lea 1536(%rdi), %r8
 
-.p2align 5
+.balign 32
 NTRUPLUS_ASM_LOCAL(looptop_start_2):
 //load
 vmovdqa    (%rdi), %ymm3
@@ -327,12 +327,12 @@ jb  NTRUPLUS_ASM_LOCAL(looptop_start_2)
 sub $1536, %rdi
 
 //level1
-vmovdqu NTRUPLUS_ASM_SYMBOL(_16xwqinv)(%rip), %ymm2 //winv
-vmovdqu     NTRUPLUS_ASM_SYMBOL(_16xw)(%rip), %ymm3 //w
+vmovdqu NTRUPLUS_ASM_SYMBOL(16xwqinv)(%rip), %ymm2 //winv
+vmovdqu     NTRUPLUS_ASM_SYMBOL(16xw)(%rip), %ymm3 //w
 
 lea 1536(%rdi), %r8
 
-.p2align 5
+.balign 32
 NTRUPLUS_ASM_LOCAL(looptop_start_1):
 
 //zetas
@@ -343,7 +343,7 @@ vpbroadcastd 1164(%rdx), %ymm7 //zeta1
 
 lea 256(%rdi), %r9
 
-.p2align 5
+.balign 32
 NTRUPLUS_ASM_LOCAL(looptop_j_1):
 vmovdqa    (%rdi),  %ymm8 //X
 vmovdqa 256(%rdi),  %ymm9 //Y
@@ -402,15 +402,15 @@ sub $1536, %rdi
 vpbroadcastd 1152(%rdx), %ymm2  //(z-z^5)^-1
 vpbroadcastd 1156(%rdx), %ymm3  //(z-z^5)^-1
 
-vmovdqa NTRUPLUS_ASM_SYMBOL(_16xNinv_scaleqinv)(%rip), %ymm13
-vmovdqa NTRUPLUS_ASM_SYMBOL(_16xNinv_scale)(%rip),     %ymm14
+vmovdqa NTRUPLUS_ASM_SYMBOL(16xNinv_scaleqinv)(%rip), %ymm13
+vmovdqa NTRUPLUS_ASM_SYMBOL(16xNinv_scale)(%rip),     %ymm14
 
 vpsllw $1, %ymm13, %ymm15
 vpsllw $1, %ymm14, %ymm1
 
 lea 768(%rdi), %r8
 
-.p2align 5
+.balign 32
 NTRUPLUS_ASM_LOCAL(looptop_start_0):
 //load
 vmovdqa    (%rdi), %ymm4

@@ -3,7 +3,7 @@
 NTRUPLUS_ASM_START(poly_sub)
 lea 1536(%rsi), %r8
 
-.p2align 5
+.balign 32
 NTRUPLUS_ASM_LOCAL(looptop_sub):
 vmovdqa    (%rsi), %ymm0
 vmovdqa  32(%rsi), %ymm1

@@ -1,5 +1,4 @@
 #include "asm.h"
-#include "consts.h"
 
 /*
  * References:
@@ -44,7 +43,7 @@ NTRUPLUS_ASM_START(poly_ntt)
     counter   .req x8
 
     mov src, dst
-    load_address zetas_ptr, zetas
+    load_address zetas_ptr, NTRUPLUS_NAMESPACE(zetas)
 
     ld1 {v0.8h - v3.8h}, [zetas_ptr], #64
 
@@ -487,11 +486,11 @@ NTRUPLUS_ASM_START(poly_invntt_scale)
     counter   .req x8
 
     mov src, dst
-    load_address zetas_ptr, zetas, ZETAS_INV_START
+    load_address zetas_ptr, NTRUPLUS_NAMESPACE(zetas), ZETAS_INV_START
 
     mov counter, #1536
 
-    load_address x9, consts_reverse
+    load_address x9, NTRUPLUS_NAMESPACE(consts_reverse)
     ldr q23, [x9]
 
 NTRUPLUS_ASM_LOCAL(looptop_6543):
@@ -675,7 +674,7 @@ NTRUPLUS_ASM_LOCAL(looptop_6543):
 
     ld1 {v0.8h - v3.8h}, [zetas_ptr], #64
 
-    load_address x9, consts_inv
+    load_address x9, NTRUPLUS_NAMESPACE(consts_inv)
     ldr q4, [x9]
     // Patch only header pairs unused by subsequent inverse butterflies.
     ins v0.s[2], v4.s[0]

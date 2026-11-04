@@ -1,17 +1,16 @@
 #include "asm.h"
 
 NTRUPLUS_ASM_START(poly_basemul)
-vmovdqa NTRUPLUS_ASM_SYMBOL(_16xq)(%rip), %ymm0
-lea     NTRUPLUS_ASM_SYMBOL(zetas)(%rip), %rcx
-add           $1888, %rcx
+vmovdqa NTRUPLUS_ASM_SYMBOL(16xq)(%rip), %ymm0
+lea NTRUPLUS_ASM_SYMBOL(zetas)+1888(%rip), %rcx
 
 lea 1728(%rsi), %r8
 
-.p2align 5
+.balign 32
 NTRUPLUS_ASM_LOCAL(looptop_basemul):
 //positive zeta
 //load
-vmovdqa NTRUPLUS_ASM_SYMBOL(_16xqinv)(%rip), %ymm15
+vmovdqa NTRUPLUS_ASM_SYMBOL(16xqinv)(%rip), %ymm15
 vmovdqa         (%rsi), %ymm1
 vmovdqa       32(%rsi), %ymm3
 vmovdqa       64(%rsi), %ymm5
@@ -117,7 +116,7 @@ add $96, %rdx
 
 //negative zeta
 //load
-vmovdqa NTRUPLUS_ASM_SYMBOL(_16xqinv)(%rip), %ymm15
+vmovdqa NTRUPLUS_ASM_SYMBOL(16xqinv)(%rip), %ymm15
 vmovdqa         (%rsi), %ymm1
 vmovdqa       32(%rsi), %ymm3
 vmovdqa       64(%rsi), %ymm5
@@ -227,10 +226,10 @@ jb  NTRUPLUS_ASM_LOCAL(looptop_basemul)
 mov %rdi, %r8
 sub $1728, %rdi
 
-vmovdqa NTRUPLUS_ASM_SYMBOL(_16xR2qinv)(%rip), %ymm15
-vmovdqa NTRUPLUS_ASM_SYMBOL(_16xR2)(%rip),     %ymm1
+vmovdqa NTRUPLUS_ASM_SYMBOL(16xR2qinv)(%rip), %ymm15
+vmovdqa NTRUPLUS_ASM_SYMBOL(16xR2)(%rip),     %ymm1
 
-.p2align 5
+.balign 32
 NTRUPLUS_ASM_LOCAL(looptop_basemul_2):
 
 //load
@@ -268,17 +267,16 @@ NTRUPLUS_ASM_END(poly_basemul)
 
 
 NTRUPLUS_ASM_START(poly_basemul_scaled)
-vmovdqa NTRUPLUS_ASM_SYMBOL(_16xq)(%rip), %ymm0
-lea     NTRUPLUS_ASM_SYMBOL(zetas)(%rip), %rcx
-add           $1888, %rcx
+vmovdqa NTRUPLUS_ASM_SYMBOL(16xq)(%rip), %ymm0
+lea NTRUPLUS_ASM_SYMBOL(zetas)+1888(%rip), %rcx
 
 lea 1728(%rsi), %r8
 
-.p2align 5
+.balign 32
 NTRUPLUS_ASM_LOCAL(looptop_basemul_scaled):
 //positive zeta
 //load
-vmovdqa NTRUPLUS_ASM_SYMBOL(_16xqinv)(%rip), %ymm15
+vmovdqa NTRUPLUS_ASM_SYMBOL(16xqinv)(%rip), %ymm15
 vmovdqa         (%rsi), %ymm1
 vmovdqa       32(%rsi), %ymm3
 vmovdqa       64(%rsi), %ymm5
@@ -384,7 +382,7 @@ add $96, %rdx
 
 //negative zeta
 //load
-vmovdqa NTRUPLUS_ASM_SYMBOL(_16xqinv)(%rip), %ymm15
+vmovdqa NTRUPLUS_ASM_SYMBOL(16xqinv)(%rip), %ymm15
 vmovdqa         (%rsi), %ymm1
 vmovdqa       32(%rsi), %ymm3
 vmovdqa       64(%rsi), %ymm5
@@ -496,18 +494,17 @@ NTRUPLUS_ASM_END(poly_basemul_scaled)
 
 
 NTRUPLUS_ASM_START(poly_basemul_add)
-vmovdqa NTRUPLUS_ASM_SYMBOL(_16xq)(%rip), %ymm0
-lea NTRUPLUS_ASM_SYMBOL(zetas)(%rip), %r9
-add $1888, %r9
+vmovdqa NTRUPLUS_ASM_SYMBOL(16xq)(%rip), %ymm0
+lea NTRUPLUS_ASM_SYMBOL(zetas)+1888(%rip), %r9
 
 lea 1728(%rsi), %r8
 
-.p2align 5
+.balign 32
 NTRUPLUS_ASM_LOCAL(looptop_basemul_add):
 
 //positive zeta
 //load
-vmovdqa NTRUPLUS_ASM_SYMBOL(_16xqinv)(%rip), %ymm15
+vmovdqa NTRUPLUS_ASM_SYMBOL(16xqinv)(%rip), %ymm15
 vmovdqa         (%rsi),  %ymm1
 vmovdqa       32(%rsi),  %ymm3
 vmovdqa       64(%rsi),  %ymm5
@@ -613,7 +610,7 @@ add $96, %rdx
 
 //negative zeta
 //load
-vmovdqa NTRUPLUS_ASM_SYMBOL(_16xqinv)(%rip), %ymm15
+vmovdqa NTRUPLUS_ASM_SYMBOL(16xqinv)(%rip), %ymm15
 vmovdqa         (%rsi),  %ymm1
 vmovdqa       32(%rsi),  %ymm3
 vmovdqa       64(%rsi),  %ymm5
@@ -723,10 +720,10 @@ jb NTRUPLUS_ASM_LOCAL(looptop_basemul_add)
 mov %rdi, %r8
 sub $1728, %rdi
 
-vmovdqa NTRUPLUS_ASM_SYMBOL(_16xR2qinv)(%rip), %ymm15
-vmovdqa     NTRUPLUS_ASM_SYMBOL(_16xR2)(%rip),  %ymm1
+vmovdqa NTRUPLUS_ASM_SYMBOL(16xR2qinv)(%rip), %ymm15
+vmovdqa     NTRUPLUS_ASM_SYMBOL(16xR2)(%rip),  %ymm1
 
-.p2align 5
+.balign 32
 NTRUPLUS_ASM_LOCAL(looptop_basemul_add_2):
 
 //load

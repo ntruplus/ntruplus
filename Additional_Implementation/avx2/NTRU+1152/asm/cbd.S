@@ -1,9 +1,9 @@
 #include "asm.h"
 
 NTRUPLUS_ASM_START(poly_cbd1)
-    vmovdqa NTRUPLUS_ASM_SYMBOL(_16x5555)(%rip), %ymm0
-    vmovdqa NTRUPLUS_ASM_SYMBOL(_16x0303)(%rip), %ymm1
-    vmovdqa NTRUPLUS_ASM_SYMBOL(_16x0101)(%rip), %ymm2
+    vmovdqa NTRUPLUS_ASM_SYMBOL(16x5555)(%rip), %ymm0
+    vmovdqa NTRUPLUS_ASM_SYMBOL(16x0303)(%rip), %ymm1
+    vmovdqa NTRUPLUS_ASM_SYMBOL(16x0101)(%rip), %ymm2
 
     vmovdqu 112(%rsi), %ymm3
     vmovdqu 256(%rsi), %ymm4
@@ -80,69 +80,59 @@ NTRUPLUS_ASM_START(poly_cbd1)
     vpunpckldq %ymm10, %ymm9, %ymm13
     vpunpckhdq %ymm10, %ymm9, %ymm14
 
-    vperm2i128 $0x20, %ymm4, %ymm3, %ymm7
-    vperm2i128 $0x20, %ymm6, %ymm5, %ymm8
-    vperm2i128 $0x31, %ymm4, %ymm3, %ymm9
-    vperm2i128 $0x31, %ymm6, %ymm5, %ymm10
+    vpmovsxbw %xmm3,  %ymm7
+    vpmovsxbw %xmm4,  %ymm8
+    vpmovsxbw %xmm5,  %ymm9
+    vpmovsxbw %xmm6, %ymm10
 
-    vperm2i128 $0x20, %ymm12, %ymm11, %ymm3
-    vperm2i128 $0x20, %ymm14, %ymm13, %ymm4
-    vperm2i128 $0x31, %ymm12, %ymm11, %ymm5
-    vperm2i128 $0x31, %ymm14, %ymm13, %ymm6
+    vmovdqa  %ymm7, 1920(%rdi)
+    vmovdqa  %ymm8, 1952(%rdi)
+    vmovdqa  %ymm9, 1984(%rdi)
+    vmovdqa %ymm10, 2016(%rdi)
 
-    vpmovsxbw  %xmm3,  %ymm11
-    vpmovsxbw  %xmm4,  %ymm12
-    vpmovsxbw  %xmm5,  %ymm13
-    vpmovsxbw  %xmm6,  %ymm14
+    vextracti128 $1, %ymm3,  %xmm7
+    vextracti128 $1, %ymm4,  %xmm8
+    vextracti128 $1, %ymm5,  %xmm9
+    vextracti128 $1, %ymm6, %xmm10
 
-    vmovdqu    %ymm11, 1792(%rdi)
-    vmovdqu    %ymm12, 1856(%rdi)
-    vmovdqu    %ymm13, 2048(%rdi)
-    vmovdqu    %ymm14, 2112(%rdi)
+    vpmovsxbw  %xmm7,  %ymm7
+    vpmovsxbw  %xmm8,  %ymm8
+    vpmovsxbw  %xmm9,  %ymm9
+    vpmovsxbw %xmm10, %ymm10
 
-    vpmovsxbw  %xmm7,  %ymm11
-    vpmovsxbw  %xmm8,  %ymm12
-    vpmovsxbw  %xmm9,  %ymm13
-    vpmovsxbw  %xmm10, %ymm14
+    vmovdqa  %ymm7, 2176(%rdi)
+    vmovdqa  %ymm8, 2208(%rdi)
+    vmovdqa  %ymm9, 2240(%rdi)
+    vmovdqa %ymm10, 2272(%rdi)
 
-    vmovdqa    %ymm11, 1920(%rdi)
-    vmovdqa    %ymm12, 1984(%rdi)
-    vmovdqa    %ymm13, 2176(%rdi)
-    vmovdqa    %ymm14, 2240(%rdi)
+    vpmovsxbw %xmm11,  %ymm7
+    vpmovsxbw %xmm12,  %ymm8
+    vpmovsxbw %xmm13,  %ymm9
+    vpmovsxbw %xmm14, %ymm10
 
-    vextracti128 $1, %ymm3, %xmm11
-    vextracti128 $1, %ymm4, %xmm12
-    vextracti128 $1, %ymm5, %xmm13
-    vextracti128 $1, %ymm6, %xmm14
+    vmovdqu  %ymm7, 1792(%rdi)
+    vmovdqa  %ymm8, 1824(%rdi)
+    vmovdqu  %ymm9, 1856(%rdi)
+    vmovdqa %ymm10, 1888(%rdi)
 
-    vpmovsxbw    %xmm11, %ymm11
-    vpmovsxbw    %xmm12, %ymm12
-    vpmovsxbw    %xmm13, %ymm13
-    vpmovsxbw    %xmm14, %ymm14
+    vextracti128 $1, %ymm11,  %xmm7
+    vextracti128 $1, %ymm12,  %xmm8
+    vextracti128 $1, %ymm13,  %xmm9
+    vextracti128 $1, %ymm14, %xmm10
 
-    vmovdqa      %ymm11, 1824(%rdi)
-    vmovdqa      %ymm12, 1888(%rdi)
-    vmovdqa      %ymm13, 2080(%rdi)
-    vmovdqa      %ymm14, 2144(%rdi)
+    vpmovsxbw  %xmm7,  %ymm7
+    vpmovsxbw  %xmm8,  %ymm8
+    vpmovsxbw  %xmm9,  %ymm9
+    vpmovsxbw %xmm10, %ymm10
 
-    vextracti128 $1, %ymm7,  %xmm11
-    vextracti128 $1, %ymm8,  %xmm12
-    vextracti128 $1, %ymm9,  %xmm13
-    vextracti128 $1, %ymm10, %xmm14
-
-    vpmovsxbw    %xmm11, %ymm11
-    vpmovsxbw    %xmm12, %ymm12
-    vpmovsxbw    %xmm13, %ymm13
-    vpmovsxbw    %xmm14, %ymm14
-
-    vmovdqa      %ymm11, 1952(%rdi)
-    vmovdqa      %ymm12, 2016(%rdi)
-    vmovdqa      %ymm13, 2208(%rdi)
-    vmovdqa      %ymm14, 2272(%rdi)
+    vmovdqu  %ymm7, 2048(%rdi)
+    vmovdqa  %ymm8, 2080(%rdi)
+    vmovdqu  %ymm9, 2112(%rdi)
+    vmovdqa %ymm10, 2144(%rdi)
 
     lea 128(%rsi), %r8
 
-.p2align 5
+.balign 32
 NTRUPLUS_ASM_LOCAL(looptop_cbd1):
     vmovdqu   (%rsi), %ymm3
     vmovdqu 144(%rsi), %ymm4
@@ -219,65 +209,55 @@ NTRUPLUS_ASM_LOCAL(looptop_cbd1):
     vpunpckldq %ymm10, %ymm9, %ymm13
     vpunpckhdq %ymm10, %ymm9, %ymm14
 
-    vperm2i128 $0x20, %ymm4, %ymm3, %ymm7
-    vperm2i128 $0x20, %ymm6, %ymm5, %ymm8
-    vperm2i128 $0x31, %ymm4, %ymm3, %ymm9
-    vperm2i128 $0x31, %ymm6, %ymm5, %ymm10
+    vpmovsxbw %xmm3,  %ymm7
+    vpmovsxbw %xmm4,  %ymm8
+    vpmovsxbw %xmm5,  %ymm9
+    vpmovsxbw %xmm6, %ymm10
 
-    vperm2i128 $0x20, %ymm12, %ymm11, %ymm3
-    vperm2i128 $0x20, %ymm14, %ymm13, %ymm4
-    vperm2i128 $0x31, %ymm12, %ymm11, %ymm5
-    vperm2i128 $0x31, %ymm14, %ymm13, %ymm6
+    vmovdqa  %ymm7, 128(%rdi)
+    vmovdqa  %ymm8, 160(%rdi)
+    vmovdqa  %ymm9, 192(%rdi)
+    vmovdqa %ymm10, 224(%rdi)
 
-    vpmovsxbw  %xmm3,  %ymm11
-    vpmovsxbw  %xmm4,  %ymm12
-    vpmovsxbw  %xmm5,  %ymm13
-    vpmovsxbw  %xmm6,  %ymm14
+    vextracti128 $1, %ymm3,  %xmm7
+    vextracti128 $1, %ymm4,  %xmm8
+    vextracti128 $1, %ymm5,  %xmm9
+    vextracti128 $1, %ymm6, %xmm10
 
-    vmovdqa    %ymm11,   0(%rdi)
-    vmovdqa    %ymm12,  64(%rdi)
-    vmovdqa    %ymm13, 256(%rdi)
-    vmovdqa    %ymm14, 320(%rdi)
+    vpmovsxbw  %xmm7,  %ymm7
+    vpmovsxbw  %xmm8,  %ymm8
+    vpmovsxbw  %xmm9,  %ymm9
+    vpmovsxbw %xmm10, %ymm10
 
-    vpmovsxbw  %xmm7,  %ymm11
-    vpmovsxbw  %xmm8,  %ymm12
-    vpmovsxbw  %xmm9,  %ymm13
-    vpmovsxbw  %xmm10, %ymm14
+    vmovdqa  %ymm7, 384(%rdi)
+    vmovdqa  %ymm8, 416(%rdi)
+    vmovdqa  %ymm9, 448(%rdi)
+    vmovdqa %ymm10, 480(%rdi)
 
-    vmovdqa    %ymm11, 128(%rdi)
-    vmovdqa    %ymm12, 192(%rdi)
-    vmovdqa    %ymm13, 384(%rdi)
-    vmovdqa    %ymm14, 448(%rdi)
+    vpmovsxbw %xmm11,  %ymm7
+    vpmovsxbw %xmm12,  %ymm8
+    vpmovsxbw %xmm13,  %ymm9
+    vpmovsxbw %xmm14, %ymm10
 
-    vextracti128 $1, %ymm3, %xmm11
-    vextracti128 $1, %ymm4, %xmm12
-    vextracti128 $1, %ymm5, %xmm13
-    vextracti128 $1, %ymm6, %xmm14
+    vmovdqa  %ymm7,  0(%rdi)
+    vmovdqa  %ymm8, 32(%rdi)
+    vmovdqa  %ymm9, 64(%rdi)
+    vmovdqa %ymm10, 96(%rdi)
 
-    vpmovsxbw    %xmm11, %ymm11
-    vpmovsxbw    %xmm12, %ymm12
-    vpmovsxbw    %xmm13, %ymm13
-    vpmovsxbw    %xmm14, %ymm14
+    vextracti128 $1, %ymm11,  %xmm7
+    vextracti128 $1, %ymm12,  %xmm8
+    vextracti128 $1, %ymm13,  %xmm9
+    vextracti128 $1, %ymm14, %xmm10
 
-    vmovdqa      %ymm11,  32(%rdi)
-    vmovdqa      %ymm12,  96(%rdi)
-    vmovdqa      %ymm13, 288(%rdi)
-    vmovdqa      %ymm14, 352(%rdi)
+    vpmovsxbw  %xmm7,  %ymm7
+    vpmovsxbw  %xmm8,  %ymm8
+    vpmovsxbw  %xmm9,  %ymm9
+    vpmovsxbw %xmm10, %ymm10
 
-    vextracti128 $1, %ymm7,  %xmm11
-    vextracti128 $1, %ymm8,  %xmm12
-    vextracti128 $1, %ymm9,  %xmm13
-    vextracti128 $1, %ymm10, %xmm14
-
-    vpmovsxbw    %xmm11, %ymm11
-    vpmovsxbw    %xmm12, %ymm12
-    vpmovsxbw    %xmm13, %ymm13
-    vpmovsxbw    %xmm14, %ymm14
-
-    vmovdqa      %ymm11, 160(%rdi)
-    vmovdqa      %ymm12, 224(%rdi)
-    vmovdqa      %ymm13, 416(%rdi)
-    vmovdqa      %ymm14, 480(%rdi)
+    vmovdqa  %ymm7, 256(%rdi)
+    vmovdqa  %ymm8, 288(%rdi)
+    vmovdqa  %ymm9, 320(%rdi)
+    vmovdqa %ymm10, 352(%rdi)
 
     add $32,  %rsi
     add $512, %rdi
@@ -289,9 +269,9 @@ NTRUPLUS_ASM_END(poly_cbd1)
 
 
 NTRUPLUS_ASM_START(poly_cbd1_triple)
-    vmovdqa NTRUPLUS_ASM_SYMBOL(_16x5555)(%rip), %ymm0
-    vmovdqa NTRUPLUS_ASM_SYMBOL(_16x0303)(%rip), %ymm1
-    vmovdqa NTRUPLUS_ASM_SYMBOL(_16x0101)(%rip), %ymm2
+    vmovdqa NTRUPLUS_ASM_SYMBOL(16x5555)(%rip), %ymm0
+    vmovdqa NTRUPLUS_ASM_SYMBOL(16x0303)(%rip), %ymm1
+    vmovdqa NTRUPLUS_ASM_SYMBOL(16x0101)(%rip), %ymm2
 
     vmovdqu 112(%rsi), %ymm3
     vmovdqu 256(%rsi), %ymm4
@@ -386,69 +366,59 @@ NTRUPLUS_ASM_START(poly_cbd1_triple)
     vpunpckldq %ymm10, %ymm9, %ymm13
     vpunpckhdq %ymm10, %ymm9, %ymm14
 
-    vperm2i128 $0x20, %ymm4, %ymm3, %ymm7
-    vperm2i128 $0x20, %ymm6, %ymm5, %ymm8
-    vperm2i128 $0x31, %ymm4, %ymm3, %ymm9
-    vperm2i128 $0x31, %ymm6, %ymm5, %ymm10
+    vpmovsxbw %xmm3,  %ymm7
+    vpmovsxbw %xmm4,  %ymm8
+    vpmovsxbw %xmm5,  %ymm9
+    vpmovsxbw %xmm6, %ymm10
 
-    vperm2i128 $0x20, %ymm12, %ymm11, %ymm3
-    vperm2i128 $0x20, %ymm14, %ymm13, %ymm4
-    vperm2i128 $0x31, %ymm12, %ymm11, %ymm5
-    vperm2i128 $0x31, %ymm14, %ymm13, %ymm6
+    vmovdqa  %ymm7, 1920(%rdi)
+    vmovdqa  %ymm8, 1952(%rdi)
+    vmovdqa  %ymm9, 1984(%rdi)
+    vmovdqa %ymm10, 2016(%rdi)
 
-    vpmovsxbw  %xmm3,  %ymm11
-    vpmovsxbw  %xmm4,  %ymm12
-    vpmovsxbw  %xmm5,  %ymm13
-    vpmovsxbw  %xmm6,  %ymm14
+    vextracti128 $1, %ymm3,  %xmm7
+    vextracti128 $1, %ymm4,  %xmm8
+    vextracti128 $1, %ymm5,  %xmm9
+    vextracti128 $1, %ymm6, %xmm10
 
-    vmovdqu    %ymm11, 1792(%rdi)
-    vmovdqu    %ymm12, 1856(%rdi)
-    vmovdqu    %ymm13, 2048(%rdi)
-    vmovdqu    %ymm14, 2112(%rdi)
+    vpmovsxbw  %xmm7,  %ymm7
+    vpmovsxbw  %xmm8,  %ymm8
+    vpmovsxbw  %xmm9,  %ymm9
+    vpmovsxbw %xmm10, %ymm10
 
-    vpmovsxbw  %xmm7,  %ymm11
-    vpmovsxbw  %xmm8,  %ymm12
-    vpmovsxbw  %xmm9,  %ymm13
-    vpmovsxbw  %xmm10, %ymm14
+    vmovdqa  %ymm7, 2176(%rdi)
+    vmovdqa  %ymm8, 2208(%rdi)
+    vmovdqa  %ymm9, 2240(%rdi)
+    vmovdqa %ymm10, 2272(%rdi)
 
-    vmovdqa    %ymm11, 1920(%rdi)
-    vmovdqa    %ymm12, 1984(%rdi)
-    vmovdqa    %ymm13, 2176(%rdi)
-    vmovdqa    %ymm14, 2240(%rdi)
+    vpmovsxbw %xmm11,  %ymm7
+    vpmovsxbw %xmm12,  %ymm8
+    vpmovsxbw %xmm13,  %ymm9
+    vpmovsxbw %xmm14, %ymm10
 
-    vextracti128 $1, %ymm3, %xmm11
-    vextracti128 $1, %ymm4, %xmm12
-    vextracti128 $1, %ymm5, %xmm13
-    vextracti128 $1, %ymm6, %xmm14
+    vmovdqu  %ymm7, 1792(%rdi)
+    vmovdqa  %ymm8, 1824(%rdi)
+    vmovdqu  %ymm9, 1856(%rdi)
+    vmovdqa %ymm10, 1888(%rdi)
 
-    vpmovsxbw    %xmm11, %ymm11
-    vpmovsxbw    %xmm12, %ymm12
-    vpmovsxbw    %xmm13, %ymm13
-    vpmovsxbw    %xmm14, %ymm14
+    vextracti128 $1, %ymm11,  %xmm7
+    vextracti128 $1, %ymm12,  %xmm8
+    vextracti128 $1, %ymm13,  %xmm9
+    vextracti128 $1, %ymm14, %xmm10
 
-    vmovdqa      %ymm11, 1824(%rdi)
-    vmovdqa      %ymm12, 1888(%rdi)
-    vmovdqa      %ymm13, 2080(%rdi)
-    vmovdqa      %ymm14, 2144(%rdi)
+    vpmovsxbw  %xmm7,  %ymm7
+    vpmovsxbw  %xmm8,  %ymm8
+    vpmovsxbw  %xmm9,  %ymm9
+    vpmovsxbw %xmm10, %ymm10
 
-    vextracti128 $1, %ymm7,  %xmm11
-    vextracti128 $1, %ymm8,  %xmm12
-    vextracti128 $1, %ymm9,  %xmm13
-    vextracti128 $1, %ymm10, %xmm14
-
-    vpmovsxbw    %xmm11, %ymm11
-    vpmovsxbw    %xmm12, %ymm12
-    vpmovsxbw    %xmm13, %ymm13
-    vpmovsxbw    %xmm14, %ymm14
-
-    vmovdqa      %ymm11, 1952(%rdi)
-    vmovdqa      %ymm12, 2016(%rdi)
-    vmovdqa      %ymm13, 2208(%rdi)
-    vmovdqa      %ymm14, 2272(%rdi)
+    vmovdqu  %ymm7, 2048(%rdi)
+    vmovdqa  %ymm8, 2080(%rdi)
+    vmovdqu  %ymm9, 2112(%rdi)
+    vmovdqa %ymm10, 2144(%rdi)
 
     lea 128(%rsi), %r8
 
-.p2align 5
+.balign 32
 NTRUPLUS_ASM_LOCAL(looptop_cbd1_triple):
     vmovdqu   (%rsi), %ymm3
     vmovdqu 144(%rsi), %ymm4
@@ -543,65 +513,55 @@ NTRUPLUS_ASM_LOCAL(looptop_cbd1_triple):
     vpunpckldq %ymm10, %ymm9, %ymm13
     vpunpckhdq %ymm10, %ymm9, %ymm14
 
-    vperm2i128 $0x20, %ymm4, %ymm3, %ymm7
-    vperm2i128 $0x20, %ymm6, %ymm5, %ymm8
-    vperm2i128 $0x31, %ymm4, %ymm3, %ymm9
-    vperm2i128 $0x31, %ymm6, %ymm5, %ymm10
+    vpmovsxbw %xmm3,  %ymm7
+    vpmovsxbw %xmm4,  %ymm8
+    vpmovsxbw %xmm5,  %ymm9
+    vpmovsxbw %xmm6, %ymm10
 
-    vperm2i128 $0x20, %ymm12, %ymm11, %ymm3
-    vperm2i128 $0x20, %ymm14, %ymm13, %ymm4
-    vperm2i128 $0x31, %ymm12, %ymm11, %ymm5
-    vperm2i128 $0x31, %ymm14, %ymm13, %ymm6
+    vmovdqa  %ymm7, 128(%rdi)
+    vmovdqa  %ymm8, 160(%rdi)
+    vmovdqa  %ymm9, 192(%rdi)
+    vmovdqa %ymm10, 224(%rdi)
 
-    vpmovsxbw  %xmm3,  %ymm11
-    vpmovsxbw  %xmm4,  %ymm12
-    vpmovsxbw  %xmm5,  %ymm13
-    vpmovsxbw  %xmm6,  %ymm14
+    vextracti128 $1, %ymm3,  %xmm7
+    vextracti128 $1, %ymm4,  %xmm8
+    vextracti128 $1, %ymm5,  %xmm9
+    vextracti128 $1, %ymm6, %xmm10
 
-    vmovdqa    %ymm11,   0(%rdi)
-    vmovdqa    %ymm12,  64(%rdi)
-    vmovdqa    %ymm13, 256(%rdi)
-    vmovdqa    %ymm14, 320(%rdi)
+    vpmovsxbw  %xmm7,  %ymm7
+    vpmovsxbw  %xmm8,  %ymm8
+    vpmovsxbw  %xmm9,  %ymm9
+    vpmovsxbw %xmm10, %ymm10
 
-    vpmovsxbw  %xmm7,  %ymm11
-    vpmovsxbw  %xmm8,  %ymm12
-    vpmovsxbw  %xmm9,  %ymm13
-    vpmovsxbw  %xmm10, %ymm14
+    vmovdqa  %ymm7, 384(%rdi)
+    vmovdqa  %ymm8, 416(%rdi)
+    vmovdqa  %ymm9, 448(%rdi)
+    vmovdqa %ymm10, 480(%rdi)
 
-    vmovdqa    %ymm11, 128(%rdi)
-    vmovdqa    %ymm12, 192(%rdi)
-    vmovdqa    %ymm13, 384(%rdi)
-    vmovdqa    %ymm14, 448(%rdi)
+    vpmovsxbw %xmm11,  %ymm7
+    vpmovsxbw %xmm12,  %ymm8
+    vpmovsxbw %xmm13,  %ymm9
+    vpmovsxbw %xmm14, %ymm10
 
-    vextracti128 $1, %ymm3, %xmm11
-    vextracti128 $1, %ymm4, %xmm12
-    vextracti128 $1, %ymm5, %xmm13
-    vextracti128 $1, %ymm6, %xmm14
+    vmovdqa  %ymm7,  0(%rdi)
+    vmovdqa  %ymm8, 32(%rdi)
+    vmovdqa  %ymm9, 64(%rdi)
+    vmovdqa %ymm10, 96(%rdi)
 
-    vpmovsxbw    %xmm11, %ymm11
-    vpmovsxbw    %xmm12, %ymm12
-    vpmovsxbw    %xmm13, %ymm13
-    vpmovsxbw    %xmm14, %ymm14
+    vextracti128 $1, %ymm11,  %xmm7
+    vextracti128 $1, %ymm12,  %xmm8
+    vextracti128 $1, %ymm13,  %xmm9
+    vextracti128 $1, %ymm14, %xmm10
 
-    vmovdqa      %ymm11,  32(%rdi)
-    vmovdqa      %ymm12,  96(%rdi)
-    vmovdqa      %ymm13, 288(%rdi)
-    vmovdqa      %ymm14, 352(%rdi)
+    vpmovsxbw  %xmm7,  %ymm7
+    vpmovsxbw  %xmm8,  %ymm8
+    vpmovsxbw  %xmm9,  %ymm9
+    vpmovsxbw %xmm10, %ymm10
 
-    vextracti128 $1, %ymm7,  %xmm11
-    vextracti128 $1, %ymm8,  %xmm12
-    vextracti128 $1, %ymm9,  %xmm13
-    vextracti128 $1, %ymm10, %xmm14
-
-    vpmovsxbw    %xmm11, %ymm11
-    vpmovsxbw    %xmm12, %ymm12
-    vpmovsxbw    %xmm13, %ymm13
-    vpmovsxbw    %xmm14, %ymm14
-
-    vmovdqa      %ymm11, 160(%rdi)
-    vmovdqa      %ymm12, 224(%rdi)
-    vmovdqa      %ymm13, 416(%rdi)
-    vmovdqa      %ymm14, 480(%rdi)
+    vmovdqa  %ymm7, 256(%rdi)
+    vmovdqa  %ymm8, 288(%rdi)
+    vmovdqa  %ymm9, 320(%rdi)
+    vmovdqa %ymm10, 352(%rdi)
 
     add $32,  %rsi
     add $512, %rdi
@@ -613,9 +573,9 @@ NTRUPLUS_ASM_END(poly_cbd1_triple)
 
 
 NTRUPLUS_ASM_START(poly_sotp_encode)
-    vmovdqa NTRUPLUS_ASM_SYMBOL(_16x5555)(%rip), %ymm0
-    vmovdqa NTRUPLUS_ASM_SYMBOL(_16x0303)(%rip), %ymm1
-    vmovdqa NTRUPLUS_ASM_SYMBOL(_16x0101)(%rip), %ymm2
+    vmovdqa NTRUPLUS_ASM_SYMBOL(16x5555)(%rip), %ymm0
+    vmovdqa NTRUPLUS_ASM_SYMBOL(16x0303)(%rip), %ymm1
+    vmovdqa NTRUPLUS_ASM_SYMBOL(16x0101)(%rip), %ymm2
 
     vmovdqu 112(%rsi), %ymm5
     vmovdqu 112(%rdx), %ymm3
@@ -695,69 +655,59 @@ NTRUPLUS_ASM_START(poly_sotp_encode)
     vpunpckldq %ymm10, %ymm9, %ymm13
     vpunpckhdq %ymm10, %ymm9, %ymm14
 
-    vperm2i128 $0x20, %ymm4, %ymm3, %ymm7
-    vperm2i128 $0x20, %ymm6, %ymm5, %ymm8
-    vperm2i128 $0x31, %ymm4, %ymm3, %ymm9
-    vperm2i128 $0x31, %ymm6, %ymm5, %ymm10
+    vpmovsxbw %xmm3,  %ymm7
+    vpmovsxbw %xmm4,  %ymm8
+    vpmovsxbw %xmm5,  %ymm9
+    vpmovsxbw %xmm6, %ymm10
 
-    vperm2i128 $0x20, %ymm12, %ymm11, %ymm3
-    vperm2i128 $0x20, %ymm14, %ymm13, %ymm4
-    vperm2i128 $0x31, %ymm12, %ymm11, %ymm5
-    vperm2i128 $0x31, %ymm14, %ymm13, %ymm6
+    vmovdqa  %ymm7, 1920(%rdi)
+    vmovdqa  %ymm8, 1952(%rdi)
+    vmovdqa  %ymm9, 1984(%rdi)
+    vmovdqa %ymm10, 2016(%rdi)
 
-    vpmovsxbw  %xmm3,  %ymm11
-    vpmovsxbw  %xmm4,  %ymm12
-    vpmovsxbw  %xmm5,  %ymm13
-    vpmovsxbw  %xmm6,  %ymm14
+    vextracti128 $1, %ymm3,  %xmm7
+    vextracti128 $1, %ymm4,  %xmm8
+    vextracti128 $1, %ymm5,  %xmm9
+    vextracti128 $1, %ymm6, %xmm10
 
-    vmovdqu    %ymm11, 1792(%rdi)
-    vmovdqu    %ymm12, 1856(%rdi)
-    vmovdqu    %ymm13, 2048(%rdi)
-    vmovdqu    %ymm14, 2112(%rdi)
+    vpmovsxbw  %xmm7,  %ymm7
+    vpmovsxbw  %xmm8,  %ymm8
+    vpmovsxbw  %xmm9,  %ymm9
+    vpmovsxbw %xmm10, %ymm10
 
-    vpmovsxbw  %xmm7,  %ymm11
-    vpmovsxbw  %xmm8,  %ymm12
-    vpmovsxbw  %xmm9,  %ymm13
-    vpmovsxbw  %xmm10, %ymm14
+    vmovdqa  %ymm7, 2176(%rdi)
+    vmovdqa  %ymm8, 2208(%rdi)
+    vmovdqa  %ymm9, 2240(%rdi)
+    vmovdqa %ymm10, 2272(%rdi)
 
-    vmovdqa    %ymm11, 1920(%rdi)
-    vmovdqa    %ymm12, 1984(%rdi)
-    vmovdqa    %ymm13, 2176(%rdi)
-    vmovdqa    %ymm14, 2240(%rdi)
+    vpmovsxbw %xmm11,  %ymm7
+    vpmovsxbw %xmm12,  %ymm8
+    vpmovsxbw %xmm13,  %ymm9
+    vpmovsxbw %xmm14, %ymm10
 
-    vextracti128 $1, %ymm3, %xmm11
-    vextracti128 $1, %ymm4, %xmm12
-    vextracti128 $1, %ymm5, %xmm13
-    vextracti128 $1, %ymm6, %xmm14
+    vmovdqu  %ymm7, 1792(%rdi)
+    vmovdqa  %ymm8, 1824(%rdi)
+    vmovdqu  %ymm9, 1856(%rdi)
+    vmovdqa %ymm10, 1888(%rdi)
 
-    vpmovsxbw    %xmm11, %ymm11
-    vpmovsxbw    %xmm12, %ymm12
-    vpmovsxbw    %xmm13, %ymm13
-    vpmovsxbw    %xmm14, %ymm14
+    vextracti128 $1, %ymm11,  %xmm7
+    vextracti128 $1, %ymm12,  %xmm8
+    vextracti128 $1, %ymm13,  %xmm9
+    vextracti128 $1, %ymm14, %xmm10
 
-    vmovdqa      %ymm11, 1824(%rdi)
-    vmovdqa      %ymm12, 1888(%rdi)
-    vmovdqa      %ymm13, 2080(%rdi)
-    vmovdqa      %ymm14, 2144(%rdi)
+    vpmovsxbw  %xmm7,  %ymm7
+    vpmovsxbw  %xmm8,  %ymm8
+    vpmovsxbw  %xmm9,  %ymm9
+    vpmovsxbw %xmm10, %ymm10
 
-    vextracti128 $1, %ymm7,  %xmm11
-    vextracti128 $1, %ymm8,  %xmm12
-    vextracti128 $1, %ymm9,  %xmm13
-    vextracti128 $1, %ymm10, %xmm14
-
-    vpmovsxbw    %xmm11, %ymm11
-    vpmovsxbw    %xmm12, %ymm12
-    vpmovsxbw    %xmm13, %ymm13
-    vpmovsxbw    %xmm14, %ymm14
-
-    vmovdqa      %ymm11, 1952(%rdi)
-    vmovdqa      %ymm12, 2016(%rdi)
-    vmovdqa      %ymm13, 2208(%rdi)
-    vmovdqa      %ymm14, 2272(%rdi)
+    vmovdqu  %ymm7, 2048(%rdi)
+    vmovdqa  %ymm8, 2080(%rdi)
+    vmovdqu  %ymm9, 2112(%rdi)
+    vmovdqa %ymm10, 2144(%rdi)
 
     lea 128(%rsi), %r8
 
-.p2align 5
+.balign 32
 NTRUPLUS_ASM_LOCAL(looptop_sotp_encode):
     vmovdqu   (%rsi), %ymm5
     vmovdqu   (%rdx), %ymm3
@@ -837,65 +787,55 @@ NTRUPLUS_ASM_LOCAL(looptop_sotp_encode):
     vpunpckldq %ymm10, %ymm9, %ymm13
     vpunpckhdq %ymm10, %ymm9, %ymm14
 
-    vperm2i128 $0x20, %ymm4, %ymm3, %ymm7
-    vperm2i128 $0x20, %ymm6, %ymm5, %ymm8
-    vperm2i128 $0x31, %ymm4, %ymm3, %ymm9
-    vperm2i128 $0x31, %ymm6, %ymm5, %ymm10
+    vpmovsxbw %xmm3,  %ymm7
+    vpmovsxbw %xmm4,  %ymm8
+    vpmovsxbw %xmm5,  %ymm9
+    vpmovsxbw %xmm6, %ymm10
 
-    vperm2i128 $0x20, %ymm12, %ymm11, %ymm3
-    vperm2i128 $0x20, %ymm14, %ymm13, %ymm4
-    vperm2i128 $0x31, %ymm12, %ymm11, %ymm5
-    vperm2i128 $0x31, %ymm14, %ymm13, %ymm6
+    vmovdqa  %ymm7, 128(%rdi)
+    vmovdqa  %ymm8, 160(%rdi)
+    vmovdqa  %ymm9, 192(%rdi)
+    vmovdqa %ymm10, 224(%rdi)
 
-    vpmovsxbw  %xmm3,  %ymm11
-    vpmovsxbw  %xmm4,  %ymm12
-    vpmovsxbw  %xmm5,  %ymm13
-    vpmovsxbw  %xmm6,  %ymm14
+    vextracti128 $1, %ymm3,  %xmm7
+    vextracti128 $1, %ymm4,  %xmm8
+    vextracti128 $1, %ymm5,  %xmm9
+    vextracti128 $1, %ymm6, %xmm10
 
-    vmovdqa    %ymm11,   0(%rdi)
-    vmovdqa    %ymm12,  64(%rdi)
-    vmovdqa    %ymm13, 256(%rdi)
-    vmovdqa    %ymm14, 320(%rdi)
+    vpmovsxbw  %xmm7,  %ymm7
+    vpmovsxbw  %xmm8,  %ymm8
+    vpmovsxbw  %xmm9,  %ymm9
+    vpmovsxbw %xmm10, %ymm10
 
-    vpmovsxbw  %xmm7,  %ymm11
-    vpmovsxbw  %xmm8,  %ymm12
-    vpmovsxbw  %xmm9,  %ymm13
-    vpmovsxbw  %xmm10, %ymm14
+    vmovdqa  %ymm7, 384(%rdi)
+    vmovdqa  %ymm8, 416(%rdi)
+    vmovdqa  %ymm9, 448(%rdi)
+    vmovdqa %ymm10, 480(%rdi)
 
-    vmovdqa    %ymm11, 128(%rdi)
-    vmovdqa    %ymm12, 192(%rdi)
-    vmovdqa    %ymm13, 384(%rdi)
-    vmovdqa    %ymm14, 448(%rdi)
+    vpmovsxbw %xmm11,  %ymm7
+    vpmovsxbw %xmm12,  %ymm8
+    vpmovsxbw %xmm13,  %ymm9
+    vpmovsxbw %xmm14, %ymm10
 
-    vextracti128 $1, %ymm3, %xmm11
-    vextracti128 $1, %ymm4, %xmm12
-    vextracti128 $1, %ymm5, %xmm13
-    vextracti128 $1, %ymm6, %xmm14
+    vmovdqa  %ymm7,  0(%rdi)
+    vmovdqa  %ymm8, 32(%rdi)
+    vmovdqa  %ymm9, 64(%rdi)
+    vmovdqa %ymm10, 96(%rdi)
 
-    vpmovsxbw    %xmm11, %ymm11
-    vpmovsxbw    %xmm12, %ymm12
-    vpmovsxbw    %xmm13, %ymm13
-    vpmovsxbw    %xmm14, %ymm14
+    vextracti128 $1, %ymm11,  %xmm7
+    vextracti128 $1, %ymm12,  %xmm8
+    vextracti128 $1, %ymm13,  %xmm9
+    vextracti128 $1, %ymm14, %xmm10
 
-    vmovdqa      %ymm11,  32(%rdi)
-    vmovdqa      %ymm12,  96(%rdi)
-    vmovdqa      %ymm13, 288(%rdi)
-    vmovdqa      %ymm14, 352(%rdi)
+    vpmovsxbw  %xmm7,  %ymm7
+    vpmovsxbw  %xmm8,  %ymm8
+    vpmovsxbw  %xmm9,  %ymm9
+    vpmovsxbw %xmm10, %ymm10
 
-    vextracti128 $1, %ymm7,  %xmm11
-    vextracti128 $1, %ymm8,  %xmm12
-    vextracti128 $1, %ymm9,  %xmm13
-    vextracti128 $1, %ymm10, %xmm14
-
-    vpmovsxbw    %xmm11, %ymm11
-    vpmovsxbw    %xmm12, %ymm12
-    vpmovsxbw    %xmm13, %ymm13
-    vpmovsxbw    %xmm14, %ymm14
-
-    vmovdqa      %ymm11, 160(%rdi)
-    vmovdqa      %ymm12, 224(%rdi)
-    vmovdqa      %ymm13, 416(%rdi)
-    vmovdqa      %ymm14, 480(%rdi)
+    vmovdqa  %ymm7, 256(%rdi)
+    vmovdqa  %ymm8, 288(%rdi)
+    vmovdqa  %ymm9, 320(%rdi)
+    vmovdqa %ymm10, 352(%rdi)
 
     add $32,  %rsi
     add $32,  %rdx

@@ -11,14 +11,14 @@
 * Returns:     none. Output coefficients lie in {-1,0,1}.
 **************************************************/
 NTRUPLUS_ASM_START(poly_crepmod3)
-vmovdqa      NTRUPLUS_ASM_SYMBOL(_16xq26)(%rip), %ymm0
-vmovdqa NTRUPLUS_ASM_SYMBOL(_16xq26round)(%rip), %ymm1
-vmovdqa       NTRUPLUS_ASM_SYMBOL(_16xv2)(%rip), %ymm2
-vmovdqa        NTRUPLUS_ASM_SYMBOL(_16x3)(%rip), %ymm3
+vmovdqa      NTRUPLUS_ASM_SYMBOL(16xq26)(%rip), %ymm0
+vmovdqa NTRUPLUS_ASM_SYMBOL(16xq26round)(%rip), %ymm1
+vmovdqa       NTRUPLUS_ASM_SYMBOL(16xv2)(%rip), %ymm2
+vmovdqa        NTRUPLUS_ASM_SYMBOL(16x3)(%rip), %ymm3
 
 lea 1728(%rdi), %r8
 
-.p2align 5
+.balign 32
 NTRUPLUS_ASM_LOCAL(looptop_crepmod3):
 vmovdqa   (%rdi), %ymm4
 vmovdqa 32(%rdi), %ymm5

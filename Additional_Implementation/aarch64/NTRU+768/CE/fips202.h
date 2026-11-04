@@ -1,13 +1,28 @@
 #ifndef FIPS202_H
 #define FIPS202_H
 
+#include <stddef.h>
+#include <stdint.h>
+
+#include "params.h"
+
+#define f1600 NTRUPLUS_NAMESPACE(f1600)
+#define shake256 NTRUPLUS_NAMESPACE(shake256)
+#define shake256_absorb NTRUPLUS_NAMESPACE(shake256_absorb)
+#define shake256_ctx_clone NTRUPLUS_NAMESPACE(shake256_ctx_clone)
+#define shake256_ctx_release NTRUPLUS_NAMESPACE(shake256_ctx_release)
+#define shake256_inc_absorb NTRUPLUS_NAMESPACE(shake256_inc_absorb)
+#define shake256_inc_ctx_clone NTRUPLUS_NAMESPACE(shake256_inc_ctx_clone)
+#define shake256_inc_ctx_release NTRUPLUS_NAMESPACE(shake256_inc_ctx_release)
+#define shake256_inc_finalize NTRUPLUS_NAMESPACE(shake256_inc_finalize)
+#define shake256_inc_init NTRUPLUS_NAMESPACE(shake256_inc_init)
+#define shake256_inc_squeeze NTRUPLUS_NAMESPACE(shake256_inc_squeeze)
+#define shake256_squeezeblocks NTRUPLUS_NAMESPACE(shake256_squeezeblocks)
+
 /*
  * This file is licensed under Apache 2.0 (https://www.apache.org/licenses/LICENSE-2.0.html)
  * or may be used in the public domain.
  */
-
-#include <stddef.h>
-#include <stdint.h>
 
 #define SHAKE256_RATE 136
 

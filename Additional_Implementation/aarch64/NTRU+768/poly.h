@@ -1,9 +1,27 @@
 #ifndef POLY_H
 #define POLY_H
 
-#include "util.h"
 #include <stdint.h>
+
 #include "params.h"
+#include "util.h"
+
+#define poly_tobytes        NTRUPLUS_NAMESPACE(poly_tobytes)
+#define poly_frombytes      NTRUPLUS_NAMESPACE(poly_frombytes)
+#define poly_cbd1           NTRUPLUS_NAMESPACE(poly_cbd1)
+#define poly_cbd1_triple    NTRUPLUS_NAMESPACE(poly_cbd1_triple)
+#define poly_sotp_encode    NTRUPLUS_NAMESPACE(poly_sotp_encode)
+#define poly_sotp_decode    NTRUPLUS_NAMESPACE(poly_sotp_decode)
+#define poly_ntt            NTRUPLUS_NAMESPACE(poly_ntt)
+#define poly_invntt_scale   NTRUPLUS_NAMESPACE(poly_invntt_scale)
+#define poly_baseinv        NTRUPLUS_NAMESPACE(poly_baseinv)
+#define poly_basemul        NTRUPLUS_NAMESPACE(poly_basemul)
+#define poly_basemul_scaled NTRUPLUS_NAMESPACE(poly_basemul_scaled)
+#define poly_basemul_add    NTRUPLUS_NAMESPACE(poly_basemul_add)
+#define poly_sub            NTRUPLUS_NAMESPACE(poly_sub)
+#define poly_triple         NTRUPLUS_NAMESPACE(poly_triple)
+#define poly_crepmod3       NTRUPLUS_NAMESPACE(poly_crepmod3)
+#define poly_baseinv_1      NTRUPLUS_NAMESPACE(poly_baseinv_1)
 
 /*
  * Elements of R_q = Z_q[X]/(X^n - X^n/2 + 1). Represents polynomial

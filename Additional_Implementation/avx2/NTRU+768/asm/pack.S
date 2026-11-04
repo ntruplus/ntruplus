@@ -1,12 +1,12 @@
 #include "asm.h"
 
 NTRUPLUS_ASM_START(poly_tobytes)
-vmovdqa NTRUPLUS_ASM_SYMBOL(_16xv)(%rip), %ymm15
-vmovdqa NTRUPLUS_ASM_SYMBOL(_16xq)(%rip), %ymm14
+vmovdqa NTRUPLUS_ASM_SYMBOL(16xv)(%rip), %ymm15
+vmovdqa NTRUPLUS_ASM_SYMBOL(16xq)(%rip), %ymm14
 
 lea 1536(%rsi), %r8
 
-.p2align 5
+.balign 32
 NTRUPLUS_ASM_LOCAL(looptop_tobytes):
 //load
 vmovdqa    (%rsi), %ymm0
@@ -139,12 +139,12 @@ NTRUPLUS_ASM_END(poly_tobytes)
 
 
 NTRUPLUS_ASM_START(poly_frombytes)
-vmovdqa NTRUPLUS_ASM_SYMBOL(_low_mask)(%rip), %ymm15
+vmovdqa NTRUPLUS_ASM_SYMBOL(low_mask)(%rip), %ymm15
 xor %eax, %eax
 
 lea 1152(%rsi), %r8
 
-.p2align 5
+.balign 32
 NTRUPLUS_ASM_LOCAL(looptop_frombytes):
 //load
 vmovdqu    (%rsi), %ymm0
@@ -235,7 +235,7 @@ vpmaxuw %ymm10, %ymm9,  %ymm3
 vpmaxuw %ymm1,  %ymm0,  %ymm0
 vpmaxuw %ymm3,  %ymm2,  %ymm2
 vpmaxuw %ymm2,  %ymm0,  %ymm0
-vpcmpgtw NTRUPLUS_ASM_SYMBOL(_16xqm1)(%rip), %ymm0, %ymm0
+vpcmpgtw NTRUPLUS_ASM_SYMBOL(16xqm1)(%rip), %ymm0, %ymm0
 vpmovmskb %ymm0, %edx
 or %edx, %eax
 
