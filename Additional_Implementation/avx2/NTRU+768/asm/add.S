@@ -1,7 +1,7 @@
 .global poly_sub
-.ifndef no_type
+#ifdef __ELF__
 .type poly_sub, @function
-.endif
+#endif
 poly_sub:
 lea 1536(%rsi), %r8
 
@@ -35,11 +35,11 @@ cmp %r8,  %rsi
 jb  .Llooptop_sub
 
 ret
-.ifndef no_size
+#ifdef __ELF__
 .size poly_sub, .-poly_sub
-.endif
+#endif
 
 
-.ifndef no_gnu_stack
+#ifdef __ELF__
 .section .note.GNU-stack,"",@progbits
-.endif
+#endif

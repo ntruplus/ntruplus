@@ -7,11 +7,12 @@ NISTFLAGS += -Wno-unused-result -mavx2 -mbmi2 -mpopcnt -maes \
 RM = /bin/rm -f
 
 ifneq (,$(findstring mingw,$(shell $(CC) -dumpmachine)))
+# The bundled Keccak .s file still uses assembler-defined guards.
 MINGW_ASFLAGS = -Wa,--defsym,no_type=1 -Wa,--defsym,no_size=1 -Wa,--defsym,no_gnu_stack=1
 MINGW_LDLIBS = -ladvapi32
 endif
 
-SOURCES= asm/add.s asm/baseinv.s asm/basemul.s asm/cbd.s asm/crepmod3.s asm/invntt.s asm/ntt.s asm/pack.s consts.c kem.c poly.c symmetric.c fips202/fips202.c fips202/KeccakP-1600-AVX2.s
+SOURCES= asm/add.S asm/baseinv.S asm/basemul.S asm/cbd.S asm/crepmod3.S asm/invntt.S asm/ntt.S asm/pack.S consts.c kem.c poly.c symmetric.c fips202/fips202.c fips202/KeccakP-1600-AVX2.s
 HEADERS= params.h api.h poly.h symmetric.h util.h fips202/fips202.h fips202/KeccakP-1600-SnP.h
 
 .PHONY: all PQCgenKAT_kem test clean

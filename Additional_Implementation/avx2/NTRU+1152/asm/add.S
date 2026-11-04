@@ -1,9 +1,9 @@
 .global poly_sub
-.ifndef no_type
+#ifdef __ELF__
 .type poly_sub, @function
-.endif
+#endif
 poly_sub:
-    lea 1728(%rsi), %r8
+    lea 2304(%rsi), %r8
 
 .p2align 5
 .Llooptop_sub:
@@ -31,15 +31,15 @@ poly_sub:
     add $192, %rsi
     add $192, %rdx
     add $192, %rdi
-    cmp %r8,  %rsi
+    cmp  %r8, %rsi
     jb  .Llooptop_sub
 
     ret
-.ifndef no_size
+#ifdef __ELF__
 .size poly_sub, .-poly_sub
-.endif
+#endif
 
 
-.ifndef no_gnu_stack
+#ifdef __ELF__
 .section .note.GNU-stack,"",@progbits
-.endif
+#endif

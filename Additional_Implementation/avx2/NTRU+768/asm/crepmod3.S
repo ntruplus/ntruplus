@@ -9,9 +9,9 @@
 * Returns:     none. Output coefficients lie in {-1,0,1}.
 **************************************************/
 .global poly_crepmod3
-.ifndef no_type
+#ifdef __ELF__
 .type poly_crepmod3, @function
-.endif
+#endif
 poly_crepmod3:
 vmovdqa      _16xq26(%rip), %ymm0
 vmovdqa _16xq26round(%rip), %ymm1
@@ -27,7 +27,7 @@ vmovdqa  32(%rdi), %ymm5
 vmovdqa  64(%rdi), %ymm6
 vmovdqa  96(%rdi), %ymm7
 
-#reduceq
+/* #reduceq */
 vpmulhw %ymm0, %ymm4, %ymm8
 vpmulhw %ymm0, %ymm5, %ymm9
 vpmulhw %ymm0, %ymm6, %ymm10
@@ -43,13 +43,13 @@ vpsraw $10, %ymm9,  %ymm9
 vpsraw $10, %ymm10, %ymm10
 vpsraw $10, %ymm11, %ymm11
 
-# q = 1 (mod 3)
+/* # q = 1 (mod 3) */
 vpsubw %ymm8,  %ymm4, %ymm4
 vpsubw %ymm9,  %ymm5, %ymm5
 vpsubw %ymm10, %ymm6, %ymm6
 vpsubw %ymm11, %ymm7, %ymm7
 
-#reduce3
+/* #reduce3 */
 vpmulhrsw %ymm2, %ymm4, %ymm8
 vpmulhrsw %ymm2, %ymm5, %ymm9
 vpmulhrsw %ymm2, %ymm6, %ymm10
@@ -75,10 +75,10 @@ cmp %r8,  %rdi
 jb  .Llooptop_crepmod3
 
 ret
-.ifndef no_size
+#ifdef __ELF__
 .size poly_crepmod3, .-poly_crepmod3
-.endif
+#endif
 
-.ifndef no_gnu_stack
+#ifdef __ELF__
 .section .note.GNU-stack,"",@progbits
-.endif
+#endif

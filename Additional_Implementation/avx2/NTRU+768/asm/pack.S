@@ -1,16 +1,16 @@
 .global poly_tobytes
-.ifndef no_type
+#ifdef __ELF__
 .type poly_tobytes, @function
-.endif
+#endif
 poly_tobytes:
 vmovdqa _16xv(%rip), %ymm15
 vmovdqa _16xq(%rip), %ymm14
 
-lea 2304(%rsi), %r8
+lea 1536(%rsi), %r8
 
 .p2align 5
 .Llooptop_tobytes:
-#load
+/* #load */
 vmovdqa    (%rsi), %ymm0
 vmovdqa  32(%rsi), %ymm1
 vmovdqa  64(%rsi), %ymm2
@@ -81,7 +81,7 @@ vpsrlw $8,     %ymm6,  %ymm13
 vpxor  %ymm10, %ymm12, %ymm2
 vpxor  %ymm11, %ymm13, %ymm6
 
-#shuffle
+/* #shuffle */
 vpslld      $16, %ymm1, %ymm7
 vpslld      $16, %ymm4, %ymm8
 vpslld      $16, %ymm6, %ymm9
@@ -137,23 +137,23 @@ cmp %r8,  %rsi
 jb  .Llooptop_tobytes
 
 ret
-.ifndef no_size
+#ifdef __ELF__
 .size poly_tobytes, .-poly_tobytes
-.endif
+#endif
 
 .global poly_frombytes
-.ifndef no_type
+#ifdef __ELF__
 .type poly_frombytes, @function
-.endif
+#endif
 poly_frombytes:
 vmovdqa _low_mask(%rip), %ymm15
 xor %eax, %eax
 
-lea 1728(%rsi), %r8
+lea 1152(%rsi), %r8
 
 .p2align 5
 .Llooptop_frombytes:
-#load
+/* #load */
 vmovdqu    (%rsi), %ymm0
 vmovdqu  32(%rsi), %ymm1
 vmovdqu  64(%rsi), %ymm2
@@ -175,7 +175,7 @@ vpunpckhqdq %ymm10, %ymm7, %ymm3
 vpunpcklqdq %ymm11, %ymm8, %ymm4
 vpunpckhqdq %ymm11, %ymm8, %ymm5
 
-#shuffle
+/* #shuffle */
 vpsllq   $32,   %ymm3,  %ymm8
 vpsrlq   $32,   %ymm0,  %ymm9
 vpsllq   $32,   %ymm4,  %ymm10
@@ -189,7 +189,7 @@ vpblendd $0xAA, %ymm4,  %ymm11, %ymm11
 vpblendd $0xAA, %ymm12, %ymm2,  %ymm12
 vpblendd $0xAA, %ymm5,  %ymm13, %ymm13
 
-#shuffle
+/* #shuffle */
 vpsllq   $16,   %ymm11, %ymm0
 vpsrlq   $16,   %ymm8,  %ymm1
 vpsllq   $16,   %ymm12, %ymm2
@@ -255,10 +255,10 @@ test %eax, %eax
 setne %al
 movzbl %al, %eax
 ret
-.ifndef no_size
+#ifdef __ELF__
 .size poly_frombytes, .-poly_frombytes
-.endif
+#endif
 
-.ifndef no_gnu_stack
+#ifdef __ELF__
 .section .note.GNU-stack,"",@progbits
-.endif
+#endif

@@ -1,7 +1,7 @@
 .global poly_cbd1
-.ifndef no_type
+#ifdef __ELF__
 .type poly_cbd1, @function
-.endif
+#endif
 poly_cbd1:
     vmovdqa _16x5555(%rip), %ymm0
     vmovdqa _16x0303(%rip), %ymm1
@@ -287,14 +287,14 @@ poly_cbd1:
     jb  .Llooptop_cbd1
 
     ret
-.ifndef no_size
+#ifdef __ELF__
 .size poly_cbd1, .-poly_cbd1
-.endif
+#endif
 
 .global poly_cbd1_triple
-.ifndef no_type
+#ifdef __ELF__
 .type poly_cbd1_triple, @function
-.endif
+#endif
 poly_cbd1_triple:
     vmovdqa _16x5555(%rip), %ymm0
     vmovdqa _16x0303(%rip), %ymm1
@@ -345,7 +345,7 @@ poly_cbd1_triple:
     vpsubb %ymm2, %ymm9, %ymm9
     vpsubb %ymm2, %ymm10, %ymm10
 
-    #triple
+    /* #triple */
     vpaddb  %ymm3,  %ymm3, %ymm15
     vpaddb %ymm15,  %ymm3,  %ymm3
     vpaddb  %ymm4,  %ymm4, %ymm15
@@ -502,7 +502,7 @@ poly_cbd1_triple:
     vpsubb %ymm2, %ymm9, %ymm9
     vpsubb %ymm2, %ymm10, %ymm10
 
-    #triple
+    /* #triple */
     vpaddb  %ymm3,  %ymm3, %ymm15
     vpaddb %ymm15,  %ymm3,  %ymm3
     vpaddb  %ymm4,  %ymm4, %ymm15
@@ -616,14 +616,14 @@ poly_cbd1_triple:
     jb  .Llooptop_cbd1_triple
 
     ret
-.ifndef no_size
+#ifdef __ELF__
 .size poly_cbd1_triple, .-poly_cbd1_triple
-.endif
+#endif
 
 .global poly_sotp_encode
-.ifndef no_type
+#ifdef __ELF__
 .type poly_sotp_encode, @function
-.endif
+#endif
 poly_sotp_encode:
     vmovdqa _16x5555(%rip), %ymm0
     vmovdqa _16x0303(%rip), %ymm1
@@ -917,10 +917,10 @@ poly_sotp_encode:
     jb  .Llooptop_sotp_encode
 
     ret
-.ifndef no_size
+#ifdef __ELF__
 .size poly_sotp_encode, .-poly_sotp_encode
-.endif
+#endif
 
-.ifndef no_gnu_stack
+#ifdef __ELF__
 .section .note.GNU-stack,"",@progbits
-.endif
+#endif
