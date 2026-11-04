@@ -3,7 +3,7 @@
 NTRUPLUS_ASM_START(poly_baseinv_1)
 vmovdqa    NTRUPLUS_ASM_SYMBOL(16xq)(%rip), %ymm0
 vmovdqa NTRUPLUS_ASM_SYMBOL(16xqinv)(%rip), %ymm15
-lea NTRUPLUS_ASM_SYMBOL(zetas)+2112(%rip), %r9
+lea NTRUPLUS_ASM_SYMBOL(zetas)+1888(%rip), %r9
 
 lea 1728(%rdi), %r8
 

@@ -12,7 +12,6 @@
 
 #define WQINV 13706
 #define W -886
-#define ZETA1 -722
 
 #define R2 867
 #define R2qinv 2787
@@ -27,54 +26,39 @@
 
 #define FILL_16(x) { x, x, x, x, x, x, x, x, x, x, x, x, x, x, x, x }
 
-const int16_t _low_mask[16]    __attribute__((aligned(32))) = FILL_16(LOW);
-const int16_t _16xv[16]        __attribute__((aligned(32))) = FILL_16(V);
-const int16_t _16xv2[16]       __attribute__((aligned(32))) = FILL_16(V2);
-const int16_t _16xq26[16]      __attribute__((aligned(32))) = FILL_16(Q26);
-const int16_t _16xq26round[16] __attribute__((aligned(32))) = FILL_16(Q26_ROUND);
-const int16_t _16x1[16]        __attribute__((aligned(32))) = FILL_16(1);
-const int16_t _16x3[16]        __attribute__((aligned(32))) = FILL_16(3);
-const int16_t _16xq[16]        __attribute__((aligned(32))) = FILL_16(NTRUPLUS_Q);
-const int16_t _16xqm1[16]      __attribute__((aligned(32))) = FILL_16(NTRUPLUS_Q - 1);
-const int16_t _16xzeta1[16]    __attribute__((aligned(32))) = FILL_16(ZETA1);
-const int16_t _16xqinv[16]     __attribute__((aligned(32))) = FILL_16(QINV);
-const int16_t _16xw[16]        __attribute__((aligned(32))) = FILL_16(W);
-const int16_t _16xwqinv[16]    __attribute__((aligned(32))) = FILL_16(WQINV);
-const int16_t _16xR2[16]       __attribute__((aligned(32))) = FILL_16(R2);
-const int16_t _16xR2qinv[16]   __attribute__((aligned(32))) = FILL_16(R2qinv);
-const int16_t _16xRinv[16]     __attribute__((aligned(32))) = FILL_16(Rinv);
-const int16_t _16xRinvqinv[16] __attribute__((aligned(32))) = FILL_16(Rinvqinv);
+const int16_t _low_mask[16]          __attribute__((aligned(32))) = FILL_16(LOW);
+const int16_t _16xv[16]              __attribute__((aligned(32))) = FILL_16(V);
+const int16_t _16xv2[16]             __attribute__((aligned(32))) = FILL_16(V2);
+const int16_t _16xq26[16]            __attribute__((aligned(32))) = FILL_16(Q26);
+const int16_t _16xq26round[16]       __attribute__((aligned(32))) = FILL_16(Q26_ROUND);
+const int16_t _16x1[16]              __attribute__((aligned(32))) = FILL_16(1);
+const int16_t _16x3[16]              __attribute__((aligned(32))) = FILL_16(3);
+const int16_t _16xq[16]              __attribute__((aligned(32))) = FILL_16(NTRUPLUS_Q);
+const int16_t _16xqm1[16]            __attribute__((aligned(32))) = FILL_16(NTRUPLUS_Q - 1);
+const int16_t _16xqinv[16]           __attribute__((aligned(32))) = FILL_16(QINV);
+const int16_t _16xw[16]              __attribute__((aligned(32))) = FILL_16(W);
+const int16_t _16xwqinv[16]          __attribute__((aligned(32))) = FILL_16(WQINV);
+const int16_t _16xR2[16]             __attribute__((aligned(32))) = FILL_16(R2);
+const int16_t _16xR2qinv[16]         __attribute__((aligned(32))) = FILL_16(R2qinv);
+const int16_t _16xRinv[16]           __attribute__((aligned(32))) = FILL_16(Rinv);
+const int16_t _16xRinvqinv[16]       __attribute__((aligned(32))) = FILL_16(Rinvqinv);
 const int16_t _16xNinv_scale[16]     __attribute__((aligned(32))) = FILL_16(NINV_SCALE);
 const int16_t _16xNinv_scaleqinv[16] __attribute__((aligned(32))) = FILL_16(NINV_SCALE_QINV);
 
-const int16_t _16x5555[16]     __attribute__((aligned(32))) = FILL_16(MASK_5555);
-const int16_t _16x0303[16]     __attribute__((aligned(32))) = FILL_16(MASK_0303);
-const int16_t _16x0101[16]     __attribute__((aligned(32))) = FILL_16(MASK_0101);
+const int16_t _16x5555[16] __attribute__((aligned(32))) = FILL_16(MASK_5555);
+const int16_t _16x0303[16] __attribute__((aligned(32))) = FILL_16(MASK_0303);
+const int16_t _16x0101[16] __attribute__((aligned(32))) = FILL_16(MASK_0101);
 
-const int16_t zetas[1344] __attribute__((aligned(32))) = {
-	 28815,  28815,  28815,  28815,  28815,  28815,  28815,  28815,
-	 28815,  28815,  28815,  28815,  28815,  28815,  28815,  28815,
-	-21308, -21308, -21308, -21308, -21308, -21308, -21308, -21308,
-	-21308, -21308, -21308, -21308, -21308, -21308, -21308, -21308,
-	 -1265,  -1265,  -1265,  -1265,  -1265,  -1265,  -1265,  -1265,
-	 -1265,  -1265,  -1265,  -1265,  -1265,  -1265,  -1265,  -1265,
-	   708,    708,    708,    708,    708,    708,    708,    708,
-	   708,    708,    708,    708,    708,    708,    708,    708,
-	-16436, -16436, -16436, -16436, -16436, -16436, -16436, -16436,
-	-16436, -16436, -16436, -16436, -16436, -16436, -16436, -16436,
-	-28815, -28815, -28815, -28815, -28815, -28815, -28815, -28815,
-	-28815, -28815, -28815, -28815, -28815, -28815, -28815, -28815,
-	   460,    460,    460,    460,    460,    460,    460,    460,
-	   460,    460,    460,    460,    460,    460,    460,    460,
-	  1265,   1265,   1265,   1265,   1265,   1265,   1265,   1265,
-	  1265,   1265,   1265,   1265,   1265,   1265,   1265,   1265,
-	     0,      0,      0,      0,  -8531,  -8531,   -467,   -467,
-	 27735,  27735,    727,    727, -20436, -20436,    556,    556,
-	-10085, -10085,   1307,   1307, -32645, -32645,   -773,   -773,
-	 15583,  15583,   -161,   -161, -17232, -17232,   1200,   1200,
-	 -1100,  -1100,  -1612,  -1612,  29498,  29498,    570,    570,
-	-23431, -23431,   1529,   1529,  -5649,  -5649,   1135,   1135,
-	 20436,  20436,   -556,   -556,      0,      0,      0,      0,
+const int16_t zetas[1232] __attribute__((aligned(32))) = {
+	  -722,   -722,  28815,  28815, -21308, -21308,  -1265,  -1265,
+	   708,    708, -16436, -16436, -28815, -28815,    460,    460,
+	  1265,   1265,  -8531,  -8531,   -467,   -467,  27735,  27735,
+	   727,    727, -20436, -20436,    556,    556, -10085, -10085,
+	  1307,   1307, -32645, -32645,   -773,   -773,  15583,  15583,
+	  -161,   -161, -17232, -17232,   1200,   1200,  -1100,  -1100,
+	 -1612,  -1612,  29498,  29498,    570,    570, -23431, -23431,
+	  1529,   1529,  -5649,  -5649,   1135,   1135,  20436,  20436,
+	  -556,   -556,      0,      0,      0,      0,      0,      0,
 	     0,      0,      0,      0,      0,      0,      0,      0,
 	 -2976,  -2976,  -2976,  -2976,  -2976,  -2976,  -2976,  -2976,
 	-13782, -13782, -13782, -13782, -13782, -13782, -13782, -13782,
@@ -219,7 +203,7 @@ const int16_t zetas[1344] __attribute__((aligned(32))) = {
 	-31962, -19393, -13043,   6313,  30086,   1346, -15943, -15621,
 	  7374, -21763,  -9896,   6123,   3204, -25460, -23337,  -7280,
 	  1062,   1727,   -883,    553,   1670,     66,    825,   -133,
-	 -1586,    637,   -680,   -917,    644,   -372,  -1193,  -1136
+	 -1586,    637,   -680,   -917,    644,   -372,  -1193,  -1136,
 };
 
 const int16_t zetas_inv[1224] __attribute__((aligned(32))) = {

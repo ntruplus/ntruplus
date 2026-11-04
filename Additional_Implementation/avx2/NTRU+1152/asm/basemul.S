@@ -3,7 +3,7 @@
 NTRUPLUS_ASM_START(poly_basemul)
 vmovdqa    NTRUPLUS_ASM_SYMBOL(16xq)(%rip), %ymm0
 vmovdqa NTRUPLUS_ASM_SYMBOL(16xqinv)(%rip), %ymm15
-lea NTRUPLUS_ASM_SYMBOL(zetas)+2112(%rip), %rcx
+lea NTRUPLUS_ASM_SYMBOL(zetas)+1888(%rip), %rcx
 
 lea 2304(%rsi), %r8
 
@@ -424,7 +424,7 @@ NTRUPLUS_ASM_END(poly_basemul)
 NTRUPLUS_ASM_START(poly_basemul_scaled)
 vmovdqa    NTRUPLUS_ASM_SYMBOL(16xq)(%rip), %ymm0
 vmovdqa NTRUPLUS_ASM_SYMBOL(16xqinv)(%rip), %ymm15
-lea NTRUPLUS_ASM_SYMBOL(zetas)+2112(%rip), %rcx
+lea NTRUPLUS_ASM_SYMBOL(zetas)+1888(%rip), %rcx
 
 lea 2304(%rsi), %r8
 
@@ -800,7 +800,7 @@ NTRUPLUS_ASM_END(poly_basemul_scaled)
 NTRUPLUS_ASM_START(poly_basemul_add)
 vmovdqa    NTRUPLUS_ASM_SYMBOL(16xq)(%rip),  %ymm0
 vmovdqa NTRUPLUS_ASM_SYMBOL(16xqinv)(%rip), %ymm15
-lea NTRUPLUS_ASM_SYMBOL(zetas)+2112(%rip), %r9
+lea NTRUPLUS_ASM_SYMBOL(zetas)+1888(%rip), %r9
 
 lea 2304(%rsi), %r8
 
