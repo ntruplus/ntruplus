@@ -26,145 +26,122 @@ jobs:
             compiler: clang
             runner: ubuntu-24.04
             shake256_asm: 0
-            shell: bash
           - name: Reference / Linux x86_64 / GCC
             implementation: Reference_Implementation
             compiler: gcc
             runner: ubuntu-24.04
             shake256_asm: 0
-            shell: bash
           - name: Reference / Linux arm64 / Clang
             implementation: Reference_Implementation
             compiler: clang
             runner: ubuntu-24.04-arm
             shake256_asm: 0
-            shell: bash
           - name: Reference / Linux arm64 / GCC
             implementation: Reference_Implementation
             compiler: gcc
             runner: ubuntu-24.04-arm
             shake256_asm: 0
-            shell: bash
           - name: Reference / Windows x86_64 / GCC (MinGW-w64 UCRT)
             implementation: Reference_Implementation
             compiler: gcc
             runner: windows-2025
             shake256_asm: 0
-            shell: msys2 {0}
             packages: mingw-w64-ucrt-x86_64-gcc
           - name: Reference / Windows x86_64 / Clang (MinGW-w64 UCRT)
             implementation: Reference_Implementation
             compiler: clang
             runner: windows-2025
             shake256_asm: 0
-            shell: msys2 {0}
             packages: mingw-w64-ucrt-x86_64-clang
           - name: OptC / Linux x86_64 / Clang
             implementation: Optimized_Implementation
             compiler: clang
             runner: ubuntu-24.04
             shake256_asm: 0
-            shell: bash
           - name: OptC / Linux x86_64 / GCC
             implementation: Optimized_Implementation
             compiler: gcc
             runner: ubuntu-24.04
             shake256_asm: 0
-            shell: bash
           - name: OptC / Linux arm64 / Clang
             implementation: Optimized_Implementation
             compiler: clang
             runner: ubuntu-24.04-arm
             shake256_asm: 0
-            shell: bash
           - name: OptC / Linux arm64 / GCC
             implementation: Optimized_Implementation
             compiler: gcc
             runner: ubuntu-24.04-arm
             shake256_asm: 0
-            shell: bash
           - name: OptC / Windows x86_64 / GCC (MinGW-w64 UCRT)
             implementation: Optimized_Implementation
             compiler: gcc
             runner: windows-2025
             shake256_asm: 0
-            shell: msys2 {0}
             packages: mingw-w64-ucrt-x86_64-gcc
           - name: OptC / Windows x86_64 / Clang (MinGW-w64 UCRT)
             implementation: Optimized_Implementation
             compiler: clang
             runner: windows-2025
             shake256_asm: 0
-            shell: msys2 {0}
             packages: mingw-w64-ucrt-x86_64-clang
           - name: AVX2 / Linux x86_64 / Clang
             implementation: Additional_Implementation/avx2
             compiler: clang
             runner: ubuntu-24.04
             shake256_asm: 0
-            shell: bash
           - name: AVX2 / Linux x86_64 / GCC
             implementation: Additional_Implementation/avx2
             compiler: gcc
             runner: ubuntu-24.04
             shake256_asm: 0
-            shell: bash
           - name: AVX2 / macOS Intel / Apple Clang
             implementation: Additional_Implementation/avx2
             compiler: clang
             runner: macos-15-intel
             shake256_asm: 0
-            shell: bash
           - name: AVX2 / Windows x86_64 / GCC (MinGW-w64 UCRT)
             implementation: Additional_Implementation/avx2
             compiler: gcc
             runner: windows-2025
             shake256_asm: 0
-            shell: msys2 {0}
             packages: mingw-w64-ucrt-x86_64-gcc
           - name: AVX2 / Windows x86_64 / Clang (MinGW-w64 UCRT)
             implementation: Additional_Implementation/avx2
             compiler: clang
             runner: windows-2025
             shake256_asm: 0
-            shell: msys2 {0}
             packages: mingw-w64-ucrt-x86_64-clang
           - name: AArch64 / Linux arm64 / Clang / SHA3
             implementation: Additional_Implementation/aarch64
             compiler: clang
             runner: ubuntu-24.04-arm
             shake256_asm: 1
-            shell: bash
           - name: AArch64 / Linux arm64 / Clang / portable SHAKE256
             implementation: Additional_Implementation/aarch64
             compiler: clang
             runner: ubuntu-24.04-arm
             shake256_asm: 0
-            shell: bash
           - name: AArch64 / Linux arm64 / GCC / SHA3
             implementation: Additional_Implementation/aarch64
             compiler: gcc
             runner: ubuntu-24.04-arm
             shake256_asm: 1
-            shell: bash
           - name: AArch64 / Linux arm64 / GCC / portable SHAKE256
             implementation: Additional_Implementation/aarch64
             compiler: gcc
             runner: ubuntu-24.04-arm
             shake256_asm: 0
-            shell: bash
           - name: AArch64 / macOS arm64 / Apple Clang / portable SHAKE256
             implementation: Additional_Implementation/aarch64
             compiler: clang
             runner: macos-15
             shake256_asm: 0
-            shell: bash
           - name: AArch64 / macOS arm64 / Apple Clang / SHA3
             implementation: Additional_Implementation/aarch64
             compiler: clang
             runner: macos-15
             shake256_asm: 1
-            shell: bash
 
     steps:
       - name: Check out repository
@@ -181,37 +158,21 @@ jobs:
             ${{ matrix.packages }}
 
       - name: Verify runner instruction set
-        if: contains(matrix.implementation, 'Additional_Implementation')
-        shell: ${{ matrix.shell }}
-        run: |
-          if [ "${{ matrix.implementation }}" = "Additional_Implementation/avx2" ]; then
-            if [ "$(uname -s)" = Darwin ]; then
-              sysctl -n machdep.cpu.leaf7_features | grep -qw AVX2
-              sysctl -n machdep.cpu.features | grep -qw AES
-            elif [ "${{ runner.os }}" = Windows ]; then
-              cat > "$RUNNER_TEMP/avx2.c" <<'EOF'
-          int main(void) {
-            __builtin_cpu_init();
-            return !(__builtin_cpu_supports("avx2") &&
-                     __builtin_cpu_supports("aes") &&
-                     __builtin_cpu_supports("bmi2") &&
-                     __builtin_cpu_supports("popcnt"));
-          }
-          EOF
-              "${{ matrix.compiler }}" -O2 -mavx2 "$RUNNER_TEMP/avx2.c" -o "$RUNNER_TEMP/avx2.exe"
-              "$RUNNER_TEMP/avx2.exe"
-            else
-              grep -qw avx2 /proc/cpuinfo
-              grep -qw aes /proc/cpuinfo
-            fi
-          elif [ "${{ matrix.shake256_asm }}" = 1 ]; then
-            if [ "$(uname -s)" = Darwin ]; then
-              test "$(sysctl -n hw.optional.arm.FEAT_SHA3)" = 1
-            else
-              grep -qw sha3 /proc/cpuinfo
-            fi
-          fi
+        if: runner.os != 'Windows' && contains(matrix.implementation, 'Additional_Implementation')
+        shell: bash
+        run: bash .github/scripts/check-cpu.sh "${{ matrix.implementation }}" "${{ matrix.shake256_asm }}" "${{ matrix.compiler }}"
+
+      - name: Verify Windows instruction set
+        if: runner.os == 'Windows' && contains(matrix.implementation, 'Additional_Implementation')
+        shell: msys2 {0}
+        run: bash .github/scripts/check-cpu.sh "${{ matrix.implementation }}" "${{ matrix.shake256_asm }}" "${{ matrix.compiler }}"
 
       - name: Build, test, and compare KATs
-        shell: ${{ matrix.shell }}
+        if: runner.os != 'Windows'
+        shell: bash
+        run: bash .github/scripts/test.sh "${{ matrix.implementation }}" "${{ matrix.compiler }}" "${{ matrix.shake256_asm }}"
+
+      - name: Build, test, and compare KATs on Windows
+        if: runner.os == 'Windows'
+        shell: msys2 {0}
         run: bash .github/scripts/test.sh "${{ matrix.implementation }}" "${{ matrix.compiler }}" "${{ matrix.shake256_asm }}"
