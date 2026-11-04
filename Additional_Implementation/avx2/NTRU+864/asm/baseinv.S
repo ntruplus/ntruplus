@@ -6,12 +6,12 @@
  * [Sei18] Gregor Seiler,
  * "Faster AVX2 optimized NTT multiplication for Ring-LWE lattice cryptography",
  * Cryptology ePrint Archive, Paper 2018/039, 2018.
- * https://eprint.iacr.org/2018/039
+ * https: //eprint.iacr.org/2018/039
  *
  * [KCP26] Jonghyun Kim, Haehyun Cho, and Jong Hwan Park,
  * "Accelerating NTRU+ Key Generation via Hierarchical Batch Inversion",
  * Cryptology ePrint Archive, Paper 2026/1191, 2026.
- * https://eprint.iacr.org/2026/1191
+ * https: //eprint.iacr.org/2026/1191
  */
 
 
@@ -218,13 +218,13 @@ vmovdqa %ymm10, 160(%rdi)
 
 vmovdqu %ymm8, 32(%rsi) //den
 
-add $64,  %r9
-add $64,  %rsi
+add $64, %r9
+add $64, %rsi
 add $192, %rdi
 add $192, %rdx
 
-cmp %r8,  %rdi
-jb  NTRUPLUS_ASM_LOCAL(looptop_baseinv_1)
+cmp %r8, %rdi
+jb NTRUPLUS_ASM_LOCAL(looptop_baseinv_1)
 
 //product_chain - level 0
 //load

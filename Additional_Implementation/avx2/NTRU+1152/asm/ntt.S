@@ -191,12 +191,12 @@ vmovdqa %ymm14, 256(%rdi)
 
 add $32, %rdi
 cmp %r9, %rdi
-jb  NTRUPLUS_ASM_LOCAL(looptop_j_2)
+jb NTRUPLUS_ASM_LOCAL(looptop_j_2)
 
 add $256, %rdi
-add $16,  %rdx
-cmp %r8,  %rdi
-jb  NTRUPLUS_ASM_LOCAL(looptop_start_2)
+add $16, %rdx
+cmp %r8, %rdi
+jb NTRUPLUS_ASM_LOCAL(looptop_start_2)
 
 sub $2304, %rdi
 
@@ -307,18 +307,18 @@ vmovdqa 1184(%rdx), %ymm15 //zetaqinv
 vmovdqa 1216(%rdx),  %ymm2 //zeta
 
 //shuffle
-vpsllq   $32,  %ymm7,  %ymm3
-vpsrlq   $32, %ymm11,  %ymm4
-vpsllq   $32,  %ymm8,  %ymm5
-vpsrlq   $32, %ymm12,  %ymm6
+vpsllq $32,  %ymm7,  %ymm3
+vpsrlq $32, %ymm11,  %ymm4
+vpsllq $32,  %ymm8,  %ymm5
+vpsrlq $32, %ymm12,  %ymm6
 vpblendd $0xAA,  %ymm3, %ymm11,  %ymm3
 vpblendd $0xAA,  %ymm7,  %ymm4,  %ymm4
 vpblendd $0xAA,  %ymm5, %ymm12,  %ymm5
 vpblendd $0xAA,  %ymm8,  %ymm6,  %ymm6
-vpsllq   $32,  %ymm9,  %ymm7
-vpsrlq   $32, %ymm13,  %ymm8
-vpsllq   $32, %ymm10, %ymm11
-vpsrlq   $32, %ymm14, %ymm12
+vpsllq $32,  %ymm9,  %ymm7
+vpsrlq $32, %ymm13,  %ymm8
+vpsllq $32, %ymm10, %ymm11
+vpsrlq $32, %ymm14, %ymm12
 vpblendd $0xAA,  %ymm7, %ymm13,  %ymm7
 vpblendd $0xAA,  %ymm9,  %ymm8,  %ymm8
 vpblendd $0xAA, %ymm11, %ymm14,  %ymm9
@@ -358,18 +358,18 @@ vmovdqa 1760(%rdx), %ymm15 //zetaqinv
 vmovdqa 1792(%rdx),  %ymm2 //zeta
 
 //shuffle
-vpsllq   $16,  %ymm7,  %ymm3
-vpsrlq   $16, %ymm11,  %ymm4
-vpsllq   $16,  %ymm8,  %ymm5
-vpsrlq   $16, %ymm12,  %ymm6
+vpsllq $16,  %ymm7,  %ymm3
+vpsrlq $16, %ymm11,  %ymm4
+vpsllq $16,  %ymm8,  %ymm5
+vpsrlq $16, %ymm12,  %ymm6
 vpblendw $0xAA,  %ymm3, %ymm11,  %ymm3
 vpblendw $0xAA,  %ymm7,  %ymm4,  %ymm4
 vpblendw $0xAA,  %ymm5, %ymm12,  %ymm5
 vpblendw $0xAA,  %ymm8,  %ymm6,  %ymm6
-vpsllq   $16,  %ymm9,  %ymm7
-vpsrlq   $16, %ymm13,  %ymm8
-vpsllq   $16, %ymm10, %ymm11
-vpsrlq   $16, %ymm14, %ymm12
+vpsllq $16,  %ymm9,  %ymm7
+vpsrlq $16, %ymm13,  %ymm8
+vpsllq $16, %ymm10, %ymm11
+vpsrlq $16, %ymm14, %ymm12
 vpblendw $0xAA,  %ymm7, %ymm13,  %ymm7
 vpblendw $0xAA,  %ymm9,  %ymm8,  %ymm8
 vpblendw $0xAA, %ymm11, %ymm14,  %ymm9
@@ -414,9 +414,9 @@ vmovdqa  %ymm9, 192(%rdi)
 vmovdqa %ymm10, 224(%rdi)
 
 add $256, %rdi
-add $64,  %rdx
-cmp %r8,  %rdi
-jb  NTRUPLUS_ASM_LOCAL(looptop_start_3456)
+add $64, %rdx
+cmp %r8, %rdi
+jb NTRUPLUS_ASM_LOCAL(looptop_start_3456)
 
 ret
 NTRUPLUS_ASM_END(poly_ntt)

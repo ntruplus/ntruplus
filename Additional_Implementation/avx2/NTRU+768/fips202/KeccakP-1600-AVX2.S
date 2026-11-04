@@ -11,6 +11,7 @@
 // For further details see http://www.openssl.org/~appro/cryptogams/.
 //
 // Notes:
+
 // The code for the permutation (KeccakF1600) was generated with
 // Andy Polyakov's keccak1600-avx2.pl from the CRYPTOGAMS project
 // (https://github.com/dot-asm/cryptogams/blob/master/x86_64/keccak1600-avx2.pl).
@@ -26,15 +27,15 @@
 //
 NTRUPLUS_ASM_START(KeccakP1600_Initialize)
 .balign 32
-    vpxor       %ymm0,%ymm0,%ymm0
-    vmovdqu     %ymm0,0*32(%rdi)
-    vmovdqu     %ymm0,1*32(%rdi)
-    vmovdqu     %ymm0,2*32(%rdi)
-    vmovdqu     %ymm0,3*32(%rdi)
-    vmovdqu     %ymm0,4*32(%rdi)
-    vmovdqu     %ymm0,5*32(%rdi)
-    movq        $0,6*32(%rdi)
-    ret
+vpxor %ymm0, %ymm0, %ymm0
+vmovdqu %ymm0, 0*32(%rdi)
+vmovdqu %ymm0, 1*32(%rdi)
+vmovdqu %ymm0, 2*32(%rdi)
+vmovdqu %ymm0, 3*32(%rdi)
+vmovdqu %ymm0, 4*32(%rdi)
+vmovdqu %ymm0, 5*32(%rdi)
+movq $0, 6*32(%rdi)
+ret
 NTRUPLUS_ASM_END(KeccakP1600_Initialize)
 
 
@@ -45,15 +46,15 @@ NTRUPLUS_ASM_END(KeccakP1600_Initialize)
 //
 NTRUPLUS_ASM_START(KeccakP1600_AddByte)
 .balign 32
-    mov         %rdx, %rax
-    and         $7, %rax
-    and         $0xFFFFFFF8, %edx
-    lea         NTRUPLUS_ASM_LOCAL(mapState)(%rip), %r9
-    mov         (%r9, %rdx), %rdx
-    add         %rdx, %rdi
-    add         %rax, %rdi
-    xorb        %sil, (%rdi)
-    ret
+mov %rdx, %rax
+and $7, %rax
+and $0xFFFFFFF8, %edx
+lea NTRUPLUS_ASM_LOCAL(mapState)(%rip), %r9
+mov (%r9, %rdx), %rdx
+add %rdx, %rdi
+add %rax, %rdi
+xorb        %sil, (%rdi)
+ret
 NTRUPLUS_ASM_END(KeccakP1600_AddByte)
 
 
@@ -64,54 +65,54 @@ NTRUPLUS_ASM_END(KeccakP1600_AddByte)
 //
 NTRUPLUS_ASM_START(KeccakP1600_AddBytes)
 .balign 32
-    cmp         $0, %rcx
-    jz          NTRUPLUS_ASM_LOCAL(KeccakP1600_AddBytes_Exit)
-    mov         %rdx, %rax                              // rax offset in lane
-    and         $0xFFFFFFF8, %edx                       // rdx pointer into state index mapper
-    lea         NTRUPLUS_ASM_LOCAL(mapState)(%rip), %r9
-    add         %r9, %rdx
-    and         $7, %rax
-    jz          NTRUPLUS_ASM_LOCAL(KeccakP1600_AddBytes_LaneAlignedCheck)
-    mov         $8, %r9                                 // r9 is (max) length of incomplete lane
-    sub         %rax, %r9
-    cmp         %rcx, %r9
-    cmovae      %rcx, %r9
-    sub         %r9, %rcx                               // length -= length of incomplete lane
-    add         (%rdx), %rax                            // rax = pointer to state lane
-    add         $8, %rdx
-    add         %rdi, %rax
+cmp $0, %rcx
+jz NTRUPLUS_ASM_LOCAL(KeccakP1600_AddBytes_Exit)
+mov %rdx, %rax        // rax offset in lane
+and $0xFFFFFFF8, %edx // rdx pointer into state index mapper
+lea NTRUPLUS_ASM_LOCAL(mapState)(%rip), %r9
+add %r9, %rdx
+and $7, %rax
+jz NTRUPLUS_ASM_LOCAL(KeccakP1600_AddBytes_LaneAlignedCheck)
+mov $8, %r9           // r9 is (max) length of incomplete lane
+sub %rax, %r9
+cmp %rcx, %r9
+cmovae      %rcx, %r9
+sub %r9, %rcx         // length -= length of incomplete lane
+add (%rdx), %rax      // rax = pointer to state lane
+add $8, %rdx
+add %rdi, %rax
 NTRUPLUS_ASM_LOCAL(KeccakP1600_AddBytes_NotAlignedLoop):
-    mov         (%rsi), %r8b
-    inc         %rsi
-    xorb        %r8b, (%rax)
-    inc         %rax
-    dec         %r9
-    jnz         NTRUPLUS_ASM_LOCAL(KeccakP1600_AddBytes_NotAlignedLoop)
-    jmp         NTRUPLUS_ASM_LOCAL(KeccakP1600_AddBytes_LaneAlignedCheck)
+mov (%rsi), %r8b
+inc         %rsi
+xorb        %r8b, (%rax)
+inc         %rax
+dec         %r9
+jnz NTRUPLUS_ASM_LOCAL(KeccakP1600_AddBytes_NotAlignedLoop)
+jmp NTRUPLUS_ASM_LOCAL(KeccakP1600_AddBytes_LaneAlignedCheck)
 NTRUPLUS_ASM_LOCAL(KeccakP1600_AddBytes_LaneAlignedLoop):
-    mov         (%rsi), %r8
-    add         $8, %rsi
-    mov         (%rdx), %rax
-    add         $8, %rdx
-    add         %rdi, %rax
-    xor         %r8, (%rax)
+mov (%rsi), %r8
+add $8, %rsi
+mov (%rdx), %rax
+add $8, %rdx
+add %rdi, %rax
+xor %r8, (%rax)
 NTRUPLUS_ASM_LOCAL(KeccakP1600_AddBytes_LaneAlignedCheck):
-    sub         $8, %rcx
-    jnc         NTRUPLUS_ASM_LOCAL(KeccakP1600_AddBytes_LaneAlignedLoop)
+sub $8, %rcx
+jnc         NTRUPLUS_ASM_LOCAL(KeccakP1600_AddBytes_LaneAlignedLoop)
 NTRUPLUS_ASM_LOCAL(KeccakP1600_AddBytes_LastIncompleteLane):
-    add         $8, %rcx
-    jz          NTRUPLUS_ASM_LOCAL(KeccakP1600_AddBytes_Exit)
-    mov         (%rdx), %rax
-    add         %rdi, %rax
+add $8, %rcx
+jz NTRUPLUS_ASM_LOCAL(KeccakP1600_AddBytes_Exit)
+mov (%rdx), %rax
+add %rdi, %rax
 NTRUPLUS_ASM_LOCAL(KeccakP1600_AddBytes_LastIncompleteLaneLoop):
-    mov         (%rsi), %r8b
-    inc         %rsi
-    xor         %r8b, (%rax)
-    inc         %rax
-    dec         %rcx
-    jnz         NTRUPLUS_ASM_LOCAL(KeccakP1600_AddBytes_LastIncompleteLaneLoop)
+mov (%rsi), %r8b
+inc         %rsi
+xor %r8b, (%rax)
+inc         %rax
+dec         %rcx
+jnz NTRUPLUS_ASM_LOCAL(KeccakP1600_AddBytes_LastIncompleteLaneLoop)
 NTRUPLUS_ASM_LOCAL(KeccakP1600_AddBytes_Exit):
-    ret
+ret
 NTRUPLUS_ASM_END(KeccakP1600_AddBytes)
 
 
@@ -122,54 +123,54 @@ NTRUPLUS_ASM_END(KeccakP1600_AddBytes)
 //
 NTRUPLUS_ASM_START(KeccakP1600_OverwriteBytes)
 .balign 32
-    cmp         $0, %rcx
-    jz          NTRUPLUS_ASM_LOCAL(KeccakP1600_OverwriteBytes_Exit)
-    mov         %rdx, %rax                              // rax offset in lane
-    and         $0xFFFFFFF8, %edx                       // rdx pointer into state index mapper
-    lea         NTRUPLUS_ASM_LOCAL(mapState)(%rip), %r9
-    add         %r9, %rdx
-    and         $7, %rax
-    jz          NTRUPLUS_ASM_LOCAL(KeccakP1600_OverwriteBytes_LaneAlignedCheck)
-    mov         $8, %r9                                 // r9 is (max) length of incomplete lane
-    sub         %rax, %r9
-    cmp         %rcx, %r9
-    cmovae      %rcx, %r9
-    sub         %r9, %rcx                               // length -= length of incomplete lane
-    add         (%rdx), %rax                            // rax = pointer to state lane
-    add         $8, %rdx
-    add         %rdi, %rax
+cmp $0, %rcx
+jz NTRUPLUS_ASM_LOCAL(KeccakP1600_OverwriteBytes_Exit)
+mov %rdx, %rax        // rax offset in lane
+and $0xFFFFFFF8, %edx // rdx pointer into state index mapper
+lea NTRUPLUS_ASM_LOCAL(mapState)(%rip), %r9
+add %r9, %rdx
+and $7, %rax
+jz NTRUPLUS_ASM_LOCAL(KeccakP1600_OverwriteBytes_LaneAlignedCheck)
+mov $8, %r9           // r9 is (max) length of incomplete lane
+sub %rax, %r9
+cmp %rcx, %r9
+cmovae      %rcx, %r9
+sub %r9, %rcx         // length -= length of incomplete lane
+add (%rdx), %rax      // rax = pointer to state lane
+add $8, %rdx
+add %rdi, %rax
 NTRUPLUS_ASM_LOCAL(KeccakP1600_OverwriteBytes_NotAlignedLoop):
-    mov         (%rsi), %r8b
-    inc         %rsi
-    mov         %r8b, (%rax)
-    inc         %rax
-    dec         %r9
-    jnz         NTRUPLUS_ASM_LOCAL(KeccakP1600_OverwriteBytes_NotAlignedLoop)
-    jmp         NTRUPLUS_ASM_LOCAL(KeccakP1600_OverwriteBytes_LaneAlignedCheck)
+mov (%rsi), %r8b
+inc         %rsi
+mov %r8b, (%rax)
+inc         %rax
+dec         %r9
+jnz NTRUPLUS_ASM_LOCAL(KeccakP1600_OverwriteBytes_NotAlignedLoop)
+jmp NTRUPLUS_ASM_LOCAL(KeccakP1600_OverwriteBytes_LaneAlignedCheck)
 NTRUPLUS_ASM_LOCAL(KeccakP1600_OverwriteBytes_LaneAlignedLoop):
-    mov         (%rsi), %r8
-    add         $8, %rsi
-    mov         (%rdx), %rax
-    add         $8, %rdx
-    add         %rdi, %rax
-    mov         %r8, (%rax)
+mov (%rsi), %r8
+add $8, %rsi
+mov (%rdx), %rax
+add $8, %rdx
+add %rdi, %rax
+mov %r8, (%rax)
 NTRUPLUS_ASM_LOCAL(KeccakP1600_OverwriteBytes_LaneAlignedCheck):
-    sub         $8, %rcx
-    jnc         NTRUPLUS_ASM_LOCAL(KeccakP1600_OverwriteBytes_LaneAlignedLoop)
+sub $8, %rcx
+jnc         NTRUPLUS_ASM_LOCAL(KeccakP1600_OverwriteBytes_LaneAlignedLoop)
 NTRUPLUS_ASM_LOCAL(KeccakP1600_OverwriteBytes_LastIncompleteLane):
-    add         $8, %rcx
-    jz          NTRUPLUS_ASM_LOCAL(KeccakP1600_OverwriteBytes_Exit)
-    mov         (%rdx), %rax
-    add         %rdi, %rax
+add $8, %rcx
+jz NTRUPLUS_ASM_LOCAL(KeccakP1600_OverwriteBytes_Exit)
+mov (%rdx), %rax
+add %rdi, %rax
 NTRUPLUS_ASM_LOCAL(KeccakP1600_OverwriteBytes_LastIncompleteLaneLoop):
-    mov         (%rsi), %r8b
-    inc         %rsi
-    mov         %r8b, (%rax)
-    inc         %rax
-    dec         %rcx
-    jnz         NTRUPLUS_ASM_LOCAL(KeccakP1600_OverwriteBytes_LastIncompleteLaneLoop)
+mov (%rsi), %r8b
+inc         %rsi
+mov %r8b, (%rax)
+inc         %rax
+dec         %rcx
+jnz NTRUPLUS_ASM_LOCAL(KeccakP1600_OverwriteBytes_LastIncompleteLaneLoop)
 NTRUPLUS_ASM_LOCAL(KeccakP1600_OverwriteBytes_Exit):
-    ret
+ret
 NTRUPLUS_ASM_END(KeccakP1600_OverwriteBytes)
 
 
@@ -180,30 +181,30 @@ NTRUPLUS_ASM_END(KeccakP1600_OverwriteBytes)
 //
 NTRUPLUS_ASM_START(KeccakP1600_OverwriteWithZeroes)
 .balign 32
-    cmp         $0, %rsi
-    jz          NTRUPLUS_ASM_LOCAL(KeccakP1600_OverwriteWithZeroes_Exit)
-    lea         NTRUPLUS_ASM_LOCAL(mapState)(%rip), %rdx                          // rdx pointer into state index mapper
-    jmp         NTRUPLUS_ASM_LOCAL(KeccakP1600_OverwriteWithZeroes_LaneAlignedCheck)
+cmp $0, %rsi
+jz NTRUPLUS_ASM_LOCAL(KeccakP1600_OverwriteWithZeroes_Exit)
+lea NTRUPLUS_ASM_LOCAL(mapState)(%rip), %rdx // rdx pointer into state index mapper
+jmp NTRUPLUS_ASM_LOCAL(KeccakP1600_OverwriteWithZeroes_LaneAlignedCheck)
 NTRUPLUS_ASM_LOCAL(KeccakP1600_OverwriteWithZeroes_LaneAlignedLoop):
-    mov         (%rdx), %rax
-    add         $8, %rdx
-    add         %rdi, %rax
-    movq        $0, (%rax)
+mov (%rdx), %rax
+add $8, %rdx
+add %rdi, %rax
+movq $0, (%rax)
 NTRUPLUS_ASM_LOCAL(KeccakP1600_OverwriteWithZeroes_LaneAlignedCheck):
-    sub         $8, %rsi
-    jnc         NTRUPLUS_ASM_LOCAL(KeccakP1600_OverwriteWithZeroes_LaneAlignedLoop)
+sub $8, %rsi
+jnc         NTRUPLUS_ASM_LOCAL(KeccakP1600_OverwriteWithZeroes_LaneAlignedLoop)
 NTRUPLUS_ASM_LOCAL(KeccakP1600_OverwriteWithZeroes_LastIncompleteLane):
-    add         $8, %rsi
-    jz          NTRUPLUS_ASM_LOCAL(KeccakP1600_OverwriteWithZeroes_Exit)
-    mov         (%rdx), %rax
-    add         %rdi, %rax
+add $8, %rsi
+jz NTRUPLUS_ASM_LOCAL(KeccakP1600_OverwriteWithZeroes_Exit)
+mov (%rdx), %rax
+add %rdi, %rax
 NTRUPLUS_ASM_LOCAL(KeccakP1600_OverwriteWithZeroes_LastIncompleteLaneLoop):
-    movb        $0, (%rax)
-    inc         %rax
-    dec         %rsi
-    jnz         NTRUPLUS_ASM_LOCAL(KeccakP1600_OverwriteWithZeroes_LastIncompleteLaneLoop)
+movb        $0, (%rax)
+inc         %rax
+dec         %rsi
+jnz NTRUPLUS_ASM_LOCAL(KeccakP1600_OverwriteWithZeroes_LastIncompleteLaneLoop)
 NTRUPLUS_ASM_LOCAL(KeccakP1600_OverwriteWithZeroes_Exit):
-    ret
+ret
 NTRUPLUS_ASM_END(KeccakP1600_OverwriteWithZeroes)
 
 
@@ -214,57 +215,57 @@ NTRUPLUS_ASM_END(KeccakP1600_OverwriteWithZeroes)
 //
 NTRUPLUS_ASM_START(KeccakP1600_ExtractBytes)
 .balign 32
-    push        %rbx
-    cmp         $0, %rcx
-    jz          NTRUPLUS_ASM_LOCAL(KeccakP1600_ExtractBytes_Exit)
-    mov         %rdx, %rax                              // rax offset in lane
-    and         $0xFFFFFFF8, %edx                       // rdx pointer into state index mapper
-    lea         NTRUPLUS_ASM_LOCAL(mapState)(%rip), %r9
-    add         %r9, %rdx
-    and         $7, %rax
-    jz          NTRUPLUS_ASM_LOCAL(KeccakP1600_ExtractBytes_LaneAlignedCheck)
-    mov         $8, %rbx                                // rbx is (max) length of incomplete lane
-    sub         %rax, %rbx
-    cmp         %rcx, %rbx
-    cmovae      %rcx, %rbx
-    sub         %rbx, %rcx                              // length -= length of incomplete lane
-    mov         (%rdx), %r9
-    add         $8, %rdx
-    add         %rdi, %r9
-    add         %rax, %r9
+push %rbx
+cmp $0, %rcx
+jz NTRUPLUS_ASM_LOCAL(KeccakP1600_ExtractBytes_Exit)
+mov %rdx, %rax        // rax offset in lane
+and $0xFFFFFFF8, %edx // rdx pointer into state index mapper
+lea NTRUPLUS_ASM_LOCAL(mapState)(%rip), %r9
+add %r9, %rdx
+and $7, %rax
+jz NTRUPLUS_ASM_LOCAL(KeccakP1600_ExtractBytes_LaneAlignedCheck)
+mov $8, %rbx          // rbx is (max) length of incomplete lane
+sub %rax, %rbx
+cmp %rcx, %rbx
+cmovae      %rcx, %rbx
+sub %rbx, %rcx        // length -= length of incomplete lane
+mov (%rdx), %r9
+add $8, %rdx
+add %rdi, %r9
+add %rax, %r9
 NTRUPLUS_ASM_LOCAL(KeccakP1600_ExtractBytes_NotAlignedLoop):
-    mov         (%r9), %r8b
-    inc         %r9
-    mov         %r8b, (%rsi)
-    inc         %rsi
-    dec         %rbx
-    jnz         NTRUPLUS_ASM_LOCAL(KeccakP1600_ExtractBytes_NotAlignedLoop)
-    jmp         NTRUPLUS_ASM_LOCAL(KeccakP1600_ExtractBytes_LaneAlignedCheck)
+mov (%r9), %r8b
+inc         %r9
+mov %r8b, (%rsi)
+inc         %rsi
+dec         %rbx
+jnz NTRUPLUS_ASM_LOCAL(KeccakP1600_ExtractBytes_NotAlignedLoop)
+jmp NTRUPLUS_ASM_LOCAL(KeccakP1600_ExtractBytes_LaneAlignedCheck)
 NTRUPLUS_ASM_LOCAL(KeccakP1600_ExtractBytes_LaneAlignedLoop):
-    mov         (%rdx), %rax
-    add         $8, %rdx
-    add         %rdi, %rax
-    mov         (%rax), %r8
-    mov         %r8, (%rsi)
-    add         $8, %rsi
+mov (%rdx), %rax
+add $8, %rdx
+add %rdi, %rax
+mov (%rax), %r8
+mov %r8, (%rsi)
+add $8, %rsi
 NTRUPLUS_ASM_LOCAL(KeccakP1600_ExtractBytes_LaneAlignedCheck):
-    sub         $8, %rcx
-    jnc         NTRUPLUS_ASM_LOCAL(KeccakP1600_ExtractBytes_LaneAlignedLoop)
+sub $8, %rcx
+jnc         NTRUPLUS_ASM_LOCAL(KeccakP1600_ExtractBytes_LaneAlignedLoop)
 NTRUPLUS_ASM_LOCAL(KeccakP1600_ExtractBytes_LastIncompleteLane):
-    add         $8, %rcx
-    jz          NTRUPLUS_ASM_LOCAL(KeccakP1600_ExtractBytes_Exit)
-    mov         (%rdx), %rax
-    add         %rdi, %rax
-    mov         (%rax), %r8
+add $8, %rcx
+jz NTRUPLUS_ASM_LOCAL(KeccakP1600_ExtractBytes_Exit)
+mov (%rdx), %rax
+add %rdi, %rax
+mov (%rax), %r8
 NTRUPLUS_ASM_LOCAL(KeccakP1600_ExtractBytes_LastIncompleteLaneLoop):
-    mov         %r8b, (%rsi)
-    shr         $8, %r8
-    inc         %rsi
-    dec         %rcx
-    jnz         NTRUPLUS_ASM_LOCAL(KeccakP1600_ExtractBytes_LastIncompleteLaneLoop)
+mov %r8b, (%rsi)
+shr         $8, %r8
+inc         %rsi
+dec         %rcx
+jnz NTRUPLUS_ASM_LOCAL(KeccakP1600_ExtractBytes_LastIncompleteLaneLoop)
 NTRUPLUS_ASM_LOCAL(KeccakP1600_ExtractBytes_Exit):
-    pop         %rbx
-    ret
+pop %rbx
+ret
 NTRUPLUS_ASM_END(KeccakP1600_ExtractBytes)
 
 
@@ -275,65 +276,65 @@ NTRUPLUS_ASM_END(KeccakP1600_ExtractBytes)
 //
 NTRUPLUS_ASM_START(KeccakP1600_ExtractAndAddBytes)
 .balign 32
-    push        %rbx
-    push        %r10
-    cmp         $0, %r8
-    jz          NTRUPLUS_ASM_LOCAL(KeccakP1600_ExtractAndAddBytes_Exit)
-    mov         %rcx, %rax                              // rax offset in lane
-    and         $0xFFFFFFF8, %ecx                       // rcx pointer into state index mapper
-    lea         NTRUPLUS_ASM_LOCAL(mapState)(%rip), %r9
-    add         %r9, %rcx
-    and         $7, %rax
-    jz          NTRUPLUS_ASM_LOCAL(KeccakP1600_ExtractAndAddBytes_LaneAlignedCheck)
-    mov         $8, %rbx                                // rbx is (max) length of incomplete lane
-    sub         %rax, %rbx
-    cmp         %r8, %rbx
-    cmovae      %r8, %rbx
-    sub         %rbx, %r8                               // length -= length of incomplete lane
-    mov         (%rcx), %r9
-    add         $8, %rcx
-    add         %rdi, %r9
-    add         %rax, %r9
+push %rbx
+push %r10
+cmp $0, %r8
+jz NTRUPLUS_ASM_LOCAL(KeccakP1600_ExtractAndAddBytes_Exit)
+mov %rcx, %rax        // rax offset in lane
+and $0xFFFFFFF8, %ecx // rcx pointer into state index mapper
+lea NTRUPLUS_ASM_LOCAL(mapState)(%rip), %r9
+add %r9, %rcx
+and $7, %rax
+jz NTRUPLUS_ASM_LOCAL(KeccakP1600_ExtractAndAddBytes_LaneAlignedCheck)
+mov $8, %rbx          // rbx is (max) length of incomplete lane
+sub %rax, %rbx
+cmp %r8, %rbx
+cmovae      %r8, %rbx
+sub %rbx, %r8         // length -= length of incomplete lane
+mov (%rcx), %r9
+add $8, %rcx
+add %rdi, %r9
+add %rax, %r9
 NTRUPLUS_ASM_LOCAL(KeccakP1600_ExtractAndAddBytes_NotAlignedLoop):
-    mov         (%r9), %r10b
-    inc         %r9
-    xor         (%rsi), %r10b
-    inc         %rsi
-    mov         %r10b, (%rdx)
-    inc         %rdx
-    dec         %rbx
-    jnz         NTRUPLUS_ASM_LOCAL(KeccakP1600_ExtractAndAddBytes_NotAlignedLoop)
-    jmp         NTRUPLUS_ASM_LOCAL(KeccakP1600_ExtractAndAddBytes_LaneAlignedCheck)
+mov (%r9), %r10b
+inc         %r9
+xor (%rsi), %r10b
+inc         %rsi
+mov %r10b, (%rdx)
+inc         %rdx
+dec         %rbx
+jnz NTRUPLUS_ASM_LOCAL(KeccakP1600_ExtractAndAddBytes_NotAlignedLoop)
+jmp NTRUPLUS_ASM_LOCAL(KeccakP1600_ExtractAndAddBytes_LaneAlignedCheck)
 NTRUPLUS_ASM_LOCAL(KeccakP1600_ExtractAndAddBytes_LaneAlignedLoop):
-    mov         (%rcx), %rax
-    add         $8, %rcx
-    add         %rdi, %rax
-    mov         (%rax), %r10
-    xor         (%rsi), %r10
-    add         $8, %rsi
-    mov         %r10, (%rdx)
-    add         $8, %rdx
+mov (%rcx), %rax
+add $8, %rcx
+add %rdi, %rax
+mov (%rax), %r10
+xor (%rsi), %r10
+add $8, %rsi
+mov %r10, (%rdx)
+add $8, %rdx
 NTRUPLUS_ASM_LOCAL(KeccakP1600_ExtractAndAddBytes_LaneAlignedCheck):
-    sub         $8, %r8
-    jnc         NTRUPLUS_ASM_LOCAL(KeccakP1600_ExtractAndAddBytes_LaneAlignedLoop)
+sub $8, %r8
+jnc         NTRUPLUS_ASM_LOCAL(KeccakP1600_ExtractAndAddBytes_LaneAlignedLoop)
 NTRUPLUS_ASM_LOCAL(KeccakP1600_ExtractAndAddBytes_LastIncompleteLane):
-    add         $8, %r8
-    jz          NTRUPLUS_ASM_LOCAL(KeccakP1600_ExtractAndAddBytes_Exit)
-    mov         (%rcx), %rax
-    add         %rdi, %rax
-    mov         (%rax), %r10
+add $8, %r8
+jz NTRUPLUS_ASM_LOCAL(KeccakP1600_ExtractAndAddBytes_Exit)
+mov (%rcx), %rax
+add %rdi, %rax
+mov (%rax), %r10
 NTRUPLUS_ASM_LOCAL(KeccakP1600_ExtractAndAddBytes_LastIncompleteLaneLoop):
-    xor         (%rsi), %r10b
-    inc         %rsi
-    mov         %r10b, (%rdx)
-    inc         %rdx
-    shr         $8, %r10
-    dec         %r8
-    jnz         NTRUPLUS_ASM_LOCAL(KeccakP1600_ExtractAndAddBytes_LastIncompleteLaneLoop)
+xor (%rsi), %r10b
+inc         %rsi
+mov %r10b, (%rdx)
+inc         %rdx
+shr         $8, %r10
+dec         %r8
+jnz NTRUPLUS_ASM_LOCAL(KeccakP1600_ExtractAndAddBytes_LastIncompleteLaneLoop)
 NTRUPLUS_ASM_LOCAL(KeccakP1600_ExtractAndAddBytes_Exit):
-    pop         %r10
-    pop         %rbx
-    ret
+pop %r10
+pop %rbx
+ret
 NTRUPLUS_ASM_END(KeccakP1600_ExtractAndAddBytes)
 
 
@@ -347,142 +348,143 @@ NTRUPLUS_ASM_END(KeccakP1600_ExtractAndAddBytes)
 .balign 32
 NTRUPLUS_ASM_LOCAL(KeccakF1600):
 NTRUPLUS_ASM_LOCAL(Loop_avx2):
+
     //######################################## Theta
-    vpshufd     $0b01001110,%ymm2,%ymm13
-    vpxor       %ymm3,%ymm5,%ymm12
-    vpxor       %ymm6,%ymm4,%ymm9
-    vpxor       %ymm1,%ymm12,%ymm12
-    vpxor       %ymm9,%ymm12,%ymm12         // C[1..4]
+vpshufd $0b01001110,  %ymm2, %ymm13
+vpxor         %ymm3,  %ymm5, %ymm12
+vpxor         %ymm6,  %ymm4,  %ymm9
+vpxor         %ymm1, %ymm12, %ymm12
+vpxor         %ymm9, %ymm12, %ymm12 // C[1..4]
 
-    vpermq      $0b10010011,%ymm12,%ymm11
-    vpxor       %ymm2,%ymm13,%ymm13
-    vpermq      $0b01001110,%ymm13,%ymm7
+vpermq $0b10010011, %ymm12, %ymm11
+vpxor        %ymm2, %ymm13, %ymm13
+vpermq $0b01001110, %ymm13,  %ymm7
 
-    vpsrlq      $63,%ymm12,%ymm8
-    vpaddq      %ymm12,%ymm12,%ymm9
-    vpor        %ymm9,%ymm8,%ymm8           // ROL64(C[1..4],1)
+vpsrlq    $63, %ymm12, %ymm8
+vpaddq %ymm12, %ymm12, %ymm9
+vpor    %ymm9,  %ymm8, %ymm8 // ROL64(C[1..4],1)
 
-    vpermq      $0b00111001,%ymm8,%ymm15
-    vpxor       %ymm11,%ymm8,%ymm14
-    vpermq      $0b00000000,%ymm14,%ymm14   // D[0..0] = ROL64(C[1],1) ^ C[4]
+vpermq $0b00111001,  %ymm8, %ymm15
+vpxor       %ymm11,  %ymm8, %ymm14
+vpermq $0b00000000, %ymm14, %ymm14 // D[0..0] = ROL64(C[1],1) ^ C[4]
 
-    vpxor       %ymm0,%ymm13,%ymm13
-    vpxor       %ymm7,%ymm13,%ymm13         // C[0..0]
+vpxor %ymm0, %ymm13, %ymm13
+vpxor %ymm7, %ymm13, %ymm13 // C[0..0]
 
-    vpsrlq      $63,%ymm13,%ymm7
-    vpaddq      %ymm13,%ymm13,%ymm8
-    vpor        %ymm7,%ymm8,%ymm8           // ROL64(C[0..0],1)
+vpsrlq    $63, %ymm13, %ymm7
+vpaddq %ymm13, %ymm13, %ymm8
+vpor    %ymm7,  %ymm8, %ymm8 // ROL64(C[0..0],1)
 
-    vpxor       %ymm14,%ymm2,%ymm2          // ^= D[0..0]
-    vpxor       %ymm14,%ymm0,%ymm0          // ^= D[0..0]
+vpxor %ymm14, %ymm2, %ymm2 // ^= D[0..0]
+vpxor %ymm14, %ymm0, %ymm0 // ^= D[0..0]
 
-    vpblendd    $0b11000000,%ymm8,%ymm15,%ymm15
-    vpblendd    $0b00000011,%ymm13,%ymm11,%ymm11
-    vpxor       %ymm11,%ymm15,%ymm15        // D[1..4] = ROL64(C[2..4,0),1) ^ C[0..3]
+vpblendd $0b11000000,  %ymm8, %ymm15, %ymm15
+vpblendd $0b00000011, %ymm13, %ymm11, %ymm11
+vpxor %ymm11, %ymm15, %ymm15 // D[1..4] = ROL64(C[2..4,0),1) ^ C[0..3]
 
     //######################################## Rho + Pi + pre-Chi shuffle
-    vpsllvq     0*32-96(%r8),%ymm2,%ymm10
-    vpsrlvq     0*32-96(%r9),%ymm2,%ymm2
-    vpor        %ymm10,%ymm2,%ymm2
+vpsllvq 0*32-96(%r8), %ymm2, %ymm10
+vpsrlvq 0*32-96(%r9), %ymm2,  %ymm2
+vpor          %ymm10, %ymm2,  %ymm2
 
-    vpxor       %ymm15,%ymm3,%ymm3          // ^= D[1..4] from Theta
-    vpsllvq     2*32-96(%r8),%ymm3,%ymm11
-    vpsrlvq     2*32-96(%r9),%ymm3,%ymm3
-    vpor        %ymm11,%ymm3,%ymm3
+vpxor         %ymm15, %ymm3,  %ymm3 // ^= D[1..4] from Theta
+vpsllvq 2*32-96(%r8), %ymm3, %ymm11
+vpsrlvq 2*32-96(%r9), %ymm3,  %ymm3
+vpor          %ymm11, %ymm3,  %ymm3
 
-    vpxor       %ymm15,%ymm4,%ymm4          // ^= D[1..4] from Theta
-    vpsllvq     3*32-96(%r8),%ymm4,%ymm12
-    vpsrlvq     3*32-96(%r9),%ymm4,%ymm4
-    vpor        %ymm12,%ymm4,%ymm4
+vpxor         %ymm15, %ymm4,  %ymm4 // ^= D[1..4] from Theta
+vpsllvq 3*32-96(%r8), %ymm4, %ymm12
+vpsrlvq 3*32-96(%r9), %ymm4,  %ymm4
+vpor          %ymm12, %ymm4,  %ymm4
 
-    vpxor       %ymm15,%ymm5,%ymm5          // ^= D[1..4] from Theta
-    vpsllvq     4*32-96(%r8),%ymm5,%ymm13
-    vpsrlvq     4*32-96(%r9),%ymm5,%ymm5
-    vpor        %ymm13,%ymm5,%ymm5
+vpxor         %ymm15, %ymm5,  %ymm5 // ^= D[1..4] from Theta
+vpsllvq 4*32-96(%r8), %ymm5, %ymm13
+vpsrlvq 4*32-96(%r9), %ymm5,  %ymm5
+vpor          %ymm13, %ymm5,  %ymm5
 
-    vpxor       %ymm15,%ymm6,%ymm6          // ^= D[1..4] from Theta
-    vpermq      $0b10001101,%ymm2,%ymm10    // %ymm2 -> future %ymm3
-    vpermq      $0b10001101,%ymm3,%ymm11    // %ymm3 -> future %ymm4
-    vpsllvq     5*32-96(%r8),%ymm6,%ymm14
-    vpsrlvq     5*32-96(%r9),%ymm6,%ymm8
-    vpor        %ymm14,%ymm8,%ymm8          // %ymm6 -> future %ymm1
+vpxor         %ymm15, %ymm6,  %ymm6 // ^= D[1..4] from Theta
+vpermq   $0b10001101, %ymm2, %ymm10 // %ymm2 -> future %ymm3
+vpermq   $0b10001101, %ymm3, %ymm11 // %ymm3 -> future %ymm4
+vpsllvq 5*32-96(%r8), %ymm6, %ymm14
+vpsrlvq 5*32-96(%r9), %ymm6,  %ymm8
+vpor          %ymm14, %ymm8,  %ymm8 // %ymm6 -> future %ymm1
 
-    vpxor       %ymm15,%ymm1,%ymm1          // ^= D[1..4] from Theta
-    vpermq      $0b00011011,%ymm4,%ymm12    // %ymm4 -> future %ymm5
-    vpermq      $0b01110010,%ymm5,%ymm13    // %ymm5 -> future %ymm6
-    vpsllvq     1*32-96(%r8),%ymm1,%ymm15
-    vpsrlvq     1*32-96(%r9),%ymm1,%ymm9
-    vpor        %ymm15,%ymm9,%ymm9          // %ymm1 -> future %ymm2
+vpxor         %ymm15, %ymm1,  %ymm1 // ^= D[1..4] from Theta
+vpermq   $0b00011011, %ymm4, %ymm12 // %ymm4 -> future %ymm5
+vpermq   $0b01110010, %ymm5, %ymm13 // %ymm5 -> future %ymm6
+vpsllvq 1*32-96(%r8), %ymm1, %ymm15
+vpsrlvq 1*32-96(%r9), %ymm1,  %ymm9
+vpor          %ymm15, %ymm9,  %ymm9 // %ymm1 -> future %ymm2
 
     //######################################## Chi
-    vpsrldq     $8,%ymm8,%ymm14
-    vpandn      %ymm14,%ymm8,%ymm7                  // tgting  [0][0] [0][0] [0][0] [0][0]
+vpsrldq     $8, %ymm8, %ymm14
+vpandn  %ymm14, %ymm8,  %ymm7 // tgting  [0][0] [0][0] [0][0] [0][0]
 
-    vpblendd    $0b00001100,%ymm13,%ymm9,%ymm3      //               [4][4] [2][0]
-    vpblendd    $0b00001100,%ymm9,%ymm11,%ymm15     //               [4][0] [2][1]
-    vpblendd    $0b00001100,%ymm11,%ymm10,%ymm5     //               [4][2] [2][4]
-    vpblendd    $0b00001100,%ymm10,%ymm9,%ymm14     //               [4][3] [2][0]
-    vpblendd    $0b00110000,%ymm11,%ymm3,%ymm3      //        [1][3] [4][4] [2][0]
-    vpblendd    $0b00110000,%ymm12,%ymm15,%ymm15    //        [1][4] [4][0] [2][1]
-    vpblendd    $0b00110000,%ymm9,%ymm5,%ymm5       //        [1][0] [4][2] [2][4]
-    vpblendd    $0b00110000,%ymm13,%ymm14,%ymm14    //        [1][1] [4][3] [2][0]
-    vpblendd    $0b11000000,%ymm12,%ymm3,%ymm3      // [3][2] [1][3] [4][4] [2][0]
-    vpblendd    $0b11000000,%ymm13,%ymm15,%ymm15    // [3][3] [1][4] [4][0] [2][1]
-    vpblendd    $0b11000000,%ymm13,%ymm5,%ymm5      // [3][3] [1][0] [4][2] [2][4]
-    vpblendd    $0b11000000,%ymm11,%ymm14,%ymm14    // [3][4] [1][1] [4][3] [2][0]
-    vpandn      %ymm15,%ymm3,%ymm3                  // tgting  [3][1] [1][2] [4][3] [2][4]
-    vpandn      %ymm14,%ymm5,%ymm5                  // tgting  [3][2] [1][4] [4][1] [2][3]
+vpblendd $0b00001100, %ymm13,  %ymm9,  %ymm3 //               [4][4] [2][0]
+vpblendd $0b00001100,  %ymm9, %ymm11, %ymm15 //               [4][0] [2][1]
+vpblendd $0b00001100, %ymm11, %ymm10,  %ymm5 //               [4][2] [2][4]
+vpblendd $0b00001100, %ymm10,  %ymm9, %ymm14 //               [4][3] [2][0]
+vpblendd $0b00110000, %ymm11,  %ymm3,  %ymm3 //        [1][3] [4][4] [2][0]
+vpblendd $0b00110000, %ymm12, %ymm15, %ymm15 //        [1][4] [4][0] [2][1]
+vpblendd $0b00110000,  %ymm9,  %ymm5,  %ymm5 //        [1][0] [4][2] [2][4]
+vpblendd $0b00110000, %ymm13, %ymm14, %ymm14 //        [1][1] [4][3] [2][0]
+vpblendd $0b11000000, %ymm12,  %ymm3,  %ymm3 // [3][2] [1][3] [4][4] [2][0]
+vpblendd $0b11000000, %ymm13, %ymm15, %ymm15 // [3][3] [1][4] [4][0] [2][1]
+vpblendd $0b11000000, %ymm13,  %ymm5,  %ymm5 // [3][3] [1][0] [4][2] [2][4]
+vpblendd $0b11000000, %ymm11, %ymm14, %ymm14 // [3][4] [1][1] [4][3] [2][0]
+vpandn %ymm15, %ymm3, %ymm3                  // tgting  [3][1] [1][2] [4][3] [2][4]
+vpandn %ymm14, %ymm5, %ymm5                  // tgting  [3][2] [1][4] [4][1] [2][3]
 
-    vpblendd    $0b00001100,%ymm9,%ymm12,%ymm6      //               [4][0] [2][3]
-    vpblendd    $0b00001100,%ymm12,%ymm10,%ymm15    //               [4][1] [2][4]
-    vpxor       %ymm10,%ymm3,%ymm3
-    vpblendd    $0b00110000,%ymm10,%ymm6,%ymm6      //        [1][2] [4][0] [2][3]
-    vpblendd    $0b00110000,%ymm11,%ymm15,%ymm15    //        [1][3] [4][1] [2][4]
-    vpxor       %ymm12,%ymm5,%ymm5
-    vpblendd    $0b11000000,%ymm11,%ymm6,%ymm6      // [3][4] [1][2] [4][0] [2][3]
-    vpblendd    $0b11000000,%ymm9,%ymm15,%ymm15     // [3][0] [1][3] [4][1] [2][4]
-    vpandn      %ymm15,%ymm6,%ymm6                  // tgting  [3][3] [1][1] [4][4] [2][2]
-    vpxor       %ymm13,%ymm6,%ymm6
+vpblendd $0b00001100,  %ymm9, %ymm12,  %ymm6 //               [4][0] [2][3]
+vpblendd $0b00001100, %ymm12, %ymm10, %ymm15 //               [4][1] [2][4]
+vpxor  %ymm10, %ymm3, %ymm3
+vpblendd $0b00110000, %ymm10,  %ymm6,  %ymm6 //        [1][2] [4][0] [2][3]
+vpblendd $0b00110000, %ymm11, %ymm15, %ymm15 //        [1][3] [4][1] [2][4]
+vpxor  %ymm12, %ymm5, %ymm5
+vpblendd $0b11000000, %ymm11,  %ymm6,  %ymm6 // [3][4] [1][2] [4][0] [2][3]
+vpblendd $0b11000000,  %ymm9, %ymm15, %ymm15 // [3][0] [1][3] [4][1] [2][4]
+vpandn %ymm15, %ymm6, %ymm6                  // tgting  [3][3] [1][1] [4][4] [2][2]
+vpxor  %ymm13, %ymm6, %ymm6
 
-    vpermq      $0b00011110,%ymm8,%ymm4             // [0][1] [0][2] [0][4] [0][3]
-    vpblendd    $0b00110000,%ymm0,%ymm4,%ymm15      // [0][1] [0][0] [0][4] [0][3]
-    vpermq      $0b00111001,%ymm8,%ymm1             // [0][1] [0][4] [0][3] [0][2]
-    vpblendd    $0b11000000,%ymm0,%ymm1,%ymm1       // [0][0] [0][4] [0][3] [0][2]
-    vpandn      %ymm15,%ymm1,%ymm1                  // tgting  [0][4] [0][3] [0][2] [0][1]
+vpermq $0b00011110, %ymm8, %ymm4           // [0][1] [0][2] [0][4] [0][3]
+vpblendd $0b00110000, %ymm0, %ymm4, %ymm15 // [0][1] [0][0] [0][4] [0][3]
+vpermq $0b00111001, %ymm8, %ymm1           // [0][1] [0][4] [0][3] [0][2]
+vpblendd $0b11000000, %ymm0, %ymm1,  %ymm1 // [0][0] [0][4] [0][3] [0][2]
+vpandn      %ymm15, %ymm1, %ymm1           // tgting  [0][4] [0][3] [0][2] [0][1]
 
-    vpblendd    $0b00001100,%ymm12,%ymm11,%ymm2     //               [4][1] [2][1]
-    vpblendd    $0b00001100,%ymm11,%ymm13,%ymm14    //               [4][2] [2][2]
-    vpblendd    $0b00110000,%ymm13,%ymm2,%ymm2      //        [1][1] [4][1] [2][1]
-    vpblendd    $0b00110000,%ymm10,%ymm14,%ymm14    //        [1][2] [4][2] [2][2]
-    vpblendd    $0b11000000,%ymm10,%ymm2,%ymm2      // [3][1] [1][1] [4][1] [2][1]
-    vpblendd    $0b11000000,%ymm12,%ymm14,%ymm14    // [3][2] [1][2] [4][2] [2][2]
-    vpandn      %ymm14,%ymm2,%ymm2                  // tgting  [3][0] [1][0] [4][0] [2][0]
-    vpxor       %ymm9,%ymm2,%ymm2
+vpblendd $0b00001100, %ymm12, %ymm11,  %ymm2 //               [4][1] [2][1]
+vpblendd $0b00001100, %ymm11, %ymm13, %ymm14 //               [4][2] [2][2]
+vpblendd $0b00110000, %ymm13,  %ymm2,  %ymm2 //        [1][1] [4][1] [2][1]
+vpblendd $0b00110000, %ymm10, %ymm14, %ymm14 //        [1][2] [4][2] [2][2]
+vpblendd $0b11000000, %ymm10,  %ymm2,  %ymm2 // [3][1] [1][1] [4][1] [2][1]
+vpblendd $0b11000000, %ymm12, %ymm14, %ymm14 // [3][2] [1][2] [4][2] [2][2]
+vpandn %ymm14, %ymm2, %ymm2                  // tgting  [3][0] [1][0] [4][0] [2][0]
+vpxor   %ymm9, %ymm2, %ymm2
 
-    vpermq      $0b00000000,%ymm7,%ymm7             // [0][0] [0][0] [0][0] [0][0]
-    vpermq      $0b00011011,%ymm3,%ymm3             // post-Chi shuffle
-    vpermq      $0b10001101,%ymm5,%ymm5
-    vpermq      $0b01110010,%ymm6,%ymm6
+vpermq $0b00000000, %ymm7, %ymm7 // [0][0] [0][0] [0][0] [0][0]
+vpermq $0b00011011, %ymm3, %ymm3 // post-Chi shuffle
+vpermq $0b10001101, %ymm5, %ymm5
+vpermq $0b01110010, %ymm6, %ymm6
 
-    vpblendd    $0b00001100,%ymm10,%ymm13,%ymm4     //               [4][3] [2][2]
-    vpblendd    $0b00001100,%ymm13,%ymm12,%ymm14    //               [4][4] [2][3]
-    vpblendd    $0b00110000,%ymm12,%ymm4,%ymm4      //        [1][4] [4][3] [2][2]
-    vpblendd    $0b00110000,%ymm9,%ymm14,%ymm14     //        [1][0] [4][4] [2][3]
-    vpblendd    $0b11000000,%ymm9,%ymm4,%ymm4       // [3][0] [1][4] [4][3] [2][2]
-    vpblendd    $0b11000000,%ymm10,%ymm14,%ymm14    // [3][1] [1][0] [4][4] [2][3]
-    vpandn      %ymm14,%ymm4,%ymm4                  // tgting  [3][4] [1][3] [4][2] [2][1]
+vpblendd $0b00001100, %ymm10, %ymm13,  %ymm4 //               [4][3] [2][2]
+vpblendd $0b00001100, %ymm13, %ymm12, %ymm14 //               [4][4] [2][3]
+vpblendd $0b00110000, %ymm12,  %ymm4,  %ymm4 //        [1][4] [4][3] [2][2]
+vpblendd $0b00110000,  %ymm9, %ymm14, %ymm14 //        [1][0] [4][4] [2][3]
+vpblendd $0b11000000,  %ymm9,  %ymm4,  %ymm4 // [3][0] [1][4] [4][3] [2][2]
+vpblendd $0b11000000, %ymm10, %ymm14, %ymm14 // [3][1] [1][0] [4][4] [2][3]
+vpandn %ymm14, %ymm4, %ymm4                  // tgting  [3][4] [1][3] [4][2] [2][1]
 
-    vpxor       %ymm7,%ymm0,%ymm0
-    vpxor       %ymm8,%ymm1,%ymm1
-    vpxor       %ymm11,%ymm4,%ymm4
+vpxor  %ymm7, %ymm0, %ymm0
+vpxor  %ymm8, %ymm1, %ymm1
+vpxor %ymm11, %ymm4, %ymm4
 
     //######################################## Iota
-    vpxor       (%r10),%ymm0,%ymm0
-    lea         32(%r10),%r10
+vpxor (%r10), %ymm0, %ymm0
+lea 32(%r10), %r10
 
-    dec         %eax
-    jnz         NTRUPLUS_ASM_LOCAL(Loop_avx2)
-    ret
+dec         %eax
+jnz NTRUPLUS_ASM_LOCAL(Loop_avx2)
+ret
 #ifdef __ELF__
 .size   NTRUPLUS_ASM_LOCAL(KeccakF1600),.-NTRUPLUS_ASM_LOCAL(KeccakF1600)
 #endif
@@ -494,29 +496,29 @@ NTRUPLUS_ASM_LOCAL(Loop_avx2):
 //
 NTRUPLUS_ASM_START(KeccakP1600_Permute_24rounds)
 .balign 32
-    lea             NTRUPLUS_ASM_LOCAL(rhotates_left)+96(%rip),%r8
-    lea             NTRUPLUS_ASM_LOCAL(rhotates_right)+96(%rip),%r9
-    lea             NTRUPLUS_ASM_LOCAL(iotas)(%rip),%r10
-    mov             $24,%eax
-    lea             96(%rdi),%rdi
-    vzeroupper
-    vpbroadcastq    -96(%rdi),%ymm0         // load A[5][5]
-    vmovdqu         8+32*0-96(%rdi),%ymm1
-    vmovdqu         8+32*1-96(%rdi),%ymm2
-    vmovdqu         8+32*2-96(%rdi),%ymm3
-    vmovdqu         8+32*3-96(%rdi),%ymm4
-    vmovdqu         8+32*4-96(%rdi),%ymm5
-    vmovdqu         8+32*5-96(%rdi),%ymm6
-    call            NTRUPLUS_ASM_LOCAL(KeccakF1600)
-    vmovq           %xmm0,-96(%rdi)
-    vmovdqu         %ymm1,8+32*0-96(%rdi)
-    vmovdqu         %ymm2,8+32*1-96(%rdi)
-    vmovdqu         %ymm3,8+32*2-96(%rdi)
-    vmovdqu         %ymm4,8+32*3-96(%rdi)
-    vmovdqu         %ymm5,8+32*4-96(%rdi)
-    vmovdqu         %ymm6,8+32*5-96(%rdi)
-    vzeroupper
-    ret
+lea NTRUPLUS_ASM_LOCAL(rhotates_left)+96(%rip), %r8
+lea NTRUPLUS_ASM_LOCAL(rhotates_right)+96(%rip), %r9
+lea NTRUPLUS_ASM_LOCAL(iotas)(%rip), %r10
+mov $24, %eax
+lea 96(%rdi), %rdi
+vzeroupper
+vpbroadcastq -96(%rdi), %ymm0 // load A[5][5]
+vmovdqu 8+32*0-96(%rdi),           %ymm1
+vmovdqu 8+32*1-96(%rdi),           %ymm2
+vmovdqu 8+32*2-96(%rdi),           %ymm3
+vmovdqu 8+32*3-96(%rdi),           %ymm4
+vmovdqu 8+32*4-96(%rdi),           %ymm5
+vmovdqu 8+32*5-96(%rdi),           %ymm6
+call            NTRUPLUS_ASM_LOCAL(KeccakF1600)
+vmovq             %xmm0,       -96(%rdi)
+vmovdqu           %ymm1, 8+32*0-96(%rdi)
+vmovdqu           %ymm2, 8+32*1-96(%rdi)
+vmovdqu           %ymm3, 8+32*2-96(%rdi)
+vmovdqu           %ymm4, 8+32*3-96(%rdi)
+vmovdqu           %ymm5, 8+32*4-96(%rdi)
+vmovdqu           %ymm6, 8+32*5-96(%rdi)
+vzeroupper
+ret
 NTRUPLUS_ASM_END(KeccakP1600_Permute_24rounds)
 
 
@@ -527,29 +529,29 @@ NTRUPLUS_ASM_END(KeccakP1600_Permute_24rounds)
 //
 NTRUPLUS_ASM_START(KeccakP1600_Permute_12rounds)
 .balign 32
-    lea             NTRUPLUS_ASM_LOCAL(rhotates_left)+96(%rip),%r8
-    lea             NTRUPLUS_ASM_LOCAL(rhotates_right)+96(%rip),%r9
-    lea             NTRUPLUS_ASM_LOCAL(iotas)+12*4*8(%rip),%r10
-    mov             $12,%eax
-    lea             96(%rdi),%rdi
-    vzeroupper
-    vpbroadcastq    -96(%rdi),%ymm0         // load A[5][5]
-    vmovdqu         8+32*0-96(%rdi),%ymm1
-    vmovdqu         8+32*1-96(%rdi),%ymm2
-    vmovdqu         8+32*2-96(%rdi),%ymm3
-    vmovdqu         8+32*3-96(%rdi),%ymm4
-    vmovdqu         8+32*4-96(%rdi),%ymm5
-    vmovdqu         8+32*5-96(%rdi),%ymm6
-    call            NTRUPLUS_ASM_LOCAL(KeccakF1600)
-    vmovq           %xmm0,-96(%rdi)
-    vmovdqu         %ymm1,8+32*0-96(%rdi)
-    vmovdqu         %ymm2,8+32*1-96(%rdi)
-    vmovdqu         %ymm3,8+32*2-96(%rdi)
-    vmovdqu         %ymm4,8+32*3-96(%rdi)
-    vmovdqu         %ymm5,8+32*4-96(%rdi)
-    vmovdqu         %ymm6,8+32*5-96(%rdi)
-    vzeroupper
-    ret
+lea NTRUPLUS_ASM_LOCAL(rhotates_left)+96(%rip), %r8
+lea NTRUPLUS_ASM_LOCAL(rhotates_right)+96(%rip), %r9
+lea NTRUPLUS_ASM_LOCAL(iotas)+12*4*8(%rip), %r10
+mov $12, %eax
+lea 96(%rdi), %rdi
+vzeroupper
+vpbroadcastq -96(%rdi), %ymm0 // load A[5][5]
+vmovdqu 8+32*0-96(%rdi),           %ymm1
+vmovdqu 8+32*1-96(%rdi),           %ymm2
+vmovdqu 8+32*2-96(%rdi),           %ymm3
+vmovdqu 8+32*3-96(%rdi),           %ymm4
+vmovdqu 8+32*4-96(%rdi),           %ymm5
+vmovdqu 8+32*5-96(%rdi),           %ymm6
+call            NTRUPLUS_ASM_LOCAL(KeccakF1600)
+vmovq             %xmm0,       -96(%rdi)
+vmovdqu           %ymm1, 8+32*0-96(%rdi)
+vmovdqu           %ymm2, 8+32*1-96(%rdi)
+vmovdqu           %ymm3, 8+32*2-96(%rdi)
+vmovdqu           %ymm4, 8+32*3-96(%rdi)
+vmovdqu           %ymm5, 8+32*4-96(%rdi)
+vmovdqu           %ymm6, 8+32*5-96(%rdi)
+vzeroupper
+ret
 NTRUPLUS_ASM_END(KeccakP1600_Permute_12rounds)
 
 
@@ -560,31 +562,31 @@ NTRUPLUS_ASM_END(KeccakP1600_Permute_12rounds)
 //
 NTRUPLUS_ASM_START(KeccakP1600_Permute_Nrounds)
 .balign 32
-    lea             NTRUPLUS_ASM_LOCAL(rhotates_left)+96(%rip),%r8
-    lea             NTRUPLUS_ASM_LOCAL(rhotates_right)+96(%rip),%r9
-    lea             NTRUPLUS_ASM_LOCAL(iotas)+24*4*8(%rip),%r10
-    mov             %rsi,%rax
-    shl             $2+3,%rsi
-    sub             %rsi, %r10
-    lea             96(%rdi),%rdi
-    vzeroupper
-    vpbroadcastq    -96(%rdi),%ymm0         // load A[5][5]
-    vmovdqu         8+32*0-96(%rdi),%ymm1
-    vmovdqu         8+32*1-96(%rdi),%ymm2
-    vmovdqu         8+32*2-96(%rdi),%ymm3
-    vmovdqu         8+32*3-96(%rdi),%ymm4
-    vmovdqu         8+32*4-96(%rdi),%ymm5
-    vmovdqu         8+32*5-96(%rdi),%ymm6
-    call            NTRUPLUS_ASM_LOCAL(KeccakF1600)
-    vmovq           %xmm0,-96(%rdi)
-    vmovdqu         %ymm1,8+32*0-96(%rdi)
-    vmovdqu         %ymm2,8+32*1-96(%rdi)
-    vmovdqu         %ymm3,8+32*2-96(%rdi)
-    vmovdqu         %ymm4,8+32*3-96(%rdi)
-    vmovdqu         %ymm5,8+32*4-96(%rdi)
-    vmovdqu         %ymm6,8+32*5-96(%rdi)
-    vzeroupper
-    ret
+lea NTRUPLUS_ASM_LOCAL(rhotates_left)+96(%rip), %r8
+lea NTRUPLUS_ASM_LOCAL(rhotates_right)+96(%rip), %r9
+lea NTRUPLUS_ASM_LOCAL(iotas)+24*4*8(%rip), %r10
+mov %rsi, %rax
+shl             $2+3,%rsi
+sub %rsi, %r10
+lea 96(%rdi), %rdi
+vzeroupper
+vpbroadcastq -96(%rdi), %ymm0 // load A[5][5]
+vmovdqu 8+32*0-96(%rdi),           %ymm1
+vmovdqu 8+32*1-96(%rdi),           %ymm2
+vmovdqu 8+32*2-96(%rdi),           %ymm3
+vmovdqu 8+32*3-96(%rdi),           %ymm4
+vmovdqu 8+32*4-96(%rdi),           %ymm5
+vmovdqu 8+32*5-96(%rdi),           %ymm6
+call            NTRUPLUS_ASM_LOCAL(KeccakF1600)
+vmovq             %xmm0,       -96(%rdi)
+vmovdqu           %ymm1, 8+32*0-96(%rdi)
+vmovdqu           %ymm2, 8+32*1-96(%rdi)
+vmovdqu           %ymm3, 8+32*2-96(%rdi)
+vmovdqu           %ymm4, 8+32*3-96(%rdi)
+vmovdqu           %ymm5, 8+32*4-96(%rdi)
+vmovdqu           %ymm6, 8+32*5-96(%rdi)
+vzeroupper
+ret
 NTRUPLUS_ASM_END(KeccakP1600_Permute_Nrounds)
 
 
@@ -595,172 +597,172 @@ NTRUPLUS_ASM_END(KeccakP1600_Permute_Nrounds)
 //
 NTRUPLUS_ASM_START(KeccakF1600_FastLoop_Absorb)
 .balign 32
-    push            %rbx
-    push            %r10
-    shr             $3, %rcx                // rcx = data length in lanes
-    mov             %rdx, %rbx              // rbx = initial data pointer
-    cmp             %rsi, %rcx
-    jb              NTRUPLUS_ASM_LOCAL(KeccakF1600_FastLoop_Absorb_Exit)
-    vzeroupper
-    cmp             $21, %rsi
-    jnz             NTRUPLUS_ASM_LOCAL(KeccakF1600_FastLoop_Absorb_Not21Lanes)
-    sub             $21, %rcx
-    lea             NTRUPLUS_ASM_LOCAL(rhotates_left)+96(%rip),%r8
-    lea             NTRUPLUS_ASM_LOCAL(rhotates_right)+96(%rip),%r9
-    lea             96(%rdi),%rdi
-    vpbroadcastq    -96(%rdi),%ymm0         // load A[5][5]
-    vmovdqu         8+32*0-96(%rdi),%ymm1
-    vmovdqu         8+32*1-96(%rdi),%ymm2
-    vmovdqu         8+32*2-96(%rdi),%ymm3
-    vmovdqu         8+32*3-96(%rdi),%ymm4
-    vmovdqu         8+32*4-96(%rdi),%ymm5
-    vmovdqu         8+32*5-96(%rdi),%ymm6
+push %rbx
+push %r10
+shr             $3, %rcx      // rcx = data length in lanes
+mov %rdx, %rbx                // rbx = initial data pointer
+cmp %rsi, %rcx
+jb NTRUPLUS_ASM_LOCAL(KeccakF1600_FastLoop_Absorb_Exit)
+vzeroupper
+cmp $21, %rsi
+jnz NTRUPLUS_ASM_LOCAL(KeccakF1600_FastLoop_Absorb_Not21Lanes)
+sub $21, %rcx
+lea NTRUPLUS_ASM_LOCAL(rhotates_left)+96(%rip), %r8
+lea NTRUPLUS_ASM_LOCAL(rhotates_right)+96(%rip), %r9
+lea 96(%rdi), %rdi
+vpbroadcastq -96(%rdi), %ymm0 // load A[5][5]
+vmovdqu 8+32*0-96(%rdi), %ymm1
+vmovdqu 8+32*1-96(%rdi), %ymm2
+vmovdqu 8+32*2-96(%rdi), %ymm3
+vmovdqu 8+32*3-96(%rdi), %ymm4
+vmovdqu 8+32*4-96(%rdi), %ymm5
+vmovdqu 8+32*5-96(%rdi), %ymm6
 NTRUPLUS_ASM_LOCAL(KeccakF1600_FastLoop_Absorb_Loop21Lanes):
-    vpbroadcastq    (%rdx),%ymm7
-    vmovdqu         8(%rdx),%ymm8
+vpbroadcastq    (%rdx), %ymm7
+vmovdqu         8(%rdx), %ymm8
 
-    vmovdqa         NTRUPLUS_ASM_LOCAL(map2)(%rip), %xmm15
-    vpcmpeqd        %ymm14, %ymm14, %ymm14
-    vpgatherdq      %ymm14, (%rdx, %xmm15, 1), %ymm9
+vmovdqa NTRUPLUS_ASM_LOCAL(map2)(%rip), %xmm15
+vpcmpeqd   %ymm14,            %ymm14, %ymm14
+vpgatherdq %ymm14, (%rdx, %xmm15, 1),  %ymm9
 
-    vmovdqa         NTRUPLUS_ASM_LOCAL(mask3_21)(%rip), %ymm14
-    vpxor           %ymm10, %ymm10, %ymm10
-    vmovdqa         NTRUPLUS_ASM_LOCAL(map3)(%rip), %xmm15
-    vpgatherdq      %ymm14, (%rdx, %xmm15, 1), %ymm10
+vmovdqa NTRUPLUS_ASM_LOCAL(mask3_21)(%rip), %ymm14
+vpxor      %ymm10,            %ymm10, %ymm10
+vmovdqa     NTRUPLUS_ASM_LOCAL(map3)(%rip), %xmm15
+vpgatherdq %ymm14, (%rdx, %xmm15, 1), %ymm10
 
-    vmovdqa         NTRUPLUS_ASM_LOCAL(mask4_21)(%rip), %ymm14
-    vpxor           %ymm11, %ymm11, %ymm11
-    vmovdqa         NTRUPLUS_ASM_LOCAL(map4)(%rip), %xmm15
-    vpgatherdq      %ymm14, (%rdx, %xmm15, 1), %ymm11
+vmovdqa NTRUPLUS_ASM_LOCAL(mask4_21)(%rip), %ymm14
+vpxor      %ymm11,            %ymm11, %ymm11
+vmovdqa     NTRUPLUS_ASM_LOCAL(map4)(%rip), %xmm15
+vpgatherdq %ymm14, (%rdx, %xmm15, 1), %ymm11
 
-    vmovdqa         NTRUPLUS_ASM_LOCAL(mask5_21)(%rip), %ymm14
-    vpxor           %ymm12, %ymm12, %ymm12
-    vmovdqa         NTRUPLUS_ASM_LOCAL(map5)(%rip), %xmm15
-    vpgatherdq      %ymm14, (%rdx, %xmm15, 1), %ymm12
+vmovdqa NTRUPLUS_ASM_LOCAL(mask5_21)(%rip), %ymm14
+vpxor      %ymm12,            %ymm12, %ymm12
+vmovdqa     NTRUPLUS_ASM_LOCAL(map5)(%rip), %xmm15
+vpgatherdq %ymm14, (%rdx, %xmm15, 1), %ymm12
 
-    vmovdqa         NTRUPLUS_ASM_LOCAL(mask6_21)(%rip), %ymm14
-    vpxor           %ymm13, %ymm13, %ymm13
-    vmovdqa         NTRUPLUS_ASM_LOCAL(map6)(%rip), %xmm15
-    vpgatherdq      %ymm14, (%rdx, %xmm15, 1), %ymm13
+vmovdqa NTRUPLUS_ASM_LOCAL(mask6_21)(%rip), %ymm14
+vpxor      %ymm13,            %ymm13, %ymm13
+vmovdqa     NTRUPLUS_ASM_LOCAL(map6)(%rip), %xmm15
+vpgatherdq %ymm14, (%rdx, %xmm15, 1), %ymm13
 
-    vpxor           %ymm7,%ymm0,%ymm0
-    vpxor           %ymm8,%ymm1,%ymm1
-    vpxor           %ymm9,%ymm2,%ymm2
-    vpxor           %ymm10,%ymm3,%ymm3
-    vpxor           %ymm11,%ymm4,%ymm4
-    vpxor           %ymm12,%ymm5,%ymm5
-    vpxor           %ymm13,%ymm6,%ymm6
-    add             $21*8, %rdx
-    lea             NTRUPLUS_ASM_LOCAL(iotas)(%rip),%r10
-    mov             $24,%eax
-    call            NTRUPLUS_ASM_LOCAL(KeccakF1600)
-    sub             $21, %rcx
-    jnc             NTRUPLUS_ASM_LOCAL(KeccakF1600_FastLoop_Absorb_Loop21Lanes)
+vpxor  %ymm7, %ymm0, %ymm0
+vpxor  %ymm8, %ymm1, %ymm1
+vpxor  %ymm9, %ymm2, %ymm2
+vpxor %ymm10, %ymm3, %ymm3
+vpxor %ymm11, %ymm4, %ymm4
+vpxor %ymm12, %ymm5, %ymm5
+vpxor %ymm13, %ymm6, %ymm6
+add $21*8, %rdx
+lea NTRUPLUS_ASM_LOCAL(iotas)(%rip), %r10
+mov $24, %eax
+call            NTRUPLUS_ASM_LOCAL(KeccakF1600)
+sub $21, %rcx
+jnc             NTRUPLUS_ASM_LOCAL(KeccakF1600_FastLoop_Absorb_Loop21Lanes)
 NTRUPLUS_ASM_LOCAL(KeccakF1600_FastLoop_Absorb_SaveAndExit):
-    vmovq           %xmm0,-96(%rdi)
-    vmovdqu         %ymm1,8+32*0-96(%rdi)
-    vmovdqu         %ymm2,8+32*1-96(%rdi)
-    vmovdqu         %ymm3,8+32*2-96(%rdi)
-    vmovdqu         %ymm4,8+32*3-96(%rdi)
-    vmovdqu         %ymm5,8+32*4-96(%rdi)
-    vmovdqu         %ymm6,8+32*5-96(%rdi)
+vmovq             %xmm0,       -96(%rdi)
+vmovdqu           %ymm1, 8+32*0-96(%rdi)
+vmovdqu           %ymm2, 8+32*1-96(%rdi)
+vmovdqu           %ymm3, 8+32*2-96(%rdi)
+vmovdqu           %ymm4, 8+32*3-96(%rdi)
+vmovdqu           %ymm5, 8+32*4-96(%rdi)
+vmovdqu           %ymm6, 8+32*5-96(%rdi)
 NTRUPLUS_ASM_LOCAL(KeccakF1600_FastLoop_Absorb_Exit):
-    vzeroupper
-    mov             %rdx, %rax               // return number of bytes processed
-    sub             %rbx, %rax
-    pop             %r10
-    pop             %rbx
-    ret
+vzeroupper
+mov %rdx, %rax                // return number of bytes processed
+sub %rbx, %rax
+pop %r10
+pop %rbx
+ret
 NTRUPLUS_ASM_LOCAL(KeccakF1600_FastLoop_Absorb_Not21Lanes):
-    cmp             $17, %rsi
-    jnz             NTRUPLUS_ASM_LOCAL(KeccakF1600_FastLoop_Absorb_Not17Lanes)
-    sub             $17, %rcx
-    lea             NTRUPLUS_ASM_LOCAL(rhotates_left)+96(%rip),%r8
-    lea             NTRUPLUS_ASM_LOCAL(rhotates_right)+96(%rip),%r9
-    lea             96(%rdi),%rdi
-    vpbroadcastq    -96(%rdi),%ymm0         // load A[5][5]
-    vmovdqu         8+32*0-96(%rdi),%ymm1
-    vmovdqu         8+32*1-96(%rdi),%ymm2
-    vmovdqu         8+32*2-96(%rdi),%ymm3
-    vmovdqu         8+32*3-96(%rdi),%ymm4
-    vmovdqu         8+32*4-96(%rdi),%ymm5
-    vmovdqu         8+32*5-96(%rdi),%ymm6
+cmp $17, %rsi
+jnz NTRUPLUS_ASM_LOCAL(KeccakF1600_FastLoop_Absorb_Not17Lanes)
+sub $17, %rcx
+lea NTRUPLUS_ASM_LOCAL(rhotates_left)+96(%rip), %r8
+lea NTRUPLUS_ASM_LOCAL(rhotates_right)+96(%rip), %r9
+lea 96(%rdi), %rdi
+vpbroadcastq -96(%rdi), %ymm0 // load A[5][5]
+vmovdqu 8+32*0-96(%rdi),           %ymm1
+vmovdqu 8+32*1-96(%rdi),           %ymm2
+vmovdqu 8+32*2-96(%rdi),           %ymm3
+vmovdqu 8+32*3-96(%rdi),           %ymm4
+vmovdqu 8+32*4-96(%rdi),           %ymm5
+vmovdqu 8+32*5-96(%rdi),           %ymm6
 NTRUPLUS_ASM_LOCAL(KeccakF1600_FastLoop_Absorb_Loop17Lanes):
-    vpbroadcastq    (%rdx),%ymm7
-    vmovdqu         8(%rdx),%ymm8
+vpbroadcastq    (%rdx), %ymm7
+vmovdqu         8(%rdx),           %ymm8
 
-    vmovdqa         NTRUPLUS_ASM_LOCAL(mask2_17)(%rip), %ymm14
-    vpxor           %ymm9, %ymm9, %ymm9
-    vmovdqa         NTRUPLUS_ASM_LOCAL(map2)(%rip), %xmm15
-    vpgatherdq      %ymm14, (%rdx, %xmm15, 1), %ymm9
+vmovdqa NTRUPLUS_ASM_LOCAL(mask2_17)(%rip), %ymm14
+vpxor       %ymm9,             %ymm9, %ymm9
+vmovdqa     NTRUPLUS_ASM_LOCAL(map2)(%rip), %xmm15
+vpgatherdq %ymm14, (%rdx, %xmm15, 1), %ymm9
 
-    vmovdqa         NTRUPLUS_ASM_LOCAL(mask3_17)(%rip), %ymm14
-    vpxor           %ymm10, %ymm10, %ymm10
-    vmovdqa         NTRUPLUS_ASM_LOCAL(map3)(%rip), %xmm15
-    vpgatherdq      %ymm14, (%rdx, %xmm15, 1), %ymm10
+vmovdqa NTRUPLUS_ASM_LOCAL(mask3_17)(%rip), %ymm14
+vpxor      %ymm10,            %ymm10, %ymm10
+vmovdqa     NTRUPLUS_ASM_LOCAL(map3)(%rip), %xmm15
+vpgatherdq %ymm14, (%rdx, %xmm15, 1), %ymm10
 
-    vmovdqa         NTRUPLUS_ASM_LOCAL(mask4_17)(%rip), %ymm14
-    vpxor           %ymm11, %ymm11, %ymm11
-    vmovdqa         NTRUPLUS_ASM_LOCAL(map4)(%rip), %xmm15
-    vpgatherdq      %ymm14, (%rdx, %xmm15, 1), %ymm11
+vmovdqa NTRUPLUS_ASM_LOCAL(mask4_17)(%rip), %ymm14
+vpxor      %ymm11,            %ymm11, %ymm11
+vmovdqa     NTRUPLUS_ASM_LOCAL(map4)(%rip), %xmm15
+vpgatherdq %ymm14, (%rdx, %xmm15, 1), %ymm11
 
-    vmovdqa         NTRUPLUS_ASM_LOCAL(mask5_17)(%rip), %ymm14
-    vpxor           %ymm12, %ymm12, %ymm12
-    vmovdqa         NTRUPLUS_ASM_LOCAL(map5)(%rip), %xmm15
-    vpgatherdq      %ymm14, (%rdx, %xmm15, 1), %ymm12
+vmovdqa NTRUPLUS_ASM_LOCAL(mask5_17)(%rip), %ymm14
+vpxor      %ymm12,            %ymm12, %ymm12
+vmovdqa     NTRUPLUS_ASM_LOCAL(map5)(%rip), %xmm15
+vpgatherdq %ymm14, (%rdx, %xmm15, 1), %ymm12
 
-    vmovdqa         NTRUPLUS_ASM_LOCAL(mask6_17)(%rip), %ymm14
-    vpxor           %ymm13, %ymm13, %ymm13
-    vmovdqa         NTRUPLUS_ASM_LOCAL(map6)(%rip), %xmm15
-    vpgatherdq      %ymm14, (%rdx, %xmm15, 1), %ymm13
+vmovdqa NTRUPLUS_ASM_LOCAL(mask6_17)(%rip), %ymm14
+vpxor      %ymm13,            %ymm13, %ymm13
+vmovdqa     NTRUPLUS_ASM_LOCAL(map6)(%rip), %xmm15
+vpgatherdq %ymm14, (%rdx, %xmm15, 1), %ymm13
 
-    vpxor           %ymm7,%ymm0,%ymm0
-    vpxor           %ymm8,%ymm1,%ymm1
-    vpxor           %ymm9,%ymm2,%ymm2
-    vpxor           %ymm10,%ymm3,%ymm3
-    vpxor           %ymm11,%ymm4,%ymm4
-    vpxor           %ymm12,%ymm5,%ymm5
-    vpxor           %ymm13,%ymm6,%ymm6
-    add             $17*8, %rdx
-    lea             NTRUPLUS_ASM_LOCAL(iotas)(%rip),%r10
-    mov             $24,%eax
-    call            NTRUPLUS_ASM_LOCAL(KeccakF1600)
-    sub             $17, %rcx
-    jnc             NTRUPLUS_ASM_LOCAL(KeccakF1600_FastLoop_Absorb_Loop17Lanes)
-    jmp             NTRUPLUS_ASM_LOCAL(KeccakF1600_FastLoop_Absorb_SaveAndExit)
+vpxor  %ymm7, %ymm0, %ymm0
+vpxor  %ymm8, %ymm1, %ymm1
+vpxor  %ymm9, %ymm2, %ymm2
+vpxor %ymm10, %ymm3, %ymm3
+vpxor %ymm11, %ymm4, %ymm4
+vpxor %ymm12, %ymm5, %ymm5
+vpxor %ymm13, %ymm6, %ymm6
+add $17*8, %rdx
+lea NTRUPLUS_ASM_LOCAL(iotas)(%rip), %r10
+mov $24, %eax
+call            NTRUPLUS_ASM_LOCAL(KeccakF1600)
+sub $17, %rcx
+jnc             NTRUPLUS_ASM_LOCAL(KeccakF1600_FastLoop_Absorb_Loop17Lanes)
+jmp NTRUPLUS_ASM_LOCAL(KeccakF1600_FastLoop_Absorb_SaveAndExit)
 NTRUPLUS_ASM_LOCAL(KeccakF1600_FastLoop_Absorb_Not17Lanes):
-    lea             NTRUPLUS_ASM_LOCAL(mapState)(%rip), %r9
-    mov             %rsi, %rax
+lea NTRUPLUS_ASM_LOCAL(mapState)(%rip), %r9
+mov %rsi, %rax
 NTRUPLUS_ASM_LOCAL(KeccakF1600_FastLoop_Absorb_LanesAddLoop):
-    mov             (%rdx), %r8
-    add             $8, %rdx
-    mov             (%r9), %r10
-    add             $8, %r9
-    add             %rdi, %r10
-    xor             %r8, (%r10)
-    sub             $1, %rax
-    jnz             NTRUPLUS_ASM_LOCAL(KeccakF1600_FastLoop_Absorb_LanesAddLoop)
-    sub             %rsi, %rcx
-    push            %rdi
-    push            %rsi
-    push            %rdx
-    push            %rcx
+mov (%rdx), %r8
+add $8, %rdx
+mov (%r9), %r10
+add $8, %r9
+add %rdi, %r10
+xor %r8, (%r10)
+sub $1, %rax
+jnz NTRUPLUS_ASM_LOCAL(KeccakF1600_FastLoop_Absorb_LanesAddLoop)
+sub %rsi, %rcx
+push %rdi
+push %rsi
+push %rdx
+push %rcx
 .ifdef no_plt
-    call            NTRUPLUS_ASM_SYMBOL(KeccakP1600_Permute_24rounds)
+call            NTRUPLUS_ASM_SYMBOL(KeccakP1600_Permute_24rounds)
 .else
 #ifdef __ELF__
-    call            NTRUPLUS_ASM_SYMBOL(KeccakP1600_Permute_24rounds)@PLT
+call            NTRUPLUS_ASM_SYMBOL(KeccakP1600_Permute_24rounds)@PLT
 #else
-    call            NTRUPLUS_ASM_SYMBOL(KeccakP1600_Permute_24rounds)
+call            NTRUPLUS_ASM_SYMBOL(KeccakP1600_Permute_24rounds)
 #endif
 .endif
-    pop             %rcx
-    pop             %rdx
-    pop             %rsi
-    pop             %rdi
-    cmp             %rsi, %rcx
-    jae             NTRUPLUS_ASM_LOCAL(KeccakF1600_FastLoop_Absorb_Not17Lanes)
-    jmp             NTRUPLUS_ASM_LOCAL(KeccakF1600_FastLoop_Absorb_Exit)
+pop %rcx
+pop %rdx
+pop %rsi
+pop %rdi
+cmp %rsi, %rcx
+jae             NTRUPLUS_ASM_LOCAL(KeccakF1600_FastLoop_Absorb_Not17Lanes)
+jmp NTRUPLUS_ASM_LOCAL(KeccakF1600_FastLoop_Absorb_Exit)
 NTRUPLUS_ASM_END(KeccakF1600_FastLoop_Absorb)
 
 
@@ -771,172 +773,172 @@ NTRUPLUS_ASM_END(KeccakF1600_FastLoop_Absorb)
 //
 NTRUPLUS_ASM_START(KeccakP1600_12rounds_FastLoop_Absorb)
 .balign 32
-    push            %rbx
-    push            %r10
-    shr             $3, %rcx                // rcx = data length in lanes
-    mov             %rdx, %rbx              // rbx = initial data pointer
-    cmp             %rsi, %rcx
-    jb              NTRUPLUS_ASM_LOCAL(KeccakP1600_12rounds_FastLoop_Absorb_Exit)
-    vzeroupper
-    cmp             $21, %rsi
-    jnz             NTRUPLUS_ASM_LOCAL(KeccakP1600_12rounds_FastLoop_Absorb_Not21Lanes)
-    sub             $21, %rcx
-    lea             NTRUPLUS_ASM_LOCAL(rhotates_left)+96(%rip),%r8
-    lea             NTRUPLUS_ASM_LOCAL(rhotates_right)+96(%rip),%r9
-    lea             96(%rdi),%rdi
-    vpbroadcastq    -96(%rdi),%ymm0         // load A[5][5]
-    vmovdqu         8+32*0-96(%rdi),%ymm1
-    vmovdqu         8+32*1-96(%rdi),%ymm2
-    vmovdqu         8+32*2-96(%rdi),%ymm3
-    vmovdqu         8+32*3-96(%rdi),%ymm4
-    vmovdqu         8+32*4-96(%rdi),%ymm5
-    vmovdqu         8+32*5-96(%rdi),%ymm6
+push %rbx
+push %r10
+shr             $3, %rcx      // rcx = data length in lanes
+mov %rdx, %rbx                // rbx = initial data pointer
+cmp %rsi, %rcx
+jb NTRUPLUS_ASM_LOCAL(KeccakP1600_12rounds_FastLoop_Absorb_Exit)
+vzeroupper
+cmp $21, %rsi
+jnz NTRUPLUS_ASM_LOCAL(KeccakP1600_12rounds_FastLoop_Absorb_Not21Lanes)
+sub $21, %rcx
+lea NTRUPLUS_ASM_LOCAL(rhotates_left)+96(%rip), %r8
+lea NTRUPLUS_ASM_LOCAL(rhotates_right)+96(%rip), %r9
+lea 96(%rdi), %rdi
+vpbroadcastq -96(%rdi), %ymm0 // load A[5][5]
+vmovdqu 8+32*0-96(%rdi), %ymm1
+vmovdqu 8+32*1-96(%rdi), %ymm2
+vmovdqu 8+32*2-96(%rdi), %ymm3
+vmovdqu 8+32*3-96(%rdi), %ymm4
+vmovdqu 8+32*4-96(%rdi), %ymm5
+vmovdqu 8+32*5-96(%rdi), %ymm6
 NTRUPLUS_ASM_LOCAL(KeccakP1600_12rounds_FastLoop_Absorb_Loop21Lanes):
-    vpbroadcastq    (%rdx),%ymm7
-    vmovdqu         8(%rdx),%ymm8
+vpbroadcastq    (%rdx), %ymm7
+vmovdqu         8(%rdx), %ymm8
 
-    vmovdqa         NTRUPLUS_ASM_LOCAL(map2)(%rip), %xmm15
-    vpcmpeqd        %ymm14, %ymm14, %ymm14
-    vpgatherdq      %ymm14, (%rdx, %xmm15, 1), %ymm9
+vmovdqa NTRUPLUS_ASM_LOCAL(map2)(%rip), %xmm15
+vpcmpeqd   %ymm14,            %ymm14, %ymm14
+vpgatherdq %ymm14, (%rdx, %xmm15, 1),  %ymm9
 
-    vmovdqa         NTRUPLUS_ASM_LOCAL(mask3_21)(%rip), %ymm14
-    vpxor           %ymm10, %ymm10, %ymm10
-    vmovdqa         NTRUPLUS_ASM_LOCAL(map3)(%rip), %xmm15
-    vpgatherdq      %ymm14, (%rdx, %xmm15, 1), %ymm10
+vmovdqa NTRUPLUS_ASM_LOCAL(mask3_21)(%rip), %ymm14
+vpxor      %ymm10,            %ymm10, %ymm10
+vmovdqa     NTRUPLUS_ASM_LOCAL(map3)(%rip), %xmm15
+vpgatherdq %ymm14, (%rdx, %xmm15, 1), %ymm10
 
-    vmovdqa         NTRUPLUS_ASM_LOCAL(mask4_21)(%rip), %ymm14
-    vpxor           %ymm11, %ymm11, %ymm11
-    vmovdqa         NTRUPLUS_ASM_LOCAL(map4)(%rip), %xmm15
-    vpgatherdq      %ymm14, (%rdx, %xmm15, 1), %ymm11
+vmovdqa NTRUPLUS_ASM_LOCAL(mask4_21)(%rip), %ymm14
+vpxor      %ymm11,            %ymm11, %ymm11
+vmovdqa     NTRUPLUS_ASM_LOCAL(map4)(%rip), %xmm15
+vpgatherdq %ymm14, (%rdx, %xmm15, 1), %ymm11
 
-    vmovdqa         NTRUPLUS_ASM_LOCAL(mask5_21)(%rip), %ymm14
-    vpxor           %ymm12, %ymm12, %ymm12
-    vmovdqa         NTRUPLUS_ASM_LOCAL(map5)(%rip), %xmm15
-    vpgatherdq      %ymm14, (%rdx, %xmm15, 1), %ymm12
+vmovdqa NTRUPLUS_ASM_LOCAL(mask5_21)(%rip), %ymm14
+vpxor      %ymm12,            %ymm12, %ymm12
+vmovdqa     NTRUPLUS_ASM_LOCAL(map5)(%rip), %xmm15
+vpgatherdq %ymm14, (%rdx, %xmm15, 1), %ymm12
 
-    vmovdqa         NTRUPLUS_ASM_LOCAL(mask6_21)(%rip), %ymm14
-    vpxor           %ymm13, %ymm13, %ymm13
-    vmovdqa         NTRUPLUS_ASM_LOCAL(map6)(%rip), %xmm15
-    vpgatherdq      %ymm14, (%rdx, %xmm15, 1), %ymm13
+vmovdqa NTRUPLUS_ASM_LOCAL(mask6_21)(%rip), %ymm14
+vpxor      %ymm13,            %ymm13, %ymm13
+vmovdqa     NTRUPLUS_ASM_LOCAL(map6)(%rip), %xmm15
+vpgatherdq %ymm14, (%rdx, %xmm15, 1), %ymm13
 
-    vpxor           %ymm7,%ymm0,%ymm0
-    vpxor           %ymm8,%ymm1,%ymm1
-    vpxor           %ymm9,%ymm2,%ymm2
-    vpxor           %ymm10,%ymm3,%ymm3
-    vpxor           %ymm11,%ymm4,%ymm4
-    vpxor           %ymm12,%ymm5,%ymm5
-    vpxor           %ymm13,%ymm6,%ymm6
-    add             $21*8, %rdx
-    lea             NTRUPLUS_ASM_LOCAL(iotas)+12*4*8(%rip),%r10
-    mov             $12,%eax
-    call            NTRUPLUS_ASM_LOCAL(KeccakF1600)
-    sub             $21, %rcx
-    jnc             NTRUPLUS_ASM_LOCAL(KeccakP1600_12rounds_FastLoop_Absorb_Loop21Lanes)
+vpxor  %ymm7, %ymm0, %ymm0
+vpxor  %ymm8, %ymm1, %ymm1
+vpxor  %ymm9, %ymm2, %ymm2
+vpxor %ymm10, %ymm3, %ymm3
+vpxor %ymm11, %ymm4, %ymm4
+vpxor %ymm12, %ymm5, %ymm5
+vpxor %ymm13, %ymm6, %ymm6
+add $21*8, %rdx
+lea NTRUPLUS_ASM_LOCAL(iotas)+12*4*8(%rip), %r10
+mov $12, %eax
+call            NTRUPLUS_ASM_LOCAL(KeccakF1600)
+sub $21, %rcx
+jnc             NTRUPLUS_ASM_LOCAL(KeccakP1600_12rounds_FastLoop_Absorb_Loop21Lanes)
 NTRUPLUS_ASM_LOCAL(KeccakP1600_12rounds_FastLoop_Absorb_SaveAndExit):
-    vmovq           %xmm0,-96(%rdi)
-    vmovdqu         %ymm1,8+32*0-96(%rdi)
-    vmovdqu         %ymm2,8+32*1-96(%rdi)
-    vmovdqu         %ymm3,8+32*2-96(%rdi)
-    vmovdqu         %ymm4,8+32*3-96(%rdi)
-    vmovdqu         %ymm5,8+32*4-96(%rdi)
-    vmovdqu         %ymm6,8+32*5-96(%rdi)
+vmovq             %xmm0,       -96(%rdi)
+vmovdqu           %ymm1, 8+32*0-96(%rdi)
+vmovdqu           %ymm2, 8+32*1-96(%rdi)
+vmovdqu           %ymm3, 8+32*2-96(%rdi)
+vmovdqu           %ymm4, 8+32*3-96(%rdi)
+vmovdqu           %ymm5, 8+32*4-96(%rdi)
+vmovdqu           %ymm6, 8+32*5-96(%rdi)
 NTRUPLUS_ASM_LOCAL(KeccakP1600_12rounds_FastLoop_Absorb_Exit):
-    vzeroupper
-    mov             %rdx, %rax               // return number of bytes processed
-    sub             %rbx, %rax
-    pop             %r10
-    pop             %rbx
-    ret
+vzeroupper
+mov %rdx, %rax                // return number of bytes processed
+sub %rbx, %rax
+pop %r10
+pop %rbx
+ret
 NTRUPLUS_ASM_LOCAL(KeccakP1600_12rounds_FastLoop_Absorb_Not21Lanes):
-    cmp             $17, %rsi
-    jnz             NTRUPLUS_ASM_LOCAL(KeccakP1600_12rounds_FastLoop_Absorb_Not17Lanes)
-    sub             $17, %rcx
-    lea             NTRUPLUS_ASM_LOCAL(rhotates_left)+96(%rip),%r8
-    lea             NTRUPLUS_ASM_LOCAL(rhotates_right)+96(%rip),%r9
-    lea             96(%rdi),%rdi
-    vpbroadcastq    -96(%rdi),%ymm0         // load A[5][5]
-    vmovdqu         8+32*0-96(%rdi),%ymm1
-    vmovdqu         8+32*1-96(%rdi),%ymm2
-    vmovdqu         8+32*2-96(%rdi),%ymm3
-    vmovdqu         8+32*3-96(%rdi),%ymm4
-    vmovdqu         8+32*4-96(%rdi),%ymm5
-    vmovdqu         8+32*5-96(%rdi),%ymm6
+cmp $17, %rsi
+jnz NTRUPLUS_ASM_LOCAL(KeccakP1600_12rounds_FastLoop_Absorb_Not17Lanes)
+sub $17, %rcx
+lea NTRUPLUS_ASM_LOCAL(rhotates_left)+96(%rip), %r8
+lea NTRUPLUS_ASM_LOCAL(rhotates_right)+96(%rip), %r9
+lea 96(%rdi), %rdi
+vpbroadcastq -96(%rdi), %ymm0 // load A[5][5]
+vmovdqu 8+32*0-96(%rdi),           %ymm1
+vmovdqu 8+32*1-96(%rdi),           %ymm2
+vmovdqu 8+32*2-96(%rdi),           %ymm3
+vmovdqu 8+32*3-96(%rdi),           %ymm4
+vmovdqu 8+32*4-96(%rdi),           %ymm5
+vmovdqu 8+32*5-96(%rdi),           %ymm6
 NTRUPLUS_ASM_LOCAL(KeccakP1600_12rounds_FastLoop_Absorb_Loop17Lanes):
-    vpbroadcastq    (%rdx),%ymm7
-    vmovdqu         8(%rdx),%ymm8
+vpbroadcastq    (%rdx), %ymm7
+vmovdqu         8(%rdx),           %ymm8
 
-    vmovdqa         NTRUPLUS_ASM_LOCAL(mask2_17)(%rip), %ymm14
-    vpxor           %ymm9, %ymm9, %ymm9
-    vmovdqa         NTRUPLUS_ASM_LOCAL(map2)(%rip), %xmm15
-    vpgatherdq      %ymm14, (%rdx, %xmm15, 1), %ymm9
+vmovdqa NTRUPLUS_ASM_LOCAL(mask2_17)(%rip), %ymm14
+vpxor       %ymm9,             %ymm9, %ymm9
+vmovdqa     NTRUPLUS_ASM_LOCAL(map2)(%rip), %xmm15
+vpgatherdq %ymm14, (%rdx, %xmm15, 1), %ymm9
 
-    vmovdqa         NTRUPLUS_ASM_LOCAL(mask3_17)(%rip), %ymm14
-    vpxor           %ymm10, %ymm10, %ymm10
-    vmovdqa         NTRUPLUS_ASM_LOCAL(map3)(%rip), %xmm15
-    vpgatherdq      %ymm14, (%rdx, %xmm15, 1), %ymm10
+vmovdqa NTRUPLUS_ASM_LOCAL(mask3_17)(%rip), %ymm14
+vpxor      %ymm10,            %ymm10, %ymm10
+vmovdqa     NTRUPLUS_ASM_LOCAL(map3)(%rip), %xmm15
+vpgatherdq %ymm14, (%rdx, %xmm15, 1), %ymm10
 
-    vmovdqa         NTRUPLUS_ASM_LOCAL(mask4_17)(%rip), %ymm14
-    vpxor           %ymm11, %ymm11, %ymm11
-    vmovdqa         NTRUPLUS_ASM_LOCAL(map4)(%rip), %xmm15
-    vpgatherdq      %ymm14, (%rdx, %xmm15, 1), %ymm11
+vmovdqa NTRUPLUS_ASM_LOCAL(mask4_17)(%rip), %ymm14
+vpxor      %ymm11,            %ymm11, %ymm11
+vmovdqa     NTRUPLUS_ASM_LOCAL(map4)(%rip), %xmm15
+vpgatherdq %ymm14, (%rdx, %xmm15, 1), %ymm11
 
-    vmovdqa         NTRUPLUS_ASM_LOCAL(mask5_17)(%rip), %ymm14
-    vpxor           %ymm12, %ymm12, %ymm12
-    vmovdqa         NTRUPLUS_ASM_LOCAL(map5)(%rip), %xmm15
-    vpgatherdq      %ymm14, (%rdx, %xmm15, 1), %ymm12
+vmovdqa NTRUPLUS_ASM_LOCAL(mask5_17)(%rip), %ymm14
+vpxor      %ymm12,            %ymm12, %ymm12
+vmovdqa     NTRUPLUS_ASM_LOCAL(map5)(%rip), %xmm15
+vpgatherdq %ymm14, (%rdx, %xmm15, 1), %ymm12
 
-    vmovdqa         NTRUPLUS_ASM_LOCAL(mask6_17)(%rip), %ymm14
-    vpxor           %ymm13, %ymm13, %ymm13
-    vmovdqa         NTRUPLUS_ASM_LOCAL(map6)(%rip), %xmm15
-    vpgatherdq      %ymm14, (%rdx, %xmm15, 1), %ymm13
+vmovdqa NTRUPLUS_ASM_LOCAL(mask6_17)(%rip), %ymm14
+vpxor      %ymm13,            %ymm13, %ymm13
+vmovdqa     NTRUPLUS_ASM_LOCAL(map6)(%rip), %xmm15
+vpgatherdq %ymm14, (%rdx, %xmm15, 1), %ymm13
 
-    vpxor           %ymm7,%ymm0,%ymm0
-    vpxor           %ymm8,%ymm1,%ymm1
-    vpxor           %ymm9,%ymm2,%ymm2
-    vpxor           %ymm10,%ymm3,%ymm3
-    vpxor           %ymm11,%ymm4,%ymm4
-    vpxor           %ymm12,%ymm5,%ymm5
-    vpxor           %ymm13,%ymm6,%ymm6
-    add             $17*8, %rdx
-    lea             NTRUPLUS_ASM_LOCAL(iotas)+12*4*8(%rip),%r10
-    mov             $12,%eax
-    call            NTRUPLUS_ASM_LOCAL(KeccakF1600)
-    sub             $17, %rcx
-    jnc             NTRUPLUS_ASM_LOCAL(KeccakP1600_12rounds_FastLoop_Absorb_Loop17Lanes)
-    jmp             NTRUPLUS_ASM_LOCAL(KeccakP1600_12rounds_FastLoop_Absorb_SaveAndExit)
+vpxor  %ymm7, %ymm0, %ymm0
+vpxor  %ymm8, %ymm1, %ymm1
+vpxor  %ymm9, %ymm2, %ymm2
+vpxor %ymm10, %ymm3, %ymm3
+vpxor %ymm11, %ymm4, %ymm4
+vpxor %ymm12, %ymm5, %ymm5
+vpxor %ymm13, %ymm6, %ymm6
+add $17*8, %rdx
+lea NTRUPLUS_ASM_LOCAL(iotas)+12*4*8(%rip), %r10
+mov $12, %eax
+call            NTRUPLUS_ASM_LOCAL(KeccakF1600)
+sub $17, %rcx
+jnc             NTRUPLUS_ASM_LOCAL(KeccakP1600_12rounds_FastLoop_Absorb_Loop17Lanes)
+jmp NTRUPLUS_ASM_LOCAL(KeccakP1600_12rounds_FastLoop_Absorb_SaveAndExit)
 NTRUPLUS_ASM_LOCAL(KeccakP1600_12rounds_FastLoop_Absorb_Not17Lanes):
-    lea             NTRUPLUS_ASM_LOCAL(mapState)(%rip), %r9
-    mov             %rsi, %rax
+lea NTRUPLUS_ASM_LOCAL(mapState)(%rip), %r9
+mov %rsi, %rax
 NTRUPLUS_ASM_LOCAL(KeccakP1600_12rounds_FastLoop_Absorb_LanesAddLoop):
-    mov             (%rdx), %r8
-    add             $8, %rdx
-    mov             (%r9), %r10
-    add             $8, %r9
-    add             %rdi, %r10
-    xor             %r8, (%r10)
-    sub             $1, %rax
-    jnz             NTRUPLUS_ASM_LOCAL(KeccakP1600_12rounds_FastLoop_Absorb_LanesAddLoop)
-    sub             %rsi, %rcx
-    push            %rdi
-    push            %rsi
-    push            %rdx
-    push            %rcx
+mov (%rdx), %r8
+add $8, %rdx
+mov (%r9), %r10
+add $8, %r9
+add %rdi, %r10
+xor %r8, (%r10)
+sub $1, %rax
+jnz NTRUPLUS_ASM_LOCAL(KeccakP1600_12rounds_FastLoop_Absorb_LanesAddLoop)
+sub %rsi, %rcx
+push %rdi
+push %rsi
+push %rdx
+push %rcx
 .ifdef no_plt
-    call            NTRUPLUS_ASM_SYMBOL(KeccakP1600_Permute_12rounds)
+call            NTRUPLUS_ASM_SYMBOL(KeccakP1600_Permute_12rounds)
 .else
 #ifdef __ELF__
-    call            NTRUPLUS_ASM_SYMBOL(KeccakP1600_Permute_12rounds)@PLT
+call            NTRUPLUS_ASM_SYMBOL(KeccakP1600_Permute_12rounds)@PLT
 #else
-    call            NTRUPLUS_ASM_SYMBOL(KeccakP1600_Permute_12rounds)
+call            NTRUPLUS_ASM_SYMBOL(KeccakP1600_Permute_12rounds)
 #endif
 .endif
-    pop             %rcx
-    pop             %rdx
-    pop             %rsi
-    pop             %rdi
-    cmp             %rsi, %rcx
-    jae             NTRUPLUS_ASM_LOCAL(KeccakP1600_12rounds_FastLoop_Absorb_Not17Lanes)
-    jmp             NTRUPLUS_ASM_LOCAL(KeccakP1600_12rounds_FastLoop_Absorb_Exit)
+pop %rcx
+pop %rdx
+pop %rsi
+pop %rdi
+cmp %rsi, %rcx
+jae             NTRUPLUS_ASM_LOCAL(KeccakP1600_12rounds_FastLoop_Absorb_Not17Lanes)
+jmp NTRUPLUS_ASM_LOCAL(KeccakP1600_12rounds_FastLoop_Absorb_Exit)
 NTRUPLUS_ASM_END(KeccakP1600_12rounds_FastLoop_Absorb)
 
 
@@ -947,12 +949,12 @@ NTRUPLUS_ASM_END(KeccakP1600_12rounds_FastLoop_Absorb)
 
 .balign 64
 NTRUPLUS_ASM_LOCAL(rhotates_left):
-    .quad     3,   18,    36,    41         // [2][0] [4][0] [1][0] [3][0]
-    .quad     1,   62,    28,    27         // [0][1] [0][2] [0][3] [0][4]
-    .quad    45,    6,    56,    39         // [3][1] [1][2] [4][3] [2][4]
-    .quad    10,   61,    55,     8         // [2][1] [4][2] [1][3] [3][4]
-    .quad     2,   15,    25,    20         // [4][1] [3][2] [2][3] [1][4]
-    .quad    44,   43,    21,    14         // [1][1] [2][2] [3][3] [4][4]
+    .quad     3,   18,    36,    41 // [2][0] [4][0] [1][0] [3][0]
+    .quad     1,   62,    28,    27 // [0][1] [0][2] [0][3] [0][4]
+    .quad    45,    6,    56,    39 // [3][1] [1][2] [4][3] [2][4]
+    .quad    10,   61,    55,     8 // [2][1] [4][2] [1][3] [3][4]
+    .quad     2,   15,    25,    20 // [4][1] [3][2] [2][3] [1][4]
+    .quad    44,   43,    21,    14 // [1][1] [2][2] [3][3] [4][4]
 NTRUPLUS_ASM_LOCAL(rhotates_right):
     .quad    64-3,  64-18,  64-36,  64-41
     .quad    64-1,  64-62,  64-28,  64-27

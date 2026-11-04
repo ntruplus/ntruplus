@@ -19,24 +19,24 @@ vmovdqa 128(%rsi), %ymm4
 vmovdqa 160(%rsi), %ymm5
 
 //reduce
-vpmulhrsw %ymm15, %ymm0, %ymm6
-vpmulhrsw %ymm15, %ymm1, %ymm7
-vpmulhrsw %ymm15, %ymm2, %ymm8
-vpmulhrsw %ymm15, %ymm3, %ymm9
-vpmulhrsw %ymm15, %ymm4, %ymm10
-vpmulhrsw %ymm15, %ymm5, %ymm11
-vpmullw %ymm14, %ymm6,  %ymm6
-vpmullw %ymm14, %ymm7,  %ymm7
-vpmullw %ymm14, %ymm8,  %ymm8
-vpmullw %ymm14, %ymm9,  %ymm9
-vpmullw %ymm14, %ymm10, %ymm10
-vpmullw %ymm14, %ymm11, %ymm11
-vpsubw  %ymm6,  %ymm0,  %ymm0
-vpsubw  %ymm7,  %ymm1,  %ymm1
-vpsubw  %ymm8,  %ymm2,  %ymm2
-vpsubw  %ymm9,  %ymm3,  %ymm3
-vpsubw  %ymm10, %ymm4,  %ymm4
-vpsubw  %ymm11, %ymm5,  %ymm5
+vpmulhrsw %ymm15,  %ymm0,  %ymm6
+vpmulhrsw %ymm15,  %ymm1,  %ymm7
+vpmulhrsw %ymm15,  %ymm2,  %ymm8
+vpmulhrsw %ymm15,  %ymm3,  %ymm9
+vpmulhrsw %ymm15,  %ymm4, %ymm10
+vpmulhrsw %ymm15,  %ymm5, %ymm11
+vpmullw   %ymm14,  %ymm6,  %ymm6
+vpmullw   %ymm14,  %ymm7,  %ymm7
+vpmullw   %ymm14,  %ymm8,  %ymm8
+vpmullw   %ymm14,  %ymm9,  %ymm9
+vpmullw   %ymm14, %ymm10, %ymm10
+vpmullw   %ymm14, %ymm11, %ymm11
+vpsubw     %ymm6,  %ymm0,  %ymm0
+vpsubw     %ymm7,  %ymm1,  %ymm1
+vpsubw     %ymm8,  %ymm2,  %ymm2
+vpsubw     %ymm9,  %ymm3,  %ymm3
+vpsubw    %ymm10,  %ymm4,  %ymm4
+vpsubw    %ymm11,  %ymm5,  %ymm5
 
 //map
 vpaddw  %ymm14, %ymm0,  %ymm6
@@ -53,17 +53,17 @@ vpminuw %ymm10, %ymm4,  %ymm4
 vpminuw %ymm11, %ymm5,  %ymm5
 
 //pack
-vpsllw       $12, %ymm1, %ymm6
-vpor       %ymm0, %ymm6, %ymm6
-vpsrlw        $4, %ymm1, %ymm7
-vpsllw        $8, %ymm2, %ymm8
-vpor       %ymm8, %ymm7, %ymm7
-vpsrlw        $8, %ymm2, %ymm8
-vpsllw        $4, %ymm3, %ymm9
-vpor       %ymm9, %ymm8, %ymm8
-vpsllw       $12, %ymm5, %ymm9
-vpor       %ymm4, %ymm9, %ymm9
-vpsrlw        $4, %ymm5, %ymm5
+vpsllw   $12, %ymm1, %ymm6
+vpor   %ymm0, %ymm6, %ymm6
+vpsrlw    $4, %ymm1, %ymm7
+vpsllw    $8, %ymm2, %ymm8
+vpor   %ymm8, %ymm7, %ymm7
+vpsrlw    $8, %ymm2, %ymm8
+vpsllw    $4, %ymm3, %ymm9
+vpor   %ymm9, %ymm8, %ymm8
+vpsllw   $12, %ymm5, %ymm9
+vpor   %ymm4, %ymm9, %ymm9
+vpsrlw    $4, %ymm5, %ymm5
 
 //shuffle
 vpunpcklwd %ymm7, %ymm6, %ymm0

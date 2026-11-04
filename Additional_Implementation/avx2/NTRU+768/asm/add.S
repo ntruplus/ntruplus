@@ -29,8 +29,8 @@ vmovdqa %ymm5, 160(%rdi)
 add $192, %rsi
 add $192, %rdx
 add $192, %rdi
-cmp %r8,  %rsi
-jb  NTRUPLUS_ASM_LOCAL(looptop_sub)
+cmp %r8, %rsi
+jb NTRUPLUS_ASM_LOCAL(looptop_sub)
 
 ret
 NTRUPLUS_ASM_END(poly_sub)
