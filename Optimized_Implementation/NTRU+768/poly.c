@@ -8,6 +8,11 @@
  * Montgomery polynomial arithmetic and eight-group hierarchical inversion.
  * GitHub source: https://github.com/yoswuk/hierarchical_batch_inversion
  * Commit: d8050fa096365a00607a249c0066ff904dad81f3.
+ *
+ * [SUPERCOP] SUPERCOP 20261018,
+ * crypto_kem/ntruplus768/avx2-opt/invntt_crepmod3.s.
+ * https://bench.cr.yp.to/supercop/supercop-20261018.tar.xz
+ * Inverse-NTT normalization folded into the final radix-3 twiddles.
  */
 
 #include <stddef.h>
@@ -27,8 +32,7 @@
 
 #define NTRUPLUS_ZETAMUL_IDX (NTRUPLUS_N/(2*NTRUPLUS_D))
 
-#define NTRUPLUS_NINV_SCALED  1679 //(n/d)^(-1) * R^2 mod q
-#define NTRUPLUS_2NINV_SCALED -99  //2 * (n/d)^(-1) * R^2 mod q
+#define NTRUPLUS_NINV_SCALED 1679 //(n/d)^(-1) * R^2 mod q
 
 #define NTRUPLUS_RADIX2_START (16*NTRUPLUS_D)
 #define NTRUPLUS_RADIX3_END   (NTRUPLUS_N/6)
@@ -60,6 +64,11 @@ static const int16_t zetas[NTRUPLUS_N/NTRUPLUS_D] = {
     -1550,  1531, -1367,  -124,  1458,  1379,  -940, -1681,
        22,  1709,  -275,  1108,   354, -1728,  -968,   858,
      1221,  -218,   294,  -732, -1095,   892,  1588,  -779
+};
+
+// zetas_inv_scaled[i] = fqmul(NTRUPLUS_NINV_SCALED, zetas[i+2]).
+static const int16_t zetas_inv_scaled[4] = {
+    -18, 622, 326, 18
 };
 
 /*************************************************
@@ -457,11 +466,12 @@ void poly_invntt_scaled(poly *r)
 
     {
         const size_t step = NTRUPLUS_N/6;
+        k = 4;
 
         for (size_t start = 0; start < NTRUPLUS_N; start += 3*step)
         {
-            const int16_t zeta1 = zetas[k--];
-            const int16_t zeta0 = zetas[k--];
+            const int16_t zeta1 = zetas_inv_scaled[--k];
+            const int16_t zeta0 = zetas_inv_scaled[--k];
 
             for (size_t i = start; i < start+step; i++)
             {
@@ -470,20 +480,21 @@ void poly_invntt_scaled(poly *r)
                 const int16_t t2 = fqmul(zeta1, a[i+2*step] - a[i+step] - t0);
 
                 //|a+b+c| <= 29484 < 2^15.
-                a[i]        = barrett_reduce(a[i] + a[i+step] + a[i+2*step]);
+                a[i]        = fqmul(NTRUPLUS_NINV_SCALED, a[i] + a[i+step] + a[i+2*step]);
                 a[i+step]   = t1;
                 a[i+2*step] = t2;
             }
         }
     }
 
+    // Preserve the output range expected by poly_crepmod3.
     for (size_t i = 0; i < NTRUPLUS_N/2; i++)
     {
         const int16_t t0 = a[i] + a[i+NTRUPLUS_N/2];
         const int16_t t1 = fqmul(NTRUPLUS_ZMINUSZ5INV, a[i] - a[i+NTRUPLUS_N/2]);
 
-        a[i]              = fqmul(NTRUPLUS_NINV_SCALED, t0 - t1);
-        a[i+NTRUPLUS_N/2] = fqmul(NTRUPLUS_2NINV_SCALED, t1);
+        a[i]              = barrett_reduce(t0 - t1);
+        a[i+NTRUPLUS_N/2] = barrett_reduce(t1 + t1);
     }
 }
 
@@ -899,9 +910,9 @@ void poly_sub(poly *r, const poly *a, const poly *b)
 /*************************************************
 * Name:        poly_crepmod3
 *
-* Description: Apply centered reduction modulo q and then modulo 3.
+* Description: Apply centered reduction modulo 3.
 *
-* Arguments:   - poly *r: input/output in [-(q-1),q-1]
+* Arguments:   - poly *r: input in [-1728,1728], output in {-1,0,1}
 *
 * Returns:     none.
 **************************************************/
@@ -911,18 +922,10 @@ void poly_crepmod3(poly *r)
 
     for (size_t i = 0; i < NTRUPLUS_N; i++)
     {
-        int16_t t0 = r->coeffs[i];
-        int16_t t1;
+        const int16_t t0 = r->coeffs[i];
+        const int16_t t1 = ((int32_t)v*t0 + (1 << 14)) >> 15;
 
-        t0 += (t0 >> 15) & NTRUPLUS_Q;
-        t0 -= (NTRUPLUS_Q+1)/2;
-        t0 += (t0 >> 15) & NTRUPLUS_Q;
-        t0 -= (NTRUPLUS_Q-1)/2;
-
-        t1 = ((int32_t)v*t0 + (1 << 14)) >> 15;
-        t1 *= 3;
-
-        r->coeffs[i] = t0 - t1;
+        r->coeffs[i] = t0 - 3*t1;
     }
 }
 
