@@ -12,16 +12,6 @@
  * Algorithms 10 and 14 are used below.
  */
 
-.macro load_address dst, sym, offset=0
-#ifdef __APPLE__
-adrp \dst, _\sym+\offset@PAGE
-add \dst, \dst, _\sym+\offset@PAGEOFF
-#else
-adrp \dst, \sym+\offset
-add \dst, \dst, :lo12:\sym+\offset
-#endif
-.endm
-
 /*************************************************
 * Name:        poly_ntt
 *
@@ -43,7 +33,7 @@ zetas_ptr .req x2
 counter   .req x8
 
 mov src, dst
-load_address zetas_ptr, NTRUPLUS_NAMESPACE(zetas)
+NTRUPLUS_ASM_LOAD_ADDRESS(zetas_ptr, zetas, 0)
 
 ld1 {v0.8h - v3.8h}, [zetas_ptr], #64
 
@@ -464,7 +454,7 @@ NTRUPLUS_ASM_END(poly_ntt)
 
 
 /*************************************************
-* Name:        poly_invntt_scale
+* Name:        poly_invntt_scaled
 *
 * Description: Transforms a polynomial from the incomplete NTT
 *              representation to coefficient representation and applies
@@ -478,7 +468,7 @@ NTRUPLUS_ASM_END(poly_ntt)
 *
 * Returns:     none. Output coefficients lie in [-q+1,q-1].
 **************************************************/
-NTRUPLUS_ASM_START(poly_invntt_scale)
+NTRUPLUS_ASM_START(poly_invntt_scaled)
 
 dst       .req x0
 src       .req x1
@@ -486,11 +476,11 @@ zetas_ptr .req x2
 counter   .req x8
 
 mov src, dst
-load_address zetas_ptr, NTRUPLUS_NAMESPACE(zetas), ZETAS_INV_START
+NTRUPLUS_ASM_LOAD_ADDRESS(zetas_ptr, zetas, ZETAS_INV_START)
 
 mov counter, #1536
 
-load_address x9, NTRUPLUS_NAMESPACE(consts_reverse)
+NTRUPLUS_ASM_LOAD_ADDRESS(x9, consts_reverse, 0)
 ldr q23, [x9]
 
 NTRUPLUS_ASM_LOCAL(looptop_6543):
@@ -674,7 +664,7 @@ sub dst, dst, #1536
 
 ld1 {v0.8h - v3.8h}, [zetas_ptr], #64
 
-load_address x9, NTRUPLUS_NAMESPACE(consts_inv)
+NTRUPLUS_ASM_LOAD_ADDRESS(x9, consts_inv, 0)
 ldr q4, [x9]
 // Patch only header pairs unused by subsequent inverse butterflies.
 ins v0.s[2], v4.s[0]
@@ -980,7 +970,7 @@ b.ne NTRUPLUS_ASM_LOCAL(looptop_210)
 .unreq counter
 
 ret
-NTRUPLUS_ASM_END(poly_invntt_scale)
+NTRUPLUS_ASM_END(poly_invntt_scaled)
 
 
 NTRUPLUS_ASM_GNU_STACK

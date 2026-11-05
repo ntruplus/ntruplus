@@ -13,15 +13,13 @@
 #define poly_sotp_encode    NTRUPLUS_NAMESPACE(poly_sotp_encode)
 #define poly_sotp_decode    NTRUPLUS_NAMESPACE(poly_sotp_decode)
 #define poly_ntt            NTRUPLUS_NAMESPACE(poly_ntt)
-#define poly_invntt_scale   NTRUPLUS_NAMESPACE(poly_invntt_scale)
+#define poly_invntt_scaled  NTRUPLUS_NAMESPACE(poly_invntt_scaled)
 #define poly_baseinv        NTRUPLUS_NAMESPACE(poly_baseinv)
 #define poly_basemul        NTRUPLUS_NAMESPACE(poly_basemul)
 #define poly_basemul_scaled NTRUPLUS_NAMESPACE(poly_basemul_scaled)
 #define poly_basemul_add    NTRUPLUS_NAMESPACE(poly_basemul_add)
 #define poly_sub            NTRUPLUS_NAMESPACE(poly_sub)
-#define poly_triple         NTRUPLUS_NAMESPACE(poly_triple)
 #define poly_crepmod3       NTRUPLUS_NAMESPACE(poly_crepmod3)
-#define poly_baseinv_1      NTRUPLUS_NAMESPACE(poly_baseinv_1)
 
 /*
  * Elements of R_q = Z_q[X]/(X^n - X^n/2 + 1). Represents polynomial
@@ -45,13 +43,12 @@ void poly_sotp_encode(poly *r, const uint8_t msg[NTRUPLUS_N / 8], const uint8_t 
 int  poly_sotp_decode(uint8_t msg[NTRUPLUS_N / 8], const poly *a, const uint8_t buf[NTRUPLUS_N / 4]);
 
 void poly_ntt(poly *r);
-void poly_invntt_scale(poly *r);
+void poly_invntt_scaled(poly *r);
 int  poly_baseinv(poly *r, const poly *a);
 void poly_basemul(poly *r, const poly *a, const poly *b);
 void poly_basemul_scaled(poly *r, const poly *a, const poly *b);
 void poly_basemul_add(poly *r, const poly *a, const poly *b, const poly *c);
 void poly_sub(poly *r, const poly *a, const poly *b);
-void poly_triple(poly *r);
 void poly_crepmod3(poly *r);
 
 #endif

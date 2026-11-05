@@ -41,4 +41,18 @@ _\name:
 #define NTRUPLUS_ASM_START(name) ntruplus_asm_start NTRUPLUS_NAMESPACE(name)
 #define NTRUPLUS_ASM_END(name) NTRUPLUS_ASM_SIZE(name)
 
+#ifdef __aarch64__
+.macro ntruplus_asm_load_address dst, sym, offset=0
+#ifdef __APPLE__
+adrp \dst, \sym+\offset@PAGE
+add \dst, \dst, \sym+\offset@PAGEOFF
+#else
+adrp \dst, \sym+\offset
+add \dst, \dst, :lo12:\sym+\offset
+#endif
+.endm
+
+#define NTRUPLUS_ASM_LOAD_ADDRESS(dst, name, offset) ntruplus_asm_load_address dst, NTRUPLUS_ASM_SYMBOL(name), offset
+#endif
+
 #endif

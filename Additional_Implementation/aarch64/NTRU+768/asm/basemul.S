@@ -13,16 +13,6 @@
  * reduction (Algorithm 14) are used below.
  */
 
-.macro load_address dst, sym, offset=0
-#ifdef __APPLE__
-adrp \dst, _\sym+\offset@PAGE
-add \dst, \dst, _\sym+\offset@PAGEOFF
-#else
-adrp \dst, \sym+\offset
-add \dst, \dst, :lo12:\sym+\offset
-#endif
-.endm
-
 /*************************************************
 * Name:        poly_basemul
 *
@@ -45,10 +35,10 @@ src2      .req x2
 zetas_ptr .req x3
 counter   .req x8
 
-load_address zetas_ptr, NTRUPLUS_NAMESPACE(consts_base)
+NTRUPLUS_ASM_LOAD_ADDRESS(zetas_ptr, consts_base, 0)
 ld1 {v0.8h}, [zetas_ptr]
 
-load_address zetas_ptr, NTRUPLUS_NAMESPACE(zetas), ZETAS_MUL_OFFSET
+NTRUPLUS_ASM_LOAD_ADDRESS(zetas_ptr, zetas, ZETAS_MUL_OFFSET)
 
 mov counter, #1536
 
@@ -183,7 +173,7 @@ NTRUPLUS_ASM_END(poly_basemul)
 * Name:        poly_basemul_scaled
 *
 * Description: Multiplication of two polynomials in the NTT domain while
-*              retaining the R^-1 representation for poly_invntt_scale.
+*              retaining the R^-1 representation for poly_invntt_scaled.
 *
 * Arguments:   - poly *r:       pointer to the output polynomial
 *              - const poly *a: pointer to the first input polynomial;
@@ -202,17 +192,17 @@ src2      .req x2
 zetas_ptr .req x3
 counter   .req x8
 
-load_address zetas_ptr, NTRUPLUS_NAMESPACE(consts_base)
+NTRUPLUS_ASM_LOAD_ADDRESS(zetas_ptr, consts_base, 0)
 ld1 {v0.8h}, [zetas_ptr]
 
-load_address zetas_ptr, NTRUPLUS_NAMESPACE(zetas), ZETAS_MUL_OFFSET
+NTRUPLUS_ASM_LOAD_ADDRESS(zetas_ptr, zetas, ZETAS_MUL_OFFSET)
 
 mov counter, #1536
 
-NTRUPLUS_ASM_LOCAL(looptop_scale_pair):
+NTRUPLUS_ASM_LOCAL(looptop_scaled_pair):
 ldp q1, q2, [zetas_ptr], #64
 
-NTRUPLUS_ASM_LOCAL(looptop_scale):
+NTRUPLUS_ASM_LOCAL(looptop_scaled):
 /* Read both inputs before storing either output half. */
 ld1 { v4.8h -  v7.8h}, [src1], #64
 ld1 {v16.8h - v19.8h}, [src2], #64
@@ -300,15 +290,15 @@ st1 {v4.8h - v7.8h}, [dst], #64
 
 subs counter, counter, #64
 /* The public counter selects the +zeta/-zeta block order. */
-tbz counter, #6, NTRUPLUS_ASM_LOCAL(looptop_scale_pair_check)
+tbz counter, #6, NTRUPLUS_ASM_LOCAL(looptop_scaled_pair_check)
 
 /* Negate zeta and its Barrett factor to reuse them for the next -zeta block. */
 neg v1.8h, v1.8h
 neg v2.8h, v2.8h
-b NTRUPLUS_ASM_LOCAL(looptop_scale)
+b NTRUPLUS_ASM_LOCAL(looptop_scaled)
 
-NTRUPLUS_ASM_LOCAL(looptop_scale_pair_check):
-b.ne NTRUPLUS_ASM_LOCAL(looptop_scale_pair)
+NTRUPLUS_ASM_LOCAL(looptop_scaled_pair_check):
+b.ne NTRUPLUS_ASM_LOCAL(looptop_scaled_pair)
 
 .unreq dst
 .unreq src1
@@ -346,10 +336,10 @@ src3      .req x3
 zetas_ptr .req x4
 counter   .req x8
 
-load_address zetas_ptr, NTRUPLUS_NAMESPACE(consts_base)
+NTRUPLUS_ASM_LOAD_ADDRESS(zetas_ptr, consts_base, 0)
 ld1 {v0.8h}, [zetas_ptr]
 
-load_address zetas_ptr, NTRUPLUS_NAMESPACE(zetas), ZETAS_MUL_OFFSET
+NTRUPLUS_ASM_LOAD_ADDRESS(zetas_ptr, zetas, ZETAS_MUL_OFFSET)
 
 mov counter, #1536
 

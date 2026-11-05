@@ -12,16 +12,6 @@
  * Algorithms 10 and 14 are used below.
  */
 
-.macro load_address dst, sym, offset=0
-#ifdef __APPLE__
-adrp \dst, _\sym+\offset@PAGE
-add \dst, \dst, _\sym+\offset@PAGEOFF
-#else
-adrp \dst, \sym+\offset
-add \dst, \dst, :lo12:\sym+\offset
-#endif
-.endm
-
 /*************************************************
 * Name:        poly_ntt
 *
@@ -48,7 +38,7 @@ zetas_ptr .req x2
 counter   .req x8
 
 mov src, dst
-load_address zetas_ptr, NTRUPLUS_NAMESPACE(zetas)
+NTRUPLUS_ASM_LOAD_ADDRESS(zetas_ptr, zetas, 0)
 
 ld1 {v0.8h - v2.8h}, [zetas_ptr], #48
 ld1 {v3.8h - v4.8h}, [zetas_ptr], #32
@@ -417,7 +407,7 @@ sub dst, dst, #96
 mov counter, #1728
 
 // Masks expand two level-4 factors to four lanes each.
-load_address src, NTRUPLUS_NAMESPACE(consts_shuffle)
+NTRUPLUS_ASM_LOAD_ADDRESS(src, consts_shuffle, 0)
 ldp q30, q31, [src]
 
 NTRUPLUS_ASM_LOCAL(looptop_3456):
@@ -605,7 +595,7 @@ NTRUPLUS_ASM_END(poly_ntt)
 
 
 /*************************************************
-* Name:        poly_invntt_scale
+* Name:        poly_invntt_scaled
 *
 * Description: Transforms a polynomial from the incomplete NTT
 *              representation to coefficient representation and applies
@@ -619,7 +609,7 @@ NTRUPLUS_ASM_END(poly_ntt)
 *
 * Returns:     none. Output coefficients lie in [-q+1,q-1].
 **************************************************/
-NTRUPLUS_ASM_START(poly_invntt_scale)
+NTRUPLUS_ASM_START(poly_invntt_scaled)
 
 stp  d8,  d9, [sp, #-64]!
 stp d10, d11, [sp, #16]
@@ -631,13 +621,13 @@ src       .req x1
 zetas_ptr .req x2
 counter   .req x8
 
-load_address x9, NTRUPLUS_NAMESPACE(consts_inverse_masks)
+NTRUPLUS_ASM_LOAD_ADDRESS(x9, consts_inverse_masks, 0)
 ldp q30, q31, [x9]
 ldr q29, [x9, #32]
 ldp q27, q28, [x9, #48]
 
 mov src, dst
-load_address zetas_ptr, NTRUPLUS_NAMESPACE(zetas), ZETAS_INV_START
+NTRUPLUS_ASM_LOAD_ADDRESS(zetas_ptr, zetas, ZETAS_INV_START)
 
 mov counter, #1728
 
@@ -809,7 +799,7 @@ sub zetas_ptr, zetas_ptr, #16
 ld1 {v0.8h - v2.8h}, [zetas_ptr], #48
 ld1 {v3.8h - v4.8h}, [zetas_ptr], #32
 
-load_address zetas_ptr, NTRUPLUS_NAMESPACE(consts_inv)
+NTRUPLUS_ASM_LOAD_ADDRESS(zetas_ptr, consts_inv, 0)
 ldr d5, [zetas_ptr], #8
 // Patch only header pairs unused by subsequent inverse butterflies.
 ins v0.s[2], v5.s[0]
@@ -1304,7 +1294,7 @@ ldp d14, d15, [sp, #48]
 ldp  d8,  d9, [sp], #64
 
 ret
-NTRUPLUS_ASM_END(poly_invntt_scale)
+NTRUPLUS_ASM_END(poly_invntt_scaled)
 
 
 NTRUPLUS_ASM_GNU_STACK
