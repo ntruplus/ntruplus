@@ -318,7 +318,7 @@ vpsubb %ymm2,  %ymm8,  %ymm8
 vpsubb %ymm2,  %ymm9,  %ymm9
 vpsubb %ymm2, %ymm10, %ymm10
 
-    //triple
+//triple
 vpaddb  %ymm3,  %ymm3, %ymm15
 vpaddb %ymm15,  %ymm3,  %ymm3
 vpaddb  %ymm4,  %ymm4, %ymm15
@@ -465,7 +465,7 @@ vpsubb %ymm2,  %ymm8,  %ymm8
 vpsubb %ymm2,  %ymm9,  %ymm9
 vpsubb %ymm2, %ymm10, %ymm10
 
-    //triple
+//triple
 vpaddb  %ymm3,  %ymm3, %ymm15
 vpaddb %ymm15,  %ymm3,  %ymm3
 vpaddb  %ymm4,  %ymm4, %ymm15

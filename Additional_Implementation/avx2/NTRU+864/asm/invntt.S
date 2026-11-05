@@ -358,7 +358,7 @@ lea 864(%rdi), %r8
 .balign 32
 NTRUPLUS_ASM_LOCAL(looptop_start_0):
 
- //load
+//load
 vmovdqa    (%rdi), %ymm4
 vmovdqa  32(%rdi), %ymm5
 vmovdqa  64(%rdi), %ymm6
@@ -366,7 +366,7 @@ vmovdqa 864(%rdi), %ymm7
 vmovdqa 896(%rdi), %ymm8
 vmovdqa 928(%rdi), %ymm9
 
- //update
+//update
 vpsubw %ymm7, %ymm4, %ymm10
 vpsubw %ymm8, %ymm5, %ymm11
 vpsubw %ymm9, %ymm6, %ymm12
@@ -374,7 +374,7 @@ vpaddw %ymm7, %ymm4,  %ymm4
 vpaddw %ymm8, %ymm5,  %ymm5
 vpaddw %ymm9, %ymm6,  %ymm6
 
- //mul
+//mul
 vpmullw %ymm2, %ymm10,  %ymm7
 vpmullw %ymm2, %ymm11,  %ymm8
 vpmullw %ymm2, %ymm12,  %ymm9
@@ -382,7 +382,7 @@ vpmulhw %ymm3, %ymm10, %ymm10
 vpmulhw %ymm3, %ymm11, %ymm11
 vpmulhw %ymm3, %ymm12, %ymm12
 
- //reduce
+//reduce
 vpmulhw %ymm0,  %ymm7, %ymm7
 vpmulhw %ymm0,  %ymm8, %ymm8
 vpmulhw %ymm0,  %ymm9, %ymm9
@@ -390,12 +390,12 @@ vpsubw  %ymm7, %ymm10, %ymm7
 vpsubw  %ymm8, %ymm11, %ymm8
 vpsubw  %ymm9, %ymm12, %ymm9
 
- //update
+//update
 vpsubw %ymm7, %ymm4, %ymm4
 vpsubw %ymm8, %ymm5, %ymm5
 vpsubw %ymm9, %ymm6, %ymm6
 
- //mul
+//mul
 vpmullw %ymm13, %ymm4, %ymm10
 vpmullw %ymm13, %ymm5, %ymm11
 vpmullw %ymm13, %ymm6, %ymm12
@@ -403,7 +403,7 @@ vpmulhw %ymm14, %ymm4,  %ymm4
 vpmulhw %ymm14, %ymm5,  %ymm5
 vpmulhw %ymm14, %ymm6,  %ymm6
 
- //reduce
+//reduce
 vpmulhw  %ymm0, %ymm10, %ymm10
 vpmulhw  %ymm0, %ymm11, %ymm11
 vpmulhw  %ymm0, %ymm12, %ymm12
@@ -411,7 +411,7 @@ vpsubw  %ymm10,  %ymm4,  %ymm4
 vpsubw  %ymm11,  %ymm5,  %ymm5
 vpsubw  %ymm12,  %ymm6,  %ymm6
 
- //mul
+//mul
 vpmullw %ymm15, %ymm7, %ymm10
 vpmullw %ymm15, %ymm8, %ymm11
 vpmullw %ymm15, %ymm9, %ymm12
@@ -419,7 +419,7 @@ vpmulhw  %ymm1, %ymm7,  %ymm7
 vpmulhw  %ymm1, %ymm8,  %ymm8
 vpmulhw  %ymm1, %ymm9,  %ymm9
 
- //reduce
+//reduce
 vpmulhw  %ymm0, %ymm10, %ymm10
 vpmulhw  %ymm0, %ymm11, %ymm11
 vpmulhw  %ymm0, %ymm12, %ymm12
@@ -427,7 +427,7 @@ vpsubw  %ymm10,  %ymm7,  %ymm7
 vpsubw  %ymm11,  %ymm8,  %ymm8
 vpsubw  %ymm12,  %ymm9,  %ymm9
 
- //store
+//store
 vmovdqa %ymm4,    (%rdi)
 vmovdqa %ymm5,  32(%rdi)
 vmovdqa %ymm6,  64(%rdi)

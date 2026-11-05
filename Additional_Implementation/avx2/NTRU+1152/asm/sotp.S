@@ -294,12 +294,12 @@ vmovdqa NTRUPLUS_ASM_SYMBOL(16x0101)(%rip), %ymm13
 vmovdqa NTRUPLUS_ASM_SYMBOL(16x5555)(%rip), %ymm14
 vpcmpeqb %ymm15, %ymm15, %ymm15
 
-    //tail
+//tail
 add $1792, %rsi
 add $112, %rdx
 add $112, %rdi
 
-    //load
+//load
 vmovdqa   0(%rsi), %ymm0
 vmovdqa 128(%rsi), %ymm1
 vmovdqa 256(%rsi), %ymm2
@@ -442,7 +442,7 @@ vpand %ymm14, %ymm3, %ymm0
 vpaddb %ymm4, %ymm1, %ymm3
 vpaddb %ymm0, %ymm2, %ymm1
 
-    //check
+//check
 vpsrlw $1, %ymm3, %ymm0
 vpsrlw $1, %ymm1, %ymm2
 
@@ -452,7 +452,7 @@ vpxor %ymm2, %ymm1, %ymm0
 vpand %ymm0,  %ymm4,  %ymm2
 vpand %ymm2, %ymm15, %ymm15
 
-    //decode
+//decode
 vpand  %ymm14, %ymm3, %ymm0
 vpand  %ymm14, %ymm1, %ymm2
 vpsllw     $1, %ymm2, %ymm1
@@ -474,7 +474,7 @@ lea 128(%rdi), %r8
 .balign 32
 NTRUPLUS_ASM_LOCAL(looptop_sotp_decode):
 
-    //load
+//load
 vmovdqa   0(%rsi), %ymm0
 vmovdqa 128(%rsi), %ymm1
 vmovdqa 256(%rsi), %ymm2
@@ -617,7 +617,7 @@ vpand %ymm14, %ymm3, %ymm0
 vpaddb %ymm4, %ymm1, %ymm3
 vpaddb %ymm0, %ymm2, %ymm1
 
-    //check
+//check
 vpsrlw $1, %ymm3, %ymm0
 vpsrlw $1, %ymm1, %ymm2
 
@@ -627,7 +627,7 @@ vpxor %ymm2, %ymm1, %ymm0
 vpand %ymm0,  %ymm4,  %ymm2
 vpand %ymm2, %ymm15, %ymm15
 
-    //decode
+//decode
 vpand  %ymm14, %ymm3, %ymm0
 vpand  %ymm14, %ymm1, %ymm2
 vpsllw     $1, %ymm2, %ymm1
@@ -647,7 +647,7 @@ add $32, %rdi
 cmp %r8, %rdi
 jb NTRUPLUS_ASM_LOCAL(looptop_sotp_decode)
 
-    //check
+//check
 vpxor NTRUPLUS_ASM_LOCAL(sotp_maskff)(%rip), %ymm15, %ymm15
 vpand                                %ymm14, %ymm15, %ymm15
 vptest       %ymm15, %ymm15
@@ -657,7 +657,7 @@ lea -1(%rax), %r10d
 vmovd %r10d, %xmm0
 vpbroadcastb  %xmm0,  %ymm0
 
-    //clear
+//clear
 mov %rcx, %rdi
 .balign 32
 NTRUPLUS_ASM_LOCAL(looptop_sotp_clear):
