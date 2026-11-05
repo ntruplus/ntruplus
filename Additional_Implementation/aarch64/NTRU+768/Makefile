@@ -11,7 +11,7 @@ else
 ASFLAGS += -Wa,--noexecstack
 endif
 
-SOURCES= kem.c symmetric.c asm/baseinv.S asm/add.S asm/ntt.S asm/basemul.S consts.c asm/crepmod3.S asm/pack.S asm/cbd.S fips202/fips202.c
+SOURCES= kem.c symmetric.c asm/baseinv.S asm/add.S asm/ntt.S asm/basemul.S consts.c asm/crepmod3.S asm/pack.S asm/cbd.S asm/sotp.S fips202/fips202.c
 HEADERS= asm.h api.h params.h poly.h symmetric.h util.h consts.h fips202/fips202.h fips202/keccakf1600.h
 
 
